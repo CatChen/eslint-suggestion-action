@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "postinstall": "build",
+    "postinstall": "yarn build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
