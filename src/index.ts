@@ -9,6 +9,9 @@ async function run() {
   const pullRequest = context.payload.pull_request as PullRequest;
   const baseSha = pullRequest.base.sha;
   const headSha = pullRequest.head.sha;
+  core.info(`Pull request number: ${pullRequest.number}`);
+  core.info(`Base SHA: ${baseSha}`);
+  core.info(`Head SHA: ${headSha}`);
   await octokit.rest.pulls.createReviewComment({
     ...context.repo,
     body: "Test comment from action",
