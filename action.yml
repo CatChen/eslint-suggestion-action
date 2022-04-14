@@ -1,0 +1,9 @@
+name: "ESLint Suggestion"
+description: "Pull Request Suggestions from ESLint"
+inputs:
+  github-token:
+    description: "GitHub token"
+    required: true
+runs:
+  using: "node16"
+  main: "lib/index.js"
