@@ -1,17 +1,18 @@
-import github from "@actions/github";
-import core from "@actions/core";
+import { getOctokit, context } from "@actions/github";
+import { getInput, info } from "@actions/core";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
 
 async function run() {
-  const githubToken = core.getInput("github-token");
-  const octokit = github.getOctokit(githubToken);
-  const context = github.context;
+  const githubToken = getInput("github-token");
+  const octokit = getOctokit(githubToken);
   const pullRequest = context.payload.pull_request as PullRequest;
   const baseSha = pullRequest.base.sha;
   const headSha = pullRequest.head.sha;
-  core.info(`Pull request number: ${pullRequest.number}`);
-  core.info(`Base SHA: ${baseSha}`);
-  core.info(`Head SHA: ${headSha}`);
+  info(`Repo: ${context.repo.repo}`);
+  info(`Owner: ${context.repo.owner}`);
+  info(`Pull request number: ${pullRequest.number}`);
+  info(`Base SHA: ${baseSha}`);
+  info(`Head SHA: ${headSha}`);
   await octokit.rest.pulls.createReviewComment({
     ...context.repo,
     body: "Test comment from action",
