@@ -9,6 +9,8 @@ async function run() {
   const pullRequest = context.payload.pull_request as PullRequest;
   const baseSha = pullRequest.base.sha;
   const headSha = pullRequest.head.sha;
+  core.info(`Repo: ${context.repo.repo}`);
+  core.info(`Owner: ${context.repo.owner}`);
   core.info(`Pull request number: ${pullRequest.number}`);
   core.info(`Base SHA: ${baseSha}`);
   core.info(`Head SHA: ${headSha}`);
