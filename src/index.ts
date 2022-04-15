@@ -22,6 +22,7 @@ async function run() {
   info(`Files: ${files.data.length}`);
   files.data.forEach((file) => {
     info(`File name: ${file.filename}`);
+    info(`File state: ${file.status}`);
   });
 
   await octokit.rest.pulls.createReviewComment({
