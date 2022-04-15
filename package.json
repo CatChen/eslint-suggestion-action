@@ -1,16 +1,18 @@
 {
   "name": "eslint-suggestion-action",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "type": "module",
   "devDependencies": {
     "@octokit/webhooks-definitions": "^3.67.3",
+    "@vercel/ncc": "^0.33.4",
     "typescript": "^4.6.3"
   },
   "scripts": {
-    "build": "tsc",
-    "postinstall": "build",
+    "build": "yarn tsc",
+    "package": "yarn ncc build src/index.ts --source-map --license licenses.txt",
+    "postinstall": "yarn build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

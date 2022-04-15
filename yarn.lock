@@ -129,6 +129,11 @@
   resolved "https://registry.yarnpkg.com/@octokit/webhooks-definitions/-/webhooks-definitions-3.67.3.tgz#d2a905a90b04af8111982d0c13658a49fc4eecb9"
   integrity sha512-do4Z1r2OVhuI0ihJhQ8Hg+yPWnBYEBNuFNCrvtPKoYT1w81jD7pBXgGe86lYuuNirkDHb0Nxt+zt4O5GiFJfgA==
 
+"@vercel/ncc@^0.33.4":
+  version "0.33.4"
+  resolved "https://registry.yarnpkg.com/@vercel/ncc/-/ncc-0.33.4.tgz#e44a87511f583b7ba88e4b9ae90eeb7ba252b872"
+  integrity sha512-ln18hs7dMffelP47tpkaR+V5Tj6coykNyxJrlcmCormPqRQjB/Gv4cu2FfBG+PMzIfdZp2CLDsrrB1NPU22Qhg==
+
 before-after-hook@^2.2.0:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/before-after-hook/-/before-after-hook-2.2.2.tgz#a6e8ca41028d90ee2c24222f201c90956091613e"
