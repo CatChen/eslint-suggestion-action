@@ -47,18 +47,19 @@ async function run(
   for (const file of response.data) {
     info(`File name: ${file.filename}`);
     info(`File state: ${file.status}`);
-    const response = await octokit.rest.pulls.createReviewComment({
-      owner,
-      repo,
-      body: `Test comment from action for ${file.filename}`,
-      pull_number: pullRequest.number,
-      commit_id: headSha,
-      path: file.filename,
-      position: 1,
-    });
-    info(
-      `Made test comment for ${file.filename} as ${response.data.pull_request_review_id}`
-    );
+    info(`File patch: \n${file.patch}\n`);
+    // const response = await octokit.rest.pulls.createReviewComment({
+    //   owner,
+    //   repo,
+    //   body: `Test comment from action for ${file.filename}`,
+    //   pull_number: pullRequest.number,
+    //   commit_id: headSha,
+    //   path: file.filename,
+    //   position: 1,
+    // });
+    // info(
+    //   `Made test comment for ${file.filename} as ${response.data.pull_request_review_id}`
+    // );
   }
 }
 
