@@ -13,23 +13,23 @@ async function run() {
   info(`Pull request number: ${pullRequest.number}`);
   info(`Base SHA: ${baseSha}`);
   info(`Head SHA: ${headSha}`);
-  info(`Diff hunk: ${pullRequest}`);
 
   const files = await octokit.rest.pulls.listFiles({
     ...context.repo,
     pull_number: pullRequest.number,
   });
   info(`Files: ${files.data.length}`);
-  files.data.forEach((file) => {
+  files.data.forEach(async (file) => {
     info(`File name: ${file.filename}`);
     info(`File state: ${file.status}`);
-  });
-
-  await octokit.rest.pulls.createReviewComment({
-    ...context.repo,
-    body: "Test comment from action",
-    pull_number: pullRequest.number,
-    commit_id: headSha,
+    await octokit.rest.pulls.createReviewComment({
+      ...context.repo,
+      body: "Test comment from action",
+      pull_number: pullRequest.number,
+      commit_id: headSha,
+      path: file.filename,
+      position: 1,
+    });
   });
 }
 
