@@ -8280,31 +8280,72 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
-function run() {
+const node_process_1 = __importDefault(__nccwpck_require__(7742));
+function run(mock = undefined) {
     return __awaiter(this, void 0, void 0, function* () {
-        const githubToken = (0, core_1.getInput)("github-token");
+        const githubToken = (mock === null || mock === void 0 ? void 0 : mock.token) || (0, core_1.getInput)("github-token");
         const octokit = (0, github_1.getOctokit)(githubToken);
-        const pullRequest = github_1.context.payload.pull_request;
+        let pullRequest;
+        if (mock) {
+            const response = yield octokit.rest.pulls.get({
+                owner: mock.owner,
+                repo: mock.repo,
+                pull_number: mock.number,
+            });
+            pullRequest = response.data;
+        }
+        else {
+            pullRequest = github_1.context.payload.pull_request;
+        }
+        const owner = (mock === null || mock === void 0 ? void 0 : mock.owner) || github_1.context.repo.owner;
+        const repo = (mock === null || mock === void 0 ? void 0 : mock.repo) || github_1.context.repo.repo;
         const baseSha = pullRequest.base.sha;
         const headSha = pullRequest.head.sha;
-        (0, core_1.info)(`Repo: ${github_1.context.repo.repo}`);
-        (0, core_1.info)(`Owner: ${github_1.context.repo.owner}`);
-        (0, core_1.info)(`Pull request number: ${pullRequest.number}`);
+        (0, core_1.info)(`Owner: ${owner}`);
+        (0, core_1.info)(`Repo: ${repo}`);
+        (0, core_1.info)(`Pull request number: ${(mock === null || mock === void 0 ? void 0 : mock.number) || pullRequest.number}`);
         (0, core_1.info)(`Base SHA: ${baseSha}`);
         (0, core_1.info)(`Head SHA: ${headSha}`);
-        (0, core_1.info)(`Diff hunk: ${pullRequest}`);
-        const files = yield octokit.rest.pulls.listFiles(Object.assign(Object.assign({}, github_1.context.repo), { pull_number: pullRequest.number }));
-        (0, core_1.info)(`Files: ${files.data.length}`);
-        files.data.forEach((file) => {
-            (0, core_1.info)(`File name: ${file.filename}`);
+        const response = yield octokit.rest.pulls.listFiles({
+            owner,
+            repo,
+            pull_number: pullRequest.number,
         });
-        yield octokit.rest.pulls.createReviewComment(Object.assign(Object.assign({}, github_1.context.repo), { body: "Test comment from action", pull_number: pullRequest.number, commit_id: headSha }));
+        (0, core_1.info)(`Files: ${response.data.length}`);
+        for (const file of response.data) {
+            (0, core_1.info)(`File name: ${file.filename}`);
+            (0, core_1.info)(`File state: ${file.status}`);
+            const response = yield octokit.rest.pulls.createReviewComment({
+                owner,
+                repo,
+                body: `Test comment from action for ${file.filename}`,
+                pull_number: pullRequest.number,
+                commit_id: headSha,
+                path: file.filename,
+                position: 1,
+            });
+            (0, core_1.info)(`Made test comment for ${file.filename} as ${response.data.pull_request_review_id}`);
+        }
     });
 }
-run();
+console.log(node_process_1.default.argv);
+if (node_process_1.default.argv.length === 6) {
+    run({
+        token: node_process_1.default.argv[2],
+        owner: node_process_1.default.argv[3],
+        repo: node_process_1.default.argv[4],
+        number: parseInt(node_process_1.default.argv[5]),
+    });
+}
+else {
+    run();
+}
 
 
 /***/ }),
@@ -8356,6 +8397,13 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("https");
 /***/ ((module) => {
 
 module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("net");
+
+/***/ }),
+
+/***/ 7742:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:process");
 
 /***/ }),
 
