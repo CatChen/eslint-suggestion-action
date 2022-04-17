@@ -18,26 +18,41 @@ async function run(
       }
     | undefined = undefined
 ) {
+  const eslintPath =
+    mock === undefined ? getInput("eslint-path") : "node_modules/.bin/eslint";
   let stdout = "";
   let stderr = "";
+  console.log(path.resolve(WORKING_DIRECTORY, eslintPath));
   try {
-    await exec("yarn -s eslint ./src --format json", [], {
-      listeners: {
-        stdout: (data: Buffer) => {
-          stdout += data.toString();
+    await exec(
+      path.resolve(WORKING_DIRECTORY, eslintPath),
+      [".", "--format", "json"],
+      {
+        listeners: {
+          stdout: (data: Buffer) => {
+            stdout += data.toString();
+          },
+          stderr: (data: Buffer) => {
+            stderr += data.toString();
+          },
         },
-        stderr: (data: Buffer) => {
-          stderr += data.toString();
-        },
-      },
-    });
+      }
+    );
   } catch (error) {}
   const results = JSON.parse(stdout);
 
+  const IndexedResults: {
+    [file: string]: {
+      filePath: string;
+      messages: { line: number; message: string; ruleId: string }[];
+    };
+  } = {};
   for (const file of results) {
-    info(`File name: ${path.relative(WORKING_DIRECTORY, file.filePath)}`);
+    const relativePath = path.relative(WORKING_DIRECTORY, file.filePath);
+    info(`File name: ${relativePath}`);
+    IndexedResults[relativePath] = file;
     for (const message of file.messages) {
-      console.log(message);
+      console.log(`${message.message} @ ${message.line}`);
     }
   }
 
@@ -77,6 +92,7 @@ async function run(
     info(`File state: ${file.status}`);
 
     const modifiedLines = [];
+    const indexedModifiedLines: { [line: string]: true } = {};
     let currentLine = 0;
     let remainingLinesInHunk = 0;
     const lines = file.patch?.split("\n");
@@ -96,6 +112,7 @@ async function run(
         } else {
           if (line[0] === "+") {
             modifiedLines.push(currentLine);
+            indexedModifiedLines[currentLine] = true;
           }
           currentLine++;
           remainingLinesInHunk--;
@@ -106,18 +123,25 @@ async function run(
     info(`File modified lines: ${modifiedLines.join()}`);
     info(`File patch: \n${file.patch}\n`);
 
-    // const response = await octokit.rest.pulls.createReviewComment({
-    //   owner,
-    //   repo,
-    //   body: `Test comment from action for ${file.filename}`,
-    //   pull_number: pullRequest.number,
-    //   commit_id: headSha,
-    //   path: file.filename,
-    //   position: 1,
-    // });
-    // info(
-    //   `Made test comment for ${file.filename} as ${response.data.pull_request_review_id}`
-    // );
+    const result = IndexedResults[file.filename];
+    if (result) {
+      for (const message of result.messages) {
+        if (indexedModifiedLines[message.line]) {
+          const response = await octokit.rest.pulls.createReviewComment({
+            owner,
+            repo,
+            body: `${message.message} (${message.ruleId})`,
+            pull_number: pullRequest.number,
+            commit_id: headSha,
+            path: file.filename,
+            position: 1,
+          });
+          info(
+            `Commented in ${file.filename}:${message.line} with ${message.ruleId}`
+          );
+        }
+      }
+    }
   }
 }
 

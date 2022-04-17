@@ -3,7 +3,12 @@ description: "Pull Request Suggestions from ESLint"
 inputs:
   github-token:
     description: "GitHub token"
-    required: true
+    required: false
+    default: ${{ github.token }}
+  eslint-path:
+    description: "Path to the eslint binary file"
+    required: false
+    default: "node_modules/.bin/eslint"
 runs:
   using: "node16"
   main: "dist/index.js"
