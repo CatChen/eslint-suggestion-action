@@ -157,12 +157,14 @@ async function run(
     }
 
     info(`  File modified lines: ${modifiedLines.join()}`);
-    info(
-      `  File patch: \n${file.patch
-        ?.split("\n")
-        .map((line) => "    " + line)
-        .join("\n")}\n`
-    );
+    if (file.patch !== undefined) {
+      info(
+        `  File patch: \n${file.patch
+          .split("\n")
+          .map((line) => "    " + line)
+          .join("\n")}\n`
+      );
+    }
 
     const result = IndexedResults[file.filename];
     if (result) {
