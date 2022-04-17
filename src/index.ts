@@ -173,27 +173,30 @@ async function run(
       for (const message of result.messages) {
         switch (message.severity) {
           case 0:
-            notice(`${message.message} (${message.ruleId})`, {
+            notice("", {
               file: file.filename,
               startLine: message.line,
               startColumn: message.column,
               endColumn: message.endColumn,
+              title: `${message.message} (${message.ruleId})`,
             });
             break;
           case 1:
-            warning(`${message.message} (${message.ruleId})`, {
+            warning("", {
               file: file.filename,
               startLine: message.line,
               startColumn: message.column,
               endColumn: message.endColumn,
+              title: `${message.message} (${message.ruleId})`,
             });
             break;
           case 2:
-            error(`${message.message} (${message.ruleId})`, {
+            error("", {
               file: file.filename,
               startLine: message.line,
               startColumn: message.column,
               endColumn: message.endColumn,
+              title: `${message.message} (${message.ruleId})`,
             });
             break;
           default:
