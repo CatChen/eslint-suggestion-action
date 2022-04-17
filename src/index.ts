@@ -169,39 +169,39 @@ async function run(
       const source = result.source.split("\n");
       const sourceLineLengths = source.map((line) => line.length);
       for (const message of result.messages) {
+        switch (message.severity) {
+          case 0:
+            notice(`${message.message} (${message.ruleId})`, {
+              file: file.filename,
+              startLine: message.line,
+              startColumn: message.column,
+              endColumn: message.endColumn,
+              title: `${message.message} (${message.ruleId})`,
+            });
+            break;
+          case 1:
+            warning(`${message.message} (${message.ruleId})`, {
+              file: file.filename,
+              startLine: message.line,
+              startColumn: message.column,
+              endColumn: message.endColumn,
+              title: `${message.message} (${message.ruleId})`,
+            });
+            break;
+          case 2:
+            error(`${message.message} (${message.ruleId})`, {
+              file: file.filename,
+              startLine: message.line,
+              startColumn: message.column,
+              endColumn: message.endColumn,
+              title: `${message.message} (${message.ruleId})`,
+            });
+            break;
+          default:
+            throw new Error(`Unrecognized severity: ${message.severity}`);
+        }
         if (indexedModifiedLines[message.line]) {
           info(`  Matched line: ${message.line}`);
-          switch (message.severity) {
-            case 0:
-              notice(`${message.message} (${message.ruleId})`, {
-                file: file.filename,
-                startLine: message.line,
-                startColumn: message.column,
-                endColumn: message.endColumn,
-                title: `${message.message} (${message.ruleId})`,
-              });
-              break;
-            case 1:
-              warning(`${message.message} (${message.ruleId})`, {
-                file: file.filename,
-                startLine: message.line,
-                startColumn: message.column,
-                endColumn: message.endColumn,
-                title: `${message.message} (${message.ruleId})`,
-              });
-              break;
-            case 2:
-              error(`${message.message} (${message.ruleId})`, {
-                file: file.filename,
-                startLine: message.line,
-                startColumn: message.column,
-                endColumn: message.endColumn,
-                title: `${message.message} (${message.ruleId})`,
-              });
-              break;
-            default:
-              throw new Error(`Unrecognized severity: ${message.severity}`);
-          }
           if (message.fix) {
             const beforeSourceLength = sourceLineLengths
               .slice(0, message.line - 1)

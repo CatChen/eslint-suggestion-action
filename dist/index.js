@@ -9664,39 +9664,39 @@ function run(mock = undefined) {
                 const source = result.source.split("\n");
                 const sourceLineLengths = source.map((line) => line.length);
                 for (const message of result.messages) {
+                    switch (message.severity) {
+                        case 0:
+                            (0, core_1.notice)(`${message.message} (${message.ruleId})`, {
+                                file: file.filename,
+                                startLine: message.line,
+                                startColumn: message.column,
+                                endColumn: message.endColumn,
+                                title: `${message.message} (${message.ruleId})`,
+                            });
+                            break;
+                        case 1:
+                            (0, core_1.warning)(`${message.message} (${message.ruleId})`, {
+                                file: file.filename,
+                                startLine: message.line,
+                                startColumn: message.column,
+                                endColumn: message.endColumn,
+                                title: `${message.message} (${message.ruleId})`,
+                            });
+                            break;
+                        case 2:
+                            (0, core_1.error)(`${message.message} (${message.ruleId})`, {
+                                file: file.filename,
+                                startLine: message.line,
+                                startColumn: message.column,
+                                endColumn: message.endColumn,
+                                title: `${message.message} (${message.ruleId})`,
+                            });
+                            break;
+                        default:
+                            throw new Error(`Unrecognized severity: ${message.severity}`);
+                    }
                     if (indexedModifiedLines[message.line]) {
                         (0, core_1.info)(`  Matched line: ${message.line}`);
-                        switch (message.severity) {
-                            case 0:
-                                (0, core_1.notice)(`${message.message} (${message.ruleId})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                    startColumn: message.column,
-                                    endColumn: message.endColumn,
-                                    title: `${message.message} (${message.ruleId})`,
-                                });
-                                break;
-                            case 1:
-                                (0, core_1.warning)(`${message.message} (${message.ruleId})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                    startColumn: message.column,
-                                    endColumn: message.endColumn,
-                                    title: `${message.message} (${message.ruleId})`,
-                                });
-                                break;
-                            case 2:
-                                (0, core_1.error)(`${message.message} (${message.ruleId})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                    startColumn: message.column,
-                                    endColumn: message.endColumn,
-                                    title: `${message.message} (${message.ruleId})`,
-                                });
-                                break;
-                            default:
-                                throw new Error(`Unrecognized severity: ${message.severity}`);
-                        }
                         if (message.fix) {
                             const beforeSourceLength = sourceLineLengths
                                 .slice(0, message.line - 1)
