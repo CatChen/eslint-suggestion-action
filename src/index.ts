@@ -150,7 +150,7 @@ async function run(
               .reduce((previous, current) => previous + current, 0);
             const replaceIndexStart = message.fix.range[0];
             const replaceIndexEnd = message.fix.range[1];
-            const originalLine = source[message.line];
+            const originalLine = source[message.line - 1];
             const replacedLine =
               originalLine.substring(0, replaceIndexStart) +
               message.fix.text +
@@ -160,10 +160,10 @@ async function run(
               owner,
               repo,
               body: `${message.message} (${message.ruleId})
-              
-              \`\`\`suggestion
-              ${replacedLine}
-              \`\`\``,
+
+\`\`\`suggestion
+${replacedLine}
+\`\`\``,
               pull_number: pullRequest.number,
               commit_id: headSha,
               path: file.filename,
