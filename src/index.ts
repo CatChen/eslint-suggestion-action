@@ -214,7 +214,9 @@ async function run(
               message.fix.text +
               originalLine.substring(replaceIndexEnd);
             info(
-              `    Fix:\n${originalLine} => ${replacedLine} @ ${message.line}`
+              "    Fix:\n" +
+                "      " +
+                `${originalLine} => ${replacedLine} @ ${message.line}`.trim()
             );
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
@@ -243,7 +245,9 @@ async function run(
                 suggestion.fix.text +
                 originalLine.substring(replaceIndexEnd);
               info(
-                `    Suggestion:\n${originalLine} => ${replacedLine} @ ${message.line}`
+                "    Suggestion:\n" +
+                  "      " +
+                  `${originalLine} => ${replacedLine} @ ${message.line}`.trim()
               );
               const response = await octokit.rest.pulls.createReviewComment({
                 owner,
