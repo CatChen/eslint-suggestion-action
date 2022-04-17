@@ -14,7 +14,6 @@ import { Linter } from "eslint";
 import process from "node:process";
 import path from "node:path";
 import { existsSync } from "node:fs";
-import { countReset } from "node:console";
 
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
