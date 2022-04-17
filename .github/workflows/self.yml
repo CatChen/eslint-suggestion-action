@@ -22,4 +22,4 @@ jobs:
       - name: Build
         run: yarn build
 
-      - uses: CatChen/eslint-suggestion-action@v1.1.13
+      - uses: CatChen/eslint-suggestion-action@v1.1.14
