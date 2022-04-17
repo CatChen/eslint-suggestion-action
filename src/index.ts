@@ -1,10 +1,19 @@
 import { getOctokit, context } from "@actions/github";
-import { getInput, info, startGroup, endGroup } from "@actions/core";
+import {
+  getInput,
+  info,
+  startGroup,
+  endGroup,
+  notice,
+  warning,
+  error,
+} from "@actions/core";
 import { exec } from "@actions/exec";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
 import process from "node:process";
 import path from "node:path";
 import { existsSync } from "node:fs";
+import { countReset } from "node:console";
 
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
@@ -51,10 +60,18 @@ async function run(
       filePath: string;
       source: string;
       messages: {
+        severity: number;
         line: number;
+        column: number;
+        endColumn: number;
         message: string;
         ruleId: string;
-        fix: { range: number[]; text: string };
+        fix?: { range: number[]; text: string };
+        suggestions?: {
+          messageId: string;
+          fix: { range: number[]; text: string };
+          desc: string;
+        }[];
       }[];
     };
   } = {};
@@ -143,6 +160,35 @@ async function run(
       for (const message of result.messages) {
         if (indexedModifiedLines[message.line]) {
           info(`Line matched: ${message.line}`);
+          switch (message.severity) {
+            case 0:
+              notice(`${message.message} (${message.ruleId})`, {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              });
+              break;
+            case 1:
+              warning(`${message.message} (${message.ruleId})`, {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              });
+              break;
+            case 2:
+              error(`${message.message} (${message.ruleId})`, {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              });
+              break;
+          }
           if (message.fix) {
             const beforeSourceLength = sourceLineLengths
               .slice(0, message.line - 1)
@@ -154,38 +200,52 @@ async function run(
               originalLine.substring(0, replaceIndexStart) +
               message.fix.text +
               originalLine.substring(replaceIndexEnd);
-            info(`Suggestion:\n${originalLine} => ${replacedLine}`);
+            info(`Fix:\n${originalLine} => ${replacedLine} @ ${message.line}`);
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
               repo,
-              body:
-                `${message.message} (${message.ruleId})\n\n` +
-                "```suggestion\n" +
-                `${replacedLine}\n` +
-                "```\n",
+              body: "```suggestion\n" + `${replacedLine}\n` + "```\n",
               pull_number: pullRequest.number,
               commit_id: headSha,
               path: file.filename,
               side: "RIGHT",
               line: message.line,
             });
-            info(
-              `Commented in ${file.filename}:${message.line} with ${message.ruleId} plus fix`
-            );
-          } else {
-            const response = await octokit.rest.pulls.createReviewComment({
-              owner,
-              repo,
-              body: `${message.message} (${message.ruleId})`,
-              pull_number: pullRequest.number,
-              commit_id: headSha,
-              path: file.filename,
-              side: "RIGHT",
-              line: message.line,
-            });
-            info(
-              `Commented in ${file.filename}:${message.line} with ${message.ruleId}`
-            );
+            info(`Commented with fix`);
+          }
+          if (message.suggestions) {
+            for (const suggestion of message.suggestions) {
+              const beforeSourceLength = sourceLineLengths
+                .slice(0, message.line - 1)
+                .reduce((previous, current) => previous + current, 0);
+              const replaceIndexStart =
+                suggestion.fix.range[0] - beforeSourceLength;
+              const replaceIndexEnd =
+                suggestion.fix.range[1] - beforeSourceLength;
+              const originalLine = source[message.line - 1];
+              const replacedLine =
+                originalLine.substring(0, replaceIndexStart) +
+                suggestion.fix.text +
+                originalLine.substring(replaceIndexEnd);
+              info(
+                `Suggestion:\n${originalLine} => ${replacedLine} @ ${message.line}`
+              );
+              const response = await octokit.rest.pulls.createReviewComment({
+                owner,
+                repo,
+                body:
+                  `${suggestion.desc} (${suggestion.messageId})\n\n` +
+                  "```suggestion\n" +
+                  `${replacedLine}\n` +
+                  "```\n",
+                pull_number: pullRequest.number,
+                commit_id: headSha,
+                path: file.filename,
+                side: "RIGHT",
+                line: message.line,
+              });
+              info(`Commented with suggestion`);
+            }
           }
         }
       }

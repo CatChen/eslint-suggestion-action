@@ -9660,6 +9660,35 @@ function run(mock = undefined) {
                 for (const message of result.messages) {
                     if (indexedModifiedLines[message.line]) {
                         (0, core_1.info)(`Line matched: ${message.line}`);
+                        switch (message.severity) {
+                            case 0:
+                                (0, core_1.notice)(`${message.message} (${message.ruleId})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                    startColumn: message.column,
+                                    endColumn: message.endColumn,
+                                    title: `${message.message} (${message.ruleId})`,
+                                });
+                                break;
+                            case 1:
+                                (0, core_1.warning)(`${message.message} (${message.ruleId})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                    startColumn: message.column,
+                                    endColumn: message.endColumn,
+                                    title: `${message.message} (${message.ruleId})`,
+                                });
+                                break;
+                            case 2:
+                                (0, core_1.error)(`${message.message} (${message.ruleId})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                    startColumn: message.column,
+                                    endColumn: message.endColumn,
+                                    title: `${message.message} (${message.ruleId})`,
+                                });
+                                break;
+                        }
                         if (message.fix) {
                             const beforeSourceLength = sourceLineLengths
                                 .slice(0, message.line - 1)
@@ -9670,34 +9699,46 @@ function run(mock = undefined) {
                             const replacedLine = originalLine.substring(0, replaceIndexStart) +
                                 message.fix.text +
                                 originalLine.substring(replaceIndexEnd);
-                            (0, core_1.info)(`Suggestion:\n${originalLine} => ${replacedLine}`);
+                            (0, core_1.info)(`Fix:\n${originalLine} => ${replacedLine} @ ${message.line}`);
                             const response = yield octokit.rest.pulls.createReviewComment({
                                 owner,
                                 repo,
-                                body: `${message.message} (${message.ruleId})\n\n` +
-                                    "```suggestion\n" +
-                                    `${replacedLine}\n` +
-                                    "```\n",
+                                body: "```suggestion\n" + `${replacedLine}\n` + "```\n",
                                 pull_number: pullRequest.number,
                                 commit_id: headSha,
                                 path: file.filename,
                                 side: "RIGHT",
                                 line: message.line,
                             });
-                            (0, core_1.info)(`Commented in ${file.filename}:${message.line} with ${message.ruleId} plus fix`);
+                            (0, core_1.info)(`Commented with fix`);
                         }
-                        else {
-                            const response = yield octokit.rest.pulls.createReviewComment({
-                                owner,
-                                repo,
-                                body: `${message.message} (${message.ruleId})`,
-                                pull_number: pullRequest.number,
-                                commit_id: headSha,
-                                path: file.filename,
-                                side: "RIGHT",
-                                line: message.line,
-                            });
-                            (0, core_1.info)(`Commented in ${file.filename}:${message.line} with ${message.ruleId}`);
+                        if (message.suggestions) {
+                            for (const suggestion of message.suggestions) {
+                                const beforeSourceLength = sourceLineLengths
+                                    .slice(0, message.line - 1)
+                                    .reduce((previous, current) => previous + current, 0);
+                                const replaceIndexStart = suggestion.fix.range[0] - beforeSourceLength;
+                                const replaceIndexEnd = suggestion.fix.range[1] - beforeSourceLength;
+                                const originalLine = source[message.line - 1];
+                                const replacedLine = originalLine.substring(0, replaceIndexStart) +
+                                    suggestion.fix.text +
+                                    originalLine.substring(replaceIndexEnd);
+                                (0, core_1.info)(`Suggestion:\n${originalLine} => ${replacedLine} @ ${message.line}`);
+                                const response = yield octokit.rest.pulls.createReviewComment({
+                                    owner,
+                                    repo,
+                                    body: `${suggestion.desc} (${suggestion.messageId})\n\n` +
+                                        "```suggestion\n" +
+                                        `${replacedLine}\n` +
+                                        "```\n",
+                                    pull_number: pullRequest.number,
+                                    commit_id: headSha,
+                                    path: file.filename,
+                                    side: "RIGHT",
+                                    line: message.line,
+                                });
+                                (0, core_1.info)(`Commented with suggestion`);
+                            }
                         }
                     }
                 }
