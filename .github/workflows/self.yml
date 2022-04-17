@@ -22,6 +22,6 @@ jobs:
       - name: Build
         run: yarn build
 
-      - uses: CatChen/eslint-suggestion-action@v1.1.17
+      - uses: CatChen/eslint-suggestion-action@v1.1.18
         with:
           github-workspace: ${{ github.workspace }}
