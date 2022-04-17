@@ -1,9 +1,10 @@
 import { getOctokit, context } from "@actions/github";
-import { getInput, info } from "@actions/core";
+import { getInput, info, startGroup, endGroup } from "@actions/core";
 import { exec } from "@actions/exec";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
 import process from "node:process";
 import path from "node:path";
+import { existsSync } from "node:fs";
 
 const HUNK_HEADER_PATTERN = /^@@ \-\d+,\d+ \+(\d+),(\d+) @@/;
 const WORKING_DIRECTORY = process.cwd();
@@ -18,8 +19,12 @@ async function run(
       }
     | undefined = undefined
 ) {
+  startGroup("ESLint");
   const eslintPath =
     mock === undefined ? getInput("eslint-path") : "node_modules/.bin/eslint";
+  if (!existsSync(eslintPath)) {
+    throw new Error(`ESLint cannot be found at ${existsSync}`);
+  }
   let stdout = "";
   let stderr = "";
   console.log(path.resolve(WORKING_DIRECTORY, eslintPath));
@@ -52,10 +57,12 @@ async function run(
     info(`File name: ${relativePath}`);
     IndexedResults[relativePath] = file;
     for (const message of file.messages) {
-      console.log(`${message.message} @ ${message.line}`);
+      info(`${message.message} @ ${message.line}`);
     }
   }
+  endGroup();
 
+  startGroup("GitHub Comment");
   const githubToken = mock?.token || getInput("github-token");
   const octokit = getOctokit(githubToken);
 
@@ -143,6 +150,7 @@ async function run(
       }
     }
   }
+  endGroup();
 }
 
 console.log(process.argv);

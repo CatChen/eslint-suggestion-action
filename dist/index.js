@@ -9552,12 +9552,17 @@ const core_1 = __nccwpck_require__(2186);
 const exec_1 = __nccwpck_require__(1514);
 const node_process_1 = __importDefault(__nccwpck_require__(7742));
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
+const node_fs_1 = __nccwpck_require__(7561);
 const HUNK_HEADER_PATTERN = /^@@ \-\d+,\d+ \+(\d+),(\d+) @@/;
 const WORKING_DIRECTORY = node_process_1.default.cwd();
 function run(mock = undefined) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.startGroup)("ESLint");
         const eslintPath = mock === undefined ? (0, core_1.getInput)("eslint-path") : "node_modules/.bin/eslint";
+        if (!(0, node_fs_1.existsSync)(eslintPath)) {
+            throw new Error(`ESLint cannot be found at ${node_fs_1.existsSync}`);
+        }
         let stdout = "";
         let stderr = "";
         console.log(node_path_1.default.resolve(WORKING_DIRECTORY, eslintPath));
@@ -9581,9 +9586,11 @@ function run(mock = undefined) {
             (0, core_1.info)(`File name: ${relativePath}`);
             IndexedResults[relativePath] = file;
             for (const message of file.messages) {
-                console.log(`${message.message} @ ${message.line}`);
+                (0, core_1.info)(`${message.message} @ ${message.line}`);
             }
         }
+        (0, core_1.endGroup)();
+        (0, core_1.startGroup)("GitHub Comment");
         const githubToken = (mock === null || mock === void 0 ? void 0 : mock.token) || (0, core_1.getInput)("github-token");
         const octokit = (0, github_1.getOctokit)(githubToken);
         let pullRequest;
@@ -9664,6 +9671,7 @@ function run(mock = undefined) {
                 }
             }
         }
+        (0, core_1.endGroup)();
     });
 }
 console.log(node_process_1.default.argv);
@@ -9736,6 +9744,13 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("https");
 /***/ ((module) => {
 
 module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("net");
+
+/***/ }),
+
+/***/ 7561:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
 
 /***/ }),
 
