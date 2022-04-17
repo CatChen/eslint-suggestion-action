@@ -1,9 +1,12 @@
 import { getOctokit, context } from "@actions/github";
 import { getInput, info } from "@actions/core";
+import { exec } from "@actions/exec";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
 import process from "node:process";
+import path from "node:path";
 
 const HUNK_HEADER_PATTERN = /^@@ \-\d+,\d+ \+(\d+),(\d+) @@/;
+const WORKING_DIRECTORY = process.cwd();
 
 async function run(
   mock:
@@ -15,6 +18,29 @@ async function run(
       }
     | undefined = undefined
 ) {
+  let stdout = "";
+  let stderr = "";
+  try {
+    await exec("yarn -s eslint ./src --format json", [], {
+      listeners: {
+        stdout: (data: Buffer) => {
+          stdout += data.toString();
+        },
+        stderr: (data: Buffer) => {
+          stderr += data.toString();
+        },
+      },
+    });
+  } catch (error) {}
+  const results = JSON.parse(stdout);
+
+  for (const file of results) {
+    info(`File name: ${path.relative(WORKING_DIRECTORY, file.filePath)}`);
+    for (const message of file.messages) {
+      console.log(message);
+    }
+  }
+
   const githubToken = mock?.token || getInput("github-token");
   const octokit = getOctokit(githubToken);
 
