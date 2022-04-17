@@ -9671,7 +9671,7 @@ function run(mock = undefined) {
                 for (const message of result.messages) {
                     switch (message.severity) {
                         case 0:
-                            (0, core_1.notice)("", {
+                            (0, core_1.notice)(`${message.message} (${message.ruleId})`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9680,7 +9680,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 1:
-                            (0, core_1.warning)("", {
+                            (0, core_1.warning)(`${message.message} (${message.ruleId})`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9689,7 +9689,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 2:
-                            (0, core_1.error)("", {
+                            (0, core_1.error)(`${message.message} (${message.ruleId})`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,

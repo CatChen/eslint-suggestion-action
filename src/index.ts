@@ -10,6 +10,7 @@ import {
 } from "@actions/core";
 import { exec } from "@actions/exec";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
+import { Linter } from "eslint";
 import process from "node:process";
 import path from "node:path";
 import { existsSync } from "node:fs";
@@ -17,6 +18,7 @@ import { countReset } from "node:console";
 
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
+const ESLINT_RULES = new Linter().getRules();
 
 async function run(
   mock:
@@ -173,31 +175,46 @@ async function run(
       for (const message of result.messages) {
         switch (message.severity) {
           case 0:
-            notice("", {
-              file: file.filename,
-              startLine: message.line,
-              startColumn: message.column,
-              endColumn: message.endColumn,
-              title: `${message.message} (${message.ruleId})`,
-            });
+            notice(
+              `${
+                ESLINT_RULES.get(message.ruleId)?.meta?.docs?.description
+              }\n{ESLINT_RULES.get(message.ruleId)?.meta?.docs?.url}`,
+              {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              }
+            );
             break;
           case 1:
-            warning("", {
-              file: file.filename,
-              startLine: message.line,
-              startColumn: message.column,
-              endColumn: message.endColumn,
-              title: `${message.message} (${message.ruleId})`,
-            });
+            warning(
+              `${
+                ESLINT_RULES.get(message.ruleId)?.meta?.docs?.description
+              }\n{ESLINT_RULES.get(message.ruleId)?.meta?.docs?.url}`,
+              {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              }
+            );
             break;
           case 2:
-            error("", {
-              file: file.filename,
-              startLine: message.line,
-              startColumn: message.column,
-              endColumn: message.endColumn,
-              title: `${message.message} (${message.ruleId})`,
-            });
+            error(
+              `${
+                ESLINT_RULES.get(message.ruleId)?.meta?.docs?.description
+              }\n{ESLINT_RULES.get(message.ruleId)?.meta?.docs?.url}`,
+              {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              }
+            );
             break;
           default:
             throw new Error(`Unrecognized severity: ${message.severity}`);
