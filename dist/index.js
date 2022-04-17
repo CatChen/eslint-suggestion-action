@@ -9707,7 +9707,9 @@ function run(mock = undefined) {
                             const replacedLine = originalLine.substring(0, replaceIndexStart) +
                                 message.fix.text +
                                 originalLine.substring(replaceIndexEnd);
-                            (0, core_1.info)(`    Fix:\n${originalLine} => ${replacedLine} @ ${message.line}`);
+                            (0, core_1.info)("    Fix:\n" +
+                                "      " +
+                                `${originalLine} => ${replacedLine} @ ${message.line}`.trim());
                             const response = yield octokit.rest.pulls.createReviewComment({
                                 owner,
                                 repo,
@@ -9731,7 +9733,9 @@ function run(mock = undefined) {
                                 const replacedLine = originalLine.substring(0, replaceIndexStart) +
                                     suggestion.fix.text +
                                     originalLine.substring(replaceIndexEnd);
-                                (0, core_1.info)(`    Suggestion:\n${originalLine} => ${replacedLine} @ ${message.line}`);
+                                (0, core_1.info)("    Suggestion:\n" +
+                                    "      " +
+                                    `${originalLine} => ${replacedLine} @ ${message.line}`.trim());
                                 const response = yield octokit.rest.pulls.createReviewComment({
                                     owner,
                                     repo,
