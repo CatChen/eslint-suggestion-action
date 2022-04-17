@@ -179,6 +179,7 @@ async function run(
               body: `${message.message} (${message.ruleId})`,
               pull_number: pullRequest.number,
               commit_id: headSha,
+              path: file.filename,
               side: "RIGHT",
               line: message.line,
             });
