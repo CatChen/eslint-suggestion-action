@@ -8287,7 +8287,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
 const node_process_1 = __importDefault(__nccwpck_require__(7742));
+const HUNK_HEADER_PATTERN = /^@@ \-\d+,\d+ \+(\d+),(\d+) @@/;
 function run(mock = undefined) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const githubToken = (mock === null || mock === void 0 ? void 0 : mock.token) || (0, core_1.getInput)("github-token");
         const octokit = (0, github_1.getOctokit)(githubToken);
@@ -8321,6 +8323,33 @@ function run(mock = undefined) {
         for (const file of response.data) {
             (0, core_1.info)(`File name: ${file.filename}`);
             (0, core_1.info)(`File state: ${file.status}`);
+            const modifiedLines = [];
+            let currentLine = 0;
+            let remainingLinesInHunk = 0;
+            const lines = (_a = file.patch) === null || _a === void 0 ? void 0 : _a.split("\n");
+            if (lines) {
+                for (const line of lines) {
+                    if (remainingLinesInHunk === 0) {
+                        const matches = line.match(HUNK_HEADER_PATTERN);
+                        currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[1]) || "0");
+                        remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || "0");
+                        if (!currentLine || !remainingLinesInHunk) {
+                            throw new Error(`Expecting hunk header in ${file.filename} but seeing ${line}.`);
+                        }
+                    }
+                    else if (line[0] === "-") {
+                        continue;
+                    }
+                    else {
+                        if (line[0] === "+") {
+                            modifiedLines.push(currentLine);
+                        }
+                        currentLine++;
+                        remainingLinesInHunk--;
+                    }
+                }
+            }
+            (0, core_1.info)(`File modified lines: ${modifiedLines.join()}`);
             (0, core_1.info)(`File patch: \n${file.patch}\n`);
             // const response = await octokit.rest.pulls.createReviewComment({
             //   owner,
