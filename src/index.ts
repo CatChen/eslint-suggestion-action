@@ -178,7 +178,6 @@ async function run(
               startLine: message.line,
               startColumn: message.column,
               endColumn: message.endColumn,
-              title: `${message.message} (${message.ruleId})`,
             });
             break;
           case 1:
@@ -187,7 +186,6 @@ async function run(
               startLine: message.line,
               startColumn: message.column,
               endColumn: message.endColumn,
-              title: `${message.message} (${message.ruleId})`,
             });
             break;
           case 2:
@@ -196,7 +194,6 @@ async function run(
               startLine: message.line,
               startColumn: message.column,
               endColumn: message.endColumn,
-              title: `${message.message} (${message.ruleId})`,
             });
             break;
           default:
