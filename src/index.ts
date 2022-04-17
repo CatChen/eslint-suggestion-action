@@ -49,7 +49,13 @@ async function run(
   const IndexedResults: {
     [file: string]: {
       filePath: string;
-      messages: { line: number; message: string; ruleId: string }[];
+      source: string;
+      messages: {
+        line: number;
+        message: string;
+        ruleId: string;
+        fix: { range: number[]; text: string };
+      }[];
     };
   } = {};
   for (const file of results) {
@@ -132,20 +138,54 @@ async function run(
 
     const result = IndexedResults[file.filename];
     if (result) {
+      const source = result.source.split("\n");
+      const sourceLineLengths = source.map((line) => line.length);
       for (const message of result.messages) {
+        console.log(message.line, indexedModifiedLines[message.line]);
         if (indexedModifiedLines[message.line]) {
-          const response = await octokit.rest.pulls.createReviewComment({
-            owner,
-            repo,
-            body: `${message.message} (${message.ruleId})`,
-            pull_number: pullRequest.number,
-            commit_id: headSha,
-            path: file.filename,
-            position: 1,
-          });
-          info(
-            `Commented in ${file.filename}:${message.line} with ${message.ruleId}`
-          );
+          info(`Line matched: ${message.line}`);
+          if (message.fix) {
+            const beforeSourceLength = sourceLineLengths
+              .slice(0, message.line)
+              .reduce((previous, current) => previous + current, 0);
+            const replaceIndexStart = message.fix.range[0];
+            const replaceIndexEnd = message.fix.range[1];
+            const originalLine = source[message.line];
+            const replacedLine =
+              originalLine.substring(0, replaceIndexStart) +
+              message.fix.text +
+              originalLine.substring(replaceIndexEnd);
+            info(`Suggestion:\n${originalLine} => ${replacedLine}`);
+            const response = await octokit.rest.pulls.createReviewComment({
+              owner,
+              repo,
+              body: `${message.message} (${message.ruleId})
+              
+              \`\`\`suggestion
+              ${replacedLine}
+              \`\`\``,
+              pull_number: pullRequest.number,
+              commit_id: headSha,
+              path: file.filename,
+              position: 1,
+            });
+            info(
+              `Commented in ${file.filename}:${message.line} with ${message.ruleId} plus fix`
+            );
+          } else {
+            const response = await octokit.rest.pulls.createReviewComment({
+              owner,
+              repo,
+              body: `${message.message} (${message.ruleId})`,
+              pull_number: pullRequest.number,
+              commit_id: headSha,
+              path: file.filename,
+              position: 1,
+            });
+            info(
+              `Commented in ${file.filename}:${message.line} with ${message.ruleId}`
+            );
+          }
         }
       }
     }
