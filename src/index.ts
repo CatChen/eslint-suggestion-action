@@ -27,7 +27,7 @@ async function run(
   }
   let stdout = "";
   let stderr = "";
-  console.log(path.resolve(WORKING_DIRECTORY, eslintPath));
+  info(`Using ESLint from: ${path.resolve(WORKING_DIRECTORY, eslintPath)}`);
   try {
     await exec(
       path.resolve(WORKING_DIRECTORY, eslintPath),
@@ -141,7 +141,6 @@ async function run(
       const source = result.source.split("\n");
       const sourceLineLengths = source.map((line) => line.length);
       for (const message of result.messages) {
-        console.log(message.line, indexedModifiedLines[message.line]);
         if (indexedModifiedLines[message.line]) {
           info(`Line matched: ${message.line}`);
           if (message.fix) {
@@ -194,7 +193,6 @@ async function run(
   endGroup();
 }
 
-console.log(process.argv);
 if (process.argv.length === 6) {
   run({
     token: process.argv[2],
