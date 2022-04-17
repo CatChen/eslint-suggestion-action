@@ -9550,13 +9550,15 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
 const exec_1 = __nccwpck_require__(1514);
+const eslint_1 = __nccwpck_require__(6764);
 const node_process_1 = __importDefault(__nccwpck_require__(7742));
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const node_fs_1 = __nccwpck_require__(7561);
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = node_process_1.default.cwd();
+const ESLINT_RULES = new eslint_1.Linter().getRules();
 function run(mock = undefined) {
-    var _a;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)("ESLint");
         const eslintPath = mock === undefined ? (0, core_1.getInput)("eslint-path") : "node_modules/.bin/eslint";
@@ -9671,7 +9673,7 @@ function run(mock = undefined) {
                 for (const message of result.messages) {
                     switch (message.severity) {
                         case 0:
-                            (0, core_1.notice)(`${message.message} (${message.ruleId})`, {
+                            (0, core_1.notice)(`${(_d = (_c = (_b = ESLINT_RULES.get(message.ruleId)) === null || _b === void 0 ? void 0 : _b.meta) === null || _c === void 0 ? void 0 : _c.docs) === null || _d === void 0 ? void 0 : _d.description}\n{ESLINT_RULES.get(message.ruleId)?.meta?.docs?.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9680,7 +9682,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 1:
-                            (0, core_1.warning)(`${message.message} (${message.ruleId})`, {
+                            (0, core_1.warning)(`${(_g = (_f = (_e = ESLINT_RULES.get(message.ruleId)) === null || _e === void 0 ? void 0 : _e.meta) === null || _f === void 0 ? void 0 : _f.docs) === null || _g === void 0 ? void 0 : _g.description}\n{ESLINT_RULES.get(message.ruleId)?.meta?.docs?.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9689,7 +9691,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 2:
-                            (0, core_1.error)(`${message.message} (${message.ruleId})`, {
+                            (0, core_1.error)(`${(_k = (_j = (_h = ESLINT_RULES.get(message.ruleId)) === null || _h === void 0 ? void 0 : _h.meta) === null || _j === void 0 ? void 0 : _j.docs) === null || _k === void 0 ? void 0 : _k.description}\n{ESLINT_RULES.get(message.ruleId)?.meta?.docs?.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9798,6 +9800,13 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("assert");
 /***/ ((module) => {
 
 module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("child_process");
+
+/***/ }),
+
+/***/ 6764:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("eslint");
 
 /***/ }),
 
