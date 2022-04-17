@@ -10,14 +10,12 @@ import {
 } from "@actions/core";
 import { exec } from "@actions/exec";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
-import { Linter } from "eslint";
 import process from "node:process";
 import path from "node:path";
 import { existsSync } from "node:fs";
 
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
-const ESLINT_RULES = new Linter().getRules();
 
 async function run(
   mock:
@@ -29,30 +27,41 @@ async function run(
       }
     | undefined = undefined
 ) {
+  const githubWorkspace =
+    mock === undefined ? getInput("github-workspace") : path.resolve(".");
+  const eslintJsPath = path.resolve(
+    githubWorkspace,
+    "./node_modules/eslint/lib/api.js"
+  );
+  if (!existsSync(eslintJsPath)) {
+    throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
+  }
+  info(`Using ESLint from: ${eslintJsPath}`);
+  const { Linter } = await import(eslintJsPath);
+  const eslintRules = new Linter().getRules();
+
   startGroup("ESLint");
-  const eslintPath =
-    mock === undefined ? getInput("eslint-path") : "node_modules/.bin/eslint";
-  if (!existsSync(eslintPath)) {
-    throw new Error(`ESLint cannot be found at ${existsSync}`);
+  const eslintBinPath = path.resolve(
+    WORKING_DIRECTORY,
+    mock === undefined ? getInput("eslint-path") : "node_modules/.bin/eslint"
+  );
+  if (!existsSync(eslintBinPath)) {
+    throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
   }
   let stdout = "";
   let stderr = "";
-  info(`Using ESLint from: ${path.resolve(WORKING_DIRECTORY, eslintPath)}`);
+  info(`Using ESLint binary from: ${eslintBinPath}`);
   try {
-    await exec(
-      path.resolve(WORKING_DIRECTORY, eslintPath),
-      [".", "--format", "json"],
-      {
-        listeners: {
-          stdout: (data: Buffer) => {
-            stdout += data.toString();
-          },
-          stderr: (data: Buffer) => {
-            stderr += data.toString();
-          },
+    await exec(eslintBinPath, [".", "--format", "json"], {
+      listeners: {
+        stdout: (data: Buffer) => {
+          stdout += data.toString();
         },
-      }
-    );
+        stderr: (data: Buffer) => {
+          stderr += data.toString();
+        },
+      },
+    });
   } catch (error) {}
   const results = JSON.parse(stdout);
 
@@ -175,9 +184,9 @@ async function run(
         switch (message.severity) {
           case 0:
             notice(
-              `${
-                ESLINT_RULES.get(message.ruleId)?.meta?.docs?.description
-              }\n{ESLINT_RULES.get(message.ruleId)?.meta?.docs?.url}`,
+              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
+                eslintRules.get(message.ruleId)?.meta?.docs?.url
+              }`,
               {
                 file: file.filename,
                 startLine: message.line,
@@ -189,9 +198,9 @@ async function run(
             break;
           case 1:
             warning(
-              `${
-                ESLINT_RULES.get(message.ruleId)?.meta?.docs?.description
-              }\n{ESLINT_RULES.get(message.ruleId)?.meta?.docs?.url}`,
+              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
+                eslintRules.get(message.ruleId)?.meta?.docs?.url
+              }`,
               {
                 file: file.filename,
                 startLine: message.line,
@@ -203,9 +212,9 @@ async function run(
             break;
           case 2:
             error(
-              `${
-                ESLINT_RULES.get(message.ruleId)?.meta?.docs?.description
-              }\n{ESLINT_RULES.get(message.ruleId)?.meta?.docs?.url}`,
+              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
+                eslintRules.get(message.ruleId)?.meta?.docs?.url
+              }`,
               {
                 file: file.filename,
                 startLine: message.line,
