@@ -6,7 +6,7 @@ import process from "node:process";
 import path from "node:path";
 import { existsSync } from "node:fs";
 
-const HUNK_HEADER_PATTERN = /^@@ \-\d+,\d+ \+(\d+),(\d+) @@/;
+const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
 
 async function run(
@@ -113,8 +113,8 @@ async function run(
       for (const line of lines) {
         if (remainingLinesInHunk === 0) {
           const matches = line.match(HUNK_HEADER_PATTERN);
-          currentLine = parseInt(matches?.[1] || "0");
-          remainingLinesInHunk = parseInt(matches?.[2] || "0");
+          currentLine = parseInt(matches?.[2] || "1");
+          remainingLinesInHunk = parseInt(matches?.[4] || "1");
           if (!currentLine || !remainingLinesInHunk) {
             throw new Error(
               `Expecting hunk header in ${file.filename} but seeing ${line}.`
