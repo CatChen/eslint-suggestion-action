@@ -80,12 +80,18 @@ async function run(
     info(`File name: ${relativePath}`);
     IndexedResults[relativePath] = file;
     for (const message of file.messages) {
-      info(`${message.message} @ ${message.line}`);
+      info(`  [${message.severity}] ${message.message} @ ${message.line}`);
+      if (message.suggestions) {
+        info(`  Suggestions (${message.suggestions.length}):`);
+        for (const suggestion of message.suggestions) {
+          info(`    ${suggestion.desc} (${suggestion.messageId})`);
+        }
+      }
     }
   }
   endGroup();
 
-  startGroup("GitHub Comment");
+  startGroup("GitHub Pull Request");
   const githubToken = mock?.token || getInput("github-token");
   const octokit = getOctokit(githubToken);
 
@@ -116,10 +122,10 @@ async function run(
     repo,
     pull_number: pullRequest.number,
   });
-  info(`Files: ${response.data.length}`);
+  info(`Files (${response.data.length}):`);
   for (const file of response.data) {
-    info(`File name: ${file.filename}`);
-    info(`File state: ${file.status}`);
+    info(`  File name: ${file.filename}`);
+    info(`  File state: ${file.status}`);
 
     const modifiedLines = [];
     const indexedModifiedLines: { [line: string]: true } = {};
@@ -150,8 +156,13 @@ async function run(
       }
     }
 
-    info(`File modified lines: ${modifiedLines.join()}`);
-    info(`File patch: \n${file.patch}\n`);
+    info(`  File modified lines: ${modifiedLines.join()}`);
+    info(
+      `  File patch: \n${file.patch
+        ?.split("\n")
+        .map((line) => "    " + line)
+        .join("\n")}\n`
+    );
 
     const result = IndexedResults[file.filename];
     if (result) {
@@ -159,7 +170,7 @@ async function run(
       const sourceLineLengths = source.map((line) => line.length);
       for (const message of result.messages) {
         if (indexedModifiedLines[message.line]) {
-          info(`Line matched: ${message.line}`);
+          info(`  Matched line: ${message.line}`);
           switch (message.severity) {
             case 0:
               notice(`${message.message} (${message.ruleId})`, {
@@ -188,6 +199,8 @@ async function run(
                 title: `${message.message} (${message.ruleId})`,
               });
               break;
+            default:
+              throw new Error(`Unrecognized severity: ${message.severity}`);
           }
           if (message.fix) {
             const beforeSourceLength = sourceLineLengths
@@ -200,7 +213,9 @@ async function run(
               originalLine.substring(0, replaceIndexStart) +
               message.fix.text +
               originalLine.substring(replaceIndexEnd);
-            info(`Fix:\n${originalLine} => ${replacedLine} @ ${message.line}`);
+            info(
+              `    Fix:\n${originalLine} => ${replacedLine} @ ${message.line}`
+            );
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
               repo,
@@ -211,7 +226,7 @@ async function run(
               side: "RIGHT",
               line: message.line,
             });
-            info(`Commented with fix`);
+            info(`      Commented`);
           }
           if (message.suggestions) {
             for (const suggestion of message.suggestions) {
@@ -228,7 +243,7 @@ async function run(
                 suggestion.fix.text +
                 originalLine.substring(replaceIndexEnd);
               info(
-                `Suggestion:\n${originalLine} => ${replacedLine} @ ${message.line}`
+                `    Suggestion:\n${originalLine} => ${replacedLine} @ ${message.line}`
               );
               const response = await octokit.rest.pulls.createReviewComment({
                 owner,
@@ -244,7 +259,7 @@ async function run(
                 side: "RIGHT",
                 line: message.line,
               });
-              info(`Commented with suggestion`);
+              info(`      Commented`);
             }
           }
         }
