@@ -9553,7 +9553,7 @@ const exec_1 = __nccwpck_require__(1514);
 const node_process_1 = __importDefault(__nccwpck_require__(7742));
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const node_fs_1 = __nccwpck_require__(7561);
-const HUNK_HEADER_PATTERN = /^@@ \-\d+,\d+ \+(\d+),(\d+) @@/;
+const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = node_process_1.default.cwd();
 function run(mock = undefined) {
     var _a;
@@ -9632,8 +9632,8 @@ function run(mock = undefined) {
                 for (const line of lines) {
                     if (remainingLinesInHunk === 0) {
                         const matches = line.match(HUNK_HEADER_PATTERN);
-                        currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[1]) || "0");
-                        remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || "0");
+                        currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || "1");
+                        remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[4]) || "1");
                         if (!currentLine || !remainingLinesInHunk) {
                             throw new Error(`Expecting hunk header in ${file.filename} but seeing ${line}.`);
                         }
@@ -9693,6 +9693,7 @@ function run(mock = undefined) {
                                 body: `${message.message} (${message.ruleId})`,
                                 pull_number: pullRequest.number,
                                 commit_id: headSha,
+                                path: file.filename,
                                 side: "RIGHT",
                                 line: message.line,
                             });
