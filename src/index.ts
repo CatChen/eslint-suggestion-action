@@ -146,10 +146,10 @@ async function run(
           info(`Line matched: ${message.line}`);
           if (message.fix) {
             const beforeSourceLength = sourceLineLengths
-              .slice(0, message.line)
+              .slice(0, message.line - 1)
               .reduce((previous, current) => previous + current, 0);
-            const replaceIndexStart = message.fix.range[0];
-            const replaceIndexEnd = message.fix.range[1];
+            const replaceIndexStart = message.fix.range[0] - beforeSourceLength;
+            const replaceIndexEnd = message.fix.range[1] - beforeSourceLength;
             const originalLine = source[message.line - 1];
             const replacedLine =
               originalLine.substring(0, replaceIndexStart) +
@@ -159,15 +159,16 @@ async function run(
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
               repo,
-              body: `${message.message} (${message.ruleId})
-
-\`\`\`suggestion
-${replacedLine}
-\`\`\``,
+              body:
+                `${message.message} (${message.ruleId})\n\n` +
+                "```suggestion\n" +
+                `${replacedLine}\n` +
+                "```\n",
               pull_number: pullRequest.number,
               commit_id: headSha,
               path: file.filename,
-              position: 1,
+              side: "RIGHT",
+              line: message.line,
             });
             info(
               `Commented in ${file.filename}:${message.line} with ${message.ruleId} plus fix`
@@ -179,8 +180,8 @@ ${replacedLine}
               body: `${message.message} (${message.ruleId})`,
               pull_number: pullRequest.number,
               commit_id: headSha,
-              path: file.filename,
-              position: 1,
+              side: "RIGHT",
+              line: message.line,
             });
             info(
               `Commented in ${file.filename}:${message.line} with ${message.ruleId}`
