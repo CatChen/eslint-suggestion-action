@@ -2,16 +2,32 @@ name: "ESLint Suggestion"
 description: "Pull Request Suggestions from ESLint"
 inputs:
   github-token:
-    description: "GitHub token"
+    description: "GitHub token."
     required: false
     default: ${{ github.token }}
   github-workspace:
-    description: "Path to the repo directory"
+    description: "Path to the repo directory. Please pass `${{ github.workspace }}` through."
     required: true
   eslint-path:
-    description: "Path to the eslint binary file"
+    description: "Path to the eslint binary file."
     required: false
     default: "node_modules/.bin/eslint"
+  out-of-scope-annotations:
+    description: "Create annotation for ESLint feedback from unchanged lines. What is an annotation? https://github.blog/2018-12-14-introducing-check-runs-and-annotations/"
+    required: false
+    default: false
+  suppress-fixes:
+    description: "Don't create GitHub suggestion for any ESLint fix. What is a fix? https://eslint.org/docs/developer-guide/working-with-rules#applying-fixes."
+    required: false
+    default: false
+  suppress-suggestions:
+    description: "Don't create GitHub suggestion for any ESLint suggestion. What is a suggestion? https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions."
+    required: false
+    default: false
+  suppress-annotations:
+    description: "Don't create annotation for any ESLint feedback."
+    required: false
+    default: false
 runs:
   using: "node16"
   main: "dist/index.js"
