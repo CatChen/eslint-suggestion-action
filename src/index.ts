@@ -13,7 +13,7 @@ import { PullRequest } from "@octokit/webhooks-definitions/schema";
 import process from "node:process";
 import path from "node:path";
 import { existsSync } from "node:fs";
-import { countReset } from "node:console";
+import { createRequire } from "module";
 
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
@@ -28,30 +28,42 @@ async function run(
       }
     | undefined = undefined
 ) {
+  const githubWorkspace =
+    mock === undefined ? getInput("github-workspace") : path.resolve(".");
+  const require = createRequire(githubWorkspace);
+  const eslintJsPath = path.resolve(
+    githubWorkspace,
+    "./node_modules/eslint/lib/api.js"
+  );
+  if (!existsSync(eslintJsPath)) {
+    throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
+  }
+  info(`Using ESLint from: ${eslintJsPath}`);
+  const { Linter } = require(eslintJsPath);
+  const eslintRules = new Linter().getRules();
+
   startGroup("ESLint");
-  const eslintPath =
-    mock === undefined ? getInput("eslint-path") : "node_modules/.bin/eslint";
-  if (!existsSync(eslintPath)) {
-    throw new Error(`ESLint cannot be found at ${existsSync}`);
+  const eslintBinPath = path.resolve(
+    WORKING_DIRECTORY,
+    mock === undefined ? getInput("eslint-path") : "node_modules/.bin/eslint"
+  );
+  if (!existsSync(eslintBinPath)) {
+    throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
   }
   let stdout = "";
   let stderr = "";
-  info(`Using ESLint from: ${path.resolve(WORKING_DIRECTORY, eslintPath)}`);
+  info(`Using ESLint binary from: ${eslintBinPath}`);
   try {
-    await exec(
-      path.resolve(WORKING_DIRECTORY, eslintPath),
-      [".", "--format", "json"],
-      {
-        listeners: {
-          stdout: (data: Buffer) => {
-            stdout += data.toString();
-          },
-          stderr: (data: Buffer) => {
-            stderr += data.toString();
-          },
+    await exec(eslintBinPath, [".", "--format", "json"], {
+      listeners: {
+        stdout: (data: Buffer) => {
+          stdout += data.toString();
         },
-      }
-    );
+        stderr: (data: Buffer) => {
+          stderr += data.toString();
+        },
+      },
+    });
   } catch (error) {}
   const results = JSON.parse(stdout);
 
@@ -157,51 +169,68 @@ async function run(
     }
 
     info(`  File modified lines: ${modifiedLines.join()}`);
-    info(
-      `  File patch: \n${file.patch
-        ?.split("\n")
-        .map((line) => "    " + line)
-        .join("\n")}\n`
-    );
+    if (file.patch !== undefined) {
+      info(
+        `  File patch: \n${file.patch
+          .split("\n")
+          .map((line) => "    " + line)
+          .join("\n")}\n`
+      );
+    }
 
     const result = IndexedResults[file.filename];
     if (result) {
       const source = result.source.split("\n");
       const sourceLineLengths = source.map((line) => line.length);
       for (const message of result.messages) {
+        switch (message.severity) {
+          case 0:
+            notice(
+              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
+                eslintRules.get(message.ruleId)?.meta?.docs?.url
+              }`,
+              {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              }
+            );
+            break;
+          case 1:
+            warning(
+              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
+                eslintRules.get(message.ruleId)?.meta?.docs?.url
+              }`,
+              {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              }
+            );
+            break;
+          case 2:
+            error(
+              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
+                eslintRules.get(message.ruleId)?.meta?.docs?.url
+              }`,
+              {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              }
+            );
+            break;
+          default:
+            throw new Error(`Unrecognized severity: ${message.severity}`);
+        }
         if (indexedModifiedLines[message.line]) {
           info(`  Matched line: ${message.line}`);
-          switch (message.severity) {
-            case 0:
-              notice(`${message.message} (${message.ruleId})`, {
-                file: file.filename,
-                startLine: message.line,
-                startColumn: message.column,
-                endColumn: message.endColumn,
-                title: `${message.message} (${message.ruleId})`,
-              });
-              break;
-            case 1:
-              warning(`${message.message} (${message.ruleId})`, {
-                file: file.filename,
-                startLine: message.line,
-                startColumn: message.column,
-                endColumn: message.endColumn,
-                title: `${message.message} (${message.ruleId})`,
-              });
-              break;
-            case 2:
-              error(`${message.message} (${message.ruleId})`, {
-                file: file.filename,
-                startLine: message.line,
-                startColumn: message.column,
-                endColumn: message.endColumn,
-                title: `${message.message} (${message.ruleId})`,
-              });
-              break;
-            default:
-              throw new Error(`Unrecognized severity: ${message.severity}`);
-          }
           if (message.fix) {
             const beforeSourceLength = sourceLineLengths
               .slice(0, message.line - 1)

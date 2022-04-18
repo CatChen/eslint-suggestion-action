@@ -5,6 +5,9 @@ inputs:
     description: "GitHub token"
     required: false
     default: ${{ github.token }}
+  github-workspace:
+    description: "Path to the repo directory"
+    required: true
   eslint-path:
     description: "Path to the eslint binary file"
     required: false
