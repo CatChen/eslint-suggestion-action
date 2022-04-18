@@ -91,44 +91,49 @@ function getY([, y]) {
   return y;
 }
 
-/* arrow-body-style: as-needed */
+/* no-extra-semi */
 
-let foo = () => {
-  return 0;
-};
-let foo = () => {
-  return {
-    bar: {
-      foo: 1,
-      bar: 2,
-    },
-  };
-};
+var x = 5;
+
+function foo() {
+  // code
+}
+
+class C {
+  field;
+
+  method() {
+    // code
+  }
+
+  static {
+    // code
+  }
+}
 
 /* --- */
 
-let foo = () => 0;
-let foo = (retv, name) => {
-  retv[name] = true;
-  return retv;
+var x = 5;
+
+function foo() {
+  // code
+}
+
+var bar = function () {
+  // code
 };
-let foo = () => ({
-  bar: {
-    foo: 1,
-    bar: 2,
-  },
-});
-let foo = () => {
-  bar();
-};
-let foo = () => {};
-let foo = () => {
-  /* do nothing */
-};
-let foo = () => {
-  // do nothing.
-};
-let foo = () => ({ bar: 0 });
+
+class C {
+  field;
+
+  method() {
+    // code
+  }
+
+  static {
+    // code
+  }
+}
 
 /* no-else-return allowElseIf: true */
 
