@@ -93,14 +93,14 @@ function getY([, y]) {
 
 /* no-extra-semi */
 
-var x = 5;
+var x = 5;;
 
 function foo() {
   // code
 }
 
 class C {
-  field;
+  field;;
 
   method() {
     // code
