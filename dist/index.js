@@ -9558,7 +9558,7 @@ const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const RULE_UNSCOPE_PATTERN = /^(@.*?\/)?(.*)$/;
 const WORKING_DIRECTORY = node_process_1.default.cwd();
 function run(mock = undefined) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)("ESLint");
         const githubWorkspace = mock === undefined ? (0, core_1.getInput)("github-workspace") : node_path_1.default.resolve(".");
@@ -9686,10 +9686,10 @@ function run(mock = undefined) {
                 const sourceLineLengths = source.map((line) => line.length + 1);
                 for (const message of result.messages) {
                     const unscopedRuleId = (_b = message.ruleId.match(RULE_UNSCOPE_PATTERN)) === null || _b === void 0 ? void 0 : _b[2];
-                    const rule = eslintRules.get(unscopedRuleId);
+                    const rule = eslintRules[message.ruleId];
                     switch (message.severity) {
                         case 0:
-                            (0, core_1.notice)(`${(_d = (_c = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _c === void 0 ? void 0 : _c.docs) === null || _d === void 0 ? void 0 : _d.description}\n${(_f = (_e = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _e === void 0 ? void 0 : _e.docs) === null || _f === void 0 ? void 0 : _f.url}`, {
+                            (0, core_1.notice)(`${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.description}\n${(_d = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _d === void 0 ? void 0 : _d.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9698,7 +9698,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 1:
-                            (0, core_1.warning)(`${(_h = (_g = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _g === void 0 ? void 0 : _g.docs) === null || _h === void 0 ? void 0 : _h.description}\n${(_k = (_j = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _j === void 0 ? void 0 : _j.docs) === null || _k === void 0 ? void 0 : _k.url}`, {
+                            (0, core_1.warning)(`${(_e = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _e === void 0 ? void 0 : _e.description}\n${(_f = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _f === void 0 ? void 0 : _f.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9707,7 +9707,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 2:
-                            (0, core_1.error)(`${(_m = (_l = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _l === void 0 ? void 0 : _l.docs) === null || _m === void 0 ? void 0 : _m.description}\n${(_p = (_o = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _o === void 0 ? void 0 : _o.docs) === null || _p === void 0 ? void 0 : _p.url}`, {
+                            (0, core_1.error)(`${(_g = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _g === void 0 ? void 0 : _g.description}\n${(_h = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _h === void 0 ? void 0 : _h.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9727,7 +9727,7 @@ function run(mock = undefined) {
                             const replaceIndexStart = message.fix.range[0] - beforeSourceLength;
                             const replaceIndexEnd = message.fix.range[1] - beforeSourceLength;
                             const originalLine = source[message.line - 1];
-                            const replacedLine = `[${(_r = (_q = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _q === void 0 ? void 0 : _q.docs) === null || _r === void 0 ? void 0 : _r.description}](${(_t = (_s = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _s === void 0 ? void 0 : _s.docs) === null || _t === void 0 ? void 0 : _t.url})\n\n` +
+                            const replacedLine = `[${(_j = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _j === void 0 ? void 0 : _j.description}](${(_k = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _k === void 0 ? void 0 : _k.url})\n\n` +
                                 originalLine.substring(0, replaceIndexStart) +
                                 message.fix.text +
                                 originalLine.substring(replaceIndexEnd);
