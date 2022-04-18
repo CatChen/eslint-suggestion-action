@@ -192,9 +192,7 @@ async function run(
         switch (message.severity) {
           case 0:
             notice(
-              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
-                eslintRules.get(message.ruleId)?.meta?.docs?.url
-              }`,
+              `${rule?.meta?.docs?.description}\n${rule?.meta?.docs?.url}`,
               {
                 file: file.filename,
                 startLine: message.line,
@@ -206,9 +204,7 @@ async function run(
             break;
           case 1:
             warning(
-              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
-                eslintRules.get(message.ruleId)?.meta?.docs?.url
-              }`,
+              `${rule?.meta?.docs?.description}\n${rule?.meta?.docs?.url}`,
               {
                 file: file.filename,
                 startLine: message.line,
@@ -220,9 +216,7 @@ async function run(
             break;
           case 2:
             error(
-              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
-                eslintRules.get(message.ruleId)?.meta?.docs?.url
-              }`,
+              `${rule?.meta?.docs?.description}\n${rule?.meta?.docs?.url}`,
               {
                 file: file.filename,
                 startLine: message.line,
