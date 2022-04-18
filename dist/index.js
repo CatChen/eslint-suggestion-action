@@ -9779,7 +9779,7 @@ function run(mock = undefined) {
                                 side: "RIGHT",
                                 line: message.line,
                             });
-                            (0, core_1.info)(`      Commented`);
+                            (0, core_1.info)(`    Commented`);
                         }
                     }
                 }
