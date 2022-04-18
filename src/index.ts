@@ -29,6 +29,14 @@ async function run(
       }
     | undefined = undefined
 ) {
+  const outOfScopeAnnotations =
+    mock === undefined ? getInput("out-of-scope-annotations") : false;
+  const suppressFixes = mock === undefined ? getInput("suppress-fixes") : false;
+  const suppressSuggestions =
+    mock === undefined ? getInput("suppress-suggestions") : false;
+  const suppressAnnotations =
+    mock === undefined ? getInput("suppress-annotations") : false;
+
   startGroup("ESLint");
   const githubWorkspace =
     mock === undefined ? getInput("github-workspace") : path.resolve(".");
@@ -195,40 +203,45 @@ async function run(
       for (const message of result.messages) {
         const unscopedRuleId = message.ruleId.match(RULE_UNSCOPE_PATTERN)?.[2];
         const rule = eslintRules[message.ruleId];
-        switch (message.severity) {
-          case 0:
-            notice(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
-              file: file.filename,
-              startLine: message.line,
-              startColumn: message.column,
-              endColumn: message.endColumn,
-              title: `${message.message} (${message.ruleId})`,
-            });
-            break;
-          case 1:
-            warning(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
-              file: file.filename,
-              startLine: message.line,
-              startColumn: message.column,
-              endColumn: message.endColumn,
-              title: `${message.message} (${message.ruleId})`,
-            });
-            break;
-          case 2:
-            error(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
-              file: file.filename,
-              startLine: message.line,
-              startColumn: message.column,
-              endColumn: message.endColumn,
-              title: `${message.message} (${message.ruleId})`,
-            });
-            break;
-          default:
-            throw new Error(`Unrecognized severity: ${message.severity}`);
-        }
+        if (
+          !suppressAnnotations &&
+          indexedModifiedLines[message.line] &&
+          outOfScopeAnnotations
+        )
+          switch (message.severity) {
+            case 0:
+              notice(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              });
+              break;
+            case 1:
+              warning(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              });
+              break;
+            case 2:
+              error(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
+                file: file.filename,
+                startLine: message.line,
+                startColumn: message.column,
+                endColumn: message.endColumn,
+                title: `${message.message} (${message.ruleId})`,
+              });
+              break;
+            default:
+              throw new Error(`Unrecognized severity: ${message.severity}`);
+          }
         if (indexedModifiedLines[message.line]) {
           info(`  Matched line: ${message.line}`);
-          if (message.fix) {
+          if (message.fix && !suppressFixes) {
             const beforeSourceLength = sourceLineLengths
               .slice(0, message.line - 1)
               .reduce((previous, current) => previous + current, 0);
@@ -260,7 +273,7 @@ async function run(
             });
             info(`      Commented`);
           }
-          if (message.suggestions) {
+          if (message.suggestions && !suppressSuggestions) {
             const beforeSourceLength = sourceLineLengths
               .slice(0, message.line - 1)
               .reduce((previous, current) => previous + current, 0);
