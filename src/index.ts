@@ -16,6 +16,7 @@ import { existsSync } from "node:fs";
 import { createRequire } from "module";
 
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
+const RULE_UNSCOPE_PATTERN = /^(@.*?\/)?(.*)$/;
 const WORKING_DIRECTORY = process.cwd();
 
 async function run(
@@ -137,7 +138,10 @@ async function run(
   info(`Files (${response.data.length}):`);
   for (const file of response.data) {
     info(`  File name: ${file.filename}`);
-    info(`  File state: ${file.status}`);
+    info(`  File status: ${file.status}`);
+    if (file.status === "removed") {
+      continue;
+    }
 
     const modifiedLines = [];
     const indexedModifiedLines: { [line: string]: true } = {};
@@ -183,12 +187,12 @@ async function run(
       const source = result.source.split("\n");
       const sourceLineLengths = source.map((line) => line.length);
       for (const message of result.messages) {
+        const unscopedRuleId = message.ruleId.match(RULE_UNSCOPE_PATTERN)?.[2];
+        const rule = eslintRules.get(unscopedRuleId);
         switch (message.severity) {
           case 0:
             notice(
-              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
-                eslintRules.get(message.ruleId)?.meta?.docs?.url
-              }`,
+              `${rule?.meta?.docs?.description}\n${rule?.meta?.docs?.url}`,
               {
                 file: file.filename,
                 startLine: message.line,
@@ -200,9 +204,7 @@ async function run(
             break;
           case 1:
             warning(
-              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
-                eslintRules.get(message.ruleId)?.meta?.docs?.url
-              }`,
+              `${rule?.meta?.docs?.description}\n${rule?.meta?.docs?.url}`,
               {
                 file: file.filename,
                 startLine: message.line,
@@ -214,9 +216,7 @@ async function run(
             break;
           case 2:
             error(
-              `${eslintRules.get(message.ruleId)?.meta?.docs?.description}\n${
-                eslintRules.get(message.ruleId)?.meta?.docs?.url
-              }`,
+              `${rule?.meta?.docs?.description}\n${rule?.meta?.docs?.url}`,
               {
                 file: file.filename,
                 startLine: message.line,

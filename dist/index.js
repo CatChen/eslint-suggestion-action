@@ -9555,9 +9555,10 @@ const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const node_fs_1 = __nccwpck_require__(7561);
 const module_1 = __nccwpck_require__(8188);
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
+const RULE_UNSCOPE_PATTERN = /^(@.*?\/)?(.*)$/;
 const WORKING_DIRECTORY = node_process_1.default.cwd();
 function run(mock = undefined) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
     return __awaiter(this, void 0, void 0, function* () {
         const githubWorkspace = mock === undefined ? (0, core_1.getInput)("github-workspace") : node_path_1.default.resolve(".");
         const require = (0, module_1.createRequire)(githubWorkspace);
@@ -9638,7 +9639,10 @@ function run(mock = undefined) {
         (0, core_1.info)(`Files (${response.data.length}):`);
         for (const file of response.data) {
             (0, core_1.info)(`  File name: ${file.filename}`);
-            (0, core_1.info)(`  File state: ${file.status}`);
+            (0, core_1.info)(`  File status: ${file.status}`);
+            if (file.status === "removed") {
+                continue;
+            }
             const modifiedLines = [];
             const indexedModifiedLines = {};
             let currentLine = 0;
@@ -9679,9 +9683,11 @@ function run(mock = undefined) {
                 const source = result.source.split("\n");
                 const sourceLineLengths = source.map((line) => line.length);
                 for (const message of result.messages) {
+                    const unscopedRuleId = (_b = message.ruleId.match(RULE_UNSCOPE_PATTERN)) === null || _b === void 0 ? void 0 : _b[2];
+                    const rule = eslintRules.get(unscopedRuleId);
                     switch (message.severity) {
                         case 0:
-                            (0, core_1.notice)(`${(_d = (_c = (_b = eslintRules.get(message.ruleId)) === null || _b === void 0 ? void 0 : _b.meta) === null || _c === void 0 ? void 0 : _c.docs) === null || _d === void 0 ? void 0 : _d.description}\n${(_g = (_f = (_e = eslintRules.get(message.ruleId)) === null || _e === void 0 ? void 0 : _e.meta) === null || _f === void 0 ? void 0 : _f.docs) === null || _g === void 0 ? void 0 : _g.url}`, {
+                            (0, core_1.notice)(`${(_d = (_c = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _c === void 0 ? void 0 : _c.docs) === null || _d === void 0 ? void 0 : _d.description}\n${(_f = (_e = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _e === void 0 ? void 0 : _e.docs) === null || _f === void 0 ? void 0 : _f.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9690,7 +9696,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 1:
-                            (0, core_1.warning)(`${(_k = (_j = (_h = eslintRules.get(message.ruleId)) === null || _h === void 0 ? void 0 : _h.meta) === null || _j === void 0 ? void 0 : _j.docs) === null || _k === void 0 ? void 0 : _k.description}\n${(_o = (_m = (_l = eslintRules.get(message.ruleId)) === null || _l === void 0 ? void 0 : _l.meta) === null || _m === void 0 ? void 0 : _m.docs) === null || _o === void 0 ? void 0 : _o.url}`, {
+                            (0, core_1.warning)(`${(_h = (_g = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _g === void 0 ? void 0 : _g.docs) === null || _h === void 0 ? void 0 : _h.description}\n${(_k = (_j = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _j === void 0 ? void 0 : _j.docs) === null || _k === void 0 ? void 0 : _k.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9699,7 +9705,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 2:
-                            (0, core_1.error)(`${(_r = (_q = (_p = eslintRules.get(message.ruleId)) === null || _p === void 0 ? void 0 : _p.meta) === null || _q === void 0 ? void 0 : _q.docs) === null || _r === void 0 ? void 0 : _r.description}\n${(_u = (_t = (_s = eslintRules.get(message.ruleId)) === null || _s === void 0 ? void 0 : _s.meta) === null || _t === void 0 ? void 0 : _t.docs) === null || _u === void 0 ? void 0 : _u.url}`, {
+                            (0, core_1.error)(`${(_m = (_l = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _l === void 0 ? void 0 : _l.docs) === null || _m === void 0 ? void 0 : _m.description}\n${(_p = (_o = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _o === void 0 ? void 0 : _o.docs) === null || _p === void 0 ? void 0 : _p.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
