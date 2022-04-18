@@ -13,6 +13,7 @@ import { PullRequest } from "@octokit/webhooks-definitions/schema";
 import process from "node:process";
 import path from "node:path";
 import { existsSync } from "node:fs";
+import { createRequire } from "module";
 
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
@@ -29,6 +30,7 @@ async function run(
 ) {
   const githubWorkspace =
     mock === undefined ? getInput("github-workspace") : path.resolve(".");
+  const require = createRequire(githubWorkspace);
   const eslintJsPath = path.resolve(
     githubWorkspace,
     "./node_modules/eslint/lib/api.js"
@@ -37,7 +39,7 @@ async function run(
     throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
   }
   info(`Using ESLint from: ${eslintJsPath}`);
-  const { Linter } = await import(eslintJsPath);
+  const { Linter } = require(eslintJsPath);
   const eslintRules = new Linter().getRules();
 
   startGroup("ESLint");

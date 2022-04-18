@@ -9534,29 +9534,6 @@ function wrappy (fn, cb) {
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9576,18 +9553,20 @@ const exec_1 = __nccwpck_require__(1514);
 const node_process_1 = __importDefault(__nccwpck_require__(7742));
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const node_fs_1 = __nccwpck_require__(7561);
+const module_1 = __nccwpck_require__(8188);
 const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = node_process_1.default.cwd();
 function run(mock = undefined) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
     return __awaiter(this, void 0, void 0, function* () {
         const githubWorkspace = mock === undefined ? (0, core_1.getInput)("github-workspace") : node_path_1.default.resolve(".");
+        const require = (0, module_1.createRequire)(githubWorkspace);
         const eslintJsPath = node_path_1.default.resolve(githubWorkspace, "./node_modules/eslint/lib/api.js");
         if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
         (0, core_1.info)(`Using ESLint from: ${eslintJsPath}`);
-        const { Linter } = yield Promise.resolve().then(() => __importStar(require(eslintJsPath)));
+        const { Linter } = require(eslintJsPath);
         const eslintRules = new Linter().getRules();
         (0, core_1.startGroup)("ESLint");
         const eslintBinPath = node_path_1.default.resolve(WORKING_DIRECTORY, mock === undefined ? (0, core_1.getInput)("eslint-path") : "node_modules/.bin/eslint");
@@ -9857,6 +9836,13 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("http");
 /***/ ((module) => {
 
 module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("https");
+
+/***/ }),
+
+/***/ 8188:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("module");
 
 /***/ }),
 
