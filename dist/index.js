@@ -9558,7 +9558,7 @@ const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const RULE_UNSCOPE_PATTERN = /^(@.*?\/)?(.*)$/;
 const WORKING_DIRECTORY = node_process_1.default.cwd();
 function run(mock = undefined) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
     return __awaiter(this, void 0, void 0, function* () {
         const githubWorkspace = mock === undefined ? (0, core_1.getInput)("github-workspace") : node_path_1.default.resolve(".");
         const require = (0, module_1.createRequire)(githubWorkspace);
@@ -9687,7 +9687,7 @@ function run(mock = undefined) {
                     const rule = eslintRules.get(unscopedRuleId);
                     switch (message.severity) {
                         case 0:
-                            (0, core_1.notice)(`[${(_d = (_c = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _c === void 0 ? void 0 : _c.docs) === null || _d === void 0 ? void 0 : _d.description}](${(_f = (_e = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _e === void 0 ? void 0 : _e.docs) === null || _f === void 0 ? void 0 : _f.url})`, {
+                            (0, core_1.notice)(`${(_e = (_d = (_c = eslintRules.get(message.ruleId)) === null || _c === void 0 ? void 0 : _c.meta) === null || _d === void 0 ? void 0 : _d.docs) === null || _e === void 0 ? void 0 : _e.description}\n${(_h = (_g = (_f = eslintRules.get(message.ruleId)) === null || _f === void 0 ? void 0 : _f.meta) === null || _g === void 0 ? void 0 : _g.docs) === null || _h === void 0 ? void 0 : _h.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9696,7 +9696,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 1:
-                            (0, core_1.warning)(`[${(_h = (_g = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _g === void 0 ? void 0 : _g.docs) === null || _h === void 0 ? void 0 : _h.description}](${(_k = (_j = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _j === void 0 ? void 0 : _j.docs) === null || _k === void 0 ? void 0 : _k.url})`, {
+                            (0, core_1.warning)(`${(_l = (_k = (_j = eslintRules.get(message.ruleId)) === null || _j === void 0 ? void 0 : _j.meta) === null || _k === void 0 ? void 0 : _k.docs) === null || _l === void 0 ? void 0 : _l.description}\n${(_p = (_o = (_m = eslintRules.get(message.ruleId)) === null || _m === void 0 ? void 0 : _m.meta) === null || _o === void 0 ? void 0 : _o.docs) === null || _p === void 0 ? void 0 : _p.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,
@@ -9705,7 +9705,7 @@ function run(mock = undefined) {
                             });
                             break;
                         case 2:
-                            (0, core_1.error)(`[${(_m = (_l = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _l === void 0 ? void 0 : _l.docs) === null || _m === void 0 ? void 0 : _m.description}](${(_p = (_o = rule === null || rule === void 0 ? void 0 : rule.meta) === null || _o === void 0 ? void 0 : _o.docs) === null || _p === void 0 ? void 0 : _p.url})`, {
+                            (0, core_1.error)(`${(_s = (_r = (_q = eslintRules.get(message.ruleId)) === null || _q === void 0 ? void 0 : _q.meta) === null || _r === void 0 ? void 0 : _r.docs) === null || _s === void 0 ? void 0 : _s.description}\n${(_v = (_u = (_t = eslintRules.get(message.ruleId)) === null || _t === void 0 ? void 0 : _t.meta) === null || _u === void 0 ? void 0 : _u.docs) === null || _v === void 0 ? void 0 : _v.url}`, {
                                 file: file.filename,
                                 startLine: message.line,
                                 startColumn: message.column,

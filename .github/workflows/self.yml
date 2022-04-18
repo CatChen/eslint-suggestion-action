@@ -19,6 +19,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - uses: CatChen/eslint-suggestion-action@v1.1.23
+      - uses: CatChen/eslint-suggestion-action@v1.1.24
         with:
           github-workspace: ${{ github.workspace }}
