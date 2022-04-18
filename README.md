@@ -76,3 +76,7 @@ If this is set to `true` there will be no annotation all all, inside or outside 
 ### Can I have GitHub suggestions outside of the scope?
 
 No. To be precise, it's mostly no. GitHub only allows comments within diff hunks. That means the lines that are changed and up to three adjacent lines before and after. There's no way to comment outside of diff hunks, in GitHub's interface or through API. For better consistency, this action doesn't create GitHub suggestions outside of the scope, even if it's within diff hunk.
+
+### How can I avoid having annotation in generated code inside a project?
+
+Please follow [GitHub's documentation](https://github.com/github/linguist/blob/master/docs/overrides.md#generated-code) and use `.gitattributes` to mark those files and directories correctly. GitHub will hide those files in Pull Request.
