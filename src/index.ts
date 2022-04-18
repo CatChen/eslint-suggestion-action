@@ -29,6 +29,7 @@ async function run(
       }
     | undefined = undefined
 ) {
+  startGroup("ESLint");
   const githubWorkspace =
     mock === undefined ? getInput("github-workspace") : path.resolve(".");
   const require = createRequire(githubWorkspace);
@@ -40,10 +41,12 @@ async function run(
     throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
   }
   info(`Using ESLint from: ${eslintJsPath}`);
-  const { Linter } = require(eslintJsPath);
-  const eslintRules = new Linter().getRules();
+  const { ESLint } = require(eslintJsPath);
+  const eslintConfig = await new ESLint().calculateConfigForFile(
+    "package.json"
+  );
+  const eslint = new ESLint({ baseConfig: eslintConfig });
 
-  startGroup("ESLint");
   const eslintBinPath = path.resolve(
     WORKING_DIRECTORY,
     mock === undefined ? getInput("eslint-path") : "node_modules/.bin/eslint"
@@ -102,6 +105,9 @@ async function run(
       }
     }
   }
+  const eslintRules: {
+    [name: string]: { docs?: { description?: string; url?: string } };
+  } = eslint.getRulesMetaForResults(results);
   endGroup();
 
   startGroup("GitHub Pull Request");
@@ -188,43 +194,34 @@ async function run(
       const sourceLineLengths = source.map((line) => line.length + 1);
       for (const message of result.messages) {
         const unscopedRuleId = message.ruleId.match(RULE_UNSCOPE_PATTERN)?.[2];
-        const rule = eslintRules.get(unscopedRuleId);
+        const rule = eslintRules[message.ruleId];
         switch (message.severity) {
           case 0:
-            notice(
-              `${rule?.meta?.docs?.description}\n${rule?.meta?.docs?.url}`,
-              {
-                file: file.filename,
-                startLine: message.line,
-                startColumn: message.column,
-                endColumn: message.endColumn,
-                title: `${message.message} (${message.ruleId})`,
-              }
-            );
+            notice(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
+              file: file.filename,
+              startLine: message.line,
+              startColumn: message.column,
+              endColumn: message.endColumn,
+              title: `${message.message} (${message.ruleId})`,
+            });
             break;
           case 1:
-            warning(
-              `${rule?.meta?.docs?.description}\n${rule?.meta?.docs?.url}`,
-              {
-                file: file.filename,
-                startLine: message.line,
-                startColumn: message.column,
-                endColumn: message.endColumn,
-                title: `${message.message} (${message.ruleId})`,
-              }
-            );
+            warning(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
+              file: file.filename,
+              startLine: message.line,
+              startColumn: message.column,
+              endColumn: message.endColumn,
+              title: `${message.message} (${message.ruleId})`,
+            });
             break;
           case 2:
-            error(
-              `${rule?.meta?.docs?.description}\n${rule?.meta?.docs?.url}`,
-              {
-                file: file.filename,
-                startLine: message.line,
-                startColumn: message.column,
-                endColumn: message.endColumn,
-                title: `${message.message} (${message.ruleId})`,
-              }
-            );
+            error(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
+              file: file.filename,
+              startLine: message.line,
+              startColumn: message.column,
+              endColumn: message.endColumn,
+              title: `${message.message} (${message.ruleId})`,
+            });
             break;
           default:
             throw new Error(`Unrecognized severity: ${message.severity}`);
@@ -239,7 +236,7 @@ async function run(
             const replaceIndexEnd = message.fix.range[1] - beforeSourceLength;
             const originalLine = source[message.line - 1];
             const replacedLine =
-              `[${rule?.meta?.docs?.description}](${rule?.meta?.docs?.url})\n\n` +
+              `[${rule?.docs?.description}](${rule?.docs?.url})\n\n` +
               originalLine.substring(0, replaceIndexStart) +
               message.fix.text +
               originalLine.substring(replaceIndexEnd);

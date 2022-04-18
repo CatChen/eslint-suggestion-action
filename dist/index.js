@@ -9560,6 +9560,7 @@ const WORKING_DIRECTORY = node_process_1.default.cwd();
 function run(mock = undefined) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
     return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.startGroup)("ESLint");
         const githubWorkspace = mock === undefined ? (0, core_1.getInput)("github-workspace") : node_path_1.default.resolve(".");
         const require = (0, module_1.createRequire)(githubWorkspace);
         const eslintJsPath = node_path_1.default.resolve(githubWorkspace, "./node_modules/eslint/lib/api.js");
@@ -9567,9 +9568,9 @@ function run(mock = undefined) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
         (0, core_1.info)(`Using ESLint from: ${eslintJsPath}`);
-        const { Linter } = require(eslintJsPath);
-        const eslintRules = new Linter().getRules();
-        (0, core_1.startGroup)("ESLint");
+        const { ESLint } = require(eslintJsPath);
+        const eslintConfig = yield new ESLint().calculateConfigForFile("package.json");
+        const eslint = new ESLint({ baseConfig: eslintConfig });
         const eslintBinPath = node_path_1.default.resolve(WORKING_DIRECTORY, mock === undefined ? (0, core_1.getInput)("eslint-path") : "node_modules/.bin/eslint");
         if (!(0, node_fs_1.existsSync)(eslintBinPath)) {
             throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
@@ -9606,6 +9607,7 @@ function run(mock = undefined) {
                 }
             }
         }
+        const eslintRules = eslint.getRulesMetaForResults(results);
         (0, core_1.endGroup)();
         (0, core_1.startGroup)("GitHub Pull Request");
         const githubToken = (mock === null || mock === void 0 ? void 0 : mock.token) || (0, core_1.getInput)("github-token");
