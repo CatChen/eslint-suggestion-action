@@ -137,7 +137,10 @@ async function run(
   info(`Files (${response.data.length}):`);
   for (const file of response.data) {
     info(`  File name: ${file.filename}`);
-    info(`  File state: ${file.status}`);
+    info(`  File status: ${file.status}`);
+    if (file.status === "removed") {
+      continue;
+    }
 
     const modifiedLines = [];
     const indexedModifiedLines: { [line: string]: true } = {};
