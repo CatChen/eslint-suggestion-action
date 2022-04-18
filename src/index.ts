@@ -236,7 +236,6 @@ async function run(
             const replaceIndexEnd = message.fix.range[1] - beforeSourceLength;
             const originalLine = source[message.line - 1];
             const replacedLine =
-              `[${rule?.docs?.description}](${rule?.docs?.url})\n\n` +
               originalLine.substring(0, replaceIndexStart) +
               message.fix.text +
               originalLine.substring(replaceIndexEnd);
@@ -248,7 +247,11 @@ async function run(
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
               repo,
-              body: "```suggestion\n" + `${replacedLine}\n` + "```\n",
+              body:
+                `[${rule?.docs?.description}](${rule?.docs?.url}). Fix available:\n\n` +
+                "```suggestion\n" +
+                `${replacedLine}\n` +
+                "```\n",
               pull_number: pullRequest.number,
               commit_id: headSha,
               path: file.filename,
@@ -258,10 +261,11 @@ async function run(
             info(`      Commented`);
           }
           if (message.suggestions) {
+            const beforeSourceLength = sourceLineLengths
+              .slice(0, message.line - 1)
+              .reduce((previous, current) => previous + current, 0);
+            const suggestionBlocks = [];
             for (const suggestion of message.suggestions) {
-              const beforeSourceLength = sourceLineLengths
-                .slice(0, message.line - 1)
-                .reduce((previous, current) => previous + current, 0);
               const replaceIndexStart =
                 suggestion.fix.range[0] - beforeSourceLength;
               const replaceIndexEnd =
@@ -271,27 +275,31 @@ async function run(
                 originalLine.substring(0, replaceIndexStart) +
                 suggestion.fix.text +
                 originalLine.substring(replaceIndexEnd);
+              suggestionBlocks.push(
+                `${suggestion.desc} (${suggestion.messageId})\n\n` +
+                  "```suggestion\n" +
+                  `${replacedLine}\n` +
+                  "```\n"
+              );
               info(
                 "    Suggestion:\n" +
                   "      " +
                   `${originalLine} => ${replacedLine} @ ${message.line}`.trim()
               );
-              const response = await octokit.rest.pulls.createReviewComment({
-                owner,
-                repo,
-                body:
-                  `${suggestion.desc} (${suggestion.messageId})\n\n` +
-                  "```suggestion\n" +
-                  `${replacedLine}\n` +
-                  "```\n",
-                pull_number: pullRequest.number,
-                commit_id: headSha,
-                path: file.filename,
-                side: "RIGHT",
-                line: message.line,
-              });
-              info(`      Commented`);
             }
+            const response = await octokit.rest.pulls.createReviewComment({
+              owner,
+              repo,
+              body:
+                `[${rule?.docs?.description}](${rule?.docs?.url}). Suggestion(s) available:\n\n` +
+                suggestionBlocks.join("\n"),
+              pull_number: pullRequest.number,
+              commit_id: headSha,
+              path: file.filename,
+              side: "RIGHT",
+              line: message.line,
+            });
+            info(`      Commented`);
           }
         }
       }
