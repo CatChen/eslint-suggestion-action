@@ -185,7 +185,7 @@ async function run(
     const result = IndexedResults[file.filename];
     if (result) {
       const source = result.source.split("\n");
-      const sourceLineLengths = source.map((line) => line.length);
+      const sourceLineLengths = source.map((line) => line.length + 1);
       for (const message of result.messages) {
         const unscopedRuleId = message.ruleId.match(RULE_UNSCOPE_PATTERN)?.[2];
         const rule = eslintRules.get(unscopedRuleId);
@@ -239,6 +239,7 @@ async function run(
             const replaceIndexEnd = message.fix.range[1] - beforeSourceLength;
             const originalLine = source[message.line - 1];
             const replacedLine =
+              `[${rule?.meta?.docs?.description}](${rule?.meta?.docs?.url})\n\n` +
               originalLine.substring(0, replaceIndexStart) +
               message.fix.text +
               originalLine.substring(replaceIndexEnd);
