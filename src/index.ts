@@ -299,7 +299,7 @@ async function run(
               side: "RIGHT",
               line: message.line,
             });
-            info(`      Commented`);
+            info(`    Commented`);
           }
         }
       }
