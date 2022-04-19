@@ -9689,7 +9689,13 @@ function run(mock = undefined) {
                 for (const message of result.messages) {
                     const rule = eslintRules[message.ruleId];
                     if (!suppressAnnotations &&
-                        (indexedModifiedLines[message.line] || outOfScopeAnnotations))
+                        (indexedModifiedLines[message.line] || outOfScopeAnnotations)) {
+                        if (indexedModifiedLines[message.line]) {
+                            (0, core_1.info)(`  Annotation: ${message.line}`);
+                        }
+                        else {
+                            (0, core_1.info)(`  Out-of-scope annotation: ${message.line}`);
+                        }
                         switch (message.severity) {
                             case 0:
                                 (0, core_1.notice)(`${message.message} (${message.ruleId})`);
@@ -9724,6 +9730,7 @@ function run(mock = undefined) {
                             default:
                                 throw new Error(`Unrecognized severity: ${message.severity}`);
                         }
+                    }
                     if (indexedModifiedLines[message.line]) {
                         (0, core_1.info)(`  Matched line: ${message.line}`);
                         if (message.fix && !suppressFixes) {

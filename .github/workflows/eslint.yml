@@ -1,4 +1,4 @@
-name: Self Test CI
+name: ESLint
 
 on:
   pull_request:
@@ -19,6 +19,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - uses: CatChen/eslint-suggestion-action@v1.4.1
+      - uses: CatChen/eslint-suggestion-action@v1.4.2
         with:
           github-workspace: ${{ github.workspace }}

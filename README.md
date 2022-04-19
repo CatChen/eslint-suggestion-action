@@ -10,6 +10,8 @@ This is a GitHub Action that runs ESLint and provides inline feedback to the cha
 Set up a GitHub Action like this:
 
 ```yaml
+name: ESLint
+
 on:
   pull_request:
     branches: [main] # or [master] if that's name of the main branch

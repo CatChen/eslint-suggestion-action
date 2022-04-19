@@ -205,7 +205,12 @@ async function run(
         if (
           !suppressAnnotations &&
           (indexedModifiedLines[message.line] || outOfScopeAnnotations)
-        )
+        ) {
+          if (indexedModifiedLines[message.line]) {
+            info(`  Annotation: ${message.line}`);
+          } else {
+            info(`  Out-of-scope annotation: ${message.line}`);
+          }
           switch (message.severity) {
             case 0:
               notice(`${message.message} (${message.ruleId})`);
@@ -240,6 +245,7 @@ async function run(
             default:
               throw new Error(`Unrecognized severity: ${message.severity}`);
           }
+        }
         if (indexedModifiedLines[message.line]) {
           info(`  Matched line: ${message.line}`);
           if (message.fix && !suppressFixes) {
