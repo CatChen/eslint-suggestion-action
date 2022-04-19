@@ -208,6 +208,7 @@ async function run(
         )
           switch (message.severity) {
             case 0:
+              notice(`${message.message} (${message.ruleId})`);
               notice(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
                 file: file.filename,
                 startLine: message.line,
@@ -217,6 +218,7 @@ async function run(
               });
               break;
             case 1:
+              warning(`${message.message} (${message.ruleId})`);
               warning(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
                 file: file.filename,
                 startLine: message.line,
@@ -226,6 +228,7 @@ async function run(
               });
               break;
             case 2:
+              error(`${message.message} (${message.ruleId})`);
               error(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
                 file: file.filename,
                 startLine: message.line,
