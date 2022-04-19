@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: yarn install # or npm ci if you use npm and have the package-lock.json file
 
-      - uses: CatChen/eslint-suggestion-action@v1.1.29
+      - uses: CatChen/eslint-suggestion-action@v1.2.1
         with:
           github-workspace: ${{ github.workspace }} # required
           github-token: ${{ secrets.GITHUB_TOKEN }} # optional
