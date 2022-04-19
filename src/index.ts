@@ -205,8 +205,7 @@ async function run(
         const rule = eslintRules[message.ruleId];
         if (
           !suppressAnnotations &&
-          indexedModifiedLines[message.line] &&
-          outOfScopeAnnotations
+          (indexedModifiedLines[message.line] || outOfScopeAnnotations)
         )
           switch (message.severity) {
             case 0:
