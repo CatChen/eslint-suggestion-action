@@ -9560,10 +9560,10 @@ const WORKING_DIRECTORY = node_process_1.default.cwd();
 function run(mock = undefined) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
     return __awaiter(this, void 0, void 0, function* () {
-        const outOfScopeAnnotations = mock === undefined ? (0, core_1.getInput)("out-of-scope-annotations") : false;
-        const suppressFixes = mock === undefined ? (0, core_1.getInput)("suppress-fixes") : false;
-        const suppressSuggestions = mock === undefined ? (0, core_1.getInput)("suppress-suggestions") : false;
-        const suppressAnnotations = mock === undefined ? (0, core_1.getInput)("suppress-annotations") : false;
+        const outOfScopeAnnotations = mock === undefined ? (0, core_1.getBooleanInput)("out-of-scope-annotations") : false;
+        const suppressFixes = mock === undefined ? (0, core_1.getBooleanInput)("suppress-fixes") : false;
+        const suppressSuggestions = mock === undefined ? (0, core_1.getBooleanInput)("suppress-suggestions") : false;
+        const suppressAnnotations = mock === undefined ? (0, core_1.getBooleanInput)("suppress-annotations") : false;
         (0, core_1.startGroup)("ESLint");
         const githubWorkspace = mock === undefined ? (0, core_1.getInput)("github-workspace") : node_path_1.default.resolve(".");
         const require = (0, module_1.createRequire)(githubWorkspace);
