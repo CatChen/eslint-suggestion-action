@@ -200,10 +200,7 @@ async function run(
 
     const result = IndexedResults[file.filename];
     if (result) {
-      const source = result.source.split("\n");
-      const sourceLineLengths = source.map((line) => line.length + 1);
       for (const message of result.messages) {
-        const unscopedRuleId = message.ruleId.match(RULE_UNSCOPE_PATTERN)?.[2];
         const rule = eslintRules[message.ruleId];
         if (
           !suppressAnnotations &&
@@ -243,20 +240,28 @@ async function run(
         if (indexedModifiedLines[message.line]) {
           info(`  Matched line: ${message.line}`);
           if (message.fix && !suppressFixes) {
-            const beforeSourceLength = sourceLineLengths
-              .slice(0, message.line - 1)
-              .reduce((previous, current) => previous + current, 0);
-            const replaceIndexStart = message.fix.range[0] - beforeSourceLength;
-            const replaceIndexEnd = message.fix.range[1] - beforeSourceLength;
-            const originalLine = source[message.line - 1];
-            const replacedLine =
-              originalLine.substring(0, replaceIndexStart) +
+            const textRange = result.source.substring(
+              message.fix.range[0],
+              message.fix.range[1]
+            );
+            const impactedOriginalLines = textRange.split("\n").length;
+            const originalLines = result.source
+              .split("\n")
+              .slice(message.line, message.line + impactedOriginalLines);
+            const replacedSource =
+              result.source.substring(0, message.fix.range[0]) +
               message.fix.text +
-              originalLine.substring(replaceIndexEnd);
+              result.source.substring(message.fix.range[1]);
+            const impactedReplaceLines = message.fix.text.split("\n").length;
+            const replacedLines = replacedSource
+              .split("\n")
+              .slice(message.line, message.line + impactedReplaceLines);
             info(
               "    Fix:\n" +
                 "      " +
-                `${originalLine} => ${replacedLine} @ ${message.line}`.trim()
+                `@@ -${message.line},${impactedOriginalLines} +${impactedReplaceLines} @@\n` +
+                `${originalLines.map((line) => "- " + line).join("\n")}\n` +
+                `${replacedLines.map((line) => "+ " + line).join("\n")}`
             );
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
@@ -264,17 +269,21 @@ async function run(
               body:
                 `[${rule?.docs?.description}](${rule?.docs?.url}). Fix available:\n\n` +
                 "```suggestion\n" +
-                `${replacedLine}\n` +
+                `${replacedLines.join("\n")}\n` +
                 "```\n",
               pull_number: pullRequest.number,
               commit_id: headSha,
               path: file.filename,
+              start_side: "RIGHT",
+              start_line: message.line,
               side: "RIGHT",
-              line: message.line,
+              line: message.line + impactedOriginalLines - 1,
             });
             info(`      Commented`);
           }
           if (message.suggestions && !suppressSuggestions) {
+            const source = result.source.split("\n");
+            const sourceLineLengths = source.map((line) => line.length + 1);
             const beforeSourceLength = sourceLineLengths
               .slice(0, message.line - 1)
               .reduce((previous, current) => previous + current, 0);
