@@ -9560,6 +9560,10 @@ const WORKING_DIRECTORY = node_process_1.default.cwd();
 function run(mock = undefined) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
     return __awaiter(this, void 0, void 0, function* () {
+        const outOfScopeAnnotations = mock === undefined ? (0, core_1.getInput)("out-of-scope-annotations") : false;
+        const suppressFixes = mock === undefined ? (0, core_1.getInput)("suppress-fixes") : false;
+        const suppressSuggestions = mock === undefined ? (0, core_1.getInput)("suppress-suggestions") : false;
+        const suppressAnnotations = mock === undefined ? (0, core_1.getInput)("suppress-annotations") : false;
         (0, core_1.startGroup)("ESLint");
         const githubWorkspace = mock === undefined ? (0, core_1.getInput)("github-workspace") : node_path_1.default.resolve(".");
         const require = (0, module_1.createRequire)(githubWorkspace);
@@ -9687,40 +9691,43 @@ function run(mock = undefined) {
                 for (const message of result.messages) {
                     const unscopedRuleId = (_b = message.ruleId.match(RULE_UNSCOPE_PATTERN)) === null || _b === void 0 ? void 0 : _b[2];
                     const rule = eslintRules[message.ruleId];
-                    switch (message.severity) {
-                        case 0:
-                            (0, core_1.notice)(`${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.description}\n${(_d = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _d === void 0 ? void 0 : _d.url}`, {
-                                file: file.filename,
-                                startLine: message.line,
-                                startColumn: message.column,
-                                endColumn: message.endColumn,
-                                title: `${message.message} (${message.ruleId})`,
-                            });
-                            break;
-                        case 1:
-                            (0, core_1.warning)(`${(_e = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _e === void 0 ? void 0 : _e.description}\n${(_f = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _f === void 0 ? void 0 : _f.url}`, {
-                                file: file.filename,
-                                startLine: message.line,
-                                startColumn: message.column,
-                                endColumn: message.endColumn,
-                                title: `${message.message} (${message.ruleId})`,
-                            });
-                            break;
-                        case 2:
-                            (0, core_1.error)(`${(_g = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _g === void 0 ? void 0 : _g.description}\n${(_h = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _h === void 0 ? void 0 : _h.url}`, {
-                                file: file.filename,
-                                startLine: message.line,
-                                startColumn: message.column,
-                                endColumn: message.endColumn,
-                                title: `${message.message} (${message.ruleId})`,
-                            });
-                            break;
-                        default:
-                            throw new Error(`Unrecognized severity: ${message.severity}`);
-                    }
+                    if (!suppressAnnotations &&
+                        indexedModifiedLines[message.line] &&
+                        outOfScopeAnnotations)
+                        switch (message.severity) {
+                            case 0:
+                                (0, core_1.notice)(`${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.description}\n${(_d = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _d === void 0 ? void 0 : _d.url}`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                    startColumn: message.column,
+                                    endColumn: message.endColumn,
+                                    title: `${message.message} (${message.ruleId})`,
+                                });
+                                break;
+                            case 1:
+                                (0, core_1.warning)(`${(_e = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _e === void 0 ? void 0 : _e.description}\n${(_f = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _f === void 0 ? void 0 : _f.url}`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                    startColumn: message.column,
+                                    endColumn: message.endColumn,
+                                    title: `${message.message} (${message.ruleId})`,
+                                });
+                                break;
+                            case 2:
+                                (0, core_1.error)(`${(_g = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _g === void 0 ? void 0 : _g.description}\n${(_h = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _h === void 0 ? void 0 : _h.url}`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                    startColumn: message.column,
+                                    endColumn: message.endColumn,
+                                    title: `${message.message} (${message.ruleId})`,
+                                });
+                                break;
+                            default:
+                                throw new Error(`Unrecognized severity: ${message.severity}`);
+                        }
                     if (indexedModifiedLines[message.line]) {
                         (0, core_1.info)(`  Matched line: ${message.line}`);
-                        if (message.fix) {
+                        if (message.fix && !suppressFixes) {
                             const beforeSourceLength = sourceLineLengths
                                 .slice(0, message.line - 1)
                                 .reduce((previous, current) => previous + current, 0);
@@ -9748,7 +9755,7 @@ function run(mock = undefined) {
                             });
                             (0, core_1.info)(`      Commented`);
                         }
-                        if (message.suggestions) {
+                        if (message.suggestions && !suppressSuggestions) {
                             const beforeSourceLength = sourceLineLengths
                                 .slice(0, message.line - 1)
                                 .reduce((previous, current) => previous + current, 0);
