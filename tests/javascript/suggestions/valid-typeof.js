@@ -8,6 +8,7 @@ function incorrect() {
   typeof bar !== "fucntion"
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function correct() {
   /*eslint valid-typeof: "error"*/
 
