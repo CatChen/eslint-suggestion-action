@@ -1,6 +1,7 @@
 import { getOctokit, context } from "@actions/github";
 import {
   getInput,
+  getBooleanInput,
   info,
   startGroup,
   endGroup,
@@ -30,12 +31,13 @@ async function run(
     | undefined = undefined
 ) {
   const outOfScopeAnnotations =
-    mock === undefined ? getInput("out-of-scope-annotations") : false;
-  const suppressFixes = mock === undefined ? getInput("suppress-fixes") : false;
+    mock === undefined ? getBooleanInput("out-of-scope-annotations") : false;
+  const suppressFixes =
+    mock === undefined ? getBooleanInput("suppress-fixes") : false;
   const suppressSuggestions =
-    mock === undefined ? getInput("suppress-suggestions") : false;
+    mock === undefined ? getBooleanInput("suppress-suggestions") : false;
   const suppressAnnotations =
-    mock === undefined ? getInput("suppress-annotations") : false;
+    mock === undefined ? getBooleanInput("suppress-annotations") : false;
 
   startGroup("ESLint");
   const githubWorkspace =
