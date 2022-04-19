@@ -37,9 +37,9 @@ jobs:
           suppress-fixes: false # optional
           suppress-suggestions: false # optional
           suppress-annotations: false # optional
+```
 
 Save the file to `.github/workflows/eslint.yml`. It will start working on new Pull Requests.
-```
 
 ## Options
 
