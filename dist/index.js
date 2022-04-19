@@ -9692,6 +9692,7 @@ function run(mock = undefined) {
                         (indexedModifiedLines[message.line] || outOfScopeAnnotations))
                         switch (message.severity) {
                             case 0:
+                                (0, core_1.notice)(`${message.message} (${message.ruleId})`);
                                 (0, core_1.notice)(`${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.description}\n${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url}`, {
                                     file: file.filename,
                                     startLine: message.line,
@@ -9701,6 +9702,7 @@ function run(mock = undefined) {
                                 });
                                 break;
                             case 1:
+                                (0, core_1.warning)(`${message.message} (${message.ruleId})`);
                                 (0, core_1.warning)(`${(_d = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _d === void 0 ? void 0 : _d.description}\n${(_e = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _e === void 0 ? void 0 : _e.url}`, {
                                     file: file.filename,
                                     startLine: message.line,
@@ -9710,6 +9712,7 @@ function run(mock = undefined) {
                                 });
                                 break;
                             case 2:
+                                (0, core_1.error)(`${message.message} (${message.ruleId})`);
                                 (0, core_1.error)(`${(_f = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _f === void 0 ? void 0 : _f.description}\n${(_g = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _g === void 0 ? void 0 : _g.url}`, {
                                     file: file.filename,
                                     startLine: message.line,
