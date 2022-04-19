@@ -247,7 +247,10 @@ async function run(
             const impactedOriginalLines = textRange.split("\n").length;
             const originalLines = result.source
               .split("\n")
-              .slice(message.line, message.line + impactedOriginalLines);
+              .slice(
+                message.line - 1,
+                message.line - 1 + impactedOriginalLines
+              );
             const replacedSource =
               result.source.substring(0, message.fix.range[0]) +
               message.fix.text +
@@ -255,13 +258,15 @@ async function run(
             const impactedReplaceLines = message.fix.text.split("\n").length;
             const replacedLines = replacedSource
               .split("\n")
-              .slice(message.line, message.line + impactedReplaceLines);
+              .slice(message.line - 1, message.line - 1 + impactedReplaceLines);
             info(
               "    Fix:\n" +
                 "      " +
                 `@@ -${message.line},${impactedOriginalLines} +${impactedReplaceLines} @@\n` +
-                `${originalLines.map((line) => "- " + line).join("\n")}\n` +
-                `${replacedLines.map((line) => "+ " + line).join("\n")}`
+                `${originalLines
+                  .map((line) => "      - " + line)
+                  .join("\n")}\n` +
+                `${replacedLines.map((line) => "      + " + line).join("\n")}`
             );
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
