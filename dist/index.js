@@ -9763,8 +9763,12 @@ function run(mock = undefined) {
                                 pull_number: pullRequest.number,
                                 commit_id: headSha,
                                 path: file.filename,
-                                start_side: "RIGHT",
-                                start_line: message.line,
+                                start_side: message.line === message.line + impactedOriginalLines - 1
+                                    ? undefined
+                                    : "RIGHT",
+                                start_line: message.line === message.line + impactedOriginalLines - 1
+                                    ? undefined
+                                    : message.line,
                                 side: "RIGHT",
                                 line: message.line + impactedOriginalLines - 1,
                             });
