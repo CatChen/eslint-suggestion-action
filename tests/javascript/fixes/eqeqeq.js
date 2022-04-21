@@ -7,61 +7,31 @@ function incorrect() {
   if ("" == text) { }
 
   if (obj.getStuff() != undefined) { }
+
+  /*eslint eqeqeq: ["error", "always"]*/
+
+  a == b
+  foo == true
+  bananas != 1
+  value == undefined
+  typeof foo == 'undefined'
+  'hello' != 'world'
+  0 == 0
+  true == true
+  foo == null
+
 }
 
-function always() {
-  function incorrect() {
-    /*eslint eqeqeq: ["error", "always"]*/
+function correct() {
+  /*eslint eqeqeq: ["error", "always"]*/
 
-    a == b
-    foo == true
-    bananas != 1
-    value == undefined
-    typeof foo == 'undefined'
-    'hello' != 'world'
-    0 == 0
-    true == true
-    foo == null
-
-  }
-
-  function correct() {
-    /*eslint eqeqeq: ["error", "always"]*/
-
-    a === b
-    foo === true
-    bananas !== 1
-    value === undefined
-    typeof foo === 'undefined'
-    'hello' !== 'world'
-    0 === 0
-    true === true
-    foo === null
-  }
-}
-
-function smart() {
-  function incorrect() {
-    /*eslint eqeqeq: ["error", "smart"]*/
-
-    // comparing two variables requires ===
-    a == b
-
-    // only one side is a literal
-    foo == true
-    bananas != 1
-
-    // comparing to undefined requires ===
-    value == undefined
-  }
-
-  function correct() {
-    /*eslint eqeqeq: ["error", "smart"]*/
-
-    typeof foo == 'undefined'
-    'hello' != 'world'
-    0 == 0
-    true == true
-    foo == null
-  }
+  a === b
+  foo === true
+  bananas !== 1
+  value === undefined
+  typeof foo === 'undefined'
+  'hello' !== 'world'
+  0 === 0
+  true === true
+  foo === null
 }
