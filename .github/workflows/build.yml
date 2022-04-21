@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [main]
     paths-ignore: [".github/**"]
+  push:
+    branches: [master]
+    paths-ignore: [".github/**"]
+  workflow_dispatch:
 
 jobs:
   build:
