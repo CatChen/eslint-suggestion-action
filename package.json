@@ -1,6 +1,6 @@
 {
   "name": "eslint-suggestion-action",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "",
   "main": "lib/index.js",
   "type": "module",
