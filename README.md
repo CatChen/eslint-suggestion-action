@@ -5,6 +5,16 @@ This is a GitHub Action that runs ESLint and provides inline feedback to the cha
 1. If ESLint can auto-fix a problem the fix would be created as an inline suggestion. You can decide whether you want to accept the fix as suggested.
 2. It only provides feedback for the lines that are changed in the Pull Request. It doesn't create noise for pre-existing code that doesn't pass ESLint.
 
+## Examples
+
+When there is only one fix available this action will suggest that fix:
+
+![fix-example-screenshot](https://user-images.githubusercontent.com/112175/164535202-70b7e18e-6f77-4288-84c7-5f7fa2b9fdd2.jpg)
+
+When there are multiple suggestions available this action will show them all and let you decide which one matches your intent:
+
+![suggestion-example-screenshot](https://user-images.githubusercontent.com/112175/164535483-e28bc2ac-8428-4ed9-a60a-8d85045753b9.jpg)
+
 ## Usage
 
 Set up a GitHub Action like this:
