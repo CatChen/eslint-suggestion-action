@@ -1,4 +1,5 @@
-import { getOctokit, context } from "@actions/github";
+import { context } from "@actions/github";
+import { GitHub, getOctokitOptions } from "@actions/github/lib/utils";
 import {
   getInput,
   getBooleanInput,
@@ -11,6 +12,8 @@ import {
 } from "@actions/core";
 import { exec } from "@actions/exec";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
+import { throttling } from "@octokit/plugin-throttling";
+import { retry } from "@octokit/plugin-retry";
 import process from "node:process";
 import path from "node:path";
 import { existsSync } from "node:fs";
@@ -122,7 +125,53 @@ async function run(
 
   startGroup("GitHub Pull Request");
   const githubToken = mock?.token || getInput("github-token");
-  const octokit = getOctokit(githubToken);
+  const Octokit = GitHub.plugin(throttling, retry);
+  const octokit = new Octokit(
+    getOctokitOptions(githubToken, {
+      throttle: {
+        onRateLimit: (
+          retryAfter: number,
+          options: {
+            method: string;
+            url: string;
+            request: { retryCount: number };
+          }
+        ) => {
+          if (options.request.retryCount === 0) {
+            octokit.log.warn(
+              `Request quota exhausted for request ${options.method} ${options.url}`
+            );
+            octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+            return true;
+          } else {
+            octokit.log.error(
+              `Request quota exhausted for request ${options.method} ${options.url}`
+            );
+          }
+        },
+        onSecondaryRateLimit: (
+          retryAfter: number,
+          options: { method: any; url: any; request: { retryCount: number } }
+        ) => {
+          if (options.request.retryCount === 0) {
+            octokit.log.warn(
+              `Abuse detected for request ${options.method} ${options.url}`
+            );
+            octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+            return true;
+          } else {
+            octokit.log.warn(
+              `Abuse detected for request ${options.method} ${options.url}`
+            );
+          }
+        },
+      },
+      retry: {
+        doNotRetry: ["429"],
+      },
+    })
+  );
+  octokit.rest.rateLimit;
 
   let pullRequest: PullRequest;
   if (mock) {
