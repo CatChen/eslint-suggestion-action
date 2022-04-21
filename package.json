@@ -1,6 +1,6 @@
 {
   "name": "eslint-suggestion-action",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "",
   "main": "lib/index.js",
   "type": "module",
@@ -33,6 +33,8 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/exec": "^1.1.1",
-    "@actions/github": "^5.0.1"
+    "@actions/github": "^5.0.1",
+    "@octokit/plugin-retry": "^3.0.9",
+    "@octokit/plugin-throttling": "^3.6.2"
   }
 }
