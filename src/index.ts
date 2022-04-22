@@ -275,7 +275,10 @@ async function run(
               notice(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
                 file: file.filename,
                 startLine: message.line,
-                endLine: message.endLine,
+                endLine:
+                  message.line === message.endLine
+                    ? undefined
+                    : message.endLine,
                 startColumn: message.column,
                 endColumn: message.endColumn,
                 title: `${message.message} (${message.ruleId})`,
@@ -286,7 +289,10 @@ async function run(
               warning(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
                 file: file.filename,
                 startLine: message.line,
-                endLine: message.endLine,
+                endLine:
+                  message.line === message.endLine
+                    ? undefined
+                    : message.endLine,
                 startColumn: message.column,
                 endColumn: message.endColumn,
                 title: `${message.message} (${message.ruleId})`,
@@ -297,7 +303,10 @@ async function run(
               error(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
                 file: file.filename,
                 startLine: message.line,
-                endLine: message.endLine,
+                endLine:
+                  message.line === message.endLine
+                    ? undefined
+                    : message.endLine,
                 startColumn: message.column,
                 endColumn: message.endColumn,
                 title: `${message.message} (${message.ruleId})`,
