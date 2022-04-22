@@ -91,6 +91,7 @@ async function run(
       messages: {
         severity: number;
         line: number;
+        endLine: number;
         column: number;
         endColumn: number;
         message: string;
@@ -260,9 +261,13 @@ async function run(
           (indexedModifiedLines[message.line] || outOfScopeAnnotations)
         ) {
           if (indexedModifiedLines[message.line]) {
-            info(`  Annotation: ${message.line}`);
+            info(
+              `  Annotation: ${message.line}:${message.column}-${message.endLine}:${message.endColumn}`
+            );
           } else {
-            info(`  Out-of-scope annotation: ${message.line}`);
+            info(
+              `  Out-of-scope annotation: ${message.line}:${message.column}-${message.endLine}:${message.endColumn}`
+            );
           }
           switch (message.severity) {
             case 0:
@@ -270,6 +275,7 @@ async function run(
               notice(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
                 file: file.filename,
                 startLine: message.line,
+                endLine: message.endLine,
                 startColumn: message.column,
                 endColumn: message.endColumn,
                 title: `${message.message} (${message.ruleId})`,
@@ -280,6 +286,7 @@ async function run(
               warning(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
                 file: file.filename,
                 startLine: message.line,
+                endLine: message.endLine,
                 startColumn: message.column,
                 endColumn: message.endColumn,
                 title: `${message.message} (${message.ruleId})`,
@@ -290,6 +297,7 @@ async function run(
               error(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
                 file: file.filename,
                 startLine: message.line,
+                endLine: message.endLine,
                 startColumn: message.column,
                 endColumn: message.endColumn,
                 title: `${message.message} (${message.ruleId})`,
