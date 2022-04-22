@@ -11637,10 +11637,10 @@ function run(mock = undefined) {
                     if (!suppressAnnotations &&
                         (indexedModifiedLines[message.line] || outOfScopeAnnotations)) {
                         if (indexedModifiedLines[message.line]) {
-                            (0, core_1.info)(`  Annotation: ${message.line}`);
+                            (0, core_1.info)(`  Annotation: ${message.line}:${message.column}-${message.endLine}:${message.endColumn}`);
                         }
                         else {
-                            (0, core_1.info)(`  Out-of-scope annotation: ${message.line}`);
+                            (0, core_1.info)(`  Out-of-scope annotation: ${message.line}:${message.column}-${message.endLine}:${message.endColumn}`);
                         }
                         switch (message.severity) {
                             case 0:
@@ -11648,6 +11648,7 @@ function run(mock = undefined) {
                                 (0, core_1.notice)(`${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.description}\n${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url}`, {
                                     file: file.filename,
                                     startLine: message.line,
+                                    endLine: message.endLine,
                                     startColumn: message.column,
                                     endColumn: message.endColumn,
                                     title: `${message.message} (${message.ruleId})`,
@@ -11658,6 +11659,7 @@ function run(mock = undefined) {
                                 (0, core_1.warning)(`${(_d = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _d === void 0 ? void 0 : _d.description}\n${(_e = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _e === void 0 ? void 0 : _e.url}`, {
                                     file: file.filename,
                                     startLine: message.line,
+                                    endLine: message.endLine,
                                     startColumn: message.column,
                                     endColumn: message.endColumn,
                                     title: `${message.message} (${message.ruleId})`,
@@ -11668,6 +11670,7 @@ function run(mock = undefined) {
                                 (0, core_1.error)(`${(_f = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _f === void 0 ? void 0 : _f.description}\n${(_g = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _g === void 0 ? void 0 : _g.url}`, {
                                     file: file.filename,
                                     startLine: message.line,
+                                    endLine: message.endLine,
                                     startColumn: message.column,
                                     endColumn: message.endColumn,
                                     title: `${message.message} (${message.ruleId})`,
