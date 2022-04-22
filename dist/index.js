@@ -11651,8 +11651,10 @@ function run(mock = undefined) {
                                     endLine: message.line === message.endLine
                                         ? undefined
                                         : message.endLine,
-                                    startColumn: message.column,
-                                    endColumn: message.endColumn,
+                                    startColumn: message.line === message.endLine ? message.column : undefined,
+                                    endColumn: message.line === message.endLine
+                                        ? message.endColumn
+                                        : undefined,
                                     title: `${message.message} (${message.ruleId})`,
                                 });
                                 break;
@@ -11664,8 +11666,10 @@ function run(mock = undefined) {
                                     endLine: message.line === message.endLine
                                         ? undefined
                                         : message.endLine,
-                                    startColumn: message.column,
-                                    endColumn: message.endColumn,
+                                    startColumn: message.line === message.endLine ? message.column : undefined,
+                                    endColumn: message.line === message.endLine
+                                        ? message.endColumn
+                                        : undefined,
                                     title: `${message.message} (${message.ruleId})`,
                                 });
                                 break;
@@ -11677,8 +11681,10 @@ function run(mock = undefined) {
                                     endLine: message.line === message.endLine
                                         ? undefined
                                         : message.endLine,
-                                    startColumn: message.column,
-                                    endColumn: message.endColumn,
+                                    startColumn: message.line === message.endLine ? message.column : undefined,
+                                    endColumn: message.line === message.endLine
+                                        ? message.endColumn
+                                        : undefined,
                                     title: `${message.message} (${message.ruleId})`,
                                 });
                                 break;
