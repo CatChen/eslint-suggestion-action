@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths-ignore: [".github/**"]
   push:
-    branches: [master]
+    branches: [main]
     paths-ignore: [".github/**"]
   workflow_dispatch:
 
