@@ -190,11 +190,15 @@ async function getPullRequestFiles(
   pullRequestNumber: number,
   octokit: Octokit & Api
 ) {
+  info(`Owner: ${owner}`);
+  info(`Repo: ${repo}`);
+  info(`Pull request number: ${pullRequestNumber}`);
   const response = await octokit.rest.pulls.listFiles({
     owner,
     repo,
     pull_number: pullRequestNumber,
   });
+  info(`Files (${response.data.length}):`);
   return response.data;
 }
 
@@ -312,7 +316,6 @@ async function run(mock: MockConfig | undefined = undefined) {
     octokit
   );
 
-  info(`Files (${files.length}):`);
   for (const file of files) {
     info(`  File name: ${file.filename}`);
     info(`  File status: ${file.status}`);
@@ -329,67 +332,6 @@ async function run(mock: MockConfig | undefined = undefined) {
           continue;
         }
         const rule = ruleMetaDatas[message.ruleId];
-        // if (indexedModifiedLines[message.line]) {
-        //   info(
-        //     `  Annotation: ${message.line}:${message.column}-${message.endLine}:${message.endColumn}`
-        //   );
-        // } else {
-        //   info(
-        //     `  Out-of-scope annotation: ${message.line}:${message.column}-${message.endLine}:${message.endColumn}`
-        //   );
-        // }
-        // switch (message.severity) {
-        //   case 0:
-        //     notice(`${message.message} (${message.ruleId})`);
-        //     notice(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
-        //       file: file.filename,
-        //       startLine: message.line,
-        //       endLine:
-        //         message.line === message.endLine ? undefined : message.endLine,
-        //       startColumn:
-        //         message.line === message.endLine ? message.column : undefined,
-        //       endColumn:
-        //         message.line === message.endLine
-        //           ? message.endColumn
-        //           : undefined,
-        //       title: `${message.message} (${message.ruleId})`,
-        //     });
-        //     break;
-        //   case 1:
-        //     warning(`${message.message} (${message.ruleId})`);
-        //     warning(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
-        //       file: file.filename,
-        //       startLine: message.line,
-        //       endLine:
-        //         message.line === message.endLine ? undefined : message.endLine,
-        //       startColumn:
-        //         message.line === message.endLine ? message.column : undefined,
-        //       endColumn:
-        //         message.line === message.endLine
-        //           ? message.endColumn
-        //           : undefined,
-        //       title: `${message.message} (${message.ruleId})`,
-        //     });
-        //     break;
-        //   case 2:
-        //     error(`${message.message} (${message.ruleId})`);
-        //     error(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
-        //       file: file.filename,
-        //       startLine: message.line,
-        //       endLine:
-        //         message.line === message.endLine ? undefined : message.endLine,
-        //       startColumn:
-        //         message.line === message.endLine ? message.column : undefined,
-        //       endColumn:
-        //         message.line === message.endLine
-        //           ? message.endColumn
-        //           : undefined,
-        //       title: `${message.message} (${message.ruleId})`,
-        //     });
-        //     break;
-        //   default:
-        //     throw new Error(`Unrecognized severity: ${message.severity}`);
-        // }
         if (indexedModifiedLines[message.line]) {
           info(`  Matched line: ${message.line}`);
           if (message.fix) {
