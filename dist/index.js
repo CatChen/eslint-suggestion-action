@@ -14592,9 +14592,6 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
     }
     function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
       return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.info)(`Owner: ${owner}`);
-        (0, core_1.info)(`Repo: ${repo}`);
-        (0, core_1.info)(`Pull request number: ${pullRequestNumber}`);
         const response = yield octokit.rest.pulls.listFiles({
           owner,
           repo,
@@ -14719,8 +14716,8 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
         const { owner, repo, pullRequestNumber, headSha } =
           yield getPullRequestMetadata(mock, octokit);
         const files = yield getPullRequestFiles(
-          repo,
           owner,
+          repo,
           pullRequestNumber,
           octokit
         );
