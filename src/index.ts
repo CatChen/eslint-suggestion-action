@@ -390,6 +390,16 @@ async function run(mock: MockConfig | undefined = undefined) {
               pull_number: pullRequestNumber,
               commit_id: headSha,
               path: file.filename,
+            });
+            info(`    Commented`);
+          } else {
+            const response = await octokit.rest.pulls.createReviewComment({
+              owner,
+              repo,
+              body: `[${rule?.docs?.description}](${rule?.docs?.url}).`,
+              pull_number: pullRequestNumber,
+              commit_id: headSha,
+              path: file.filename,
               side: "RIGHT",
               line: message.line,
             });
