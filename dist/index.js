@@ -14748,7 +14748,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
                       Object.assign({ owner, repo }, reviewSuggestion),
                       {
                         body:
-                          `*${message.message}* [${message.ruleId}](${
+                          `**${message.message}** [${message.ruleId}](${
                             (_a =
                               rule === null || rule === void 0
                                 ? void 0
@@ -14799,7 +14799,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
                       Object.assign({ owner, repo }, reviewSuggestions),
                       {
                         body:
-                          `*${message.message}* [${message.ruleId}](${
+                          `**${message.message}** [${message.ruleId}](${
                             (_b =
                               rule === null || rule === void 0
                                 ? void 0
@@ -14823,7 +14823,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
                     {
                       owner,
                       repo,
-                      body: `*${message.message}* [${message.ruleId}](${
+                      body: `**${message.message}** [${message.ruleId}](${
                         (_c =
                           rule === null || rule === void 0
                             ? void 0
