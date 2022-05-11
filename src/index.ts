@@ -190,9 +190,6 @@ async function getPullRequestFiles(
   pullRequestNumber: number,
   octokit: Octokit & Api
 ) {
-  info(`Owner: ${owner}`);
-  info(`Repo: ${repo}`);
-  info(`Pull request number: ${pullRequestNumber}`);
   const response = await octokit.rest.pulls.listFiles({
     owner,
     repo,
@@ -310,8 +307,8 @@ async function run(mock: MockConfig | undefined = undefined) {
   const { owner, repo, pullRequestNumber, headSha } =
     await getPullRequestMetadata(mock, octokit);
   const files = await getPullRequestFiles(
-    repo,
     owner,
+    repo,
     pullRequestNumber,
     octokit
   );
