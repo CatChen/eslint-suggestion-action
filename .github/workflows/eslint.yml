@@ -6,7 +6,7 @@ on:
     paths-ignore: [".github/**"]
 
 jobs:
-  build:
+  eslint:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,6 +19,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - uses: CatChen/eslint-suggestion-action@v1.5.3
+      - uses: CatChen/eslint-suggestion-action@v1.5.6
         with:
           github-workspace: ${{ github.workspace }}
