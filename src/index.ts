@@ -2,7 +2,6 @@ import { context } from "@actions/github";
 import { GitHub, getOctokitOptions } from "@actions/github/lib/utils";
 import {
   getInput,
-  getBooleanInput,
   info,
   startGroup,
   endGroup,
@@ -18,31 +17,34 @@ import process from "node:process";
 import path from "node:path";
 import { existsSync } from "node:fs";
 import { createRequire } from "module";
+import { Octokit } from "@octokit/core";
+import { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
+import { components } from "@octokit/openapi-types/types";
+import { stringify } from "node:querystring";
 
-const HUNK_HEADER_PATTERN = /^@@ \-\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
-const RULE_UNSCOPE_PATTERN = /^(@.*?\/)?(.*)$/;
+type LintResult = import("eslint").ESLint.LintResult;
+type RuleMetaData = import("eslint").Rule.RuleMetaData;
+type Fix = import("eslint").Rule.Fix;
+
+type MockConfig = {
+  token: string;
+  owner: string;
+  repo: string;
+  number: number;
+};
+
+type ReviewSuggestion = {
+  start_side: "RIGHT" | undefined;
+  start_line: number | undefined;
+  side: "RIGHT";
+  line: number;
+  body: string;
+};
+
+const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
 
-async function run(
-  mock:
-    | {
-        token: string;
-        owner: string;
-        repo: string;
-        number: number;
-      }
-    | undefined = undefined
-) {
-  const outOfScopeAnnotations =
-    mock === undefined ? getBooleanInput("out-of-scope-annotations") : false;
-  const suppressFixes =
-    mock === undefined ? getBooleanInput("suppress-fixes") : false;
-  const suppressSuggestions =
-    mock === undefined ? getBooleanInput("suppress-suggestions") : false;
-  const suppressAnnotations =
-    mock === undefined ? getBooleanInput("suppress-annotations") : false;
-
-  startGroup("ESLint");
+async function getESLint(mock: MockConfig | undefined) {
   const githubWorkspace =
     mock === undefined ? getInput("github-workspace") : path.resolve(".");
   const require = createRequire(githubWorkspace);
@@ -67,9 +69,14 @@ async function run(
   if (!existsSync(eslintBinPath)) {
     throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
   }
+  info(`Using ESLint binary from: ${eslintBinPath}`);
+
+  return { eslint, eslintBinPath };
+}
+
+async function getESLintOutput(eslintBinPath: string) {
   let stdout = "";
   let stderr = "";
-  info(`Using ESLint binary from: ${eslintBinPath}`);
   try {
     await exec(eslintBinPath, [".", "--format", "json"], {
       listeners: {
@@ -82,49 +89,11 @@ async function run(
       },
     });
   } catch (error) {}
-  const results = JSON.parse(stdout);
+  const results: LintResult[] = JSON.parse(stdout);
+  return results;
+}
 
-  const IndexedResults: {
-    [file: string]: {
-      filePath: string;
-      source: string;
-      messages: {
-        severity: number;
-        line: number;
-        endLine: number;
-        column: number;
-        endColumn: number;
-        message: string;
-        ruleId: string;
-        fix?: { range: number[]; text: string };
-        suggestions?: {
-          messageId: string;
-          fix: { range: number[]; text: string };
-          desc: string;
-        }[];
-      }[];
-    };
-  } = {};
-  for (const file of results) {
-    const relativePath = path.relative(WORKING_DIRECTORY, file.filePath);
-    info(`File name: ${relativePath}`);
-    IndexedResults[relativePath] = file;
-    for (const message of file.messages) {
-      info(`  [${message.severity}] ${message.message} @ ${message.line}`);
-      if (message.suggestions) {
-        info(`  Suggestions (${message.suggestions.length}):`);
-        for (const suggestion of message.suggestions) {
-          info(`    ${suggestion.desc} (${suggestion.messageId})`);
-        }
-      }
-    }
-  }
-  const eslintRules: {
-    [name: string]: { docs?: { description?: string; url?: string } };
-  } = eslint.getRulesMetaForResults(results);
-  endGroup();
-
-  startGroup("GitHub Pull Request");
+function getOctokit(mock: MockConfig | undefined) {
   const githubToken = mock?.token || getInput("github-token");
   const Octokit = GitHub.plugin(throttling, retry);
   const octokit = new Octokit(
@@ -176,8 +145,13 @@ async function run(
       },
     })
   );
-  octokit.rest.rateLimit;
+  return octokit;
+}
 
+async function getPullRequestMetadata(
+  mock: MockConfig | undefined,
+  octokit: Octokit & Api
+) {
   let pullRequest: PullRequest;
   if (mock) {
     const response = await octokit.rest.pulls.get({
@@ -191,234 +165,239 @@ async function run(
   }
   const owner = mock?.owner || context.repo.owner;
   const repo = mock?.repo || context.repo.repo;
+  const pullRequestNumber = mock?.number || pullRequest.number;
   const baseSha = pullRequest.base.sha;
   const headSha = pullRequest.head.sha;
 
   info(`Owner: ${owner}`);
   info(`Repo: ${repo}`);
-  info(`Pull request number: ${mock?.number || pullRequest.number}`);
+  info(`Pull request number: ${pullRequestNumber}`);
   info(`Base SHA: ${baseSha}`);
   info(`Head SHA: ${headSha}`);
 
+  return {
+    owner,
+    repo,
+    pullRequestNumber,
+    baseSha,
+    headSha,
+  };
+}
+
+async function getPullRequestFiles(
+  owner: string,
+  repo: string,
+  pullRequestNumber: number,
+  octokit: Octokit & Api
+) {
   const response = await octokit.rest.pulls.listFiles({
     owner,
     repo,
-    pull_number: pullRequest.number,
+    pull_number: pullRequestNumber,
   });
   info(`Files (${response.data.length}):`);
-  for (const file of response.data) {
+  return response.data;
+}
+
+function getIndexedModifiedLines(file: components["schemas"]["diff-entry"]): {
+  [line: string]: true;
+} {
+  const modifiedLines = [];
+  const indexedModifiedLines: { [line: string]: true } = {};
+  let currentLine = 0;
+  let remainingLinesInHunk = 0;
+  const lines = file.patch?.split("\n");
+  if (lines) {
+    for (const line of lines) {
+      if (remainingLinesInHunk === 0) {
+        const matches = line.match(HUNK_HEADER_PATTERN);
+        currentLine = parseInt(matches?.[2] || "1");
+        remainingLinesInHunk = parseInt(matches?.[4] || "1");
+        if (!currentLine || !remainingLinesInHunk) {
+          throw new Error(
+            `Expecting hunk header in ${file.filename} but seeing ${line}.`
+          );
+        }
+      } else if (line[0] === "-") {
+        continue;
+      } else {
+        if (line[0] === "+") {
+          modifiedLines.push(currentLine);
+          indexedModifiedLines[currentLine] = true;
+        }
+        currentLine++;
+        remainingLinesInHunk--;
+      }
+    }
+  }
+
+  info(`  File modified lines: ${modifiedLines.join()}`);
+  if (file.patch !== undefined) {
+    info(
+      `  File patch: \n${file.patch
+        .split("\n")
+        .map((line) => "    " + line)
+        .join("\n")}\n`
+    );
+  }
+
+  return indexedModifiedLines;
+}
+
+function getCommentFromFix(source: string, line: number, fix: Fix) {
+  const textRange = source.substring(fix.range[0], fix.range[1]);
+  const impactedOriginalLines = textRange.split("\n").length;
+  const originalLines = source
+    .split("\n")
+    .slice(line - 1, line - 1 + impactedOriginalLines);
+  const replacedSource =
+    source.substring(0, fix.range[0]) +
+    fix.text +
+    source.substring(fix.range[1]);
+  const impactedReplaceLines = fix.text.split("\n").length;
+  const replacedLines = replacedSource
+    .split("\n")
+    .slice(line - 1, line - 1 + impactedReplaceLines);
+  info(
+    "    Fix:\n" +
+      "      " +
+      `@@ -${line},${impactedOriginalLines} +${impactedReplaceLines} @@\n` +
+      `${originalLines.map((line) => "      - " + line).join("\n")}\n` +
+      `${replacedLines.map((line) => "      + " + line).join("\n")}`
+  );
+  const reviewSuggestion: ReviewSuggestion = {
+    start_side: impactedOriginalLines === 1 ? undefined : "RIGHT",
+    start_line: impactedOriginalLines === 1 ? undefined : line,
+    side: "RIGHT",
+    line: line + impactedOriginalLines - 1,
+    body: "```suggestion\n" + `${replacedLines.join("\n")}\n` + "```\n",
+  };
+  return reviewSuggestion;
+}
+
+async function run(mock: MockConfig | undefined = undefined) {
+  startGroup("ESLint");
+  const { eslint, eslintBinPath } = await getESLint(mock);
+  const results = await getESLintOutput(eslintBinPath);
+
+  const indexedResults: {
+    [file: string]: LintResult;
+  } = {};
+  for (const file of results) {
+    const relativePath = path.relative(WORKING_DIRECTORY, file.filePath);
+    info(`File name: ${relativePath}`);
+    indexedResults[relativePath] = file;
+    for (const message of file.messages) {
+      info(`  [${message.severity}] ${message.message} @ ${message.line}`);
+      if (message.suggestions) {
+        info(`  Suggestions (${message.suggestions.length}):`);
+        for (const suggestion of message.suggestions) {
+          info(`    ${suggestion.desc} (${suggestion.messageId})`);
+        }
+      }
+    }
+  }
+  const ruleMetaDatas: {
+    [name: string]: RuleMetaData;
+  } = eslint.getRulesMetaForResults(results);
+  endGroup();
+
+  startGroup("GitHub Pull Request");
+  const octokit = getOctokit(mock);
+  const { owner, repo, pullRequestNumber, headSha } =
+    await getPullRequestMetadata(mock, octokit);
+  const files = await getPullRequestFiles(
+    owner,
+    repo,
+    pullRequestNumber,
+    octokit
+  );
+
+  for (const file of files) {
     info(`  File name: ${file.filename}`);
     info(`  File status: ${file.status}`);
     if (file.status === "removed") {
       continue;
     }
 
-    const modifiedLines = [];
-    const indexedModifiedLines: { [line: string]: true } = {};
-    let currentLine = 0;
-    let remainingLinesInHunk = 0;
-    const lines = file.patch?.split("\n");
-    if (lines) {
-      for (const line of lines) {
-        if (remainingLinesInHunk === 0) {
-          const matches = line.match(HUNK_HEADER_PATTERN);
-          currentLine = parseInt(matches?.[2] || "1");
-          remainingLinesInHunk = parseInt(matches?.[4] || "1");
-          if (!currentLine || !remainingLinesInHunk) {
-            throw new Error(
-              `Expecting hunk header in ${file.filename} but seeing ${line}.`
-            );
-          }
-        } else if (line[0] === "-") {
-          continue;
-        } else {
-          if (line[0] === "+") {
-            modifiedLines.push(currentLine);
-            indexedModifiedLines[currentLine] = true;
-          }
-          currentLine++;
-          remainingLinesInHunk--;
-        }
-      }
-    }
+    const indexedModifiedLines = getIndexedModifiedLines(file);
 
-    info(`  File modified lines: ${modifiedLines.join()}`);
-    if (file.patch !== undefined) {
-      info(
-        `  File patch: \n${file.patch
-          .split("\n")
-          .map((line) => "    " + line)
-          .join("\n")}\n`
-      );
-    }
-
-    const result = IndexedResults[file.filename];
+    const result = indexedResults[file.filename];
     if (result) {
       for (const message of result.messages) {
-        const rule = eslintRules[message.ruleId];
-        if (
-          !suppressAnnotations &&
-          (indexedModifiedLines[message.line] || outOfScopeAnnotations)
-        ) {
-          if (indexedModifiedLines[message.line]) {
-            info(
-              `  Annotation: ${message.line}:${message.column}-${message.endLine}:${message.endColumn}`
-            );
-          } else {
-            info(
-              `  Out-of-scope annotation: ${message.line}:${message.column}-${message.endLine}:${message.endColumn}`
-            );
-          }
-          switch (message.severity) {
-            case 0:
-              notice(`${message.message} (${message.ruleId})`);
-              notice(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
-                file: file.filename,
-                startLine: message.line,
-                endLine:
-                  message.line === message.endLine
-                    ? undefined
-                    : message.endLine,
-                startColumn:
-                  message.line === message.endLine ? message.column : undefined,
-                endColumn:
-                  message.line === message.endLine
-                    ? message.endColumn
-                    : undefined,
-                title: `${message.message} (${message.ruleId})`,
-              });
-              break;
-            case 1:
-              warning(`${message.message} (${message.ruleId})`);
-              warning(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
-                file: file.filename,
-                startLine: message.line,
-                endLine:
-                  message.line === message.endLine
-                    ? undefined
-                    : message.endLine,
-                startColumn:
-                  message.line === message.endLine ? message.column : undefined,
-                endColumn:
-                  message.line === message.endLine
-                    ? message.endColumn
-                    : undefined,
-                title: `${message.message} (${message.ruleId})`,
-              });
-              break;
-            case 2:
-              error(`${message.message} (${message.ruleId})`);
-              error(`${rule?.docs?.description}\n${rule?.docs?.url}`, {
-                file: file.filename,
-                startLine: message.line,
-                endLine:
-                  message.line === message.endLine
-                    ? undefined
-                    : message.endLine,
-                startColumn:
-                  message.line === message.endLine ? message.column : undefined,
-                endColumn:
-                  message.line === message.endLine
-                    ? message.endColumn
-                    : undefined,
-                title: `${message.message} (${message.ruleId})`,
-              });
-              break;
-            default:
-              throw new Error(`Unrecognized severity: ${message.severity}`);
-          }
+        if (message.ruleId === null || result.source === undefined) {
+          continue;
         }
+        const rule = ruleMetaDatas[message.ruleId];
         if (indexedModifiedLines[message.line]) {
           info(`  Matched line: ${message.line}`);
-          if (message.fix && !suppressFixes) {
-            const textRange = result.source.substring(
-              message.fix.range[0],
-              message.fix.range[1]
-            );
-            const impactedOriginalLines = textRange.split("\n").length;
-            const originalLines = result.source
-              .split("\n")
-              .slice(
-                message.line - 1,
-                message.line - 1 + impactedOriginalLines
-              );
-            const replacedSource =
-              result.source.substring(0, message.fix.range[0]) +
-              message.fix.text +
-              result.source.substring(message.fix.range[1]);
-            const impactedReplaceLines = message.fix.text.split("\n").length;
-            const replacedLines = replacedSource
-              .split("\n")
-              .slice(message.line - 1, message.line - 1 + impactedReplaceLines);
-            info(
-              "    Fix:\n" +
-                "      " +
-                `@@ -${message.line},${impactedOriginalLines} +${impactedReplaceLines} @@\n` +
-                `${originalLines
-                  .map((line) => "      - " + line)
-                  .join("\n")}\n` +
-                `${replacedLines.map((line) => "      + " + line).join("\n")}`
+          if (message.fix) {
+            const reviewSuggestion = getCommentFromFix(
+              result.source,
+              message.line,
+              message.fix
             );
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
               repo,
+              ...reviewSuggestion,
               body:
-                `[${rule?.docs?.description}](${rule?.docs?.url}). Fix available:\n\n` +
-                "```suggestion\n" +
-                `${replacedLines.join("\n")}\n` +
-                "```\n",
-              pull_number: pullRequest.number,
+                `*${message.message}* [${message.ruleId}](${rule?.docs?.url})\n\nFix available:\n\n` +
+                reviewSuggestion.body,
+              pull_number: pullRequestNumber,
               commit_id: headSha,
               path: file.filename,
-              start_side:
-                message.line === message.line + impactedOriginalLines - 1
-                  ? undefined
-                  : "RIGHT",
-              start_line:
-                message.line === message.line + impactedOriginalLines - 1
-                  ? undefined
-                  : message.line,
-              side: "RIGHT",
-              line: message.line + impactedOriginalLines - 1,
             });
             info(`      Commented`);
-          }
-          if (message.suggestions && !suppressSuggestions) {
-            const source = result.source.split("\n");
-            const sourceLineLengths = source.map((line) => line.length + 1);
-            const beforeSourceLength = sourceLineLengths
-              .slice(0, message.line - 1)
-              .reduce((previous, current) => previous + current, 0);
-            const suggestionBlocks = [];
+          } else if (message.suggestions) {
+            let reviewSuggestions: ReviewSuggestion | undefined = undefined;
             for (const suggestion of message.suggestions) {
-              const replaceIndexStart =
-                suggestion.fix.range[0] - beforeSourceLength;
-              const replaceIndexEnd =
-                suggestion.fix.range[1] - beforeSourceLength;
-              const originalLine = source[message.line - 1];
-              const replacedLine =
-                originalLine.substring(0, replaceIndexStart) +
-                suggestion.fix.text +
-                originalLine.substring(replaceIndexEnd);
-              suggestionBlocks.push(
-                `${suggestion.desc} (${suggestion.messageId})\n\n` +
-                  "```suggestion\n" +
-                  `${replacedLine}\n` +
-                  "```\n"
+              const reviewSuggestion = getCommentFromFix(
+                result.source,
+                message.line,
+                suggestion.fix
               );
-              info(
-                "    Suggestion:\n" +
-                  "      " +
-                  `${originalLine} => ${replacedLine} @ ${message.line}`.trim()
-              );
+              if (reviewSuggestions === undefined) {
+                reviewSuggestions = { ...reviewSuggestion };
+              } else {
+                if (
+                  reviewSuggestion.start_line !==
+                    reviewSuggestions.start_line ||
+                  reviewSuggestion.line !== reviewSuggestions.line
+                ) {
+                  error(
+                    `    Suggestions have mismatched line(s): ${
+                      reviewSuggestions.start_line === undefined
+                        ? ""
+                        : reviewSuggestions.start_line + ":"
+                    }${reviewSuggestions.line} and ${
+                      reviewSuggestion.start_line === undefined
+                        ? ""
+                        : reviewSuggestion.start_line + ":"
+                    }${reviewSuggestion.line}`
+                  );
+                }
+                reviewSuggestions.body += "\n" + reviewSuggestion.body;
+              }
             }
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
               repo,
+              ...reviewSuggestions,
               body:
-                `[${rule?.docs?.description}](${rule?.docs?.url}). Suggestion(s) available:\n\n` +
-                suggestionBlocks.join("\n"),
-              pull_number: pullRequest.number,
+                `*${message.message}* [${message.ruleId}](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
+                reviewSuggestions?.body,
+              pull_number: pullRequestNumber,
+              commit_id: headSha,
+              path: file.filename,
+            });
+            info(`    Commented`);
+          } else {
+            const response = await octokit.rest.pulls.createReviewComment({
+              owner,
+              repo,
+              body: `*${message.message}* [${message.ruleId}](${rule?.docs?.url})`,
+              pull_number: pullRequestNumber,
               commit_id: headSha,
               path: file.filename,
               side: "RIGHT",
