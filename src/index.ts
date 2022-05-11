@@ -342,7 +342,7 @@ async function run(mock: MockConfig | undefined = undefined) {
               repo,
               ...reviewSuggestion,
               body:
-                `[${rule?.docs?.description}](${rule?.docs?.url}). Fix available:\n\n` +
+                `*${message.message}* [${message.ruleId}](${rule?.docs?.url})\n\nFix available:\n\n` +
                 reviewSuggestion.body,
               pull_number: pullRequestNumber,
               commit_id: headSha,
@@ -385,7 +385,7 @@ async function run(mock: MockConfig | undefined = undefined) {
               repo,
               ...reviewSuggestions,
               body:
-                `[${rule?.docs?.description}](${rule?.docs?.url}). Suggestion(s) available:\n\n` +
+                `*${message.message}* [${message.ruleId}](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
                 reviewSuggestions?.body,
               pull_number: pullRequestNumber,
               commit_id: headSha,
@@ -396,7 +396,7 @@ async function run(mock: MockConfig | undefined = undefined) {
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
               repo,
-              body: `[${rule?.docs?.description}](${rule?.docs?.url}).`,
+              body: `*${message.message}* [${message.ruleId}](${rule?.docs?.url})`,
               pull_number: pullRequestNumber,
               commit_id: headSha,
               path: file.filename,

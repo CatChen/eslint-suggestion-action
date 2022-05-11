@@ -14680,7 +14680,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
       return reviewSuggestion;
     }
     function run(mock = undefined) {
-      var _a, _b, _c, _d, _e, _f;
+      var _a, _b, _c;
       return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)("ESLint");
         const { eslint, eslintBinPath } = yield getESLint(mock);
@@ -14748,21 +14748,14 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
                       Object.assign({ owner, repo }, reviewSuggestion),
                       {
                         body:
-                          `[${
+                          `*${message.message}* [${message.ruleId}](${
                             (_a =
                               rule === null || rule === void 0
                                 ? void 0
                                 : rule.docs) === null || _a === void 0
                               ? void 0
-                              : _a.description
-                          }](${
-                            (_b =
-                              rule === null || rule === void 0
-                                ? void 0
-                                : rule.docs) === null || _b === void 0
-                              ? void 0
-                              : _b.url
-                          }). Fix available:\n\n` + reviewSuggestion.body,
+                              : _a.url
+                          })\n\nFix available:\n\n` + reviewSuggestion.body,
                         pull_number: pullRequestNumber,
                         commit_id: headSha,
                         path: file.filename,
@@ -14806,21 +14799,14 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
                       Object.assign({ owner, repo }, reviewSuggestions),
                       {
                         body:
-                          `[${
-                            (_c =
+                          `*${message.message}* [${message.ruleId}](${
+                            (_b =
                               rule === null || rule === void 0
                                 ? void 0
-                                : rule.docs) === null || _c === void 0
+                                : rule.docs) === null || _b === void 0
                               ? void 0
-                              : _c.description
-                          }](${
-                            (_d =
-                              rule === null || rule === void 0
-                                ? void 0
-                                : rule.docs) === null || _d === void 0
-                              ? void 0
-                              : _d.url
-                          }). Suggestion(s) available:\n\n` +
+                              : _b.url
+                          })\n\nSuggestion(s) available:\n\n` +
                           (reviewSuggestions === null ||
                           reviewSuggestions === void 0
                             ? void 0
@@ -14837,21 +14823,14 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from "module";
                     {
                       owner,
                       repo,
-                      body: `[${
-                        (_e =
+                      body: `*${message.message}* [${message.ruleId}](${
+                        (_c =
                           rule === null || rule === void 0
                             ? void 0
-                            : rule.docs) === null || _e === void 0
+                            : rule.docs) === null || _c === void 0
                           ? void 0
-                          : _e.description
-                      }](${
-                        (_f =
-                          rule === null || rule === void 0
-                            ? void 0
-                            : rule.docs) === null || _f === void 0
-                          ? void 0
-                          : _f.url
-                      }).`,
+                          : _c.url
+                      })`,
                       pull_number: pullRequestNumber,
                       commit_id: headSha,
                       path: file.filename,
