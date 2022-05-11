@@ -8,3 +8,12 @@ updates:
       - catchen
     assignees:
       - catchen
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: daily
+    reviewers:
+      - catchen
+    assignees:
+      - catchen
