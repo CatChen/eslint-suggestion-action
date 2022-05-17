@@ -12,6 +12,10 @@ inputs:
     description: "Path to the eslint binary file."
     required: false
     default: "node_modules/.bin/eslint"
+  fail-check:
+    description: "Fail the workflow and its corresponding check."
+    required: false
+    default: false
 runs:
   using: "node16"
   main: "dist/index.js"
