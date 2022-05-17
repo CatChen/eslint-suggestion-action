@@ -1,6 +1,13 @@
 import { context } from "@actions/github";
 import { GitHub, getOctokitOptions } from "@actions/github/lib/utils";
-import { getInput, info, startGroup, endGroup, error } from "@actions/core";
+import {
+  getInput,
+  getBooleanInput,
+  info,
+  startGroup,
+  endGroup,
+  error,
+} from "@actions/core";
 import { exec } from "@actions/exec";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
 import { throttling } from "@octokit/plugin-throttling";
@@ -267,6 +274,8 @@ function getCommentFromFix(source: string, line: number, fix: Fix) {
 }
 
 async function run(mock: MockConfig | undefined = undefined) {
+  const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
+
   startGroup("ESLint");
   const { eslint, eslintBinPath } = await getESLint(mock);
   const results = await getESLintOutput(eslintBinPath);
@@ -304,6 +313,7 @@ async function run(mock: MockConfig | undefined = undefined) {
     octokit
   );
 
+  let commented = false;
   for (const file of files) {
     info(`  File name: ${file.filename}`);
     info(`  File status: ${file.status}`);
@@ -340,6 +350,7 @@ async function run(mock: MockConfig | undefined = undefined) {
               path: file.filename,
             });
             info(`      Commented`);
+            commented = true;
           } else if (message.suggestions) {
             let reviewSuggestions: ReviewSuggestion | undefined = undefined;
             for (const suggestion of message.suggestions) {
@@ -383,6 +394,7 @@ async function run(mock: MockConfig | undefined = undefined) {
               path: file.filename,
             });
             info(`    Commented`);
+            commented = true;
           } else {
             const response = await octokit.rest.pulls.createReviewComment({
               owner,
@@ -395,12 +407,17 @@ async function run(mock: MockConfig | undefined = undefined) {
               line: message.line,
             });
             info(`    Commented`);
+            commented = true;
           }
         }
       }
     }
   }
   endGroup();
+
+  if (failCheck && commented) {
+    throw new Error("ESLint doesn't pass. Please review comments.");
+  }
 }
 
 if (process.argv.length === 6) {
