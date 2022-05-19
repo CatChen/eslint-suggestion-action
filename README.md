@@ -67,6 +67,10 @@ The default value is `${{ github.token }}`, which is the GitHub token generated 
 
 This option determines whether the GitHub Workflow should fail if there's any ESLint issue. The default value is `false`.
 
+### `request-changes`
+
+This option determines whether this GitHub Action should request change if there's any ESLint issue. The default value is `false`.
+
 ## FAQ
 
 ### What is the difference between a fix and a suggestion in ESLint?
