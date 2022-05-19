@@ -42,7 +42,7 @@ type ReviewSuggestion = {
 const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
 
-async function getESLint(mock: MockConfig | undefined) {
+export async function getESLint(mock: MockConfig | undefined) {
   const githubWorkspace =
     mock === undefined ? getInput("github-workspace") : path.resolve(".");
   const require = createRequire(githubWorkspace);
@@ -72,7 +72,7 @@ async function getESLint(mock: MockConfig | undefined) {
   return { eslint, eslintBinPath };
 }
 
-async function getESLintOutput(eslintBinPath: string) {
+export async function getESLintOutput(eslintBinPath: string) {
   let stdout = "";
   let stderr = "";
   try {
@@ -91,7 +91,7 @@ async function getESLintOutput(eslintBinPath: string) {
   return results;
 }
 
-function getOctokit(mock: MockConfig | undefined) {
+export function getOctokit(mock: MockConfig | undefined) {
   const githubToken = mock?.token || getInput("github-token");
   const Octokit = GitHub.plugin(throttling, retry);
   const octokit = new Octokit(
@@ -146,7 +146,7 @@ function getOctokit(mock: MockConfig | undefined) {
   return octokit;
 }
 
-async function getPullRequestMetadata(
+export async function getPullRequestMetadata(
   mock: MockConfig | undefined,
   octokit: Octokit & Api
 ) {
@@ -182,7 +182,7 @@ async function getPullRequestMetadata(
   };
 }
 
-async function getPullRequestFiles(
+export async function getPullRequestFiles(
   owner: string,
   repo: string,
   pullRequestNumber: number,
@@ -197,7 +197,9 @@ async function getPullRequestFiles(
   return response.data;
 }
 
-function getIndexedModifiedLines(file: components["schemas"]["diff-entry"]): {
+export function getIndexedModifiedLines(
+  file: components["schemas"]["diff-entry"]
+): {
   [line: string]: true;
 } {
   const modifiedLines = [];
@@ -242,7 +244,7 @@ function getIndexedModifiedLines(file: components["schemas"]["diff-entry"]): {
   return indexedModifiedLines;
 }
 
-function getCommentFromFix(source: string, line: number, fix: Fix) {
+export function getCommentFromFix(source: string, line: number, fix: Fix) {
   const textRange = source.substring(fix.range[0], fix.range[1]);
   const impactedOriginalLines = textRange.split("\n").length;
   const originalLines = source
@@ -273,7 +275,7 @@ function getCommentFromFix(source: string, line: number, fix: Fix) {
   return reviewSuggestion;
 }
 
-async function run(mock: MockConfig | undefined = undefined) {
+export async function run(mock: MockConfig | undefined = undefined) {
   const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
   const requestChanges =
     mock === undefined ? getBooleanInput("request-changes") : false;

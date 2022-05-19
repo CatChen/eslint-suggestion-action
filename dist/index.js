@@ -11853,6 +11853,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getPullRequestFiles = exports.getPullRequestMetadata = exports.getOctokit = exports.getESLintOutput = exports.getESLint = void 0;
 const github_1 = __nccwpck_require__(5438);
 const utils_1 = __nccwpck_require__(3030);
 const core_1 = __nccwpck_require__(2186);
@@ -11885,6 +11886,7 @@ function getESLint(mock) {
         return { eslint, eslintBinPath };
     });
 }
+exports.getESLint = getESLint;
 function getESLintOutput(eslintBinPath) {
     return __awaiter(this, void 0, void 0, function* () {
         let stdout = "";
@@ -11906,6 +11908,7 @@ function getESLintOutput(eslintBinPath) {
         return results;
     });
 }
+exports.getESLintOutput = getESLintOutput;
 function getOctokit(mock) {
     const githubToken = (mock === null || mock === void 0 ? void 0 : mock.token) || (0, core_1.getInput)("github-token");
     const Octokit = utils_1.GitHub.plugin(plugin_throttling_1.throttling, plugin_retry_1.retry);
@@ -11938,6 +11941,7 @@ function getOctokit(mock) {
     }));
     return octokit;
 }
+exports.getOctokit = getOctokit;
 function getPullRequestMetadata(mock, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         let pullRequest;
@@ -11971,6 +11975,7 @@ function getPullRequestMetadata(mock, octokit) {
         };
     });
 }
+exports.getPullRequestMetadata = getPullRequestMetadata;
 function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield octokit.rest.pulls.listFiles({
@@ -11982,6 +11987,7 @@ function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
         return response.data;
     });
 }
+exports.getPullRequestFiles = getPullRequestFiles;
 function getIndexedModifiedLines(file) {
     var _a;
     const modifiedLines = [];
@@ -12021,6 +12027,7 @@ function getIndexedModifiedLines(file) {
     }
     return indexedModifiedLines;
 }
+exports.getIndexedModifiedLines = getIndexedModifiedLines;
 function getCommentFromFix(source, line, fix) {
     const textRange = source.substring(fix.range[0], fix.range[1]);
     const impactedOriginalLines = textRange.split("\n").length;
@@ -12048,6 +12055,7 @@ function getCommentFromFix(source, line, fix) {
     };
     return reviewSuggestion;
 }
+exports.getCommentFromFix = getCommentFromFix;
 function run(mock = undefined) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
@@ -12161,6 +12169,7 @@ function run(mock = undefined) {
         }
     });
 }
+exports.run = run;
 if (node_process_1.default.argv.length === 6) {
     run({
         token: node_process_1.default.argv[2],
