@@ -45,10 +45,8 @@ jobs:
           github-workspace: ${{ github.workspace }} # required
           github-token: ${{ secrets.GITHUB_TOKEN }} # optional
           eslint-path: "node_modules/.bin/eslint" # optional
-          out-of-scope-annotations: false # optional
-          suppress-fixes: false # optional
-          suppress-suggestions: false # optional
-          suppress-annotations: false # optional
+          fail-check: false # optional
+          request-changes: false # optional
 ```
 
 Save the file to `.github/workflows/eslint.yml`. It will start working on new Pull Requests.
