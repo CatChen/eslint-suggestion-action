@@ -1,6 +1,6 @@
 {
   "name": "eslint-suggestion-action",
-  "version": "1.6.0-0",
+  "version": "1.7.0-0",
   "description": "",
   "main": "lib/index.js",
   "type": "module",
@@ -21,7 +21,8 @@
     "build": "yarn tsc",
     "package": "yarn ncc build src/index.ts --external eslint --source-map --license licenses.txt",
     "postinstall": "yarn build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "preversion": "rm -rf lib && rm -rf dist && yarn && yarn package"
   },
   "repository": {
     "type": "git",
