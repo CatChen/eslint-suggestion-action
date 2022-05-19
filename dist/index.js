@@ -12152,9 +12152,12 @@ function run(mock = undefined) {
                 throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
             }
             (0, core_1.info)(`Review submitted: ${reviewComments.length} comment(s)`);
+            if (failCheck) {
+                throw new Error("ESLint doesn't pass. Please review comments.");
+            }
         }
-        if (failCheck && reviewComments.length > 0) {
-            throw new Error("ESLint doesn't pass. Please review comments.");
+        else {
+            (0, core_1.info)("ESLint passes");
         }
     });
 }
