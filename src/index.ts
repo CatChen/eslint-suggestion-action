@@ -315,7 +315,7 @@ async function run(mock: MockConfig | undefined = undefined) {
     octokit
   );
 
-  let commented = false;
+  const reviewComments = [];
   for (const file of files) {
     info(`  File name: ${file.filename}`);
     info(`  File status: ${file.status}`);
@@ -340,19 +340,14 @@ async function run(mock: MockConfig | undefined = undefined) {
               message.line,
               message.fix
             );
-            const response = await octokit.rest.pulls.createReviewComment({
-              owner,
-              repo,
+            reviewComments.push({
               ...reviewSuggestion,
               body:
                 `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nFix available:\n\n` +
                 reviewSuggestion.body,
-              pull_number: pullRequestNumber,
-              commit_id: headSha,
               path: file.filename,
             });
-            info(`      Commented`);
-            commented = true;
+            info(`      Comment queued`);
           } else if (message.suggestions) {
             let reviewSuggestions: ReviewSuggestion | undefined = undefined;
             for (const suggestion of message.suggestions) {
@@ -384,32 +379,22 @@ async function run(mock: MockConfig | undefined = undefined) {
                 reviewSuggestions.body += "\n" + reviewSuggestion.body;
               }
             }
-            const response = await octokit.rest.pulls.createReviewComment({
-              owner,
-              repo,
+            reviewComments.push({
               ...reviewSuggestions,
               body:
                 `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
                 reviewSuggestions?.body,
-              pull_number: pullRequestNumber,
-              commit_id: headSha,
               path: file.filename,
             });
-            info(`    Commented`);
-            commented = true;
+            info(`    Comment queued`);
           } else {
-            const response = await octokit.rest.pulls.createReviewComment({
-              owner,
-              repo,
+            reviewComments.push({
               body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
-              pull_number: pullRequestNumber,
-              commit_id: headSha,
               path: file.filename,
               side: "RIGHT",
               line: message.line,
             });
-            info(`    Commented`);
-            commented = true;
+            info(`    Comment queued`);
           }
         }
       }
@@ -417,16 +402,24 @@ async function run(mock: MockConfig | undefined = undefined) {
   }
   endGroup();
 
-  if (requestChanges && commented) {
+  if (reviewComments.length > 0) {
     const response = await octokit.rest.pulls.createReview({
       owner,
       repo,
       body: "ESLint doesn't pass. Please fix all ESLint issues.",
       pull_number: pullRequestNumber,
-      event: "REQUEST_CHANGES",
+      commit_id: headSha,
+      event: requestChanges ? "REQUEST_CHANGES" : "COMMENT",
+      comments: reviewComments,
     });
+    if (response.status !== 200) {
+      throw new Error(
+        `Failed to create review with ${reviewComments.length} comment(s).`
+      );
+    }
+    info(`Review submitted: ${reviewComments.length} comment(s)`);
   }
-  if (failCheck && commented) {
+  if (failCheck && reviewComments.length > 0) {
     throw new Error("ESLint doesn't pass. Please review comments.");
   }
 }
