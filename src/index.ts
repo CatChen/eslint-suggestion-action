@@ -403,7 +403,7 @@ async function run(mock: MockConfig | undefined = undefined) {
   endGroup();
 
   if (reviewComments.length > 0) {
-    let response = await octokit.rest.pulls.createReview({
+    const response = await octokit.rest.pulls.createReview({
       owner,
       repo,
       body: "ESLint doesn't pass. Please fix all ESLint issues.",
