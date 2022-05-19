@@ -1,14 +1,6 @@
 import { context } from "@actions/github";
 import { GitHub, getOctokitOptions } from "@actions/github/lib/utils";
-import {
-  getInput,
-  info,
-  startGroup,
-  endGroup,
-  notice,
-  warning,
-  error,
-} from "@actions/core";
+import { getInput, info, startGroup, endGroup, error } from "@actions/core";
 import { exec } from "@actions/exec";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
 import { throttling } from "@octokit/plugin-throttling";
@@ -20,7 +12,6 @@ import { createRequire } from "module";
 import { Octokit } from "@octokit/core";
 import { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
 import { components } from "@octokit/openapi-types/types";
-import { stringify } from "node:querystring";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
