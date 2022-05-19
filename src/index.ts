@@ -315,7 +315,7 @@ async function run(mock: MockConfig | undefined = undefined) {
     octokit
   );
 
-  const reviewComments = [];
+  let reviewComments = [];
   for (const file of files) {
     info(`  File name: ${file.filename}`);
     info(`  File status: ${file.status}`);
@@ -403,7 +403,7 @@ async function run(mock: MockConfig | undefined = undefined) {
   endGroup();
 
   if (reviewComments.length > 0) {
-    const response = await octokit.rest.pulls.createReview({
+    let response = await octokit.rest.pulls.createReview({
       owner,
       repo,
       body: "ESLint doesn't pass. Please fix all ESLint issues.",
