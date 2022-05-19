@@ -1,0 +1,11 @@
+.eslintrc.json
+.gitattributes
+.github/
+.husky/
+.nvmrc
+.prettierignore
+action.yml
+assets/
+dist/
+src/
+tsconfig.json
