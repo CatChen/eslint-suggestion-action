@@ -315,7 +315,7 @@ async function run(mock: MockConfig | undefined = undefined) {
     octokit
   );
 
-  let reviewComments = [];
+  const reviewComments = [];
   for (const file of files) {
     info(`  File name: ${file.filename}`);
     info(`  File status: ${file.status}`);
