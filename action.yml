@@ -16,6 +16,10 @@ inputs:
     description: "Fail the workflow and its corresponding check if ESLint doesn't pass."
     required: false
     default: false
+  request-changes:
+    description: "Request changes if ESLint doesn't pass."
+    required: false
+    default: false
 runs:
   using: "node16"
   main: "dist/index.js"
