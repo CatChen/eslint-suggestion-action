@@ -63,6 +63,10 @@ This action uses the ESLint installed in your project. It makes sure that it's y
 
 The default value is `${{ github.token }}`, which is the GitHub token generated for this workflow. You can [create a different token with a different set of permissions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and use it here as well.
 
+### `fail-check`
+
+This option determines whether the GitHub Workflow should fail if there's any ESLint issue. The default value is `false`.
+
 ## FAQ
 
 ### What is the difference between a fix and a suggestion in ESLint?
