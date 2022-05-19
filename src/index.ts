@@ -418,9 +418,11 @@ async function run(mock: MockConfig | undefined = undefined) {
       );
     }
     info(`Review submitted: ${reviewComments.length} comment(s)`);
-  }
-  if (failCheck && reviewComments.length > 0) {
-    throw new Error("ESLint doesn't pass. Please review comments.");
+    if (failCheck) {
+      throw new Error("ESLint doesn't pass. Please review comments.");
+    }
+  } else {
+    info("ESLint passes");
   }
 }
 
