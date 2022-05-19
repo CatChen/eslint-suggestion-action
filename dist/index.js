@@ -12052,6 +12052,7 @@ function run(mock = undefined) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         const failCheck = mock === undefined ? (0, core_1.getBooleanInput)("fail-check") : false;
+        const requestChanges = mock === undefined ? (0, core_1.getBooleanInput)("request-changes") : false;
         (0, core_1.startGroup)("ESLint");
         const { eslint, eslintBinPath } = yield getESLint(mock);
         const results = yield getESLintOutput(eslintBinPath);
@@ -12146,6 +12147,15 @@ function run(mock = undefined) {
             }
         }
         (0, core_1.endGroup)();
+        if (requestChanges && commented) {
+            const response = yield octokit.rest.pulls.createReview({
+                owner,
+                repo,
+                body: "ESLint doesn't pass. Please fix all ESLint issues.",
+                pull_number: pullRequestNumber,
+                event: "REQUEST_CHANGES",
+            });
+        }
         if (failCheck && commented) {
             throw new Error("ESLint doesn't pass. Please review comments.");
         }
