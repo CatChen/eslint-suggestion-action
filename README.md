@@ -63,22 +63,6 @@ This action uses the ESLint installed in your project. It makes sure that it's y
 
 The default value is `${{ github.token }}`, which is the GitHub token generated for this workflow. You can [create a different token with a different set of permissions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and use it here as well.
 
-### `out-of-scope-annotations`
-
-By default this action doesn't touch anything outside of the scope of the Pull Request That means any unchanged files and lines in the project. It only touch the lines that are changed. If we set this to `true` the action will add annotation for ESLint feedback outside of the scope.
-
-### `suppress-fixes`
-
-If this is set to `true` there will be no GitHub suggestion for ESLint fixes. Annotation will be shown instead unless `suppress-annotations` is set to `true` as well. See the FAQ below to understand the difference between fix and suggestion in ESLint.
-
-### `suppress-suggestions`
-
-If this is set to `true` there will be no GitHub suggestion for ESLint suggestions. Annotation will be shown instead unless `suppress-annotations` is set to `true` as well. See the FAQ below to understand the difference between fix and suggestion in ESLint.
-
-### `suppress-annotations`
-
-If this is set to `true` there will be no annotation all all, inside or outside of the scope.
-
 ## FAQ
 
 ### What is the difference between a fix and a suggestion in ESLint?
