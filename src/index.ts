@@ -275,6 +275,8 @@ function getCommentFromFix(source: string, line: number, fix: Fix) {
 
 async function run(mock: MockConfig | undefined = undefined) {
   const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
+  const requestChanges =
+    mock === undefined ? getBooleanInput("request-changes") : false;
 
   startGroup("ESLint");
   const { eslint, eslintBinPath } = await getESLint(mock);
@@ -415,6 +417,15 @@ async function run(mock: MockConfig | undefined = undefined) {
   }
   endGroup();
 
+  if (requestChanges && commented) {
+    const response = await octokit.rest.pulls.createReview({
+      owner,
+      repo,
+      body: "ESLint doesn't pass. Please fix all ESLint issues.",
+      pull_number: pullRequestNumber,
+      event: "REQUEST_CHANGES",
+    });
+  }
   if (failCheck && commented) {
     throw new Error("ESLint doesn't pass. Please review comments.");
   }
