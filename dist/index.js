@@ -12123,6 +12123,7 @@ function run(mock = undefined) {
         const { owner, repo, pullRequestNumber, headSha } = yield getPullRequestMetadata(mock, octokit);
         const files = yield getPullRequestFiles(owner, repo, pullRequestNumber, octokit);
         const existingReviewComments = yield getReviewComments(owner, repo, pullRequestNumber, octokit);
+        let commentsCounter = 0;
         const reviewComments = [];
         for (const file of files) {
             (0, core_1.info)(`  File name: ${file.filename}`);
@@ -12145,6 +12146,7 @@ function run(mock = undefined) {
                             const reviewComment = Object.assign(Object.assign({}, reviewSuggestion), { body: `**${message.message}** [${message.ruleId}](${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})\n\nFix available:\n\n` +
                                     reviewSuggestion.body, path: file.filename });
                             const reviewCommentExisted = reviewCommentsInclude(existingReviewComments, reviewComment);
+                            commentsCounter++;
                             if (!reviewCommentExisted) {
                                 reviewComments.push(reviewComment);
                                 (0, core_1.info)(`    Comment queued`);
@@ -12177,6 +12179,7 @@ function run(mock = undefined) {
                                 const reviewComment = Object.assign(Object.assign({}, reviewSuggestions), { body: `**${message.message}** [${message.ruleId}](${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})\n\nSuggestion(s) available:\n\n` +
                                         (reviewSuggestions === null || reviewSuggestions === void 0 ? void 0 : reviewSuggestions.body), path: file.filename });
                                 const reviewCommentExisted = reviewCommentsInclude(existingReviewComments, reviewComment);
+                                commentsCounter++;
                                 if (!reviewCommentExisted) {
                                     reviewComments.push(reviewComment);
                                     (0, core_1.info)(`    Comment queued`);
@@ -12194,6 +12197,7 @@ function run(mock = undefined) {
                                 line: message.line,
                             };
                             const reviewCommentExisted = reviewCommentsInclude(existingReviewComments, reviewComment);
+                            commentsCounter++;
                             if (reviewCommentExisted) {
                                 reviewComments.push(reviewComment);
                                 (0, core_1.info)(`    Comment queued`);
@@ -12207,7 +12211,7 @@ function run(mock = undefined) {
             }
         }
         (0, core_1.endGroup)();
-        if (reviewComments.length > 0) {
+        if (commentsCounter > 0) {
             const response = yield octokit.rest.pulls.createReview({
                 owner,
                 repo,
@@ -12220,7 +12224,7 @@ function run(mock = undefined) {
             if (response.status !== 200) {
                 throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
             }
-            (0, core_1.info)(`Review submitted: ${reviewComments.length} comment(s)`);
+            (0, core_1.info)(`Review submitted: ${reviewComments.length} comment(s) (${commentsCounter - reviewComments.length} skipped)`);
             if (failCheck) {
                 throw new Error("ESLint doesn't pass. Please review comments.");
             }
