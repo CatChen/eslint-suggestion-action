@@ -8,4 +8,5 @@ action.yml
 assets/
 dist/
 src/
+tests/
 tsconfig.json
