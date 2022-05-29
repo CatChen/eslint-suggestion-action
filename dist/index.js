@@ -12084,8 +12084,8 @@ function reviewCommentsInclude(reviewComments, reviewComment) {
         if (existingReviewComment.path === reviewComment.path &&
             existingReviewComment.line === reviewComment.line &&
             existingReviewComment.side === reviewComment.side &&
-            existingReviewComment.start_line === reviewComment.start_line &&
-            existingReviewComment.start_side === reviewComment.start_side &&
+            existingReviewComment.start_line == reviewComment.start_line && // null-undefined comparison
+            existingReviewComment.start_side == reviewComment.start_side && // null-undefined comparison
             existingReviewComment.body === reviewComment.body) {
             return true;
         }
