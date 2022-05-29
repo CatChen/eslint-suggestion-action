@@ -32,15 +32,18 @@ type MockConfig = {
 };
 
 type ReviewSuggestion = {
-  start_side: "RIGHT" | undefined;
-  start_line: number | undefined;
+  start_side?: "RIGHT";
+  start_line?: number;
   side: "RIGHT";
   line: number;
   body: string;
 };
 
+type ReviewComment = ReviewSuggestion & { path: string };
+
 const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
+const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 
 export async function getESLint(mock: MockConfig | undefined) {
   const githubWorkspace =
@@ -193,8 +196,38 @@ export async function getPullRequestFiles(
     repo,
     pull_number: pullRequestNumber,
   });
-  info(`Files (${response.data.length}):`);
+  info(`Files: (${response.data.length})`);
   return response.data;
+}
+
+export async function getReviewComments(
+  owner: string,
+  repo: string,
+  pullRequestNumber: number,
+  octokit: Octokit & Api
+) {
+  const reviews = await octokit.rest.pulls.listReviews({
+    owner,
+    repo,
+    pull_number: pullRequestNumber,
+  });
+  const reviewComments = await octokit.rest.pulls.listReviewComments({
+    owner,
+    repo,
+    pull_number: pullRequestNumber,
+  });
+  const relevantReviews = reviews.data.filter(
+    (review) => review.user?.id === 41898282 && review.body === REVIEW_BODY
+  );
+  const relevantReviewIds = relevantReviews.map((review) => review.id);
+  const relevantReviewComments = reviewComments.data.filter(
+    (reviewComment) =>
+      reviewComment.user.id === 41898282 &&
+      reviewComment.pull_request_review_id !== null &&
+      relevantReviewIds.includes(reviewComment.pull_request_review_id)
+  );
+  info(`Existing review comments: (${relevantReviewComments.length})`);
+  return relevantReviewComments;
 }
 
 export function getIndexedModifiedLines(
@@ -275,6 +308,25 @@ export function getCommentFromFix(source: string, line: number, fix: Fix) {
   return reviewSuggestion;
 }
 
+export function reviewCommentsInclude(
+  reviewComments: components["schemas"]["review-comment"][],
+  reviewComment: ReviewComment
+) {
+  for (const existingReviewComment of reviewComments) {
+    if (
+      existingReviewComment.path === reviewComment.path &&
+      existingReviewComment.line === reviewComment.line &&
+      existingReviewComment.side === reviewComment.side &&
+      existingReviewComment.start_line == reviewComment.start_line && // null-undefined comparison
+      existingReviewComment.start_side == reviewComment.start_side && // null-undefined comparison
+      existingReviewComment.body === reviewComment.body
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export async function run(mock: MockConfig | undefined = undefined) {
   const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
   const requestChanges =
@@ -317,6 +369,14 @@ export async function run(mock: MockConfig | undefined = undefined) {
     octokit
   );
 
+  const existingReviewComments = await getReviewComments(
+    owner,
+    repo,
+    pullRequestNumber,
+    octokit
+  );
+
+  let commentsCounter = 0;
   const reviewComments = [];
   for (const file of files) {
     info(`  File name: ${file.filename}`);
@@ -342,14 +402,24 @@ export async function run(mock: MockConfig | undefined = undefined) {
               message.line,
               message.fix
             );
-            reviewComments.push({
+            const reviewComment = {
               ...reviewSuggestion,
               body:
                 `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nFix available:\n\n` +
                 reviewSuggestion.body,
               path: file.filename,
-            });
-            info(`      Comment queued`);
+            };
+            const reviewCommentExisted = reviewCommentsInclude(
+              existingReviewComments,
+              reviewComment
+            );
+            commentsCounter++;
+            if (!reviewCommentExisted) {
+              reviewComments.push(reviewComment);
+              info(`    Comment queued`);
+            } else {
+              info(`    Comment skipped`);
+            }
           } else if (message.suggestions) {
             let reviewSuggestions: ReviewSuggestion | undefined = undefined;
             for (const suggestion of message.suggestions) {
@@ -381,22 +451,44 @@ export async function run(mock: MockConfig | undefined = undefined) {
                 reviewSuggestions.body += "\n" + reviewSuggestion.body;
               }
             }
-            reviewComments.push({
-              ...reviewSuggestions,
-              body:
-                `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
-                reviewSuggestions?.body,
-              path: file.filename,
-            });
-            info(`    Comment queued`);
+            if (reviewSuggestions !== undefined) {
+              const reviewComment = {
+                ...reviewSuggestions,
+                body:
+                  `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
+                  reviewSuggestions?.body,
+                path: file.filename,
+              };
+              const reviewCommentExisted = reviewCommentsInclude(
+                existingReviewComments,
+                reviewComment
+              );
+              commentsCounter++;
+              if (!reviewCommentExisted) {
+                reviewComments.push(reviewComment);
+                info(`    Comment queued`);
+              } else {
+                info(`    Comment skipped`);
+              }
+            }
           } else {
-            reviewComments.push({
+            const reviewComment: ReviewComment = {
               body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
               path: file.filename,
               side: "RIGHT",
               line: message.line,
-            });
-            info(`    Comment queued`);
+            };
+            const reviewCommentExisted = reviewCommentsInclude(
+              existingReviewComments,
+              reviewComment
+            );
+            commentsCounter++;
+            if (reviewCommentExisted) {
+              reviewComments.push(reviewComment);
+              info(`    Comment queued`);
+            } else {
+              info(`    Comment skipped`);
+            }
           }
         }
       }
@@ -404,11 +496,11 @@ export async function run(mock: MockConfig | undefined = undefined) {
   }
   endGroup();
 
-  if (reviewComments.length > 0) {
+  if (commentsCounter > 0) {
     const response = await octokit.rest.pulls.createReview({
       owner,
       repo,
-      body: "ESLint doesn't pass. Please fix all ESLint issues.",
+      body: REVIEW_BODY,
       pull_number: pullRequestNumber,
       commit_id: headSha,
       event: requestChanges ? "REQUEST_CHANGES" : "COMMENT",
@@ -419,7 +511,11 @@ export async function run(mock: MockConfig | undefined = undefined) {
         `Failed to create review with ${reviewComments.length} comment(s).`
       );
     }
-    info(`Review submitted: ${reviewComments.length} comment(s)`);
+    info(
+      `Review submitted: ${reviewComments.length} comment(s) (${
+        commentsCounter - reviewComments.length
+      } skipped)`
+    );
     if (failCheck) {
       throw new Error("ESLint doesn't pass. Please review comments.");
     }
