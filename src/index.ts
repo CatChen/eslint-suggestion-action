@@ -376,6 +376,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
     octokit
   );
 
+  let commentsCounter = 0;
   const reviewComments = [];
   for (const file of files) {
     info(`  File name: ${file.filename}`);
@@ -412,6 +413,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
               existingReviewComments,
               reviewComment
             );
+            commentsCounter++;
             if (!reviewCommentExisted) {
               reviewComments.push(reviewComment);
               info(`    Comment queued`);
@@ -461,6 +463,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
                 existingReviewComments,
                 reviewComment
               );
+              commentsCounter++;
               if (!reviewCommentExisted) {
                 reviewComments.push(reviewComment);
                 info(`    Comment queued`);
@@ -479,6 +482,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
               existingReviewComments,
               reviewComment
             );
+            commentsCounter++;
             if (reviewCommentExisted) {
               reviewComments.push(reviewComment);
               info(`    Comment queued`);
@@ -492,7 +496,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
   }
   endGroup();
 
-  if (reviewComments.length > 0) {
+  if (commentsCounter > 0) {
     const response = await octokit.rest.pulls.createReview({
       owner,
       repo,
@@ -507,7 +511,11 @@ export async function run(mock: MockConfig | undefined = undefined) {
         `Failed to create review with ${reviewComments.length} comment(s).`
       );
     }
-    info(`Review submitted: ${reviewComments.length} comment(s)`);
+    info(
+      `Review submitted: ${reviewComments.length} comment(s) (${
+        commentsCounter - reviewComments.length
+      } skipped)`
+    );
     if (failCheck) {
       throw new Error("ESLint doesn't pass. Please review comments.");
     }
