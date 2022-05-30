@@ -42,32 +42,36 @@ jobs:
 
       - uses: CatChen/eslint-suggestion-action@v1.10.0
         with:
+          request-changes: true # optional
+          fail-check: false # optional
           github-token: ${{ secrets.GITHUB_TOKEN }} # optional
           github-workspace: ${{ github.workspace }} # optional
           eslint-path: "node_modules/.bin/eslint" # optional
-          fail-check: false # optional
-          request-changes: true # optional
 ```
 
 Save the file to `.github/workflows/eslint.yml`. It will start working on new Pull Requests.
 
 ## Options
 
-### `github-workspace`
+### `request-changes`
 
-This action uses the ESLint installed in your project. It makes sure that it's your project's ESLint version and config (plugins, rules, etc). It has to know your project's directory (aka GitHub Workspace). Please always use `${{ github.workspace }}` as the value.
-
-### `github-token`
-
-The default value is `${{ github.token }}`, which is the GitHub token generated for this workflow. You can [create a different token with a different set of permissions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and use it here as well.
+This option determines whether this GitHub Action should request change if there's any ESLint issue. The default value is `true`.
 
 ### `fail-check`
 
 This option determines whether the GitHub Workflow should fail if there's any ESLint issue. The default value is `false`.
 
-### `request-changes`
+### `github-token`
 
-This option determines whether this GitHub Action should request change if there's any ESLint issue. The default value is `true`.
+The default value is `${{ github.token }}`, which is the GitHub token generated for this workflow. You can [create a different token with a different set of permissions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and use it here as well.
+
+### `github-workspace`
+
+The default value is the same as `${{ github.workspace }}`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint config (plugins, rules, etc). It gets to know your project's location (aka GitHub Workspace) from this value.
+
+### `eslint-path`
+
+The default value is `"node_modules/.bin/eslint"`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint version. It gets to know your project's ESLint binary location from this value.
 
 ## FAQ
 
