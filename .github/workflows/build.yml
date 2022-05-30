@@ -2,10 +2,8 @@ name: Build
 
 on:
   pull_request:
-    paths-ignore: [".github/**"]
   push:
-    branches: [main]
-    paths-ignore: [".github/**"]
+    branches: [main, "[0-9]+-[0-9]+-*"]
   workflow_dispatch:
 
 jobs:
