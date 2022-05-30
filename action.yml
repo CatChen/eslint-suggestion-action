@@ -1,6 +1,14 @@
 name: "ESLint Suggestion"
 description: "Pull Request Suggestions from ESLint"
 inputs:
+  request-changes:
+    description: "Request changes if ESLint doesn't pass."
+    required: false
+    default: true
+  fail-check:
+    description: "Fail the workflow and its corresponding check if ESLint doesn't pass."
+    required: false
+    default: false
   github-token:
     description: "GitHub token."
     required: false
@@ -13,14 +21,6 @@ inputs:
     description: "Path to the eslint binary file."
     required: false
     default: "node_modules/.bin/eslint"
-  fail-check:
-    description: "Fail the workflow and its corresponding check if ESLint doesn't pass."
-    required: false
-    default: false
-  request-changes:
-    description: "Request changes if ESLint doesn't pass."
-    required: false
-    default: true
 runs:
   using: "node16"
   main: "dist/index.js"
