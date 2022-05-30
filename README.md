@@ -42,11 +42,11 @@ jobs:
 
       - uses: CatChen/eslint-suggestion-action@v1.4.0
         with:
-          github-workspace: ${{ github.workspace }} # required
           github-token: ${{ secrets.GITHUB_TOKEN }} # optional
+          github-workspace: ${{ github.workspace }} # optional
           eslint-path: "node_modules/.bin/eslint" # optional
           fail-check: false # optional
-          request-changes: false # optional
+          request-changes: true # optional
 ```
 
 Save the file to `.github/workflows/eslint.yml`. It will start working on new Pull Requests.
@@ -67,7 +67,7 @@ This option determines whether the GitHub Workflow should fail if there's any ES
 
 ### `request-changes`
 
-This option determines whether this GitHub Action should request change if there's any ESLint issue. The default value is `false`.
+This option determines whether this GitHub Action should request change if there's any ESLint issue. The default value is `true`.
 
 ## FAQ
 

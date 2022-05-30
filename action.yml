@@ -6,8 +6,9 @@ inputs:
     required: false
     default: ${{ github.token }}
   github-workspace:
-    description: "Path to the repo directory. Please pass `${``{ github.workspace }``}` through."
-    required: true
+    description: "Path to the repo directory. Defaults to `${``{ github.workspace }``}`."
+    required: false
+    default: ""
   eslint-path:
     description: "Path to the eslint binary file."
     required: false
