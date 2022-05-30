@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: yarn install # or npm ci if you use npm and have the package-lock.json file
 
-      - uses: CatChen/eslint-suggestion-action@v1.10.0
+      - uses: CatChen/eslint-suggestion-action@v1.10.1
         with:
           request-changes: true # optional
           fail-check: false # optional
