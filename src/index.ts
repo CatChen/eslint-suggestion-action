@@ -46,8 +46,12 @@ const WORKING_DIRECTORY = process.cwd();
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 
 export async function getESLint(mock: MockConfig | undefined) {
+  console.log(`getInput("github-workspace"): ${getInput("github-workspace")}`);
+  console.log(`process.cwd(): ${process.cwd()}`);
   const githubWorkspace =
-    mock === undefined ? getInput("github-workspace") : path.resolve(".");
+    mock === undefined
+      ? getInput("github-workspace") || process.cwd()
+      : path.resolve(".");
   const require = createRequire(githubWorkspace);
   const eslintJsPath = path.resolve(
     githubWorkspace,
