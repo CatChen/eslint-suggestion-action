@@ -47,7 +47,9 @@ const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 
 export async function getESLint(mock: MockConfig | undefined) {
   const githubWorkspace =
-    mock === undefined ? getInput("github-workspace") : path.resolve(".");
+    mock === undefined
+      ? getInput("github-workspace") || process.cwd()
+      : path.resolve(".");
   const require = createRequire(githubWorkspace);
   const eslintJsPath = path.resolve(
     githubWorkspace,
