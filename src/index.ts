@@ -458,7 +458,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
                 ...reviewSuggestions,
                 body:
                   `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
-                  reviewSuggestions?.body,
+                  reviewSuggestions.body,
                 path: file.filename,
               };
               const reviewCommentExisted = reviewCommentsInclude(
