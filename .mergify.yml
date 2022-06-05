@@ -1,0 +1,23 @@
+pull_request_rules:
+  - name: automatic merge for Dependabot pull requests (LGTM success)
+    conditions:
+      - author=dependabot[bot]
+      - 'status-success=LGTM analysis: JavaScript'
+      - status-success=build
+      - status-success=eslint
+      - status-success=Analyze (javascript)
+    actions:
+      merge:
+        method: squash
+      delete_head_branch:
+  - name: automatic merge for Dependabot pull requests (LGTM neutral)
+    conditions:
+      - author=dependabot[bot]
+      - 'status-neutral=LGTM analysis: JavaScript'
+      - status-success=build
+      - status-success=eslint
+      - status-success=Analyze (javascript)
+    actions:
+      merge:
+        method: squash
+      delete_head_branch:
