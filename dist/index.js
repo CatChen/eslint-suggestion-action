@@ -11894,10 +11894,7 @@ const WORKING_DIRECTORY = node_process_1.default.cwd();
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 function getESLint(mock) {
     return __awaiter(this, void 0, void 0, function* () {
-        const githubWorkspace = mock === undefined
-            ? (0, core_1.getInput)("github-workspace") || node_process_1.default.cwd()
-            : node_path_1.default.resolve(".");
-        const require = (0, module_1.createRequire)(githubWorkspace);
+        const require = (0, module_1.createRequire)(WORKING_DIRECTORY);
         const eslintJsPath = node_path_1.default.resolve(WORKING_DIRECTORY, "./node_modules/eslint/lib/api.js");
         if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
