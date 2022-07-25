@@ -423,6 +423,13 @@ Object.defineProperty(exports, "summary", ({ enumerable: true, get: function () 
  */
 var summary_2 = __nccwpck_require__(1327);
 Object.defineProperty(exports, "markdownSummary", ({ enumerable: true, get: function () { return summary_2.markdownSummary; } }));
+/**
+ * Path exports
+ */
+var path_utils_1 = __nccwpck_require__(2981);
+Object.defineProperty(exports, "toPosixPath", ({ enumerable: true, get: function () { return path_utils_1.toPosixPath; } }));
+Object.defineProperty(exports, "toWin32Path", ({ enumerable: true, get: function () { return path_utils_1.toWin32Path; } }));
+Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: function () { return path_utils_1.toPlatformPath; } }));
 //# sourceMappingURL=core.js.map
 
 /***/ }),
@@ -555,6 +562,70 @@ class OidcClient {
 }
 exports.OidcClient = OidcClient;
 //# sourceMappingURL=oidc-utils.js.map
+
+/***/ }),
+
+/***/ 2981:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = void 0;
+const path = __importStar(__nccwpck_require__(1017));
+/**
+ * toPosixPath converts the given path to the posix form. On Windows, \\ will be
+ * replaced with /.
+ *
+ * @param pth. Path to transform.
+ * @return string Posix path.
+ */
+function toPosixPath(pth) {
+    return pth.replace(/[\\]/g, '/');
+}
+exports.toPosixPath = toPosixPath;
+/**
+ * toWin32Path converts the given path to the win32 form. On Linux, / will be
+ * replaced with \\.
+ *
+ * @param pth. Path to transform.
+ * @return string Win32 path.
+ */
+function toWin32Path(pth) {
+    return pth.replace(/[/]/g, '\\');
+}
+exports.toWin32Path = toWin32Path;
+/**
+ * toPlatformPath converts the given path to a platform-specific path. It does
+ * this by replacing instances of / and \ with the platform-specific path
+ * separator.
+ *
+ * @param pth The path to platformize.
+ * @return string The platform-specific path.
+ */
+function toPlatformPath(pth) {
+    return pth.replace(/[/\\]/g, path.sep);
+}
+exports.toPlatformPath = toPlatformPath;
+//# sourceMappingURL=path-utils.js.map
 
 /***/ }),
 
@@ -5249,60 +5320,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var BottleneckLight = _interopDefault(__nccwpck_require__(1174));
 
-function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
-
-  if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
-
-    if (enumerableOnly) {
-      symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      });
-    }
-
-    keys.push.apply(keys, symbols);
-  }
-
-  return keys;
-}
-
-function _objectSpread2(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
-  }
-
-  return target;
-}
-
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
-const VERSION = "3.6.2";
+const VERSION = "4.1.0";
 
 const noop = () => Promise.resolve(); // @ts-expect-error
 
@@ -5392,30 +5410,36 @@ function routeMatcher(paths) {
   return new RegExp(regex, "i");
 }
 
+// @ts-expect-error
+
 const regex = routeMatcher(triggersNotificationPaths);
 const triggersNotification = regex.test.bind(regex);
 const groups = {}; // @ts-expect-error
 
 const createGroups = function (Bottleneck, common) {
-  groups.global = new Bottleneck.Group(_objectSpread2({
+  groups.global = new Bottleneck.Group({
     id: "octokit-global",
-    maxConcurrent: 10
-  }, common));
-  groups.search = new Bottleneck.Group(_objectSpread2({
+    maxConcurrent: 10,
+    ...common
+  });
+  groups.search = new Bottleneck.Group({
     id: "octokit-search",
     maxConcurrent: 1,
-    minTime: 2000
-  }, common));
-  groups.write = new Bottleneck.Group(_objectSpread2({
+    minTime: 2000,
+    ...common
+  });
+  groups.write = new Bottleneck.Group({
     id: "octokit-write",
     maxConcurrent: 1,
-    minTime: 1000
-  }, common));
-  groups.notifications = new Bottleneck.Group(_objectSpread2({
+    minTime: 1000,
+    ...common
+  });
+  groups.notifications = new Bottleneck.Group({
     id: "octokit-notifications",
     maxConcurrent: 1,
-    minTime: 3000
-  }, common));
+    minTime: 3000,
+    ...common
+  });
 };
 
 function throttling(octokit, octokitOptions) {
@@ -5441,14 +5465,15 @@ function throttling(octokit, octokitOptions) {
     createGroups(Bottleneck, common);
   }
 
-  const state = Object.assign(_objectSpread2({
+  const state = Object.assign({
     clustering: connection != null,
     triggersNotification,
     minimumSecondaryRateRetryAfter: 5,
     retryAfterBaseValue: 1000,
     retryLimiter: new Bottleneck(),
-    id
-  }, groups), octokitOptions.throttle);
+    id,
+    ...groups
+  }, octokitOptions.throttle);
   const isUsingDeprecatedOnAbuseLimitHandler = typeof state.onAbuseLimit === "function" && state.onAbuseLimit;
 
   if (typeof (isUsingDeprecatedOnAbuseLimitHandler ? state.onAbuseLimit : state.onSecondaryRateLimit) !== "function" || typeof state.onRateLimit !== "function") {
@@ -11873,7 +11898,7 @@ function getESLint(mock) {
             ? (0, core_1.getInput)("github-workspace") || node_process_1.default.cwd()
             : node_path_1.default.resolve(".");
         const require = (0, module_1.createRequire)(githubWorkspace);
-        const eslintJsPath = node_path_1.default.resolve(githubWorkspace, "./node_modules/eslint/lib/api.js");
+        const eslintJsPath = node_path_1.default.resolve(WORKING_DIRECTORY, "./node_modules/eslint/lib/api.js");
         if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
