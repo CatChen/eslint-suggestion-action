@@ -1,4 +1,12 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+rm -rf lib
+yarn build
+git add lib
+
+rm -rf dist
+yarn package
+git add dist
+
 yarn pretty-quick --staged
