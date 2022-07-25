@@ -52,7 +52,7 @@ export async function getESLint(mock: MockConfig | undefined) {
       : path.resolve(".");
   const require = createRequire(githubWorkspace);
   const eslintJsPath = path.resolve(
-    githubWorkspace,
+    WORKING_DIRECTORY,
     "./node_modules/eslint/lib/api.js"
   );
   if (!existsSync(eslintJsPath)) {
