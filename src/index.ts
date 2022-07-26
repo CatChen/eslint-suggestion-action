@@ -46,9 +46,13 @@ const WORKING_DIRECTORY = process.cwd();
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 
 export async function getESLint(mock: MockConfig | undefined) {
+  const directory = path.resolve(
+    WORKING_DIRECTORY,
+    mock === undefined ? getInput("directory") : "./"
+  );
   const require = createRequire(WORKING_DIRECTORY);
   const eslintJsPath = path.resolve(
-    WORKING_DIRECTORY,
+    directory,
     "./node_modules/eslint/lib/api.js"
   );
   if (!existsSync(eslintJsPath)) {
@@ -62,7 +66,7 @@ export async function getESLint(mock: MockConfig | undefined) {
   const eslint = new ESLint({ baseConfig: eslintConfig });
 
   const eslintBinPath = path.resolve(
-    WORKING_DIRECTORY,
+    directory,
     mock === undefined ? getInput("eslint-path") : "node_modules/.bin/eslint"
   );
   if (!existsSync(eslintBinPath)) {

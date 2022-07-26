@@ -13,6 +13,10 @@ inputs:
     description: "GitHub token."
     required: false
     default: ${{ github.token }}
+  directory:
+    description: "Directory to run ESLint if it's not the project's root directory."
+    required: false
+    default: "./"
   eslint-path:
     description: "Path to the eslint binary file."
     required: false
