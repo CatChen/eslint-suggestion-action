@@ -53,7 +53,9 @@ export async function getESLint(mock: MockConfig | undefined) {
   const require = createRequire(WORKING_DIRECTORY);
   const eslintJsPath = path.resolve(
     directory,
-    "./node_modules/eslint/lib/api.js"
+    mock === undefined
+      ? getInput("eslint-lib-path")
+      : "./node_modules/eslint/lib/api.js"
   );
   if (!existsSync(eslintJsPath)) {
     throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
@@ -67,7 +69,9 @@ export async function getESLint(mock: MockConfig | undefined) {
 
   const eslintBinPath = path.resolve(
     directory,
-    mock === undefined ? getInput("eslint-path") : "node_modules/.bin/eslint"
+    mock === undefined
+      ? getInput("eslint-bin-path")
+      : "./node_modules/.bin/eslint"
   );
   if (!existsSync(eslintBinPath)) {
     throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
