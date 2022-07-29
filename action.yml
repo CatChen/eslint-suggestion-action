@@ -17,10 +17,14 @@ inputs:
     description: "Directory to run ESLint if it's not the project's root directory."
     required: false
     default: "./"
-  eslint-path:
-    description: "Path to the eslint binary file."
+  eslint-lib-path:
+    description: "Path to the ESLint JavaScript library file."
     required: false
-    default: "node_modules/.bin/eslint"
+    default: "./node_modules/eslint/lib/api.js"
+  eslint-bin-path:
+    description: "Path to the ESLint binary file."
+    required: false
+    default: "./node_modules/.bin/eslint"
 runs:
   using: "node16"
   main: "dist/index.js"
