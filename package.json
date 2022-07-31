@@ -22,6 +22,7 @@
     "build": "yarn tsc",
     "package": "yarn ncc build src/index.ts --external eslint --source-map --license licenses.txt",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint -c .eslintrc.json src",
     "preversion": "rm -rf lib && rm -rf dist && yarn && yarn build && yarn package"
   },
   "repository": {
