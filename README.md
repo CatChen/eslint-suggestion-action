@@ -1,5 +1,8 @@
 # eslint-suggestion-action
 
+![build status badge](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/build.yml/badge.svg?event=push)
+![eslint status badge](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/eslint.yml/badge.svg)
+
 This GitHub Action runs ESLint and provides inline feedback to the changes in a Pull Request. Features:
 
 1. If ESLint can auto-fix a problem the fix would be created as an inline suggestion. You can decide whether you want to accept the fix as suggested.
