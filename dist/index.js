@@ -11920,20 +11920,18 @@ exports.getESLint = getESLint;
 function getESLintOutput(eslintBinPath) {
     return __awaiter(this, void 0, void 0, function* () {
         let stdout = "";
-        let stderr = "";
         try {
             yield (0, exec_1.exec)(eslintBinPath, [".", "--format", "json"], {
                 listeners: {
                     stdout: (data) => {
                         stdout += data.toString();
                     },
-                    stderr: (data) => {
-                        stderr += data.toString();
-                    },
                 },
             });
         }
-        catch (error) { }
+        catch (error) {
+            // Ignore the error.
+        }
         const results = JSON.parse(stdout);
         return results;
     });
