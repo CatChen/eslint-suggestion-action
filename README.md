@@ -1,6 +1,6 @@
 # eslint-suggestion-action
 
-This is a GitHub Action that runs ESLint and provides inline feedback to the changes in a Pull Request. Features:
+This GitHub Action runs ESLint and provides inline feedback to the changes in a Pull Request. Features:
 
 1. If ESLint can auto-fix a problem the fix would be created as an inline suggestion. You can decide whether you want to accept the fix as suggested.
 2. It only provides feedback for the lines that are changed in the Pull Request. It doesn't create noise for pre-existing code that doesn't pass ESLint.
@@ -45,8 +45,9 @@ jobs:
           request-changes: true # optional
           fail-check: false # optional
           github-token: ${{ secrets.GITHUB_TOKEN }} # optional
-          github-workspace: ${{ github.workspace }} # optional
-          eslint-path: "node_modules/.bin/eslint" # optional
+          directory: "./" #optional
+          eslint-lib-path: "./node_modules/eslint/lib/api.js" #optional
+          eslint-bin-path: "node_modules/.bin/eslint" # optional
 ```
 
 Save the file to `.github/workflows/eslint.yml`. It will start working on new Pull Requests.
@@ -65,11 +66,15 @@ This option determines whether the GitHub Workflow should fail if there's any ES
 
 The default value is `${{ github.token }}`, which is the GitHub token generated for this workflow. You can [create a different token with a different set of permissions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and use it here as well.
 
-### `github-workspace`
+### `directory`
 
-The default value is the same as `${{ github.workspace }}`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint config (plugins, rules, etc). It gets to know your project's location (aka GitHub Workspace) from this value.
+The default value is the same as `"./"`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint config (plugins, rules, etc). It gets to know your project's location from this value.
 
-### `eslint-path`
+### `eslint-lib-path`
+
+The default value is `"./node_modules/eslint/lib/api.js"`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint version. It gets to know your project's ESLint library location from this value.
+
+### `eslint-bin-path`
 
 The default value is `"node_modules/.bin/eslint"`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint version. It gets to know your project's ESLint binary location from this value.
 
