@@ -83,19 +83,17 @@ export async function getESLint(mock: MockConfig | undefined) {
 
 export async function getESLintOutput(eslintBinPath: string) {
   let stdout = "";
-  let stderr = "";
   try {
     await exec(eslintBinPath, [".", "--format", "json"], {
       listeners: {
         stdout: (data: Buffer) => {
           stdout += data.toString();
         },
-        stderr: (data: Buffer) => {
-          stderr += data.toString();
-        },
       },
     });
-  } catch (error) {}
+  } catch (error) {
+    // Ignore the error.
+  }
   const results: LintResult[] = JSON.parse(stdout);
   return results;
 }
