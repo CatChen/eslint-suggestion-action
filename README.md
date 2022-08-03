@@ -49,6 +49,7 @@ jobs:
           fail-check: false # optional
           github-token: ${{ secrets.GITHUB_TOKEN }} # optional
           directory: "./" #optional
+          targets: "." #optional
           eslint-lib-path: "./node_modules/eslint/lib/api.js" #optional
           eslint-bin-path: "node_modules/.bin/eslint" # optional
 ```
@@ -71,7 +72,11 @@ The default value is `${{ github.token }}`, which is the GitHub token generated 
 
 ### `directory`
 
-The default value is the same as `"./"`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint config (plugins, rules, etc). It gets to know your project's location from this value.
+The default value is `"./"`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint config (plugins, rules, etc). It gets to know your project's location from this value.
+
+### `targets`
+
+The default value is `"."`. For example, it could be `"src/**/*.ts"` for a typical TypeScript project with source code files in the `src` directory.
 
 ### `eslint-lib-path`
 

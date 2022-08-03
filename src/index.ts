@@ -81,10 +81,14 @@ export async function getESLint(mock: MockConfig | undefined) {
   return { eslint, eslintBinPath };
 }
 
-export async function getESLintOutput(eslintBinPath: string) {
+export async function getESLintOutput(
+  mock: MockConfig | undefined,
+  eslintBinPath: string
+) {
+  const targets = mock === undefined ? getInput("eslint-bin-path") : ".";
   let stdout = "";
   try {
-    await exec(eslintBinPath, [".", "--format", "json"], {
+    await exec(eslintBinPath, [targets, "--format", "json"], {
       listeners: {
         stdout: (data: Buffer) => {
           stdout += data.toString();
@@ -338,7 +342,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
 
   startGroup("ESLint");
   const { eslint, eslintBinPath } = await getESLint(mock);
-  const results = await getESLintOutput(eslintBinPath);
+  const results = await getESLintOutput(mock, eslintBinPath);
 
   const indexedResults: {
     [file: string]: LintResult;

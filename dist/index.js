@@ -11917,11 +11917,12 @@ function getESLint(mock) {
     });
 }
 exports.getESLint = getESLint;
-function getESLintOutput(eslintBinPath) {
+function getESLintOutput(mock, eslintBinPath) {
     return __awaiter(this, void 0, void 0, function* () {
+        const targets = mock === undefined ? (0, core_1.getInput)("eslint-bin-path") : ".";
         let stdout = "";
         try {
-            yield (0, exec_1.exec)(eslintBinPath, [".", "--format", "json"], {
+            yield (0, exec_1.exec)(eslintBinPath, [targets, "--format", "json"], {
                 listeners: {
                     stdout: (data) => {
                         stdout += data.toString();
@@ -12127,7 +12128,7 @@ function run(mock = undefined) {
         const requestChanges = mock === undefined ? (0, core_1.getBooleanInput)("request-changes") : false;
         (0, core_1.startGroup)("ESLint");
         const { eslint, eslintBinPath } = yield getESLint(mock);
-        const results = yield getESLintOutput(eslintBinPath);
+        const results = yield getESLintOutput(mock, eslintBinPath);
         const indexedResults = {};
         for (const file of results) {
             const relativePath = node_path_1.default.relative(WORKING_DIRECTORY, file.filePath);
