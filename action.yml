@@ -17,6 +17,10 @@ inputs:
     description: "Directory to run ESLint if it's not the project's root directory."
     required: false
     default: "./"
+  targets:
+    description: "Files, directories, and/or globs to run ESLint."
+    required: false
+    default: "."
   eslint-lib-path:
     description: "Path to the ESLint JavaScript library file."
     required: false

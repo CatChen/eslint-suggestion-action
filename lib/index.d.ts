@@ -22,7 +22,7 @@ export declare function getESLint(mock: MockConfig | undefined): Promise<{
     eslint: any;
     eslintBinPath: string;
 }>;
-export declare function getESLintOutput(eslintBinPath: string): Promise<import("eslint").ESLint.LintResult[]>;
+export declare function getESLintOutput(mock: MockConfig | undefined, eslintBinPath: string): Promise<import("eslint").ESLint.LintResult[]>;
 export declare function getOctokit(mock: MockConfig | undefined): Octokit & Api & {
     paginate: import("@octokit/plugin-paginate-rest").PaginateInterface;
 } & {
