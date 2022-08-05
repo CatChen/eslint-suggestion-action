@@ -85,7 +85,7 @@ export async function getESLintOutput(
   mock: MockConfig | undefined,
   eslintBinPath: string
 ) {
-  const targets = mock === undefined ? getInput("eslint-bin-path") : ".";
+  const targets = mock === undefined ? getInput("targets") : ".";
   let stdout = "";
   try {
     await exec(eslintBinPath, [targets, "--format", "json"], {
