@@ -21,3 +21,5 @@ jobs:
       - uses: ./
         env:
           DEBUG: "eslint:cli-engine"
+        with:
+          targets: "src"

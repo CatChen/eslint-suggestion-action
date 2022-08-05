@@ -11919,7 +11919,7 @@ function getESLint(mock) {
 exports.getESLint = getESLint;
 function getESLintOutput(mock, eslintBinPath) {
     return __awaiter(this, void 0, void 0, function* () {
-        const targets = mock === undefined ? (0, core_1.getInput)("eslint-bin-path") : ".";
+        const targets = mock === undefined ? (0, core_1.getInput)("targets") : ".";
         let stdout = "";
         try {
             yield (0, exec_1.exec)(eslintBinPath, [targets, "--format", "json"], {
