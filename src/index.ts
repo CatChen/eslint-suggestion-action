@@ -50,7 +50,7 @@ export async function getESLint(mock: MockConfig | undefined) {
     WORKING_DIRECTORY,
     mock === undefined ? getInput("directory") : "./"
   );
-  const require = createRequire(WORKING_DIRECTORY);
+  const require = createRequire(directory);
   const eslintJsPath = path.resolve(
     directory,
     mock === undefined
@@ -85,6 +85,11 @@ export async function getESLintOutput(
   mock: MockConfig | undefined,
   eslintBinPath: string
 ) {
+  const directory = path.resolve(
+    WORKING_DIRECTORY,
+    mock === undefined ? getInput("directory") : "./"
+  );
+  process.chdir(directory);
   const targets = mock === undefined ? getInput("targets") : ".";
   let stdout = "";
   try {
