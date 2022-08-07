@@ -95,7 +95,7 @@ export async function getESLintOutput(
   try {
     await exec(
       eslintBinPath,
-      [targets, "--no-error-on-unmatched-pattern", "--format", "json"],
+      [`'${targets}'`, "--no-error-on-unmatched-pattern", "--format", "json"],
       {
         listeners: {
           stdout: (data: Buffer) => {
