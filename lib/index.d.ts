@@ -129,5 +129,6 @@ export declare function getIndexedModifiedLines(file: components["schemas"]["dif
 };
 export declare function getCommentFromFix(source: string, line: number, fix: Fix): ReviewSuggestion;
 export declare function reviewCommentsInclude(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): boolean;
+export declare function matchReviewComments(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): string[];
 export declare function run(mock?: MockConfig | undefined): Promise<void>;
 export {};

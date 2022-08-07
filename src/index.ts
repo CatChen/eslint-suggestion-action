@@ -339,6 +339,26 @@ export function reviewCommentsInclude(
   return false;
 }
 
+export function matchReviewComments(
+  reviewComments: components["schemas"]["review-comment"][],
+  reviewComment: ReviewComment
+) {
+  const matchedNodeIds: string[] = [];
+  for (const existingReviewComment of reviewComments) {
+    if (
+      existingReviewComment.path === reviewComment.path &&
+      existingReviewComment.line === reviewComment.line &&
+      existingReviewComment.side === reviewComment.side &&
+      existingReviewComment.start_line == reviewComment.start_line && // null-undefined comparison
+      existingReviewComment.start_side == reviewComment.start_side && // null-undefined comparison
+      existingReviewComment.body === reviewComment.body
+    ) {
+      matchedNodeIds.push(existingReviewComment.node_id);
+    }
+  }
+  return matchedNodeIds;
+}
+
 export async function run(mock: MockConfig | undefined = undefined) {
   const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
   const requestChanges =
@@ -391,6 +411,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
 
   let commentsCounter = 0;
   const reviewComments = [];
+  let matchedReviewCommentNodeIds: { [nodeId: string]: boolean } = {};
   for (const file of files) {
     info(`  File name: ${file.filename}`);
     info(`  File status: ${file.status}`);
@@ -422,15 +443,21 @@ export async function run(mock: MockConfig | undefined = undefined) {
                 reviewSuggestion.body,
               path: file.filename,
             };
-            const reviewCommentExisted = reviewCommentsInclude(
+            const matchedComments = matchReviewComments(
               existingReviewComments,
               reviewComment
             );
             commentsCounter++;
-            if (!reviewCommentExisted) {
+            if (matchedComments.length === 0) {
               reviewComments.push(reviewComment);
               info(`    Comment queued`);
             } else {
+              matchedReviewCommentNodeIds = {
+                ...matchedReviewCommentNodeIds,
+                ...Object.fromEntries(
+                  matchedComments.map((nodeId) => [nodeId, true])
+                ),
+              };
               info(`    Comment skipped`);
             }
           } else if (message.suggestions) {
@@ -472,15 +499,21 @@ export async function run(mock: MockConfig | undefined = undefined) {
                   reviewSuggestions.body,
                 path: file.filename,
               };
-              const reviewCommentExisted = reviewCommentsInclude(
+              const matchedComments = matchReviewComments(
                 existingReviewComments,
                 reviewComment
               );
               commentsCounter++;
-              if (!reviewCommentExisted) {
+              if (matchedComments.length === 0) {
                 reviewComments.push(reviewComment);
                 info(`    Comment queued`);
               } else {
+                matchedReviewCommentNodeIds = {
+                  ...matchedReviewCommentNodeIds,
+                  ...Object.fromEntries(
+                    matchedComments.map((nodeId) => [nodeId, true])
+                  ),
+                };
                 info(`    Comment skipped`);
               }
             }
@@ -491,15 +524,21 @@ export async function run(mock: MockConfig | undefined = undefined) {
               side: "RIGHT",
               line: message.line,
             };
-            const reviewCommentExisted = reviewCommentsInclude(
+            const matchedComments = matchReviewComments(
               existingReviewComments,
               reviewComment
             );
             commentsCounter++;
-            if (reviewCommentExisted) {
+            if (matchedComments.length === 0) {
               reviewComments.push(reviewComment);
               info(`    Comment queued`);
             } else {
+              matchedReviewCommentNodeIds = {
+                ...matchedReviewCommentNodeIds,
+                ...Object.fromEntries(
+                  matchedComments.map((nodeId) => [nodeId, true])
+                ),
+              };
               info(`    Comment skipped`);
             }
           }
@@ -509,6 +548,11 @@ export async function run(mock: MockConfig | undefined = undefined) {
   }
   endGroup();
 
+  for (const reviewComment of existingReviewComments) {
+    if (matchedReviewCommentNodeIds[reviewComment.node_id]) {
+      info(`Review comment resolved: ${reviewComment.url}`);
+    }
+  }
   if (commentsCounter > 0) {
     const response = await octokit.rest.pulls.createReview({
       owner,
