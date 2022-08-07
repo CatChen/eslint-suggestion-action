@@ -76,7 +76,7 @@ The default value is `"./"`. This action uses the ESLint installed in your proje
 
 ### `targets`
 
-The default value is `"."`. For example, it could be `"src/**/*.ts"` for a typical TypeScript project with source code files in the `src` directory.
+The default value is `"."`. For example, it could be `"src"` or `"src/**/*.ts"` for a typical TypeScript project with source code files in the `src` directory. Use glob pattern to match multiple directories if necessary, for example `"{src,lib}"` instead of `"src lib"` or `"{src, lib}"` to match both the `src` directory and the `lib` directory.
 
 ### `eslint-lib-path`
 
