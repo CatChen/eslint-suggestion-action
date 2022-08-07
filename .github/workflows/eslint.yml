@@ -22,4 +22,4 @@ jobs:
         env:
           DEBUG: "eslint:cli-engine"
         with:
-          targets: "src"
+          targets: "'{src,tests}/**/*'"

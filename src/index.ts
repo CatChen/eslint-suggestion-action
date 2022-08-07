@@ -93,13 +93,17 @@ export async function getESLintOutput(
   const targets = mock === undefined ? getInput("targets") : ".";
   let stdout = "";
   try {
-    await exec(eslintBinPath, [targets, "--format", "json"], {
-      listeners: {
-        stdout: (data: Buffer) => {
-          stdout += data.toString();
+    await exec(
+      eslintBinPath,
+      [targets, "--no-error-on-unmatched-pattern", "--format", "json"],
+      {
+        listeners: {
+          stdout: (data: Buffer) => {
+            stdout += data.toString();
+          },
         },
-      },
-    });
+      }
+    );
   } catch (error) {
     // Ignore the error.
   }
