@@ -8,11 +8,11 @@ import {
   endGroup,
   error,
 } from "@actions/core";
-import { exec } from "@actions/exec";
 import { PullRequest } from "@octokit/webhooks-definitions/schema";
 import { throttling } from "@octokit/plugin-throttling";
 import { retry } from "@octokit/plugin-retry";
 import process from "node:process";
+import childProcess from "node:child_process";
 import path from "node:path";
 import { existsSync } from "node:fs";
 import { createRequire } from "module";
@@ -91,23 +91,15 @@ export async function getESLintOutput(
   );
   process.chdir(directory);
   const targets = mock === undefined ? getInput("targets") : ".";
-  let stdout = "";
+  let results: LintResult[] = [];
   try {
-    await exec(
-      eslintBinPath,
-      [`'${targets}'`, "--no-error-on-unmatched-pattern", "--format", "json"],
-      {
-        listeners: {
-          stdout: (data: Buffer) => {
-            stdout += data.toString();
-          },
-        },
-      }
+    const stdout = childProcess.execSync(
+      `${eslintBinPath} "${targets}" --no-error-on-unmatched-pattern --format json`
     );
+    results = JSON.parse(stdout.toString());
   } catch (error) {
     // Ignore the error.
   }
-  const results: LintResult[] = JSON.parse(stdout);
   return results;
 }
 
