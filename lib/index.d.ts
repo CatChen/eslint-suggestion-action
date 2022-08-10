@@ -18,6 +18,7 @@ declare type ReviewSuggestion = {
 declare type ReviewComment = ReviewSuggestion & {
     path: string;
 };
+export declare function changeDirectory(mock: MockConfig | undefined): void;
 export declare function getESLint(mock: MockConfig | undefined): Promise<{
     eslint: any;
     eslintBinPath: string;

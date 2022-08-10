@@ -45,14 +45,24 @@ const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 
-export async function getESLint(mock: MockConfig | undefined) {
-  const directory = path.resolve(
+export function changeDirectory(mock: MockConfig | undefined) {
+  info(`Working directory is: ${WORKING_DIRECTORY}`);
+  const absoluteDirectory = path.resolve(
     WORKING_DIRECTORY,
     mock === undefined ? getInput("directory") : "./"
   );
-  const require = createRequire(directory);
+  info(`Working directory is changed to: ${absoluteDirectory}`);
+  process.chdir(absoluteDirectory);
+}
+
+export async function getESLint(mock: MockConfig | undefined) {
+  const absoluteDirectory = path.resolve(
+    WORKING_DIRECTORY,
+    mock === undefined ? getInput("directory") : "./"
+  );
+  const require = createRequire(absoluteDirectory);
   const eslintJsPath = path.resolve(
-    directory,
+    absoluteDirectory,
     mock === undefined
       ? getInput("eslint-lib-path")
       : "./node_modules/eslint/lib/api.js"
@@ -67,12 +77,10 @@ export async function getESLint(mock: MockConfig | undefined) {
   );
   const eslint = new ESLint({ baseConfig: eslintConfig });
 
-  const eslintBinPath = path.resolve(
-    directory,
+  const eslintBinPath =
     mock === undefined
       ? getInput("eslint-bin-path")
-      : "./node_modules/.bin/eslint"
-  );
+      : "./node_modules/.bin/eslint";
   if (!existsSync(eslintBinPath)) {
     throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
   }
@@ -85,11 +93,6 @@ export async function getESLintOutput(
   mock: MockConfig | undefined,
   eslintBinPath: string
 ) {
-  const directory = path.resolve(
-    WORKING_DIRECTORY,
-    mock === undefined ? getInput("directory") : "./"
-  );
-  process.chdir(directory);
   const targets = mock === undefined ? getInput("targets") : ".";
   let results: LintResult[] = [];
   try {
@@ -342,6 +345,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
     mock === undefined ? getBooleanInput("request-changes") : false;
 
   startGroup("ESLint");
+  changeDirectory(mock);
   const { eslint, eslintBinPath } = await getESLint(mock);
   const results = await getESLintOutput(mock, eslintBinPath);
 
