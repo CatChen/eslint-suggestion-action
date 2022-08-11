@@ -684,11 +684,14 @@ export async function run(mock: MockConfig | undefined = undefined) {
         `Failed to create review with ${reviewComments.length} comment(s).`
       );
     }
-    info(
-      `Review submitted: ${reviewComments.length} comment(s) (${
-        commentsCounter - reviewComments.length
-      } skipped)`
-    );
+    if (commentsCounter - reviewComments.length > 0) {
+      info(
+        `Review comments existed and skipped: ${
+          commentsCounter - reviewComments.length
+        }`
+      );
+    }
+    info(`Review comments submitted: ${reviewComments.length}`);
     if (failCheck) {
       throw new Error("ESLint doesn't pass. Please review comments.");
     }

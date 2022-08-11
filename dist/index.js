@@ -11739,7 +11739,10 @@ function run(mock = undefined) {
             if (response.status !== 200) {
                 throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
             }
-            (0, core_1.info)(`Review submitted: ${reviewComments.length} comment(s) (${commentsCounter - reviewComments.length} skipped)`);
+            if (commentsCounter - reviewComments.length > 0) {
+                (0, core_1.info)(`Review comments existed and skipped: ${commentsCounter - reviewComments.length}`);
+            }
+            (0, core_1.info)(`Review comments submitted: ${reviewComments.length}`);
             if (failCheck) {
                 throw new Error("ESLint doesn't pass. Please review comments.");
             }
