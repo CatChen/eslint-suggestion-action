@@ -11640,6 +11640,9 @@ function run(mock = undefined) {
         (0, core_1.endGroup)();
         for (const reviewComment of existingReviewComments) {
             if (matchedReviewCommentNodeIds[reviewComment.node_id]) {
+                (0, core_1.info)(`Review comment unresolved: ${reviewComment.url}`);
+            }
+            else {
                 (0, core_1.info)(`Review comment resolved: ${reviewComment.url}`);
             }
         }

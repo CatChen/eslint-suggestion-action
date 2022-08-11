@@ -553,6 +553,8 @@ export async function run(mock: MockConfig | undefined = undefined) {
 
   for (const reviewComment of existingReviewComments) {
     if (matchedReviewCommentNodeIds[reviewComment.node_id]) {
+      info(`Review comment unresolved: ${reviewComment.url}`);
+    } else {
       info(`Review comment resolved: ${reviewComment.url}`);
     }
   }
