@@ -45,7 +45,6 @@ const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 
-const USELESS = "";
 const USELESS2 = "";
 const USELESS3 = "";
 
