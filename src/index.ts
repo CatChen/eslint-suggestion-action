@@ -19,6 +19,7 @@ import { createRequire } from "module";
 import { Octokit } from "@octokit/core";
 import { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
 import { components } from "@octokit/openapi-types/types";
+import { Query, PullRequestReviewThread } from "@octokit/graphql-schema";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
@@ -242,28 +243,39 @@ export async function getReviewComments(
       relevantReviewIds.includes(reviewComment.pull_request_review_id)
   );
   info(`Existing review comments: (${relevantReviewComments.length})`);
+  return relevantReviewComments;
+}
 
-  const reviewThreads = await octokit.graphql(
+export async function getReviewThreads(
+  owner: string,
+  repo: string,
+  pullRequestNumber: number,
+  octokit: Octokit & Api
+) {
+  const commentNodeIdToReviewThreadMapping: {
+    [id: string]: PullRequestReviewThread;
+  } = {};
+  const queryData = await octokit.graphql<Query>(
     `
-    query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
-      repository(owner: $owner, name: $repo) {
-        pullRequest(number: $pullRequestNumber) {
-          reviewThreads(last: 100) {
-            totalCount
-            nodes {
-              id
-              isResolved
-              comments(last: 100) {
-                totalCount
-                nodes {
-                  id
+      query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
+        repository(owner: $owner, name: $repo) {
+          pullRequest(number: $pullRequestNumber) {
+            reviewThreads(last: 100) {
+              totalCount
+              nodes {
+                id
+                isResolved
+                comments(last: 100) {
+                  totalCount
+                  nodes {
+                    id
+                  }
                 }
               }
             }
           }
         }
       }
-    }
     `,
     {
       owner,
@@ -271,9 +283,40 @@ export async function getReviewComments(
       pullRequestNumber,
     }
   );
-  console.log("reviewThreads", reviewThreads);
 
-  return relevantReviewComments;
+  const reviewThreadTotalCount =
+    queryData?.repository?.pullRequest?.reviewThreads?.totalCount;
+  if (reviewThreadTotalCount !== undefined && reviewThreadTotalCount > 100) {
+    error(`There are more than 100 review threads: ${reviewThreadTotalCount}`);
+  }
+
+  const reviewThreads =
+    queryData?.repository?.pullRequest?.reviewThreads?.nodes;
+  if (reviewThreads !== undefined && reviewThreads !== null) {
+    for (const reviewThread of reviewThreads) {
+      if (reviewThread === null) {
+        continue;
+      }
+      const commentTotalCount = reviewThread?.comments?.totalCount;
+      if (commentTotalCount !== undefined && commentTotalCount > 100) {
+        error(
+          `There are more than 100 review comments in review thread ${reviewThread?.id}: ${commentTotalCount}`
+        );
+      }
+
+      const comments = reviewThread?.comments?.nodes;
+      if (comments !== undefined && comments !== null) {
+        for (const comment of comments) {
+          const commentId = comment?.id;
+          if (commentId === undefined) {
+            continue;
+          }
+          commentNodeIdToReviewThreadMapping[commentId] = reviewThread;
+        }
+      }
+    }
+  }
+  return commentNodeIdToReviewThreadMapping;
 }
 
 export function getIndexedModifiedLines(
@@ -354,25 +397,6 @@ export function getCommentFromFix(source: string, line: number, fix: Fix) {
   return reviewSuggestion;
 }
 
-export function reviewCommentsInclude(
-  reviewComments: components["schemas"]["review-comment"][],
-  reviewComment: ReviewComment
-) {
-  for (const existingReviewComment of reviewComments) {
-    if (
-      existingReviewComment.path === reviewComment.path &&
-      existingReviewComment.line === reviewComment.line &&
-      existingReviewComment.side === reviewComment.side &&
-      existingReviewComment.start_line == reviewComment.start_line && // null-undefined comparison
-      existingReviewComment.start_side == reviewComment.start_side && // null-undefined comparison
-      existingReviewComment.body === reviewComment.body
-    ) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export function matchReviewComments(
   reviewComments: components["schemas"]["review-comment"][],
   reviewComment: ReviewComment
@@ -443,8 +467,15 @@ export async function run(mock: MockConfig | undefined = undefined) {
     octokit
   );
 
+  const commentNodeIdToReviewThreadMapping = await getReviewThreads(
+    owner,
+    repo,
+    pullRequestNumber,
+    octokit
+  );
+
   let commentsCounter = 0;
-  const reviewComments = [];
+  const reviewComments: ReviewComment[] = [];
   let matchedReviewCommentNodeIds: { [nodeId: string]: boolean } = {};
   for (const file of files) {
     info(`  File name: ${file.filename}`);
@@ -582,11 +613,60 @@ export async function run(mock: MockConfig | undefined = undefined) {
   }
   endGroup();
 
+  startGroup("Feedback");
   for (const reviewComment of existingReviewComments) {
-    if (matchedReviewCommentNodeIds[reviewComment.node_id]) {
-      info(`Review comment unresolved: ${reviewComment.url}`);
+    const reviewThread =
+      commentNodeIdToReviewThreadMapping[reviewComment.node_id];
+    if (reviewThread !== undefined) {
+      if (
+        matchedReviewCommentNodeIds[reviewComment.node_id] &&
+        reviewThread.isResolved
+      ) {
+        octokit.graphql(
+          `
+            mutation ($nodeId: ID!) {
+              unresolveReviewThread(input: {threadId: $nodeId}) {
+                thread {
+                  id
+                }
+              }
+            }
+          `,
+          {
+            nodeId: reviewThread.id,
+          }
+        );
+        info(`Review comment unresolved: ${reviewComment.url}`);
+      } else if (
+        !matchedReviewCommentNodeIds[reviewComment.node_id] &&
+        !reviewThread.isResolved
+      ) {
+        octokit.graphql(
+          `
+            mutation ($nodeId: ID!) {
+              resolveReviewThread(input: {threadId: $nodeId}) {
+                thread {
+                  id
+                }
+              }
+            }
+          `,
+          {
+            nodeId: reviewThread.id,
+          }
+        );
+        info(`Review comment resolved: ${reviewComment.url}`);
+      } else {
+        info(
+          `Review comment remains ${
+            reviewThread.isResolved ? "resolved" : "unresolved"
+          }: ${reviewComment.url}`
+        );
+      }
     } else {
-      info(`Review comment resolved: ${reviewComment.url}`);
+      error(
+        `Review comment has no associated review thread: ${reviewComment.url}`
+      );
     }
   }
   if (commentsCounter > 0) {
@@ -615,6 +695,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
   } else {
     info("ESLint passes");
   }
+  endGroup();
 }
 
 if (process.argv.length === 6) {
