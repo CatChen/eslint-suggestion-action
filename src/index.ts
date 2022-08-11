@@ -242,6 +242,37 @@ export async function getReviewComments(
       relevantReviewIds.includes(reviewComment.pull_request_review_id)
   );
   info(`Existing review comments: (${relevantReviewComments.length})`);
+
+  const reviewThreads = await octokit.graphql(
+    `
+    query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
+      repository(owner: $owner, name: $repo) {
+        pullRequest(number: $pullRequestNumber) {
+          reviewThreads(last: 100) {
+            totalCount
+            nodes {
+              id
+              isResolved
+              comments(last: 100) {
+                totalCount
+                nodes {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    `,
+    {
+      owner,
+      repo,
+      pullRequestNumber,
+    }
+  );
+  console.log("reviewThreads", reviewThreads);
+
   return relevantReviewComments;
 }
 
