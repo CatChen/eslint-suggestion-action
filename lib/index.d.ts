@@ -1,6 +1,7 @@
 import { Octokit } from "@octokit/core";
 import { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
 import { components } from "@octokit/openapi-types/types";
+import { PullRequestReviewThread } from "@octokit/graphql-schema";
 declare type Fix = import("eslint").Rule.Fix;
 declare type MockConfig = {
     token: string;
@@ -124,10 +125,13 @@ export declare function getReviewComments(owner: string, repo: string, pullReque
     body_html?: string | undefined;
     body_text?: string | undefined;
 }[]>;
+export declare function getReviewThreads(owner: string, repo: string, pullRequestNumber: number, octokit: Octokit & Api): Promise<{
+    [id: string]: PullRequestReviewThread;
+}>;
 export declare function getIndexedModifiedLines(file: components["schemas"]["diff-entry"]): {
     [line: string]: true;
 };
 export declare function getCommentFromFix(source: string, line: number, fix: Fix): ReviewSuggestion;
-export declare function reviewCommentsInclude(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): boolean;
+export declare function matchReviewComments(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): string[];
 export declare function run(mock?: MockConfig | undefined): Promise<void>;
 export {};

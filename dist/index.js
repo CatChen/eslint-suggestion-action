@@ -11254,7 +11254,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.reviewCommentsInclude = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewComments = exports.getPullRequestFiles = exports.getPullRequestMetadata = exports.getOctokit = exports.getESLintOutput = exports.getESLint = exports.changeDirectory = void 0;
+exports.run = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.getPullRequestMetadata = exports.getOctokit = exports.getESLintOutput = exports.getESLint = exports.changeDirectory = void 0;
 const github_1 = __nccwpck_require__(5438);
 const utils_1 = __nccwpck_require__(3030);
 const core_1 = __nccwpck_require__(2186);
@@ -11416,6 +11416,65 @@ function getReviewComments(owner, repo, pullRequestNumber, octokit) {
     });
 }
 exports.getReviewComments = getReviewComments;
+function getReviewThreads(owner, repo, pullRequestNumber, octokit) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    return __awaiter(this, void 0, void 0, function* () {
+        const commentNodeIdToReviewThreadMapping = {};
+        const queryData = yield octokit.graphql(`
+      query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
+        repository(owner: $owner, name: $repo) {
+          pullRequest(number: $pullRequestNumber) {
+            reviewThreads(last: 100) {
+              totalCount
+              nodes {
+                id
+                isResolved
+                comments(last: 100) {
+                  totalCount
+                  nodes {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `, {
+            owner,
+            repo,
+            pullRequestNumber,
+        });
+        const reviewThreadTotalCount = (_c = (_b = (_a = queryData === null || queryData === void 0 ? void 0 : queryData.repository) === null || _a === void 0 ? void 0 : _a.pullRequest) === null || _b === void 0 ? void 0 : _b.reviewThreads) === null || _c === void 0 ? void 0 : _c.totalCount;
+        if (reviewThreadTotalCount !== undefined && reviewThreadTotalCount > 100) {
+            (0, core_1.error)(`There are more than 100 review threads: ${reviewThreadTotalCount}`);
+        }
+        const reviewThreads = (_f = (_e = (_d = queryData === null || queryData === void 0 ? void 0 : queryData.repository) === null || _d === void 0 ? void 0 : _d.pullRequest) === null || _e === void 0 ? void 0 : _e.reviewThreads) === null || _f === void 0 ? void 0 : _f.nodes;
+        if (reviewThreads !== undefined && reviewThreads !== null) {
+            for (const reviewThread of reviewThreads) {
+                if (reviewThread === null) {
+                    continue;
+                }
+                const commentTotalCount = (_g = reviewThread === null || reviewThread === void 0 ? void 0 : reviewThread.comments) === null || _g === void 0 ? void 0 : _g.totalCount;
+                if (commentTotalCount !== undefined && commentTotalCount > 100) {
+                    (0, core_1.error)(`There are more than 100 review comments in review thread ${reviewThread === null || reviewThread === void 0 ? void 0 : reviewThread.id}: ${commentTotalCount}`);
+                }
+                const comments = (_h = reviewThread === null || reviewThread === void 0 ? void 0 : reviewThread.comments) === null || _h === void 0 ? void 0 : _h.nodes;
+                if (comments !== undefined && comments !== null) {
+                    for (const comment of comments) {
+                        const commentId = comment === null || comment === void 0 ? void 0 : comment.id;
+                        if (commentId === undefined) {
+                            continue;
+                        }
+                        commentNodeIdToReviewThreadMapping[commentId] = reviewThread;
+                    }
+                }
+            }
+        }
+        return commentNodeIdToReviewThreadMapping;
+    });
+}
+exports.getReviewThreads = getReviewThreads;
 function getIndexedModifiedLines(file) {
     var _a;
     const modifiedLines = [];
@@ -11484,7 +11543,8 @@ function getCommentFromFix(source, line, fix) {
     return reviewSuggestion;
 }
 exports.getCommentFromFix = getCommentFromFix;
-function reviewCommentsInclude(reviewComments, reviewComment) {
+function matchReviewComments(reviewComments, reviewComment) {
+    const matchedNodeIds = [];
     for (const existingReviewComment of reviewComments) {
         if (existingReviewComment.path === reviewComment.path &&
             existingReviewComment.line === reviewComment.line &&
@@ -11492,12 +11552,12 @@ function reviewCommentsInclude(reviewComments, reviewComment) {
             existingReviewComment.start_line == reviewComment.start_line && // null-undefined comparison
             existingReviewComment.start_side == reviewComment.start_side && // null-undefined comparison
             existingReviewComment.body === reviewComment.body) {
-            return true;
+            matchedNodeIds.push(existingReviewComment.node_id);
         }
     }
-    return false;
+    return matchedNodeIds;
 }
-exports.reviewCommentsInclude = reviewCommentsInclude;
+exports.matchReviewComments = matchReviewComments;
 function run(mock = undefined) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
@@ -11529,8 +11589,10 @@ function run(mock = undefined) {
         const { owner, repo, pullRequestNumber, headSha } = yield getPullRequestMetadata(mock, octokit);
         const files = yield getPullRequestFiles(owner, repo, pullRequestNumber, octokit);
         const existingReviewComments = yield getReviewComments(owner, repo, pullRequestNumber, octokit);
+        const commentNodeIdToReviewThreadMapping = yield getReviewThreads(owner, repo, pullRequestNumber, octokit);
         let commentsCounter = 0;
         const reviewComments = [];
+        let matchedReviewCommentNodeIds = {};
         for (const file of files) {
             (0, core_1.info)(`  File name: ${file.filename}`);
             (0, core_1.info)(`  File status: ${file.status}`);
@@ -11551,13 +11613,14 @@ function run(mock = undefined) {
                             const reviewSuggestion = getCommentFromFix(result.source, message.line, message.fix);
                             const reviewComment = Object.assign(Object.assign({}, reviewSuggestion), { body: `**${message.message}** [${message.ruleId}](${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})\n\nFix available:\n\n` +
                                     reviewSuggestion.body, path: file.filename });
-                            const reviewCommentExisted = reviewCommentsInclude(existingReviewComments, reviewComment);
+                            const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
                             commentsCounter++;
-                            if (!reviewCommentExisted) {
+                            if (matchedComments.length === 0) {
                                 reviewComments.push(reviewComment);
                                 (0, core_1.info)(`    Comment queued`);
                             }
                             else {
+                                matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
                                 (0, core_1.info)(`    Comment skipped`);
                             }
                         }
@@ -11584,13 +11647,14 @@ function run(mock = undefined) {
                             if (reviewSuggestions !== undefined) {
                                 const reviewComment = Object.assign(Object.assign({}, reviewSuggestions), { body: `**${message.message}** [${message.ruleId}](${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})\n\nSuggestion(s) available:\n\n` +
                                         reviewSuggestions.body, path: file.filename });
-                                const reviewCommentExisted = reviewCommentsInclude(existingReviewComments, reviewComment);
+                                const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
                                 commentsCounter++;
-                                if (!reviewCommentExisted) {
+                                if (matchedComments.length === 0) {
                                     reviewComments.push(reviewComment);
                                     (0, core_1.info)(`    Comment queued`);
                                 }
                                 else {
+                                    matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
                                     (0, core_1.info)(`    Comment skipped`);
                                 }
                             }
@@ -11602,13 +11666,14 @@ function run(mock = undefined) {
                                 side: "RIGHT",
                                 line: message.line,
                             };
-                            const reviewCommentExisted = reviewCommentsInclude(existingReviewComments, reviewComment);
+                            const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
                             commentsCounter++;
-                            if (reviewCommentExisted) {
+                            if (matchedComments.length === 0) {
                                 reviewComments.push(reviewComment);
                                 (0, core_1.info)(`    Comment queued`);
                             }
                             else {
+                                matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
                                 (0, core_1.info)(`    Comment skipped`);
                             }
                         }
@@ -11617,6 +11682,48 @@ function run(mock = undefined) {
             }
         }
         (0, core_1.endGroup)();
+        (0, core_1.startGroup)("Feedback");
+        for (const reviewComment of existingReviewComments) {
+            const reviewThread = commentNodeIdToReviewThreadMapping[reviewComment.node_id];
+            if (reviewThread !== undefined) {
+                if (matchedReviewCommentNodeIds[reviewComment.node_id] &&
+                    reviewThread.isResolved) {
+                    octokit.graphql(`
+            mutation ($nodeId: ID!) {
+              unresolveReviewThread(input: {threadId: $nodeId}) {
+                thread {
+                  id
+                }
+              }
+            }
+          `, {
+                        nodeId: reviewThread.id,
+                    });
+                    (0, core_1.info)(`Review comment unresolved: ${reviewComment.url}`);
+                }
+                else if (!matchedReviewCommentNodeIds[reviewComment.node_id] &&
+                    !reviewThread.isResolved) {
+                    octokit.graphql(`
+            mutation ($nodeId: ID!) {
+              resolveReviewThread(input: {threadId: $nodeId}) {
+                thread {
+                  id
+                }
+              }
+            }
+          `, {
+                        nodeId: reviewThread.id,
+                    });
+                    (0, core_1.info)(`Review comment resolved: ${reviewComment.url}`);
+                }
+                else {
+                    (0, core_1.info)(`Review comment remains ${reviewThread.isResolved ? "resolved" : "unresolved"}: ${reviewComment.url}`);
+                }
+            }
+            else {
+                (0, core_1.error)(`Review comment has no associated review thread: ${reviewComment.url}`);
+            }
+        }
         if (commentsCounter > 0) {
             const response = yield octokit.rest.pulls.createReview({
                 owner,
@@ -11630,7 +11737,10 @@ function run(mock = undefined) {
             if (response.status !== 200) {
                 throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
             }
-            (0, core_1.info)(`Review submitted: ${reviewComments.length} comment(s) (${commentsCounter - reviewComments.length} skipped)`);
+            if (commentsCounter - reviewComments.length > 0) {
+                (0, core_1.info)(`Review comments existed and skipped: ${commentsCounter - reviewComments.length}`);
+            }
+            (0, core_1.info)(`Review comments submitted: ${reviewComments.length}`);
             if (failCheck) {
                 throw new Error("ESLint doesn't pass. Please review comments.");
             }
@@ -11638,6 +11748,7 @@ function run(mock = undefined) {
         else {
             (0, core_1.info)("ESLint passes");
         }
+        (0, core_1.endGroup)();
     });
 }
 exports.run = run;
