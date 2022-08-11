@@ -31,4 +31,4 @@ jobs:
         with:
           fail-if-not-clean: true
           push-if-not-clean: true
-          github-token: ${{ secretes.CHECK_GIT_STATUS_ACTION_TOKEN }}
+          github-token: ${{ secrets.CHECK_GIT_STATUS_ACTION_TOKEN }}
