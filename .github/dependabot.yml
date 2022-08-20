@@ -8,6 +8,8 @@ updates:
       - catchen
     assignees:
       - catchen
+    labels:
+      - accept2ship
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -17,3 +19,5 @@ updates:
       - catchen
     assignees:
       - catchen
+    labels:
+      - accept2ship

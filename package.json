@@ -6,7 +6,7 @@
   "types": "lib/index.d.js",
   "type": "module",
   "devDependencies": {
-    "@octokit/graphql-schema": "^10.74.2",
+    "@octokit/graphql-schema": "^11.0.0",
     "@octokit/webhooks-definitions": "^3.67.3",
     "@types/eslint": "^8.4.1",
     "@types/node": "^18.0.0",
