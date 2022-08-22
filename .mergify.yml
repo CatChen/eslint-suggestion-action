@@ -6,6 +6,7 @@ pull_request_rules:
       - status-success=build
       - status-success=eslint
       - status-success=Analyze (javascript)
+      - label!=accept2ship
     actions:
       merge:
         method: squash
@@ -17,6 +18,7 @@ pull_request_rules:
       - status-success=build
       - status-success=eslint
       - status-success=Analyze (javascript)
+      - label!=accept2ship
     actions:
       merge:
         method: squash
