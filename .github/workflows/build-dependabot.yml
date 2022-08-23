@@ -1,0 +1,14 @@
+name: Build for Dependabot
+
+on:
+  pull_request:
+    branches: [main, "[0-9]+-[0-9]+-*"]
+  workflow_dispatch:
+
+jobs:
+  build-dependabot:
+    name: Build for Dependabot
+    if: ${{ !startsWith(github.head_ref, 'workflows/tests/') && github.actor == 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0

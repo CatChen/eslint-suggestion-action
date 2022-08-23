@@ -5,12 +5,22 @@ on:
     branches: [main]
   pull_request:
     branches: [main, "[0-9]+-[0-9]+-*"]
+  workflow_run:
+    workflows: ["Build for Dependabot"]
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build
+    if: |
+      ${{ 
+        (github.event_name == 'pull_request' && github.actor != 'dependabot[bot]') ||
+        (github.event_name == 'workflow_run' && github.actor == 'dependabot[bot]')
+      }}
     runs-on: ubuntu-latest
-
+    permissions: write-all
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -29,6 +39,6 @@ jobs:
 
       - uses: CatChen/check-git-status-action@v1
         with:
-          fail-if-not-clean: true
+          fail-if-not-clean: ${{ github.actor != 'dependabot[bot]' }}
           push-if-not-clean: true
           github-token: ${{ secrets.CHECK_GIT_STATUS_ACTION_TOKEN }}
