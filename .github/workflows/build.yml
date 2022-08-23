@@ -16,6 +16,7 @@ jobs:
     name: Build
     if: |-
       ${{ 
+        (github.event_name == 'push' && github.actor != 'dependabot[bot]') ||
         (github.event_name == 'pull_request' && github.actor != 'dependabot[bot]') ||
         (github.event_name == 'workflow_run' && github.actor == 'dependabot[bot]')
       }}
