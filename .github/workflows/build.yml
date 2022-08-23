@@ -16,10 +16,8 @@ jobs:
     name: Build
     if: |
       ${{ 
-        !startsWith(github.head_ref, 'workflows/tests/') && (
-          (github.event_name == 'pull_request' && github.actor != 'dependabot[bot]') ||
-          (github.event_name == 'workflow_run' && github.actor == 'dependabot[bot]')
-        )
+        (github.event_name == 'pull_request' && github.actor != 'dependabot[bot]') ||
+        (github.event_name == 'workflow_run' && github.actor == 'dependabot[bot]')
       }}
     runs-on: ubuntu-latest
     permissions: write-all
