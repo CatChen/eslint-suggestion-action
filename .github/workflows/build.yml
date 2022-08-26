@@ -24,6 +24,13 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v3
+        if: ${{ github.event_name != 'workflow_run' }}
+
+      - uses: actions/checkout@v3
+        if: ${{ github.event_name == 'workflow_run' }}
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+
       - uses: actions/setup-node@v3
         with:
           node-version-file: ".nvmrc"
