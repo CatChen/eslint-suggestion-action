@@ -765,7 +765,7 @@ export async function pushEventHandler(
           switch (message.severity) {
             case 0:
               notice(
-                `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
+                `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
                 {
                   file: file.filename,
                   startLine: message.line,
@@ -774,7 +774,7 @@ export async function pushEventHandler(
               break;
             case 1:
               warning(
-                `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
+                `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
                 {
                   file: file.filename,
                   startLine: message.line,
@@ -784,7 +784,7 @@ export async function pushEventHandler(
               break;
             case 2:
               error(
-                `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
+                `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
                 {
                   file: file.filename,
                   startLine: message.line,
