@@ -2,6 +2,8 @@ import { Octokit } from "@octokit/core";
 import { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
 import { components } from "@octokit/openapi-types/types";
 import { PullRequestReviewThread } from "@octokit/graphql-schema";
+declare type LintResult = import("eslint").ESLint.LintResult;
+declare type RuleMetaData = import("eslint").Rule.RuleMetaData;
 declare type Fix = import("eslint").Rule.Fix;
 declare type MockConfig = {
     token: string;
@@ -133,5 +135,10 @@ export declare function getIndexedModifiedLines(file: components["schemas"]["dif
 };
 export declare function getCommentFromFix(source: string, line: number, fix: Fix): ReviewSuggestion;
 export declare function matchReviewComments(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): string[];
+export declare function pullRequestEventHandler(mock: MockConfig | undefined, indexedResults: {
+    [file: string]: LintResult;
+}, ruleMetaDatas: {
+    [name: string]: RuleMetaData;
+}): Promise<void>;
 export declare function run(mock?: MockConfig | undefined): Promise<void>;
 export {};

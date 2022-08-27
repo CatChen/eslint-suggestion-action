@@ -414,37 +414,18 @@ export function matchReviewComments(
   return matchedNodeIds;
 }
 
-export async function run(mock: MockConfig | undefined = undefined) {
+export async function pullRequestEventHandler(
+  mock: MockConfig | undefined,
+  indexedResults: {
+    [file: string]: LintResult;
+  },
+  ruleMetaDatas: {
+    [name: string]: RuleMetaData;
+  }
+) {
   const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
   const requestChanges =
     mock === undefined ? getBooleanInput("request-changes") : false;
-
-  startGroup("ESLint");
-  changeDirectory(mock);
-  const { eslint, eslintBinPath } = await getESLint(mock);
-  const results = await getESLintOutput(mock, eslintBinPath);
-
-  const indexedResults: {
-    [file: string]: LintResult;
-  } = {};
-  for (const file of results) {
-    const relativePath = path.relative(WORKING_DIRECTORY, file.filePath);
-    info(`File name: ${relativePath}`);
-    indexedResults[relativePath] = file;
-    for (const message of file.messages) {
-      info(`  [${message.severity}] ${message.message} @ ${message.line}`);
-      if (message.suggestions) {
-        info(`  Suggestions (${message.suggestions.length}):`);
-        for (const suggestion of message.suggestions) {
-          info(`    ${suggestion.desc} (${suggestion.messageId})`);
-        }
-      }
-    }
-  }
-  const ruleMetaDatas: {
-    [name: string]: RuleMetaData;
-  } = eslint.getRulesMetaForResults(results);
-  endGroup();
 
   startGroup("GitHub Pull Request");
   const octokit = getOctokit(mock);
@@ -696,6 +677,44 @@ export async function run(mock: MockConfig | undefined = undefined) {
     info("ESLint passes");
   }
   endGroup();
+}
+
+export async function run(mock: MockConfig | undefined = undefined) {
+  startGroup("ESLint");
+  changeDirectory(mock);
+  const { eslint, eslintBinPath } = await getESLint(mock);
+  const results = await getESLintOutput(mock, eslintBinPath);
+
+  const indexedResults: {
+    [file: string]: LintResult;
+  } = {};
+  for (const file of results) {
+    const relativePath = path.relative(WORKING_DIRECTORY, file.filePath);
+    info(`File name: ${relativePath}`);
+    indexedResults[relativePath] = file;
+    for (const message of file.messages) {
+      info(`  [${message.severity}] ${message.message} @ ${message.line}`);
+      if (message.suggestions) {
+        info(`  Suggestions (${message.suggestions.length}):`);
+        for (const suggestion of message.suggestions) {
+          info(`    ${suggestion.desc} (${suggestion.messageId})`);
+        }
+      }
+    }
+  }
+  const ruleMetaDatas: {
+    [name: string]: RuleMetaData;
+  } = eslint.getRulesMetaForResults(results);
+  endGroup();
+
+  switch (context.eventName) {
+    case "pull_request":
+      pullRequestEventHandler(mock, indexedResults, ruleMetaDatas);
+      break;
+    default:
+      error(`Unsupported GitHub Action event: ${context.eventName}`);
+      return;
+  }
 }
 
 if (process.argv.length === 6) {
