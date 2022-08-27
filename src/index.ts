@@ -7,8 +7,14 @@ import {
   startGroup,
   endGroup,
   error,
+  notice,
+  warning,
 } from "@actions/core";
-import { PullRequest } from "@octokit/webhooks-definitions/schema";
+import {
+  PullRequest,
+  PullRequestEvent,
+  PushEvent,
+} from "@octokit/webhooks-definitions/schema";
 import { throttling } from "@octokit/plugin-throttling";
 import { retry } from "@octokit/plugin-retry";
 import process from "node:process";
@@ -175,7 +181,7 @@ export async function getPullRequestMetadata(
     });
     pullRequest = response.data as PullRequest;
   } else {
-    pullRequest = context.payload.pull_request as PullRequest;
+    pullRequest = (context.payload as PullRequestEvent).pull_request;
   }
   const owner = mock?.owner || context.repo.owner;
   const repo = mock?.repo || context.repo.repo;
@@ -679,6 +685,131 @@ export async function pullRequestEventHandler(
   endGroup();
 }
 
+export async function getPushMetadata(mock: MockConfig | undefined) {
+  const push = context.payload as PushEvent;
+  const owner = mock?.owner || context.repo.owner;
+  const repo = mock?.repo || context.repo.repo;
+  const beforeSha = push.before;
+  const afterSha = push.after;
+
+  info(`Owner: ${owner}`);
+  info(`Repo: ${repo}`);
+  info(`Before SHA: ${beforeSha}`);
+  info(`After SHA: ${afterSha}`);
+
+  return {
+    owner,
+    repo,
+    beforeSha,
+    afterSha,
+  };
+}
+
+export async function getPushFiles(
+  owner: string,
+  repo: string,
+  beforeSha: string,
+  afterSha: string,
+  octokit: Octokit & Api
+) {
+  const response = await octokit.rest.repos.compareCommitsWithBasehead({
+    owner,
+    repo,
+    basehead: `${beforeSha}..${afterSha}`,
+  });
+  info(`Files: (${response.data.files?.length ?? 0})`);
+  return response.data.files;
+}
+
+export async function pushEventHandler(
+  mock: MockConfig | undefined,
+  indexedResults: {
+    [file: string]: LintResult;
+  },
+  ruleMetaDatas: {
+    [name: string]: RuleMetaData;
+  }
+) {
+  const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
+
+  startGroup("GitHub Push");
+  const octokit = getOctokit(mock);
+  const { owner, repo, beforeSha, afterSha } = await getPushMetadata(mock);
+  const files = await getPushFiles(owner, repo, beforeSha, afterSha, octokit);
+
+  if (files === undefined || files.length === 0) {
+    info(`Push contains no files`);
+    return;
+  }
+
+  let warningCounter = 0;
+  let errorCounter = 0;
+  for (const file of files) {
+    info(`  File name: ${file.filename}`);
+    info(`  File status: ${file.status}`);
+    if (file.status === "removed") {
+      continue;
+    }
+
+    const indexedModifiedLines = getIndexedModifiedLines(file);
+
+    const result = indexedResults[file.filename];
+    if (result) {
+      for (const message of result.messages) {
+        if (message.ruleId === null || result.source === undefined) {
+          continue;
+        }
+        const rule = ruleMetaDatas[message.ruleId];
+        if (indexedModifiedLines[message.line]) {
+          info(`  Matched line: ${message.line}`);
+          switch (message.severity) {
+            case 0:
+              notice(
+                `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
+                {
+                  file: file.filename,
+                  startLine: message.line,
+                }
+              );
+              break;
+            case 1:
+              warning(
+                `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
+                {
+                  file: file.filename,
+                  startLine: message.line,
+                }
+              );
+              warningCounter++;
+              break;
+            case 2:
+              error(
+                `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
+                {
+                  file: file.filename,
+                  startLine: message.line,
+                }
+              );
+              errorCounter++;
+              break;
+          }
+        }
+      }
+    }
+  }
+  endGroup();
+
+  startGroup("Feedback");
+  if (warningCounter > 0 || errorCounter > 0) {
+    if (failCheck) {
+      throw new Error("ESLint doesn't pass. Please review comments.");
+    }
+  } else {
+    info("ESLint passes");
+  }
+  endGroup();
+}
+
 export async function run(mock: MockConfig | undefined = undefined) {
   startGroup("ESLint");
   changeDirectory(mock);
@@ -710,6 +841,9 @@ export async function run(mock: MockConfig | undefined = undefined) {
   switch (context.eventName) {
     case "pull_request":
       pullRequestEventHandler(mock, indexedResults, ruleMetaDatas);
+      break;
+    case "push":
+      pushEventHandler(mock, indexedResults, ruleMetaDatas);
       break;
     default:
       error(`Unsupported GitHub Action event: ${context.eventName}`);
