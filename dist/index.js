@@ -11880,6 +11880,7 @@ if (node_process_1.default.argv.length === 6) {
     });
 }
 else {
+    const USELESS = undefined;
     run();
 }
 

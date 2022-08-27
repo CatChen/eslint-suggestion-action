@@ -859,5 +859,6 @@ if (process.argv.length === 6) {
     number: parseInt(process.argv[5]),
   });
 } else {
+  const USELESS = undefined;
   run();
 }
