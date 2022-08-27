@@ -11254,7 +11254,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.getPullRequestMetadata = exports.getOctokit = exports.getESLintOutput = exports.getESLint = exports.changeDirectory = void 0;
+exports.run = exports.pushEventHandler = exports.getPushFiles = exports.getPushMetadata = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.getPullRequestMetadata = exports.getOctokit = exports.getESLintOutput = exports.getESLint = exports.changeDirectory = void 0;
 const github_1 = __nccwpck_require__(5438);
 const utils_1 = __nccwpck_require__(3030);
 const core_1 = __nccwpck_require__(2186);
@@ -11731,6 +11731,109 @@ function pullRequestEventHandler(mock, indexedResults, ruleMetaDatas) {
     });
 }
 exports.pullRequestEventHandler = pullRequestEventHandler;
+function getPushMetadata(mock) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const push = github_1.context.payload;
+        const owner = (mock === null || mock === void 0 ? void 0 : mock.owner) || github_1.context.repo.owner;
+        const repo = (mock === null || mock === void 0 ? void 0 : mock.repo) || github_1.context.repo.repo;
+        const beforeSha = push.before;
+        const afterSha = push.after;
+        (0, core_1.info)(`Owner: ${owner}`);
+        (0, core_1.info)(`Repo: ${repo}`);
+        (0, core_1.info)(`Before SHA: ${beforeSha}`);
+        (0, core_1.info)(`After SHA: ${afterSha}`);
+        return {
+            owner,
+            repo,
+            beforeSha,
+            afterSha,
+        };
+    });
+}
+exports.getPushMetadata = getPushMetadata;
+function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield octokit.rest.repos.compareCommitsWithBasehead({
+            owner,
+            repo,
+            basehead: `${beforeSha}..${afterSha}`,
+        });
+        (0, core_1.info)(`Files: (${(_b = (_a = response.data.files) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0})`);
+        return response.data.files;
+    });
+}
+exports.getPushFiles = getPushFiles;
+function pushEventHandler(mock, indexedResults, ruleMetaDatas) {
+    var _a, _b, _c;
+    return __awaiter(this, void 0, void 0, function* () {
+        const failCheck = mock === undefined ? (0, core_1.getBooleanInput)("fail-check") : false;
+        (0, core_1.startGroup)("GitHub Push");
+        const octokit = getOctokit(mock);
+        const { owner, repo, beforeSha, afterSha } = yield getPushMetadata(mock);
+        const files = yield getPushFiles(owner, repo, beforeSha, afterSha, octokit);
+        if (files === undefined || files.length === 0) {
+            (0, core_1.info)(`Push contains no files`);
+            return;
+        }
+        let warningCounter = 0;
+        let errorCounter = 0;
+        for (const file of files) {
+            (0, core_1.info)(`  File name: ${file.filename}`);
+            (0, core_1.info)(`  File status: ${file.status}`);
+            if (file.status === "removed") {
+                continue;
+            }
+            const indexedModifiedLines = getIndexedModifiedLines(file);
+            const result = indexedResults[file.filename];
+            if (result) {
+                for (const message of result.messages) {
+                    if (message.ruleId === null || result.source === undefined) {
+                        continue;
+                    }
+                    const rule = ruleMetaDatas[message.ruleId];
+                    if (indexedModifiedLines[message.line]) {
+                        (0, core_1.info)(`  Matched line: ${message.line}`);
+                        switch (message.severity) {
+                            case 0:
+                                (0, core_1.notice)(`**${message.message}** [${message.ruleId}](${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                });
+                                break;
+                            case 1:
+                                (0, core_1.warning)(`**${message.message}** [${message.ruleId}](${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                });
+                                warningCounter++;
+                                break;
+                            case 2:
+                                (0, core_1.error)(`**${message.message}** [${message.ruleId}](${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                });
+                                errorCounter++;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        (0, core_1.endGroup)();
+        (0, core_1.startGroup)("Feedback");
+        if (warningCounter > 0 || errorCounter > 0) {
+            if (failCheck) {
+                throw new Error("ESLint doesn't pass. Please review comments.");
+            }
+        }
+        else {
+            (0, core_1.info)("ESLint passes");
+        }
+        (0, core_1.endGroup)();
+    });
+}
+exports.pushEventHandler = pushEventHandler;
 function run(mock = undefined) {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)("ESLint");
@@ -11757,6 +11860,9 @@ function run(mock = undefined) {
         switch (github_1.context.eventName) {
             case "pull_request":
                 pullRequestEventHandler(mock, indexedResults, ruleMetaDatas);
+                break;
+            case "push":
+                pushEventHandler(mock, indexedResults, ruleMetaDatas);
                 break;
             default:
                 (0, core_1.error)(`Unsupported GitHub Action event: ${github_1.context.eventName}`);
