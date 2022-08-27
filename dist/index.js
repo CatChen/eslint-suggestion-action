@@ -11757,7 +11757,7 @@ function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
         const response = yield octokit.rest.repos.compareCommitsWithBasehead({
             owner,
             repo,
-            basehead: `${beforeSha}..${afterSha}`,
+            basehead: `${beforeSha}...${afterSha}`,
         });
         (0, core_1.info)(`Files: (${(_b = (_a = response.data.files) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0})`);
         return response.data.files;
