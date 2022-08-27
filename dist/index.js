@@ -11796,20 +11796,20 @@ function pushEventHandler(mock, indexedResults, ruleMetaDatas) {
                         (0, core_1.info)(`  Matched line: ${message.line}`);
                         switch (message.severity) {
                             case 0:
-                                (0, core_1.notice)(`**${message.message}** [${message.ruleId}](${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
+                                (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
                                     file: file.filename,
                                     startLine: message.line,
                                 });
                                 break;
                             case 1:
-                                (0, core_1.warning)(`**${message.message}** [${message.ruleId}](${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                                (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
                                     file: file.filename,
                                     startLine: message.line,
                                 });
                                 warningCounter++;
                                 break;
                             case 2:
-                                (0, core_1.error)(`**${message.message}** [${message.ruleId}](${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
+                                (0, core_1.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
                                     file: file.filename,
                                     startLine: message.line,
                                 });
