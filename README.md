@@ -26,6 +26,8 @@ Set up a GitHub Action like this:
 name: ESLint
 
 on:
+  push:
+    branches: [main] # or [master] if that's name of the main branch
   pull_request:
     branches: [main] # or [master] if that's name of the main branch
 
@@ -60,7 +62,7 @@ Save the file to `.github/workflows/eslint.yml`. It will start working on new Pu
 
 ### `request-changes`
 
-This option determines whether this GitHub Action should request change if there's any ESLint issue. The default value is `true`.
+This option determines whether this GitHub Action should request change if there's any ESLint issue. This option has no effect when the Workflow isn't triggered by a `pull_request` event. The default value is `true`.
 
 ### `fail-check`
 
