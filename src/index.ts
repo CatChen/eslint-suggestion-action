@@ -715,7 +715,7 @@ export async function getPushFiles(
   const response = await octokit.rest.repos.compareCommitsWithBasehead({
     owner,
     repo,
-    basehead: `${beforeSha}..${afterSha}`,
+    basehead: `${beforeSha}...${afterSha}`,
   });
   info(`Files: (${response.data.files?.length ?? 0})`);
   return response.data.files;
