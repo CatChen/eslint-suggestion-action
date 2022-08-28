@@ -11864,6 +11864,26 @@ function run(mock = undefined) {
             case "push":
                 pushEventHandler(mock, indexedResults, ruleMetaDatas);
                 break;
+            case "workflow_run":
+                (() => {
+                    const workflowRun = github_1.context.payload;
+                    switch (workflowRun.workflow_run.event) {
+                        case "pull_request":
+                            workflowRun.workflow_run.pull_requests;
+                            (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
+                            return;
+                        case "push":
+                            (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
+                            return;
+                        default:
+                            (0, core_1.error)(`Unsupported GitHub Action event: ${workflowRun.workflow_run.event}`);
+                            return;
+                    }
+                })();
+                break;
+            case "workflow_dispatch":
+                (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
+                return;
             default:
                 (0, core_1.error)(`Unsupported GitHub Action event: ${github_1.context.eventName}`);
                 return;
