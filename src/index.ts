@@ -14,6 +14,7 @@ import {
   PullRequest,
   PullRequestEvent,
   PushEvent,
+  WorkflowRunEvent,
 } from "@octokit/webhooks-definitions/schema";
 import { throttling } from "@octokit/plugin-throttling";
 import { retry } from "@octokit/plugin-retry";
@@ -845,6 +846,28 @@ export async function run(mock: MockConfig | undefined = undefined) {
     case "push":
       pushEventHandler(mock, indexedResults, ruleMetaDatas);
       break;
+    case "workflow_run":
+      (() => {
+        const workflowRun = context.payload as WorkflowRunEvent;
+        switch (workflowRun.workflow_run.event) {
+          case "pull_request":
+            workflowRun.workflow_run.pull_requests;
+            error(`Unimplemented GitHub Action event: ${context.eventName}`);
+            return;
+          case "push":
+            error(`Unimplemented GitHub Action event: ${context.eventName}`);
+            return;
+          default:
+            error(
+              `Unsupported GitHub Action event: ${workflowRun.workflow_run.event}`
+            );
+            return;
+        }
+      })();
+      break;
+    case "workflow_dispatch":
+      error(`Unimplemented GitHub Action event: ${context.eventName}`);
+      return;
     default:
       error(`Unsupported GitHub Action event: ${context.eventName}`);
       return;
