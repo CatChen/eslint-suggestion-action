@@ -1,8 +1,8 @@
-name: Accept to Ship
+name: Ship
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
     types:
       [
         labeled,
@@ -15,16 +15,13 @@ on:
         review_request_removed,
       ]
   pull_request_review:
-    branches: [master]
     types: [submitted, edited, dismissed]
   check_run:
-    branches: [master]
     type: [created, rerequested, completed]
   check_suite:
-    branches: [master]
     types: [completed]
   workflow_run:
-    branches: [master]
+    branches: ["[0-9]+-[0-9]+-*"]
     workflows: ["Build", "ESLint", "CodeQL"]
     types: [completed]
 
@@ -33,8 +30,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ship:
-    name: Ship
+  accept-to-ship:
+    name: Accept to Ship
+    if: |-
+      ${{
+        github.base_ref == 'main' ||
+        github.event.pull_request.base.ref == 'main' ||
+        contains(github.event.check_run.pull_requests.*.base.ref, 'main') ||
+        contains(github.event.check_suite.pull_requests.*.base.ref, 'main') ||
+        contains(github.event.workflow_run.pull_requests.*.base.ref, 'main')
+      }}
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -44,3 +49,25 @@ jobs:
         with:
           merge-method: squash
           timeout: 0
+
+  pass-to-ship:
+    name: Pass to Ship
+    if: |-
+      ${{
+        github.base_ref == 'main' ||
+        github.event.pull_request.base.ref == 'main' ||
+        contains(github.event.check_run.pull_requests.*.base.ref, 'main') ||
+        contains(github.event.check_suite.pull_requests.*.base.ref, 'main') ||
+        contains(github.event.workflow_run.pull_requests.*.base.ref, 'main')
+      }}
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: CatChen/accept-to-ship-action@v0.3.0
+        with:
+          merge-method: squash
+          timeout: 0
+          request-zero-accept-zero: true
+          custom-hashtag: "#pass2ship"
