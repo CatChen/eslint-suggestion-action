@@ -1,7 +1,9 @@
 # eslint-suggestion-action
 
-![build status badge](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/build.yml/badge.svg?event=push)
-![eslint status badge](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/eslint.yml/badge.svg)
+[![Build](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/build.yml/badge.svg)](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/build.yml)
+[![ESLint](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/eslint.yml/badge.svg)](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/eslint.yml)
+[![CodeQL](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/codeql.yml/badge.svg)](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/codeql.yml)
+[![Ship](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/ship.yml/badge.svg)](https://github.com/CatChen/eslint-suggestion-action/actions/workflows/ship.yml)
 
 This GitHub Action runs ESLint and provides inline feedback to the changes in a Pull Request. Features:
 
