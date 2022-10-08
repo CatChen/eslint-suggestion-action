@@ -30,6 +30,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  concurrency-group:
+    name: Concurrency group
+    runs-on: ubuntu-latest
+    steps:
+      - name: Concurrency group
+        env:
+          CONCURRENCY_GROUP: ${{ github.event.pull_request.number || github.sha || github.ref }}
+        run: |
+          echo "::notice::Concurrency group is $CONCURRENCY_GROUP"
+
   accept-to-ship:
     name: Accept to Ship
     if: |-
