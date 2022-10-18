@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/eslint.yml
 
   codeql:
-    uses: ./.github/workflows/codeql-analysis.yml
+    uses: ./.github/workflows/codeql.yml
 
   release:
     needs: [build, eslint, codeql]
