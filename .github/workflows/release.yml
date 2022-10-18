@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  schedule:
+    - cron: "0 12 * * 0"
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  eslint:
+    uses: ./.github/workflows/eslint.yml
+
+  codeql:
+    uses: ./.github/workflows/codeql-analysis.yml
+
+  release:
+    needs: [build, eslint, codeql]
+    runs-on: ubuntu-latest
+    outputs:
+      base-tag: ${{ steps.git-push.outputs.base-tag }}
+      head-tag: ${{ steps.git-push.outputs.head-tag }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+          check-latest: true
+
+      - id: git-config
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - id: gh-auth
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+
+      - id: git-push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BASE_RELEASE=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/$GITHUB_REPOSITORY/releases/latest" \
+            -q .tag_name)
+          echo "::notice:: Base release is $BASE_RELEASE"
+          echo "::set-output name=base-release::$BASE_RELEASE"
+
+          BASE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "::notice:: Base tag is $BASE_TAG"
+          echo "::set-output name=base-tag::$BASE_TAG"
+
+          if [ "$BASE_RELEASE" != "$BASE_TAG" ]
+          then
+            echo "::error:: Most recent release and most recent tag don't match: $BASE_RELEASE vs $BASE_TAG"
+            exit 1
+          fi
+
+          if test $(git diff --name-only $BASE_TAG | wc -l) != 0
+          then
+            git diff --name-only $BASE_TAG | xargs -n1 -I {} echo "::notice file={}::  File: {}"
+
+            npm version patch
+            HEAD_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+            echo "::notice:: Head tag is $HEAD_TAG"
+            echo "::set-output name=head-tag::$HEAD_TAG"
+
+            git push -f --set-upstream origin master --follow-tags
+          fi
+
+      - id: create-release
+        if: ${{ steps.git-push.outputs.head-tag }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_TAG: ${{ steps.git-push.outputs.head-tag }}
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/$GITHUB_REPOSITORY/releases" \
+            -f tag_name="$HEAD_TAG" \
+            -f name="$HEAD_TAG" \
+            -F generate_release_notes=true
