@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: master
+          ref: main
           fetch-depth: 0
 
       - uses: actions/setup-node@v3
@@ -73,7 +73,7 @@ jobs:
             echo "::notice:: Head tag is $HEAD_TAG"
             echo "::set-output name=head-tag::$HEAD_TAG"
 
-            git push -f --set-upstream origin master --follow-tags
+            git push -f --set-upstream origin main --follow-tags
           fi
 
       - id: create-release
