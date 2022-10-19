@@ -11270,7 +11270,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.pushEventHandler = exports.getPushFiles = exports.getPushMetadata = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.getPullRequestMetadata = exports.getOctokit = exports.getESLintOutput = exports.getESLint = exports.changeDirectory = void 0;
+exports.run = exports.defaultEventHandler = exports.pushEventHandler = exports.getPushFiles = exports.getPushMetadata = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.getPullRequestMetadata = exports.getOctokit = exports.getESLintOutput = exports.getESLint = exports.changeDirectory = void 0;
 const github_1 = __nccwpck_require__(5438);
 const utils_1 = __nccwpck_require__(3030);
 const core_1 = __nccwpck_require__(2186);
@@ -11737,7 +11737,10 @@ function pullRequestEventHandler(mock, indexedResults, ruleMetaDatas) {
             }
             (0, core_1.info)(`Review comments submitted: ${reviewComments.length}`);
             if (failCheck) {
-                throw new Error("ESLint doesn't pass. Please review comments.");
+                throw new Error("ESLint fails. Please review comments.");
+            }
+            else {
+                (0, core_1.error)("ESLint fails");
             }
         }
         else {
@@ -11840,7 +11843,10 @@ function pushEventHandler(mock, indexedResults, ruleMetaDatas) {
         (0, core_1.startGroup)("Feedback");
         if (warningCounter > 0 || errorCounter > 0) {
             if (failCheck) {
-                throw new Error("ESLint doesn't pass. Please review comments.");
+                throw new Error("ESLint fails. Please review comments.");
+            }
+            else {
+                (0, core_1.error)("ESLint fails");
             }
         }
         else {
@@ -11850,6 +11856,62 @@ function pushEventHandler(mock, indexedResults, ruleMetaDatas) {
     });
 }
 exports.pushEventHandler = pushEventHandler;
+function defaultEventHandler(mock, eventName, results, ruleMetaDatas) {
+    var _a, _b, _c;
+    return __awaiter(this, void 0, void 0, function* () {
+        const failCheck = mock === undefined ? (0, core_1.getBooleanInput)("fail-check") : false;
+        (0, core_1.startGroup)(`GitHub ${eventName}`);
+        let warningCounter = 0;
+        let errorCounter = 0;
+        for (const result of results) {
+            const relativePath = node_path_1.default.relative(WORKING_DIRECTORY, result.filePath);
+            for (const message of result.messages) {
+                if (message.ruleId === null || result.source === undefined) {
+                    continue;
+                }
+                const rule = ruleMetaDatas[message.ruleId];
+                (0, core_1.info)(`  ${relativePath}:${message.line}`);
+                switch (message.severity) {
+                    case 0:
+                        (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
+                            file: relativePath,
+                            startLine: message.line,
+                        });
+                        break;
+                    case 1:
+                        (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                            file: relativePath,
+                            startLine: message.line,
+                        });
+                        warningCounter++;
+                        break;
+                    case 2:
+                        (0, core_1.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
+                            file: relativePath,
+                            startLine: message.line,
+                        });
+                        errorCounter++;
+                        break;
+                }
+            }
+        }
+        (0, core_1.endGroup)();
+        (0, core_1.startGroup)("Feedback");
+        if (warningCounter > 0 || errorCounter > 0) {
+            if (failCheck) {
+                throw new Error("ESLint fails.");
+            }
+            else {
+                (0, core_1.error)("ESLint fails");
+            }
+        }
+        else {
+            (0, core_1.info)("ESLint passes");
+        }
+        (0, core_1.endGroup)();
+    });
+}
+exports.defaultEventHandler = defaultEventHandler;
 function run(mock = undefined) {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)("ESLint");
@@ -11892,8 +11954,14 @@ function run(mock = undefined) {
                             (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
                             return;
                         default:
-                            (0, core_1.error)(`Unsupported GitHub Action event: ${workflowRun.workflow_run.event}`);
-                            return;
+                            (() => {
+                                const workflowSourceEventName = workflowRun.workflow_run.event
+                                    .split("_")
+                                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
+                                    .join(" ");
+                                defaultEventHandler(mock, `Workflow (${workflowSourceEventName})`, results, ruleMetaDatas);
+                            })();
+                            break;
                     }
                 })();
                 break;
@@ -11901,8 +11969,11 @@ function run(mock = undefined) {
                 (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
                 return;
             default:
-                (0, core_1.error)(`Unsupported GitHub Action event: ${github_1.context.eventName}`);
-                return;
+                defaultEventHandler(mock, github_1.context.eventName
+                    .split("_")
+                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
+                    .join(" "), results, ruleMetaDatas);
+                break;
         }
     });
 }

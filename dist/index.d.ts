@@ -164,5 +164,8 @@ export declare function pushEventHandler(mock: MockConfig | undefined, indexedRe
 }, ruleMetaDatas: {
     [name: string]: RuleMetaData;
 }): Promise<void>;
+export declare function defaultEventHandler(mock: MockConfig | undefined, eventName: string, results: LintResult[], ruleMetaDatas: {
+    [name: string]: RuleMetaData;
+}): Promise<void>;
 export declare function run(mock?: MockConfig | undefined): Promise<void>;
 export {};

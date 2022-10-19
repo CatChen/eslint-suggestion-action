@@ -678,7 +678,9 @@ export async function pullRequestEventHandler(
     }
     info(`Review comments submitted: ${reviewComments.length}`);
     if (failCheck) {
-      throw new Error("ESLint doesn't pass. Please review comments.");
+      throw new Error("ESLint fails. Please review comments.");
+    } else {
+      error("ESLint fails");
     }
   } else {
     info("ESLint passes");
@@ -803,7 +805,76 @@ export async function pushEventHandler(
   startGroup("Feedback");
   if (warningCounter > 0 || errorCounter > 0) {
     if (failCheck) {
-      throw new Error("ESLint doesn't pass. Please review comments.");
+      throw new Error("ESLint fails. Please review comments.");
+    } else {
+      error("ESLint fails");
+    }
+  } else {
+    info("ESLint passes");
+  }
+  endGroup();
+}
+
+export async function defaultEventHandler(
+  mock: MockConfig | undefined,
+  eventName: string,
+  results: LintResult[],
+  ruleMetaDatas: {
+    [name: string]: RuleMetaData;
+  }
+) {
+  const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
+
+  startGroup(`GitHub ${eventName}`);
+  let warningCounter = 0;
+  let errorCounter = 0;
+
+  for (const result of results) {
+    const relativePath = path.relative(WORKING_DIRECTORY, result.filePath);
+    for (const message of result.messages) {
+      if (message.ruleId === null || result.source === undefined) {
+        continue;
+      }
+      const rule = ruleMetaDatas[message.ruleId];
+      info(`  ${relativePath}:${message.line}`);
+      switch (message.severity) {
+        case 0:
+          notice(
+            `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
+            {
+              file: relativePath,
+              startLine: message.line,
+            }
+          );
+          break;
+        case 1:
+          warning(
+            `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
+            {
+              file: relativePath,
+              startLine: message.line,
+            }
+          );
+          warningCounter++;
+          break;
+        case 2:
+          error(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
+            file: relativePath,
+            startLine: message.line,
+          });
+          errorCounter++;
+          break;
+      }
+    }
+  }
+  endGroup();
+
+  startGroup("Feedback");
+  if (warningCounter > 0 || errorCounter > 0) {
+    if (failCheck) {
+      throw new Error("ESLint fails.");
+    } else {
+      error("ESLint fails");
     }
   } else {
     info("ESLint passes");
@@ -858,10 +929,19 @@ export async function run(mock: MockConfig | undefined = undefined) {
             error(`Unimplemented GitHub Action event: ${context.eventName}`);
             return;
           default:
-            error(
-              `Unsupported GitHub Action event: ${workflowRun.workflow_run.event}`
-            );
-            return;
+            (() => {
+              const workflowSourceEventName = workflowRun.workflow_run.event
+                .split("_")
+                .map((word) => word[0]?.toUpperCase() + word.substring(1))
+                .join(" ");
+              defaultEventHandler(
+                mock,
+                `Workflow (${workflowSourceEventName})`,
+                results,
+                ruleMetaDatas
+              );
+            })();
+            break;
         }
       })();
       break;
@@ -869,8 +949,16 @@ export async function run(mock: MockConfig | undefined = undefined) {
       error(`Unimplemented GitHub Action event: ${context.eventName}`);
       return;
     default:
-      error(`Unsupported GitHub Action event: ${context.eventName}`);
-      return;
+      defaultEventHandler(
+        mock,
+        context.eventName
+          .split("_")
+          .map((word) => word[0]?.toUpperCase() + word.substring(1))
+          .join(" "),
+        results,
+        ruleMetaDatas
+      );
+      break;
   }
 }
 
