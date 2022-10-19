@@ -16,6 +16,7 @@ jobs:
     uses: ./.github/workflows/codeql.yml
 
   release:
+    name: Release
     needs: [build, eslint, codeql]
     runs-on: ubuntu-latest
     outputs:
