@@ -11965,9 +11965,6 @@ function run(mock = undefined) {
                     }
                 })();
                 break;
-            case "workflow_dispatch":
-                (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
-                return;
             default:
                 defaultEventHandler(mock, github_1.context.eventName
                     .split("_")
