@@ -910,6 +910,7 @@ export async function run(mock: MockConfig | undefined = undefined) {
   } = eslint.getRulesMetaForResults(results);
   endGroup();
 
+  info(`Event name: ${context.eventName}`);
   switch (context.eventName) {
     case "pull_request":
       pullRequestEventHandler(mock, indexedResults, ruleMetaDatas);
