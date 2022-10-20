@@ -192,7 +192,7 @@ export async function getPullRequestMetadata(
 
   info(`Owner: ${owner}`);
   info(`Repo: ${repo}`);
-  info(`Pull request number: ${pullRequestNumber}`);
+  info(`Pull Request number: ${pullRequestNumber}`);
   info(`Base SHA: ${baseSha}`);
   info(`Head SHA: ${headSha}`);
 
