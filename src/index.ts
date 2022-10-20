@@ -945,9 +945,6 @@ export async function run(mock: MockConfig | undefined = undefined) {
         }
       })();
       break;
-    case "workflow_dispatch":
-      error(`Unimplemented GitHub Action event: ${context.eventName}`);
-      return;
     default:
       defaultEventHandler(
         mock,
