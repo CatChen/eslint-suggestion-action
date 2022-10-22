@@ -1,21 +1,13 @@
-import { context } from "@actions/github";
-import {
-  getInput,
-  getBooleanInput,
-  info,
-  startGroup,
-  endGroup,
-  error,
-  notice,
-  warning,
-} from "@actions/core";
-import { WorkflowRunEvent } from "@octokit/webhooks-definitions/schema";
 import process from "node:process";
 import path from "node:path";
+import { context } from "@actions/github";
+import { getInput, info, startGroup, endGroup, error } from "@actions/core";
+import { WorkflowRunEvent } from "@octokit/webhooks-definitions/schema";
 import { getESLint } from "./getESLint";
 import { getESLintOutput } from "./getESLintOutput";
 import { pullRequestEventHandler } from "./pullRequestEventHandler";
 import { pushEventHandler } from "./pushEventHandler";
+import { defaultEventHandler } from "./defaultEventHandler";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
@@ -30,72 +22,6 @@ export function changeDirectory() {
   );
   info(`Working directory is changed to: ${absoluteDirectory}`);
   process.chdir(absoluteDirectory);
-}
-
-export async function defaultEventHandler(
-  eventName: string,
-  results: LintResult[],
-  ruleMetaDatas: {
-    [name: string]: RuleMetaData;
-  }
-) {
-  const failCheck = getBooleanInput("fail-check");
-
-  startGroup(`GitHub ${eventName}`);
-  let warningCounter = 0;
-  let errorCounter = 0;
-
-  for (const result of results) {
-    const relativePath = path.relative(WORKING_DIRECTORY, result.filePath);
-    for (const message of result.messages) {
-      if (message.ruleId === null || result.source === undefined) {
-        continue;
-      }
-      const rule = ruleMetaDatas[message.ruleId];
-      info(`  ${relativePath}:${message.line}`);
-      switch (message.severity) {
-        case 0:
-          notice(
-            `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
-            {
-              file: relativePath,
-              startLine: message.line,
-            }
-          );
-          break;
-        case 1:
-          warning(
-            `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
-            {
-              file: relativePath,
-              startLine: message.line,
-            }
-          );
-          warningCounter++;
-          break;
-        case 2:
-          error(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
-            file: relativePath,
-            startLine: message.line,
-          });
-          errorCounter++;
-          break;
-      }
-    }
-  }
-  endGroup();
-
-  startGroup("Feedback");
-  if (warningCounter > 0 || errorCounter > 0) {
-    if (failCheck) {
-      throw new Error("ESLint fails.");
-    } else {
-      error("ESLint fails");
-    }
-  } else {
-    info("ESLint passes");
-  }
-  endGroup();
 }
 
 export async function run() {
