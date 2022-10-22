@@ -16,13 +16,6 @@ declare type ReviewComment = ReviewSuggestion & {
     path: string;
 };
 export declare function changeDirectory(): void;
-export declare function getPullRequestMetadata(): Promise<{
-    owner: string;
-    repo: string;
-    pullRequestNumber: number;
-    baseSha: string;
-    headSha: string;
-}>;
 export declare function getPullRequestFiles(owner: string, repo: string, pullRequestNumber: number, octokit: Octokit & Api): Promise<{
     sha: string;
     filename: string;
