@@ -18,13 +18,13 @@ import {
 import { throttling } from "@octokit/plugin-throttling";
 import { retry } from "@octokit/plugin-retry";
 import process from "node:process";
-import childProcess from "node:child_process";
 import path from "node:path";
 import { Octokit } from "@octokit/core";
 import { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
 import { components } from "@octokit/openapi-types/types";
 import { Query, PullRequestReviewThread } from "@octokit/graphql-schema";
 import { getESLint } from "./getESLint";
+import { getESLintOutput } from "./getESLintOutput";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
@@ -52,20 +52,6 @@ export function changeDirectory() {
   );
   info(`Working directory is changed to: ${absoluteDirectory}`);
   process.chdir(absoluteDirectory);
-}
-
-export async function getESLintOutput(eslintBinPath: string) {
-  const targets = getInput("targets");
-  let results: LintResult[] = [];
-  try {
-    const stdout = childProcess.execSync(
-      `${eslintBinPath} "${targets}" --no-error-on-unmatched-pattern --format json`
-    );
-    results = JSON.parse(stdout.toString());
-  } catch (error) {
-    // Ignore the error.
-  }
-  return results;
 }
 
 export function getOctokit() {
