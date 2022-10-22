@@ -105,9 +105,6 @@ export declare function getReviewComments(owner: string, repo: string, pullReque
 export declare function getReviewThreads(owner: string, repo: string, pullRequestNumber: number, octokit: Octokit & Api): Promise<{
     [id: string]: PullRequestReviewThread;
 }>;
-export declare function getIndexedModifiedLines(file: components["schemas"]["diff-entry"]): {
-    [line: string]: true;
-};
 export declare function getCommentFromFix(source: string, line: number, fix: Fix): ReviewSuggestion;
 export declare function matchReviewComments(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): string[];
 export declare function pullRequestEventHandler(indexedResults: {
