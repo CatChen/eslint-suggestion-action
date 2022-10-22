@@ -16,13 +16,6 @@ declare type ReviewComment = ReviewSuggestion & {
     path: string;
 };
 export declare function changeDirectory(): void;
-export declare function getOctokit(): Octokit & Api & {
-    paginate: import("@octokit/plugin-paginate-rest").PaginateInterface;
-} & {
-    retry: {
-        retryRequest: (error: import("@octokit/request-error").RequestError, retries: number, retryAfter: number) => import("@octokit/request-error").RequestError;
-    };
-};
 export declare function getPullRequestMetadata(): Promise<{
     owner: string;
     repo: string;

@@ -11340,43 +11340,16 @@ exports.getESLintOutput = getESLintOutput;
 
 /***/ }),
 
-/***/ 6144:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ 8442:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.defaultEventHandler = exports.pushEventHandler = exports.getPushFiles = exports.getPushMetadata = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.getPullRequestMetadata = exports.getOctokit = exports.changeDirectory = void 0;
-const github_1 = __nccwpck_require__(5438);
-const utils_1 = __nccwpck_require__(3030);
+exports.getOctokit = void 0;
 const core_1 = __nccwpck_require__(2186);
+const utils_1 = __nccwpck_require__(3030);
 const plugin_throttling_1 = __nccwpck_require__(9968);
 const plugin_retry_1 = __nccwpck_require__(6298);
-const node_process_1 = __importDefault(__nccwpck_require__(7742));
-const node_path_1 = __importDefault(__nccwpck_require__(9411));
-const getESLint_1 = __nccwpck_require__(5173);
-const getESLintOutput_1 = __nccwpck_require__(2580);
-const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
-const WORKING_DIRECTORY = node_process_1.default.cwd();
-const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
-function changeDirectory() {
-    (0, core_1.info)(`Working directory is: ${WORKING_DIRECTORY}`);
-    const absoluteDirectory = node_path_1.default.resolve(WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
-    (0, core_1.info)(`Working directory is changed to: ${absoluteDirectory}`);
-    node_process_1.default.chdir(absoluteDirectory);
-}
-exports.changeDirectory = changeDirectory;
 function getOctokit() {
     const githubToken = (0, core_1.getInput)("github-token");
     const Octokit = utils_1.GitHub.plugin(plugin_throttling_1.throttling, plugin_retry_1.retry);
@@ -11410,6 +11383,45 @@ function getOctokit() {
     return octokit;
 }
 exports.getOctokit = getOctokit;
+
+
+/***/ }),
+
+/***/ 6144:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = exports.defaultEventHandler = exports.pushEventHandler = exports.getPushFiles = exports.getPushMetadata = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.getPullRequestMetadata = exports.changeDirectory = void 0;
+const github_1 = __nccwpck_require__(5438);
+const core_1 = __nccwpck_require__(2186);
+const node_process_1 = __importDefault(__nccwpck_require__(7742));
+const node_path_1 = __importDefault(__nccwpck_require__(9411));
+const getESLint_1 = __nccwpck_require__(5173);
+const getESLintOutput_1 = __nccwpck_require__(2580);
+const getOctokit_1 = __nccwpck_require__(8442);
+const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
+const WORKING_DIRECTORY = node_process_1.default.cwd();
+const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
+function changeDirectory() {
+    (0, core_1.info)(`Working directory is: ${WORKING_DIRECTORY}`);
+    const absoluteDirectory = node_path_1.default.resolve(WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
+    (0, core_1.info)(`Working directory is changed to: ${absoluteDirectory}`);
+    node_process_1.default.chdir(absoluteDirectory);
+}
+exports.changeDirectory = changeDirectory;
 function getPullRequestMetadata() {
     return __awaiter(this, void 0, void 0, function* () {
         const pullRequest = github_1.context.payload.pull_request;
@@ -11615,7 +11627,7 @@ function pullRequestEventHandler(indexedResults, ruleMetaDatas) {
         const failCheck = (0, core_1.getBooleanInput)("fail-check");
         const requestChanges = (0, core_1.getBooleanInput)("request-changes");
         (0, core_1.startGroup)("GitHub Pull Request");
-        const octokit = getOctokit();
+        const octokit = (0, getOctokit_1.getOctokit)();
         const { owner, repo, pullRequestNumber, headSha } = yield getPullRequestMetadata();
         const files = yield getPullRequestFiles(owner, repo, pullRequestNumber, octokit);
         const existingReviewComments = yield getReviewComments(owner, repo, pullRequestNumber, octokit);
@@ -11823,7 +11835,7 @@ function pushEventHandler(indexedResults, ruleMetaDatas) {
     return __awaiter(this, void 0, void 0, function* () {
         const failCheck = (0, core_1.getBooleanInput)("fail-check");
         (0, core_1.startGroup)("GitHub Push");
-        const octokit = getOctokit();
+        const octokit = (0, getOctokit_1.getOctokit)();
         const { owner, repo, beforeSha, afterSha } = yield getPushMetadata();
         const files = yield getPushFiles(owner, repo, beforeSha, afterSha, octokit);
         if (files === undefined || files.length === 0) {
