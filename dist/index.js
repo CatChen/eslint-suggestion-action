@@ -11541,7 +11541,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.defaultEventHandler = exports.pushEventHandler = exports.getPushFiles = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.changeDirectory = void 0;
+exports.run = exports.defaultEventHandler = exports.pushEventHandler = exports.getPushFiles = exports.changeDirectory = void 0;
 const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
 const node_process_1 = __importDefault(__nccwpck_require__(7742));
@@ -11549,11 +11549,10 @@ const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const getESLint_1 = __nccwpck_require__(5173);
 const getESLintOutput_1 = __nccwpck_require__(2580);
 const getOctokit_1 = __nccwpck_require__(8442);
-const getPullRequestMetadata_1 = __nccwpck_require__(6941);
 const getPushMetadata_1 = __nccwpck_require__(7801);
 const getIndexedModifiedLines_1 = __nccwpck_require__(7738);
+const pullRequestEventHandler_1 = __nccwpck_require__(8344);
 const WORKING_DIRECTORY = node_process_1.default.cwd();
-const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 function changeDirectory() {
     (0, core_1.info)(`Working directory is: ${WORKING_DIRECTORY}`);
     const absoluteDirectory = node_path_1.default.resolve(WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
@@ -11561,6 +11560,237 @@ function changeDirectory() {
     node_process_1.default.chdir(absoluteDirectory);
 }
 exports.changeDirectory = changeDirectory;
+function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield octokit.rest.repos.compareCommitsWithBasehead({
+            owner,
+            repo,
+            basehead: `${beforeSha}...${afterSha}`,
+        });
+        (0, core_1.info)(`Files: (${(_b = (_a = response.data.files) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0})`);
+        return response.data.files;
+    });
+}
+exports.getPushFiles = getPushFiles;
+function pushEventHandler(indexedResults, ruleMetaDatas) {
+    var _a, _b, _c;
+    return __awaiter(this, void 0, void 0, function* () {
+        const failCheck = (0, core_1.getBooleanInput)("fail-check");
+        (0, core_1.startGroup)("GitHub Push");
+        const octokit = (0, getOctokit_1.getOctokit)();
+        const { owner, repo, beforeSha, afterSha } = yield (0, getPushMetadata_1.getPushMetadata)();
+        const files = yield getPushFiles(owner, repo, beforeSha, afterSha, octokit);
+        if (files === undefined || files.length === 0) {
+            (0, core_1.info)(`Push contains no files`);
+            return;
+        }
+        let warningCounter = 0;
+        let errorCounter = 0;
+        for (const file of files) {
+            (0, core_1.info)(`  File name: ${file.filename}`);
+            (0, core_1.info)(`  File status: ${file.status}`);
+            if (file.status === "removed") {
+                continue;
+            }
+            const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
+            const result = indexedResults[file.filename];
+            if (result) {
+                for (const message of result.messages) {
+                    if (message.ruleId === null || result.source === undefined) {
+                        continue;
+                    }
+                    const rule = ruleMetaDatas[message.ruleId];
+                    if (indexedModifiedLines[message.line]) {
+                        (0, core_1.info)(`  Matched line: ${message.line}`);
+                        switch (message.severity) {
+                            case 0:
+                                (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                });
+                                break;
+                            case 1:
+                                (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                });
+                                warningCounter++;
+                                break;
+                            case 2:
+                                (0, core_1.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                });
+                                errorCounter++;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        (0, core_1.endGroup)();
+        (0, core_1.startGroup)("Feedback");
+        if (warningCounter > 0 || errorCounter > 0) {
+            if (failCheck) {
+                throw new Error("ESLint fails. Please review comments.");
+            }
+            else {
+                (0, core_1.error)("ESLint fails");
+            }
+        }
+        else {
+            (0, core_1.info)("ESLint passes");
+        }
+        (0, core_1.endGroup)();
+    });
+}
+exports.pushEventHandler = pushEventHandler;
+function defaultEventHandler(eventName, results, ruleMetaDatas) {
+    var _a, _b, _c;
+    return __awaiter(this, void 0, void 0, function* () {
+        const failCheck = (0, core_1.getBooleanInput)("fail-check");
+        (0, core_1.startGroup)(`GitHub ${eventName}`);
+        let warningCounter = 0;
+        let errorCounter = 0;
+        for (const result of results) {
+            const relativePath = node_path_1.default.relative(WORKING_DIRECTORY, result.filePath);
+            for (const message of result.messages) {
+                if (message.ruleId === null || result.source === undefined) {
+                    continue;
+                }
+                const rule = ruleMetaDatas[message.ruleId];
+                (0, core_1.info)(`  ${relativePath}:${message.line}`);
+                switch (message.severity) {
+                    case 0:
+                        (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
+                            file: relativePath,
+                            startLine: message.line,
+                        });
+                        break;
+                    case 1:
+                        (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                            file: relativePath,
+                            startLine: message.line,
+                        });
+                        warningCounter++;
+                        break;
+                    case 2:
+                        (0, core_1.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
+                            file: relativePath,
+                            startLine: message.line,
+                        });
+                        errorCounter++;
+                        break;
+                }
+            }
+        }
+        (0, core_1.endGroup)();
+        (0, core_1.startGroup)("Feedback");
+        if (warningCounter > 0 || errorCounter > 0) {
+            if (failCheck) {
+                throw new Error("ESLint fails.");
+            }
+            else {
+                (0, core_1.error)("ESLint fails");
+            }
+        }
+        else {
+            (0, core_1.info)("ESLint passes");
+        }
+        (0, core_1.endGroup)();
+    });
+}
+exports.defaultEventHandler = defaultEventHandler;
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, core_1.startGroup)("ESLint");
+        changeDirectory();
+        const { eslint, eslintBinPath } = yield (0, getESLint_1.getESLint)();
+        const results = yield (0, getESLintOutput_1.getESLintOutput)(eslintBinPath);
+        const indexedResults = {};
+        for (const file of results) {
+            const relativePath = node_path_1.default.relative(WORKING_DIRECTORY, file.filePath);
+            (0, core_1.info)(`File name: ${relativePath}`);
+            indexedResults[relativePath] = file;
+            for (const message of file.messages) {
+                (0, core_1.info)(`  [${message.severity}] ${message.message} @ ${message.line}`);
+                if (message.suggestions) {
+                    (0, core_1.info)(`  Suggestions (${message.suggestions.length}):`);
+                    for (const suggestion of message.suggestions) {
+                        (0, core_1.info)(`    ${suggestion.desc} (${suggestion.messageId})`);
+                    }
+                }
+            }
+        }
+        const ruleMetaDatas = eslint.getRulesMetaForResults(results);
+        (0, core_1.endGroup)();
+        (0, core_1.info)(`Event name: ${github_1.context.eventName}`);
+        switch (github_1.context.eventName) {
+            case "pull_request":
+                (0, pullRequestEventHandler_1.pullRequestEventHandler)(indexedResults, ruleMetaDatas);
+                break;
+            case "push":
+                pushEventHandler(indexedResults, ruleMetaDatas);
+                break;
+            case "workflow_run":
+                (() => {
+                    const workflowRun = github_1.context.payload;
+                    switch (workflowRun.workflow_run.event) {
+                        case "pull_request":
+                            workflowRun.workflow_run.pull_requests;
+                            (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
+                            return;
+                        case "push":
+                            (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
+                            return;
+                        default:
+                            (() => {
+                                const workflowSourceEventName = workflowRun.workflow_run.event
+                                    .split("_")
+                                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
+                                    .join(" ");
+                                defaultEventHandler(`Workflow (${workflowSourceEventName})`, results, ruleMetaDatas);
+                            })();
+                            break;
+                    }
+                })();
+                break;
+            default:
+                defaultEventHandler(github_1.context.eventName
+                    .split("_")
+                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
+                    .join(" "), results, ruleMetaDatas);
+                break;
+        }
+    });
+}
+exports.run = run;
+run();
+
+
+/***/ }),
+
+/***/ 8344:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = void 0;
+const core_1 = __nccwpck_require__(2186);
+const getOctokit_1 = __nccwpck_require__(8442);
+const getPullRequestMetadata_1 = __nccwpck_require__(6941);
+const getIndexedModifiedLines_1 = __nccwpck_require__(7738);
+const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield octokit.rest.pulls.listFiles({
@@ -11873,213 +12103,6 @@ function pullRequestEventHandler(indexedResults, ruleMetaDatas) {
     });
 }
 exports.pullRequestEventHandler = pullRequestEventHandler;
-function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const response = yield octokit.rest.repos.compareCommitsWithBasehead({
-            owner,
-            repo,
-            basehead: `${beforeSha}...${afterSha}`,
-        });
-        (0, core_1.info)(`Files: (${(_b = (_a = response.data.files) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0})`);
-        return response.data.files;
-    });
-}
-exports.getPushFiles = getPushFiles;
-function pushEventHandler(indexedResults, ruleMetaDatas) {
-    var _a, _b, _c;
-    return __awaiter(this, void 0, void 0, function* () {
-        const failCheck = (0, core_1.getBooleanInput)("fail-check");
-        (0, core_1.startGroup)("GitHub Push");
-        const octokit = (0, getOctokit_1.getOctokit)();
-        const { owner, repo, beforeSha, afterSha } = yield (0, getPushMetadata_1.getPushMetadata)();
-        const files = yield getPushFiles(owner, repo, beforeSha, afterSha, octokit);
-        if (files === undefined || files.length === 0) {
-            (0, core_1.info)(`Push contains no files`);
-            return;
-        }
-        let warningCounter = 0;
-        let errorCounter = 0;
-        for (const file of files) {
-            (0, core_1.info)(`  File name: ${file.filename}`);
-            (0, core_1.info)(`  File status: ${file.status}`);
-            if (file.status === "removed") {
-                continue;
-            }
-            const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
-            const result = indexedResults[file.filename];
-            if (result) {
-                for (const message of result.messages) {
-                    if (message.ruleId === null || result.source === undefined) {
-                        continue;
-                    }
-                    const rule = ruleMetaDatas[message.ruleId];
-                    if (indexedModifiedLines[message.line]) {
-                        (0, core_1.info)(`  Matched line: ${message.line}`);
-                        switch (message.severity) {
-                            case 0:
-                                (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                });
-                                break;
-                            case 1:
-                                (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                });
-                                warningCounter++;
-                                break;
-                            case 2:
-                                (0, core_1.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                });
-                                errorCounter++;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-        (0, core_1.endGroup)();
-        (0, core_1.startGroup)("Feedback");
-        if (warningCounter > 0 || errorCounter > 0) {
-            if (failCheck) {
-                throw new Error("ESLint fails. Please review comments.");
-            }
-            else {
-                (0, core_1.error)("ESLint fails");
-            }
-        }
-        else {
-            (0, core_1.info)("ESLint passes");
-        }
-        (0, core_1.endGroup)();
-    });
-}
-exports.pushEventHandler = pushEventHandler;
-function defaultEventHandler(eventName, results, ruleMetaDatas) {
-    var _a, _b, _c;
-    return __awaiter(this, void 0, void 0, function* () {
-        const failCheck = (0, core_1.getBooleanInput)("fail-check");
-        (0, core_1.startGroup)(`GitHub ${eventName}`);
-        let warningCounter = 0;
-        let errorCounter = 0;
-        for (const result of results) {
-            const relativePath = node_path_1.default.relative(WORKING_DIRECTORY, result.filePath);
-            for (const message of result.messages) {
-                if (message.ruleId === null || result.source === undefined) {
-                    continue;
-                }
-                const rule = ruleMetaDatas[message.ruleId];
-                (0, core_1.info)(`  ${relativePath}:${message.line}`);
-                switch (message.severity) {
-                    case 0:
-                        (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
-                            file: relativePath,
-                            startLine: message.line,
-                        });
-                        break;
-                    case 1:
-                        (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
-                            file: relativePath,
-                            startLine: message.line,
-                        });
-                        warningCounter++;
-                        break;
-                    case 2:
-                        (0, core_1.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
-                            file: relativePath,
-                            startLine: message.line,
-                        });
-                        errorCounter++;
-                        break;
-                }
-            }
-        }
-        (0, core_1.endGroup)();
-        (0, core_1.startGroup)("Feedback");
-        if (warningCounter > 0 || errorCounter > 0) {
-            if (failCheck) {
-                throw new Error("ESLint fails.");
-            }
-            else {
-                (0, core_1.error)("ESLint fails");
-            }
-        }
-        else {
-            (0, core_1.info)("ESLint passes");
-        }
-        (0, core_1.endGroup)();
-    });
-}
-exports.defaultEventHandler = defaultEventHandler;
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.startGroup)("ESLint");
-        changeDirectory();
-        const { eslint, eslintBinPath } = yield (0, getESLint_1.getESLint)();
-        const results = yield (0, getESLintOutput_1.getESLintOutput)(eslintBinPath);
-        const indexedResults = {};
-        for (const file of results) {
-            const relativePath = node_path_1.default.relative(WORKING_DIRECTORY, file.filePath);
-            (0, core_1.info)(`File name: ${relativePath}`);
-            indexedResults[relativePath] = file;
-            for (const message of file.messages) {
-                (0, core_1.info)(`  [${message.severity}] ${message.message} @ ${message.line}`);
-                if (message.suggestions) {
-                    (0, core_1.info)(`  Suggestions (${message.suggestions.length}):`);
-                    for (const suggestion of message.suggestions) {
-                        (0, core_1.info)(`    ${suggestion.desc} (${suggestion.messageId})`);
-                    }
-                }
-            }
-        }
-        const ruleMetaDatas = eslint.getRulesMetaForResults(results);
-        (0, core_1.endGroup)();
-        (0, core_1.info)(`Event name: ${github_1.context.eventName}`);
-        switch (github_1.context.eventName) {
-            case "pull_request":
-                pullRequestEventHandler(indexedResults, ruleMetaDatas);
-                break;
-            case "push":
-                pushEventHandler(indexedResults, ruleMetaDatas);
-                break;
-            case "workflow_run":
-                (() => {
-                    const workflowRun = github_1.context.payload;
-                    switch (workflowRun.workflow_run.event) {
-                        case "pull_request":
-                            workflowRun.workflow_run.pull_requests;
-                            (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
-                            return;
-                        case "push":
-                            (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
-                            return;
-                        default:
-                            (() => {
-                                const workflowSourceEventName = workflowRun.workflow_run.event
-                                    .split("_")
-                                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                                    .join(" ");
-                                defaultEventHandler(`Workflow (${workflowSourceEventName})`, results, ruleMetaDatas);
-                            })();
-                            break;
-                    }
-                })();
-                break;
-            default:
-                defaultEventHandler(github_1.context.eventName
-                    .split("_")
-                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                    .join(" "), results, ruleMetaDatas);
-                break;
-        }
-    });
-}
-exports.run = run;
-run();
 
 
 /***/ }),
