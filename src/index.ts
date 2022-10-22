@@ -11,7 +11,6 @@ import {
   warning,
 } from "@actions/core";
 import {
-  PullRequest,
   PullRequestEvent,
   PushEvent,
   WorkflowRunEvent,
@@ -32,13 +31,6 @@ type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
 type Fix = import("eslint").Rule.Fix;
 
-type MockConfig = {
-  token: string;
-  owner: string;
-  repo: string;
-  number: number;
-};
-
 type ReviewSuggestion = {
   start_side?: "RIGHT";
   start_line?: number;
@@ -53,27 +45,25 @@ const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = process.cwd();
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 
-export function changeDirectory(mock: MockConfig | undefined) {
+export function changeDirectory() {
   info(`Working directory is: ${WORKING_DIRECTORY}`);
   const absoluteDirectory = path.resolve(
     WORKING_DIRECTORY,
-    mock === undefined ? getInput("directory") : "./"
+    getInput("directory")
   );
   info(`Working directory is changed to: ${absoluteDirectory}`);
   process.chdir(absoluteDirectory);
 }
 
-export async function getESLint(mock: MockConfig | undefined) {
+export async function getESLint() {
   const absoluteDirectory = path.resolve(
     WORKING_DIRECTORY,
-    mock === undefined ? getInput("directory") : "./"
+    getInput("directory")
   );
   const require = createRequire(absoluteDirectory);
   const eslintJsPath = path.resolve(
     absoluteDirectory,
-    mock === undefined
-      ? getInput("eslint-lib-path")
-      : "./node_modules/eslint/lib/api.js"
+    getInput("eslint-lib-path")
   );
   if (!existsSync(eslintJsPath)) {
     throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
@@ -85,10 +75,7 @@ export async function getESLint(mock: MockConfig | undefined) {
   );
   const eslint = new ESLint({ baseConfig: eslintConfig });
 
-  const eslintBinPath =
-    mock === undefined
-      ? getInput("eslint-bin-path")
-      : "./node_modules/.bin/eslint";
+  const eslintBinPath = getInput("eslint-bin-path");
   if (!existsSync(eslintBinPath)) {
     throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
   }
@@ -97,11 +84,8 @@ export async function getESLint(mock: MockConfig | undefined) {
   return { eslint, eslintBinPath };
 }
 
-export async function getESLintOutput(
-  mock: MockConfig | undefined,
-  eslintBinPath: string
-) {
-  const targets = mock === undefined ? getInput("targets") : ".";
+export async function getESLintOutput(eslintBinPath: string) {
+  const targets = getInput("targets");
   let results: LintResult[] = [];
   try {
     const stdout = childProcess.execSync(
@@ -114,8 +98,8 @@ export async function getESLintOutput(
   return results;
 }
 
-export function getOctokit(mock: MockConfig | undefined) {
-  const githubToken = mock?.token || getInput("github-token");
+export function getOctokit() {
+  const githubToken = getInput("github-token");
   const Octokit = GitHub.plugin(throttling, retry);
   const octokit = new Octokit(
     getOctokitOptions(githubToken, {
@@ -169,24 +153,11 @@ export function getOctokit(mock: MockConfig | undefined) {
   return octokit;
 }
 
-export async function getPullRequestMetadata(
-  mock: MockConfig | undefined,
-  octokit: Octokit & Api
-) {
-  let pullRequest: PullRequest;
-  if (mock) {
-    const response = await octokit.rest.pulls.get({
-      owner: mock.owner,
-      repo: mock.repo,
-      pull_number: mock.number,
-    });
-    pullRequest = response.data as PullRequest;
-  } else {
-    pullRequest = (context.payload as PullRequestEvent).pull_request;
-  }
-  const owner = mock?.owner || context.repo.owner;
-  const repo = mock?.repo || context.repo.repo;
-  const pullRequestNumber = mock?.number || pullRequest.number;
+export async function getPullRequestMetadata() {
+  const pullRequest = (context.payload as PullRequestEvent).pull_request;
+  const owner = context.repo.owner;
+  const repo = context.repo.repo;
+  const pullRequestNumber = pullRequest.number;
   const baseSha = pullRequest.base.sha;
   const headSha = pullRequest.head.sha;
 
@@ -422,7 +393,6 @@ export function matchReviewComments(
 }
 
 export async function pullRequestEventHandler(
-  mock: MockConfig | undefined,
   indexedResults: {
     [file: string]: LintResult;
   },
@@ -430,14 +400,13 @@ export async function pullRequestEventHandler(
     [name: string]: RuleMetaData;
   }
 ) {
-  const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
-  const requestChanges =
-    mock === undefined ? getBooleanInput("request-changes") : false;
+  const failCheck = getBooleanInput("fail-check");
+  const requestChanges = getBooleanInput("request-changes");
 
   startGroup("GitHub Pull Request");
-  const octokit = getOctokit(mock);
+  const octokit = getOctokit();
   const { owner, repo, pullRequestNumber, headSha } =
-    await getPullRequestMetadata(mock, octokit);
+    await getPullRequestMetadata();
   const files = await getPullRequestFiles(
     owner,
     repo,
@@ -688,10 +657,10 @@ export async function pullRequestEventHandler(
   endGroup();
 }
 
-export async function getPushMetadata(mock: MockConfig | undefined) {
+export async function getPushMetadata() {
   const push = context.payload as PushEvent;
-  const owner = mock?.owner || context.repo.owner;
-  const repo = mock?.repo || context.repo.repo;
+  const owner = context.repo.owner;
+  const repo = context.repo.repo;
   const beforeSha = push.before;
   const afterSha = push.after;
 
@@ -725,7 +694,6 @@ export async function getPushFiles(
 }
 
 export async function pushEventHandler(
-  mock: MockConfig | undefined,
   indexedResults: {
     [file: string]: LintResult;
   },
@@ -733,11 +701,11 @@ export async function pushEventHandler(
     [name: string]: RuleMetaData;
   }
 ) {
-  const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
+  const failCheck = getBooleanInput("fail-check");
 
   startGroup("GitHub Push");
-  const octokit = getOctokit(mock);
-  const { owner, repo, beforeSha, afterSha } = await getPushMetadata(mock);
+  const octokit = getOctokit();
+  const { owner, repo, beforeSha, afterSha } = await getPushMetadata();
   const files = await getPushFiles(owner, repo, beforeSha, afterSha, octokit);
 
   if (files === undefined || files.length === 0) {
@@ -816,14 +784,13 @@ export async function pushEventHandler(
 }
 
 export async function defaultEventHandler(
-  mock: MockConfig | undefined,
   eventName: string,
   results: LintResult[],
   ruleMetaDatas: {
     [name: string]: RuleMetaData;
   }
 ) {
-  const failCheck = mock === undefined ? getBooleanInput("fail-check") : false;
+  const failCheck = getBooleanInput("fail-check");
 
   startGroup(`GitHub ${eventName}`);
   let warningCounter = 0;
@@ -882,11 +849,11 @@ export async function defaultEventHandler(
   endGroup();
 }
 
-export async function run(mock: MockConfig | undefined = undefined) {
+export async function run() {
   startGroup("ESLint");
-  changeDirectory(mock);
-  const { eslint, eslintBinPath } = await getESLint(mock);
-  const results = await getESLintOutput(mock, eslintBinPath);
+  changeDirectory();
+  const { eslint, eslintBinPath } = await getESLint();
+  const results = await getESLintOutput(eslintBinPath);
 
   const indexedResults: {
     [file: string]: LintResult;
@@ -913,10 +880,10 @@ export async function run(mock: MockConfig | undefined = undefined) {
   info(`Event name: ${context.eventName}`);
   switch (context.eventName) {
     case "pull_request":
-      pullRequestEventHandler(mock, indexedResults, ruleMetaDatas);
+      pullRequestEventHandler(indexedResults, ruleMetaDatas);
       break;
     case "push":
-      pushEventHandler(mock, indexedResults, ruleMetaDatas);
+      pushEventHandler(indexedResults, ruleMetaDatas);
       break;
     case "workflow_run":
       (() => {
@@ -936,7 +903,6 @@ export async function run(mock: MockConfig | undefined = undefined) {
                 .map((word) => word[0]?.toUpperCase() + word.substring(1))
                 .join(" ");
               defaultEventHandler(
-                mock,
                 `Workflow (${workflowSourceEventName})`,
                 results,
                 ruleMetaDatas
@@ -948,7 +914,6 @@ export async function run(mock: MockConfig | undefined = undefined) {
       break;
     default:
       defaultEventHandler(
-        mock,
         context.eventName
           .split("_")
           .map((word) => word[0]?.toUpperCase() + word.substring(1))
@@ -960,13 +925,4 @@ export async function run(mock: MockConfig | undefined = undefined) {
   }
 }
 
-if (process.argv.length === 6) {
-  run({
-    token: process.argv[2],
-    owner: process.argv[3],
-    repo: process.argv[4],
-    number: parseInt(process.argv[5]),
-  });
-} else {
-  run();
-}
+run();
