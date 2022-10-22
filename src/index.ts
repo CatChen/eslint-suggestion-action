@@ -1,5 +1,4 @@
 import { context } from "@actions/github";
-import { GitHub, getOctokitOptions } from "@actions/github/lib/utils";
 import {
   getInput,
   getBooleanInput,
@@ -15,8 +14,6 @@ import {
   PushEvent,
   WorkflowRunEvent,
 } from "@octokit/webhooks-definitions/schema";
-import { throttling } from "@octokit/plugin-throttling";
-import { retry } from "@octokit/plugin-retry";
 import process from "node:process";
 import path from "node:path";
 import { Octokit } from "@octokit/core";
@@ -25,6 +22,7 @@ import { components } from "@octokit/openapi-types/types";
 import { Query, PullRequestReviewThread } from "@octokit/graphql-schema";
 import { getESLint } from "./getESLint";
 import { getESLintOutput } from "./getESLintOutput";
+import { getOctokit } from "./getOctokit";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
@@ -52,61 +50,6 @@ export function changeDirectory() {
   );
   info(`Working directory is changed to: ${absoluteDirectory}`);
   process.chdir(absoluteDirectory);
-}
-
-export function getOctokit() {
-  const githubToken = getInput("github-token");
-  const Octokit = GitHub.plugin(throttling, retry);
-  const octokit = new Octokit(
-    getOctokitOptions(githubToken, {
-      throttle: {
-        onRateLimit: (
-          retryAfter: number,
-          options: {
-            method: string;
-            url: string;
-            request: { retryCount: number };
-          }
-        ) => {
-          if (options.request.retryCount === 0) {
-            octokit.log.warn(
-              `Request quota exhausted for request ${options.method} ${options.url}`
-            );
-            octokit.log.info(`Retrying after ${retryAfter} seconds!`);
-            return true;
-          } else {
-            octokit.log.error(
-              `Request quota exhausted for request ${options.method} ${options.url}`
-            );
-          }
-        },
-        onSecondaryRateLimit: (
-          retryAfter: number,
-          options: {
-            method: string;
-            url: string;
-            request: { retryCount: number };
-          }
-        ) => {
-          if (options.request.retryCount === 0) {
-            octokit.log.warn(
-              `Abuse detected for request ${options.method} ${options.url}`
-            );
-            octokit.log.info(`Retrying after ${retryAfter} seconds!`);
-            return true;
-          } else {
-            octokit.log.warn(
-              `Abuse detected for request ${options.method} ${options.url}`
-            );
-          }
-        },
-      },
-      retry: {
-        doNotRetry: ["429"],
-      },
-    })
-  );
-  return octokit;
 }
 
 export async function getPullRequestMetadata() {
