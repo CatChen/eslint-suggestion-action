@@ -16,7 +16,6 @@ declare type ReviewComment = ReviewSuggestion & {
     path: string;
 };
 export declare function changeDirectory(): void;
-export declare function getESLintOutput(eslintBinPath: string): Promise<import("eslint").ESLint.LintResult[]>;
 export declare function getOctokit(): Octokit & Api & {
     paginate: import("@octokit/plugin-paginate-rest").PaginateInterface;
 } & {
