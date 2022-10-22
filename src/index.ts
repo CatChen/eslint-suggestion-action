@@ -10,7 +10,6 @@ import {
   warning,
 } from "@actions/core";
 import {
-  PullRequestEvent,
   PushEvent,
   WorkflowRunEvent,
 } from "@octokit/webhooks-definitions/schema";
@@ -23,6 +22,7 @@ import { Query, PullRequestReviewThread } from "@octokit/graphql-schema";
 import { getESLint } from "./getESLint";
 import { getESLintOutput } from "./getESLintOutput";
 import { getOctokit } from "./getOctokit";
+import { getPullRequestMetadata } from "./getPullRequestMetadata";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
@@ -50,29 +50,6 @@ export function changeDirectory() {
   );
   info(`Working directory is changed to: ${absoluteDirectory}`);
   process.chdir(absoluteDirectory);
-}
-
-export async function getPullRequestMetadata() {
-  const pullRequest = (context.payload as PullRequestEvent).pull_request;
-  const owner = context.repo.owner;
-  const repo = context.repo.repo;
-  const pullRequestNumber = pullRequest.number;
-  const baseSha = pullRequest.base.sha;
-  const headSha = pullRequest.head.sha;
-
-  info(`Owner: ${owner}`);
-  info(`Repo: ${repo}`);
-  info(`Pull Request number: ${pullRequestNumber}`);
-  info(`Base SHA: ${baseSha}`);
-  info(`Head SHA: ${headSha}`);
-
-  return {
-    owner,
-    repo,
-    pullRequestNumber,
-    baseSha,
-    headSha,
-  };
 }
 
 export async function getPullRequestFiles(
