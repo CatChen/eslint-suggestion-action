@@ -20,12 +20,11 @@ import { retry } from "@octokit/plugin-retry";
 import process from "node:process";
 import childProcess from "node:child_process";
 import path from "node:path";
-import { existsSync } from "node:fs";
-import { createRequire } from "module";
 import { Octokit } from "@octokit/core";
 import { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
 import { components } from "@octokit/openapi-types/types";
 import { Query, PullRequestReviewThread } from "@octokit/graphql-schema";
+import { getESLint } from "./getESLint";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
@@ -53,35 +52,6 @@ export function changeDirectory() {
   );
   info(`Working directory is changed to: ${absoluteDirectory}`);
   process.chdir(absoluteDirectory);
-}
-
-export async function getESLint() {
-  const absoluteDirectory = path.resolve(
-    WORKING_DIRECTORY,
-    getInput("directory")
-  );
-  const require = createRequire(absoluteDirectory);
-  const eslintJsPath = path.resolve(
-    absoluteDirectory,
-    getInput("eslint-lib-path")
-  );
-  if (!existsSync(eslintJsPath)) {
-    throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
-  }
-  info(`Using ESLint from: ${eslintJsPath}`);
-  const { ESLint } = require(eslintJsPath);
-  const eslintConfig = await new ESLint().calculateConfigForFile(
-    "package.json"
-  );
-  const eslint = new ESLint({ baseConfig: eslintConfig });
-
-  const eslintBinPath = getInput("eslint-bin-path");
-  if (!existsSync(eslintBinPath)) {
-    throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
-  }
-  info(`Using ESLint binary from: ${eslintBinPath}`);
-
-  return { eslint, eslintBinPath };
 }
 
 export async function getESLintOutput(eslintBinPath: string) {
