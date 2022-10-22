@@ -5,12 +5,6 @@ import { PullRequestReviewThread } from "@octokit/graphql-schema";
 declare type LintResult = import("eslint").ESLint.LintResult;
 declare type RuleMetaData = import("eslint").Rule.RuleMetaData;
 declare type Fix = import("eslint").Rule.Fix;
-declare type MockConfig = {
-    token: string;
-    owner: string;
-    repo: string;
-    number: number;
-};
 declare type ReviewSuggestion = {
     start_side?: "RIGHT";
     start_line?: number;
@@ -21,20 +15,20 @@ declare type ReviewSuggestion = {
 declare type ReviewComment = ReviewSuggestion & {
     path: string;
 };
-export declare function changeDirectory(mock: MockConfig | undefined): void;
-export declare function getESLint(mock: MockConfig | undefined): Promise<{
+export declare function changeDirectory(): void;
+export declare function getESLint(): Promise<{
     eslint: any;
     eslintBinPath: string;
 }>;
-export declare function getESLintOutput(mock: MockConfig | undefined, eslintBinPath: string): Promise<import("eslint").ESLint.LintResult[]>;
-export declare function getOctokit(mock: MockConfig | undefined): Octokit & Api & {
+export declare function getESLintOutput(eslintBinPath: string): Promise<import("eslint").ESLint.LintResult[]>;
+export declare function getOctokit(): Octokit & Api & {
     paginate: import("@octokit/plugin-paginate-rest").PaginateInterface;
 } & {
     retry: {
         retryRequest: (error: import("@octokit/request-error").RequestError, retries: number, retryAfter: number) => import("@octokit/request-error").RequestError;
     };
 };
-export declare function getPullRequestMetadata(mock: MockConfig | undefined, octokit: Octokit & Api): Promise<{
+export declare function getPullRequestMetadata(): Promise<{
     owner: string;
     repo: string;
     pullRequestNumber: number;
@@ -135,12 +129,12 @@ export declare function getIndexedModifiedLines(file: components["schemas"]["dif
 };
 export declare function getCommentFromFix(source: string, line: number, fix: Fix): ReviewSuggestion;
 export declare function matchReviewComments(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): string[];
-export declare function pullRequestEventHandler(mock: MockConfig | undefined, indexedResults: {
+export declare function pullRequestEventHandler(indexedResults: {
     [file: string]: LintResult;
 }, ruleMetaDatas: {
     [name: string]: RuleMetaData;
 }): Promise<void>;
-export declare function getPushMetadata(mock: MockConfig | undefined): Promise<{
+export declare function getPushMetadata(): Promise<{
     owner: string;
     repo: string;
     beforeSha: string;
@@ -159,13 +153,13 @@ export declare function getPushFiles(owner: string, repo: string, beforeSha: str
     patch?: string | undefined;
     previous_filename?: string | undefined;
 }[] | undefined>;
-export declare function pushEventHandler(mock: MockConfig | undefined, indexedResults: {
+export declare function pushEventHandler(indexedResults: {
     [file: string]: LintResult;
 }, ruleMetaDatas: {
     [name: string]: RuleMetaData;
 }): Promise<void>;
-export declare function defaultEventHandler(mock: MockConfig | undefined, eventName: string, results: LintResult[], ruleMetaDatas: {
+export declare function defaultEventHandler(eventName: string, results: LintResult[], ruleMetaDatas: {
     [name: string]: RuleMetaData;
 }): Promise<void>;
-export declare function run(mock?: MockConfig | undefined): Promise<void>;
+export declare function run(): Promise<void>;
 export {};
