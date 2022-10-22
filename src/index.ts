@@ -9,10 +9,7 @@ import {
   notice,
   warning,
 } from "@actions/core";
-import {
-  PushEvent,
-  WorkflowRunEvent,
-} from "@octokit/webhooks-definitions/schema";
+import { WorkflowRunEvent } from "@octokit/webhooks-definitions/schema";
 import process from "node:process";
 import path from "node:path";
 import { Octokit } from "@octokit/core";
@@ -23,6 +20,7 @@ import { getESLint } from "./getESLint";
 import { getESLintOutput } from "./getESLintOutput";
 import { getOctokit } from "./getOctokit";
 import { getPullRequestMetadata } from "./getPullRequestMetadata";
+import { getPushMetadata } from "./getPushMetadata";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
@@ -531,26 +529,6 @@ export async function pullRequestEventHandler(
     info("ESLint passes");
   }
   endGroup();
-}
-
-export async function getPushMetadata() {
-  const push = context.payload as PushEvent;
-  const owner = context.repo.owner;
-  const repo = context.repo.repo;
-  const beforeSha = push.before;
-  const afterSha = push.after;
-
-  info(`Owner: ${owner}`);
-  info(`Repo: ${repo}`);
-  info(`Before SHA: ${beforeSha}`);
-  info(`After SHA: ${afterSha}`);
-
-  return {
-    owner,
-    repo,
-    beforeSha,
-    afterSha,
-  };
 }
 
 export async function getPushFiles(

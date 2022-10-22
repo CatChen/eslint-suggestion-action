@@ -115,12 +115,6 @@ export declare function pullRequestEventHandler(indexedResults: {
 }, ruleMetaDatas: {
     [name: string]: RuleMetaData;
 }): Promise<void>;
-export declare function getPushMetadata(): Promise<{
-    owner: string;
-    repo: string;
-    beforeSha: string;
-    afterSha: string;
-}>;
 export declare function getPushFiles(owner: string, repo: string, beforeSha: string, afterSha: string, octokit: Octokit & Api): Promise<{
     sha: string;
     filename: string;
