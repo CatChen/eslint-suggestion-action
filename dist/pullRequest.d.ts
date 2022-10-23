@@ -104,9 +104,9 @@ export declare function getReviewThreads(owner: string, repo: string, pullReques
 }>;
 export declare function getCommentFromFix(source: string, line: number, fix: Rule.Fix): ReviewSuggestion;
 export declare function matchReviewComments(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): string[];
-export declare function pullRequestEventHandler(indexedResults: {
+export declare function handlePullRequest(indexedResults: {
     [file: string]: ESLint.LintResult;
 }, ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
-}): Promise<void>;
+}, owner: string, repo: string, pullRequestNumber: number, baseSha: string, headSha: string): Promise<void>;
 export {};

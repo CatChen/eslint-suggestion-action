@@ -197,21 +197,24 @@ export function matchReviewComments(
   return matchedNodeIds;
 }
 
-export async function pullRequestEventHandler(
+export async function handlePullRequest(
   indexedResults: {
     [file: string]: ESLint.LintResult;
   },
   ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
-  }
+  },
+  owner: string,
+  repo: string,
+  pullRequestNumber: number,
+  baseSha: string,
+  headSha: string
 ) {
   const failCheck = getBooleanInput("fail-check");
   const requestChanges = getBooleanInput("request-changes");
 
   startGroup("GitHub Pull Request");
   const octokit = getOctokit();
-  const { owner, repo, pullRequestNumber, headSha } =
-    await getPullRequestMetadata();
   const files = await getPullRequestFiles(
     owner,
     repo,

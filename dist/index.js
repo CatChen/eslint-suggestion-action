@@ -11558,9 +11558,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getPullRequestMetadata = void 0;
+exports.getPullRequestMetadataByNumber = exports.getPullRequestMetadata = void 0;
 const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
+const getOctokit_1 = __nccwpck_require__(8442);
 function getPullRequestMetadata() {
     return __awaiter(this, void 0, void 0, function* () {
         const pullRequest = github_1.context.payload.pull_request;
@@ -11584,6 +11585,34 @@ function getPullRequestMetadata() {
     });
 }
 exports.getPullRequestMetadata = getPullRequestMetadata;
+function getPullRequestMetadataByNumber(pullRequestNumber) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const octokit = (0, getOctokit_1.getOctokit)();
+        const owner = github_1.context.repo.owner;
+        const repo = github_1.context.repo.repo;
+        const response = yield octokit.rest.pulls.get({
+            owner,
+            repo,
+            pull_number: pullRequestNumber,
+        });
+        const pullRequest = response.data;
+        const baseSha = pullRequest.base.sha;
+        const headSha = pullRequest.head.sha;
+        (0, core_1.info)(`Owner: ${owner}`);
+        (0, core_1.info)(`Repo: ${repo}`);
+        (0, core_1.info)(`Pull Request number: ${pullRequestNumber}`);
+        (0, core_1.info)(`Base SHA: ${baseSha}`);
+        (0, core_1.info)(`Head SHA: ${headSha}`);
+        return {
+            owner,
+            repo,
+            pullRequestNumber,
+            baseSha,
+            headSha,
+        };
+    });
+}
+exports.getPullRequestMetadataByNumber = getPullRequestMetadataByNumber;
 
 
 /***/ }),
@@ -11652,10 +11681,11 @@ const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
 const getESLint_1 = __nccwpck_require__(5173);
 const getESLintOutput_1 = __nccwpck_require__(2580);
-const pullRequestEventHandler_1 = __nccwpck_require__(8344);
+const pullRequest_1 = __nccwpck_require__(3894);
 const pushEventHandler_1 = __nccwpck_require__(5570);
 const defaultEventHandler_1 = __nccwpck_require__(5635);
 const changeDirectory_1 = __nccwpck_require__(6386);
+const getPullRequestMetadata_1 = __nccwpck_require__(6941);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)("ESLint");
@@ -11682,18 +11712,23 @@ function run() {
         (0, core_1.info)(`Event name: ${github_1.context.eventName}`);
         switch (github_1.context.eventName) {
             case "pull_request":
-                (0, pullRequestEventHandler_1.pullRequestEventHandler)(indexedResults, ruleMetaDatas);
+                yield (() => __awaiter(this, void 0, void 0, function* () {
+                    const { owner, repo, pullRequestNumber, baseSha, headSha } = yield (0, getPullRequestMetadata_1.getPullRequestMetadata)();
+                    yield (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha);
+                }))();
                 break;
             case "push":
                 (0, pushEventHandler_1.pushEventHandler)(indexedResults, ruleMetaDatas);
                 break;
             case "workflow_run":
-                (() => {
+                yield (() => __awaiter(this, void 0, void 0, function* () {
                     const workflowRun = github_1.context.payload;
                     switch (workflowRun.workflow_run.event) {
                         case "pull_request":
-                            workflowRun.workflow_run.pull_requests;
-                            (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
+                            for (const pullRequest of workflowRun.workflow_run.pull_requests) {
+                                const { owner, repo, pullRequestNumber, baseSha, headSha } = yield (0, getPullRequestMetadata_1.getPullRequestMetadataByNumber)(pullRequest.number);
+                                yield (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha);
+                            }
                             return;
                         case "push":
                             (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
@@ -11708,7 +11743,7 @@ function run() {
                             })();
                             break;
                     }
-                })();
+                }))();
                 break;
             default:
                 (0, defaultEventHandler_1.defaultEventHandler)(github_1.context.eventName
@@ -11725,7 +11760,7 @@ run();
 
 /***/ }),
 
-/***/ 8344:
+/***/ 3894:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -11739,10 +11774,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = void 0;
+exports.handlePullRequest = exports.matchReviewComments = exports.getCommentFromFix = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = void 0;
 const core_1 = __nccwpck_require__(2186);
 const getOctokit_1 = __nccwpck_require__(8442);
-const getPullRequestMetadata_1 = __nccwpck_require__(6941);
 const getIndexedModifiedLines_1 = __nccwpck_require__(7738);
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
@@ -11881,14 +11915,13 @@ function matchReviewComments(reviewComments, reviewComment) {
     return matchedNodeIds;
 }
 exports.matchReviewComments = matchReviewComments;
-function pullRequestEventHandler(indexedResults, ruleMetaDatas) {
+function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         const failCheck = (0, core_1.getBooleanInput)("fail-check");
         const requestChanges = (0, core_1.getBooleanInput)("request-changes");
         (0, core_1.startGroup)("GitHub Pull Request");
         const octokit = (0, getOctokit_1.getOctokit)();
-        const { owner, repo, pullRequestNumber, headSha } = yield (0, getPullRequestMetadata_1.getPullRequestMetadata)();
         const files = yield getPullRequestFiles(owner, repo, pullRequestNumber, octokit);
         const existingReviewComments = yield getReviewComments(owner, repo, pullRequestNumber, octokit);
         const commentNodeIdToReviewThreadMapping = yield getReviewThreads(owner, repo, pullRequestNumber, octokit);
@@ -12056,7 +12089,7 @@ function pullRequestEventHandler(indexedResults, ruleMetaDatas) {
         (0, core_1.endGroup)();
     });
 }
-exports.pullRequestEventHandler = pullRequestEventHandler;
+exports.handlePullRequest = handlePullRequest;
 
 
 /***/ }),
