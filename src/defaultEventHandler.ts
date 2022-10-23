@@ -10,14 +10,13 @@ import {
 } from "@actions/core";
 import { DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
 
-type LintResult = import("eslint").ESLint.LintResult;
-type RuleMetaData = import("eslint").Rule.RuleMetaData;
+import type { ESLint, Rule } from "eslint";
 
 export async function defaultEventHandler(
   eventName: string,
-  results: LintResult[],
+  results: ESLint.LintResult[],
   ruleMetaDatas: {
-    [name: string]: RuleMetaData;
+    [name: string]: Rule.RuleMetaData;
   }
 ) {
   const failCheck = getBooleanInput("fail-check");

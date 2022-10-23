@@ -1,7 +1,6 @@
-declare type Octokit = import("@octokit/core").Octokit;
-declare type Api = import("@octokit/plugin-rest-endpoint-methods/dist-types/types").Api;
-declare type LintResult = import("eslint").ESLint.LintResult;
-declare type RuleMetaData = import("eslint").Rule.RuleMetaData;
+import type { Octokit } from "@octokit/core";
+import type { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
+import type { ESLint, Rule } from "eslint";
 export declare function getPushFiles(owner: string, repo: string, beforeSha: string, afterSha: string, octokit: Octokit & Api): Promise<{
     sha: string;
     filename: string;
@@ -16,8 +15,7 @@ export declare function getPushFiles(owner: string, repo: string, beforeSha: str
     previous_filename?: string | undefined;
 }[] | undefined>;
 export declare function pushEventHandler(indexedResults: {
-    [file: string]: LintResult;
+    [file: string]: ESLint.LintResult;
 }, ruleMetaDatas: {
-    [name: string]: RuleMetaData;
+    [name: string]: Rule.RuleMetaData;
 }): Promise<void>;
-export {};

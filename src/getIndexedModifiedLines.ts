@@ -1,11 +1,12 @@
 import { info } from "@actions/core";
 
-type DiffEntry =
-  import("@octokit/openapi-types/types").components["schemas"]["diff-entry"];
+import type { components } from "@octokit/openapi-types/types";
 
 const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 
-export function getIndexedModifiedLines(file: DiffEntry): {
+export function getIndexedModifiedLines(
+  file: components["schemas"]["diff-entry"]
+): {
   [line: string]: true;
 } {
   const modifiedLines = [];

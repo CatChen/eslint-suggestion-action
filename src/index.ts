@@ -9,8 +9,7 @@ import { pushEventHandler } from "./pushEventHandler";
 import { defaultEventHandler } from "./defaultEventHandler";
 import { changeDirectory, DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
 
-type LintResult = import("eslint").ESLint.LintResult;
-type RuleMetaData = import("eslint").Rule.RuleMetaData;
+import type { ESLint, Rule } from "eslint";
 
 export async function run() {
   startGroup("ESLint");
@@ -19,7 +18,7 @@ export async function run() {
   const results = await getESLintOutput(eslintBinPath);
 
   const indexedResults: {
-    [file: string]: LintResult;
+    [file: string]: ESLint.LintResult;
   } = {};
   for (const file of results) {
     const relativePath = path.relative(
@@ -39,7 +38,7 @@ export async function run() {
     }
   }
   const ruleMetaDatas: {
-    [name: string]: RuleMetaData;
+    [name: string]: Rule.RuleMetaData;
   } = eslint.getRulesMetaForResults(results);
   endGroup();
 

@@ -1,8 +1,7 @@
 import { context } from "@actions/github";
 import { info } from "@actions/core";
 
-type PullRequestEvent =
-  import("@octokit/webhooks-definitions/schema").PullRequestEvent;
+import type { PullRequestEvent } from "@octokit/webhooks-definitions/schema";
 
 export async function getPullRequestMetadata() {
   const pullRequest = (context.payload as PullRequestEvent).pull_request;

@@ -1,1 +1,2 @@
-export declare function getESLintOutput(eslintBinPath: string): Promise<import("eslint").ESLint.LintResult[]>;
+import type { ESLint } from "eslint";
+export declare function getESLintOutput(eslintBinPath: string): Promise<ESLint.LintResult[]>;
