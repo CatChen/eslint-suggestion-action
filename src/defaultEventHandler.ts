@@ -8,11 +8,10 @@ import {
   notice,
   warning,
 } from "@actions/core";
+import { DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
-
-const WORKING_DIRECTORY = process.cwd();
 
 export async function defaultEventHandler(
   eventName: string,
@@ -28,7 +27,10 @@ export async function defaultEventHandler(
   let errorCounter = 0;
 
   for (const result of results) {
-    const relativePath = path.relative(WORKING_DIRECTORY, result.filePath);
+    const relativePath = path.relative(
+      DEFAULT_WORKING_DIRECTORY,
+      result.filePath
+    );
     for (const message of result.messages) {
       if (message.ruleId === null || result.source === undefined) {
         continue;
