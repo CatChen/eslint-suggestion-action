@@ -11340,6 +11340,58 @@ exports.getESLintOutput = getESLintOutput;
 
 /***/ }),
 
+/***/ 7738:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getIndexedModifiedLines = void 0;
+const core_1 = __nccwpck_require__(2186);
+const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
+function getIndexedModifiedLines(file) {
+    var _a;
+    const modifiedLines = [];
+    const indexedModifiedLines = {};
+    let currentLine = 0;
+    let remainingLinesInHunk = 0;
+    const lines = (_a = file.patch) === null || _a === void 0 ? void 0 : _a.split("\n");
+    if (lines) {
+        for (const line of lines) {
+            if (remainingLinesInHunk === 0) {
+                const matches = line.match(HUNK_HEADER_PATTERN);
+                currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || "1");
+                remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[4]) || "1");
+                if (!currentLine || !remainingLinesInHunk) {
+                    throw new Error(`Expecting hunk header in ${file.filename} but seeing ${line}.`);
+                }
+            }
+            else if (line[0] === "-") {
+                continue;
+            }
+            else {
+                if (line[0] === "+") {
+                    modifiedLines.push(currentLine);
+                    indexedModifiedLines[currentLine] = true;
+                }
+                currentLine++;
+                remainingLinesInHunk--;
+            }
+        }
+    }
+    (0, core_1.info)(`  File modified lines: ${modifiedLines.join()}`);
+    if (file.patch !== undefined) {
+        (0, core_1.info)(`  File patch: \n${file.patch
+            .split("\n")
+            .map((line) => "    " + line)
+            .join("\n")}\n`);
+    }
+    return indexedModifiedLines;
+}
+exports.getIndexedModifiedLines = getIndexedModifiedLines;
+
+
+/***/ }),
+
 /***/ 8442:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -11489,7 +11541,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.defaultEventHandler = exports.pushEventHandler = exports.getPushFiles = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.changeDirectory = void 0;
+exports.run = exports.defaultEventHandler = exports.pushEventHandler = exports.getPushFiles = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.changeDirectory = void 0;
 const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
 const node_process_1 = __importDefault(__nccwpck_require__(7742));
@@ -11499,7 +11551,7 @@ const getESLintOutput_1 = __nccwpck_require__(2580);
 const getOctokit_1 = __nccwpck_require__(8442);
 const getPullRequestMetadata_1 = __nccwpck_require__(6941);
 const getPushMetadata_1 = __nccwpck_require__(7801);
-const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
+const getIndexedModifiedLines_1 = __nccwpck_require__(7738);
 const WORKING_DIRECTORY = node_process_1.default.cwd();
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 function changeDirectory() {
@@ -11602,46 +11654,6 @@ function getReviewThreads(owner, repo, pullRequestNumber, octokit) {
     });
 }
 exports.getReviewThreads = getReviewThreads;
-function getIndexedModifiedLines(file) {
-    var _a;
-    const modifiedLines = [];
-    const indexedModifiedLines = {};
-    let currentLine = 0;
-    let remainingLinesInHunk = 0;
-    const lines = (_a = file.patch) === null || _a === void 0 ? void 0 : _a.split("\n");
-    if (lines) {
-        for (const line of lines) {
-            if (remainingLinesInHunk === 0) {
-                const matches = line.match(HUNK_HEADER_PATTERN);
-                currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || "1");
-                remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[4]) || "1");
-                if (!currentLine || !remainingLinesInHunk) {
-                    throw new Error(`Expecting hunk header in ${file.filename} but seeing ${line}.`);
-                }
-            }
-            else if (line[0] === "-") {
-                continue;
-            }
-            else {
-                if (line[0] === "+") {
-                    modifiedLines.push(currentLine);
-                    indexedModifiedLines[currentLine] = true;
-                }
-                currentLine++;
-                remainingLinesInHunk--;
-            }
-        }
-    }
-    (0, core_1.info)(`  File modified lines: ${modifiedLines.join()}`);
-    if (file.patch !== undefined) {
-        (0, core_1.info)(`  File patch: \n${file.patch
-            .split("\n")
-            .map((line) => "    " + line)
-            .join("\n")}\n`);
-    }
-    return indexedModifiedLines;
-}
-exports.getIndexedModifiedLines = getIndexedModifiedLines;
 function getCommentFromFix(source, line, fix) {
     const textRange = source.substring(fix.range[0], fix.range[1]);
     const impactedOriginalLines = textRange.split("\n").length;
@@ -11705,7 +11717,7 @@ function pullRequestEventHandler(indexedResults, ruleMetaDatas) {
             if (file.status === "removed") {
                 continue;
             }
-            const indexedModifiedLines = getIndexedModifiedLines(file);
+            const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
             const result = indexedResults[file.filename];
             if (result) {
                 for (const message of result.messages) {
@@ -11894,7 +11906,7 @@ function pushEventHandler(indexedResults, ruleMetaDatas) {
             if (file.status === "removed") {
                 continue;
             }
-            const indexedModifiedLines = getIndexedModifiedLines(file);
+            const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
             const result = indexedResults[file.filename];
             if (result) {
                 for (const message of result.messages) {
