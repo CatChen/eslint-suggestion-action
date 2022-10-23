@@ -11,10 +11,9 @@ import { getOctokit } from "./getOctokit";
 import { getPushMetadata } from "./getPushMetadata";
 import { getIndexedModifiedLines } from "./getIndexedModifiedLines";
 
-type Octokit = import("@octokit/core").Octokit;
-type Api = import("@octokit/plugin-rest-endpoint-methods/dist-types/types").Api;
-type LintResult = import("eslint").ESLint.LintResult;
-type RuleMetaData = import("eslint").Rule.RuleMetaData;
+import type { Octokit } from "@octokit/core";
+import type { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
+import type { ESLint, Rule } from "eslint";
 
 export async function getPushFiles(
   owner: string,
@@ -34,10 +33,10 @@ export async function getPushFiles(
 
 export async function pushEventHandler(
   indexedResults: {
-    [file: string]: LintResult;
+    [file: string]: ESLint.LintResult;
   },
   ruleMetaDatas: {
-    [name: string]: RuleMetaData;
+    [name: string]: Rule.RuleMetaData;
   }
 ) {
   const failCheck = getBooleanInput("fail-check");

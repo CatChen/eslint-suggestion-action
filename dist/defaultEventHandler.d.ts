@@ -1,6 +1,4 @@
-declare type LintResult = import("eslint").ESLint.LintResult;
-declare type RuleMetaData = import("eslint").Rule.RuleMetaData;
-export declare function defaultEventHandler(eventName: string, results: LintResult[], ruleMetaDatas: {
-    [name: string]: RuleMetaData;
+import type { ESLint, Rule } from "eslint";
+export declare function defaultEventHandler(eventName: string, results: ESLint.LintResult[], ruleMetaDatas: {
+    [name: string]: Rule.RuleMetaData;
 }): Promise<void>;
-export {};

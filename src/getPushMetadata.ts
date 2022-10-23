@@ -1,7 +1,7 @@
 import { context } from "@actions/github";
 import { info } from "@actions/core";
 
-type PushEvent = import("@octokit/webhooks-definitions/schema").PushEvent;
+import { PushEvent } from "@octokit/webhooks-definitions/schema";
 
 export async function getPushMetadata() {
   const push = context.payload as PushEvent;

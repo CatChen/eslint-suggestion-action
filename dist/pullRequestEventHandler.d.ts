@@ -1,9 +1,8 @@
-declare type Octokit = import("@octokit/core").Octokit;
-declare type Api = import("@octokit/plugin-rest-endpoint-methods/dist-types/types").Api;
-declare type ReviewComments = import("@octokit/openapi-types/types").components["schemas"]["review-comment"][];
-declare type LintResult = import("eslint").ESLint.LintResult;
-declare type RuleMetaData = import("eslint").Rule.RuleMetaData;
-declare type Fix = import("eslint").Rule.Fix;
+import type { Octokit } from "@octokit/core";
+import type { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
+import type { components } from "@octokit/openapi-types/types";
+import type { PullRequestReviewThread } from "@octokit/graphql-schema";
+import type { ESLint, Rule } from "eslint";
 declare type ReviewSuggestion = {
     start_side?: "RIGHT";
     start_line?: number;
@@ -101,13 +100,13 @@ export declare function getReviewComments(owner: string, repo: string, pullReque
     body_text?: string | undefined;
 }[]>;
 export declare function getReviewThreads(owner: string, repo: string, pullRequestNumber: number, octokit: Octokit & Api): Promise<{
-    [id: string]: import("@octokit/graphql-schema").PullRequestReviewThread;
+    [id: string]: PullRequestReviewThread;
 }>;
-export declare function getCommentFromFix(source: string, line: number, fix: Fix): ReviewSuggestion;
-export declare function matchReviewComments(reviewComments: ReviewComments, reviewComment: ReviewComment): string[];
+export declare function getCommentFromFix(source: string, line: number, fix: Rule.Fix): ReviewSuggestion;
+export declare function matchReviewComments(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): string[];
 export declare function pullRequestEventHandler(indexedResults: {
-    [file: string]: LintResult;
+    [file: string]: ESLint.LintResult;
 }, ruleMetaDatas: {
-    [name: string]: RuleMetaData;
+    [name: string]: Rule.RuleMetaData;
 }): Promise<void>;
 export {};

@@ -9,16 +9,12 @@ import { getOctokit } from "./getOctokit";
 import { getPullRequestMetadata } from "./getPullRequestMetadata";
 import { getIndexedModifiedLines } from "./getIndexedModifiedLines";
 
-type Octokit = import("@octokit/core").Octokit;
-type Api = import("@octokit/plugin-rest-endpoint-methods/dist-types/types").Api;
-type ReviewComments =
-  import("@octokit/openapi-types/types").components["schemas"]["review-comment"][];
-type Query = import("@octokit/graphql-schema").Query;
-type PullRequestReviewThread =
-  import("@octokit/graphql-schema").PullRequestReviewThread;
-type LintResult = import("eslint").ESLint.LintResult;
-type RuleMetaData = import("eslint").Rule.RuleMetaData;
-type Fix = import("eslint").Rule.Fix;
+import type { Octokit } from "@octokit/core";
+import type { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
+import type { components } from "@octokit/openapi-types/types";
+import type { Query } from "@octokit/graphql-schema";
+import type { PullRequestReviewThread } from "@octokit/graphql-schema";
+import type { ESLint, Rule } from "eslint";
 
 type ReviewSuggestion = {
   start_side?: "RIGHT";
@@ -150,7 +146,7 @@ export async function getReviewThreads(
   return commentNodeIdToReviewThreadMapping;
 }
 
-export function getCommentFromFix(source: string, line: number, fix: Fix) {
+export function getCommentFromFix(source: string, line: number, fix: Rule.Fix) {
   const textRange = source.substring(fix.range[0], fix.range[1]);
   const impactedOriginalLines = textRange.split("\n").length;
   const originalLines = source
@@ -182,7 +178,7 @@ export function getCommentFromFix(source: string, line: number, fix: Fix) {
 }
 
 export function matchReviewComments(
-  reviewComments: ReviewComments,
+  reviewComments: components["schemas"]["review-comment"][],
   reviewComment: ReviewComment
 ) {
   const matchedNodeIds: string[] = [];
@@ -203,10 +199,10 @@ export function matchReviewComments(
 
 export async function pullRequestEventHandler(
   indexedResults: {
-    [file: string]: LintResult;
+    [file: string]: ESLint.LintResult;
   },
   ruleMetaDatas: {
-    [name: string]: RuleMetaData;
+    [name: string]: Rule.RuleMetaData;
   }
 ) {
   const failCheck = getBooleanInput("fail-check");
