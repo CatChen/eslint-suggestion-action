@@ -2,12 +2,11 @@ import { createRequire } from "module";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { getInput, info } from "@actions/core";
-
-const WORKING_DIRECTORY = process.cwd();
+import { DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
 
 export async function getESLint() {
   const absoluteDirectory = path.resolve(
-    WORKING_DIRECTORY,
+    DEFAULT_WORKING_DIRECTORY,
     getInput("directory")
   );
   const require = createRequire(absoluteDirectory);

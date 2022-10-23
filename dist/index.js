@@ -11253,6 +11253,30 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 6386:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.changeDirectory = exports.DEFAULT_WORKING_DIRECTORY = void 0;
+const node_process_1 = __importDefault(__nccwpck_require__(7742));
+const node_path_1 = __importDefault(__nccwpck_require__(9411));
+const core_1 = __nccwpck_require__(2186);
+exports.DEFAULT_WORKING_DIRECTORY = node_process_1.default.cwd();
+function changeDirectory() {
+    (0, core_1.info)(`Working directory is: ${exports.DEFAULT_WORKING_DIRECTORY}`);
+    const absoluteDirectory = node_path_1.default.resolve(exports.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
+    (0, core_1.info)(`Working directory is changed to: ${absoluteDirectory}`);
+    node_process_1.default.chdir(absoluteDirectory);
+}
+exports.changeDirectory = changeDirectory;
+
+
+/***/ }),
+
 /***/ 5635:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -11273,7 +11297,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.defaultEventHandler = void 0;
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const core_1 = __nccwpck_require__(2186);
-const WORKING_DIRECTORY = process.cwd();
+const changeDirectory_1 = __nccwpck_require__(6386);
 function defaultEventHandler(eventName, results, ruleMetaDatas) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
@@ -11282,7 +11306,7 @@ function defaultEventHandler(eventName, results, ruleMetaDatas) {
         let warningCounter = 0;
         let errorCounter = 0;
         for (const result of results) {
-            const relativePath = node_path_1.default.relative(WORKING_DIRECTORY, result.filePath);
+            const relativePath = node_path_1.default.relative(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, result.filePath);
             for (const message of result.messages) {
                 if (message.ruleId === null || result.source === undefined) {
                     continue;
@@ -11356,10 +11380,10 @@ const module_1 = __nccwpck_require__(8188);
 const node_fs_1 = __nccwpck_require__(7561);
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const core_1 = __nccwpck_require__(2186);
-const WORKING_DIRECTORY = process.cwd();
+const changeDirectory_1 = __nccwpck_require__(6386);
 function getESLint() {
     return __awaiter(this, void 0, void 0, function* () {
-        const absoluteDirectory = node_path_1.default.resolve(WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
+        const absoluteDirectory = node_path_1.default.resolve(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
         const require = (0, module_1.createRequire)(absoluteDirectory);
         const eslintJsPath = node_path_1.default.resolve(absoluteDirectory, (0, core_1.getInput)("eslint-lib-path"));
         if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
@@ -11622,8 +11646,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.changeDirectory = void 0;
-const node_process_1 = __importDefault(__nccwpck_require__(7742));
+exports.run = void 0;
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
@@ -11632,23 +11655,16 @@ const getESLintOutput_1 = __nccwpck_require__(2580);
 const pullRequestEventHandler_1 = __nccwpck_require__(8344);
 const pushEventHandler_1 = __nccwpck_require__(5570);
 const defaultEventHandler_1 = __nccwpck_require__(5635);
-const WORKING_DIRECTORY = node_process_1.default.cwd();
-function changeDirectory() {
-    (0, core_1.info)(`Working directory is: ${WORKING_DIRECTORY}`);
-    const absoluteDirectory = node_path_1.default.resolve(WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
-    (0, core_1.info)(`Working directory is changed to: ${absoluteDirectory}`);
-    node_process_1.default.chdir(absoluteDirectory);
-}
-exports.changeDirectory = changeDirectory;
+const changeDirectory_1 = __nccwpck_require__(6386);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)("ESLint");
-        changeDirectory();
+        (0, changeDirectory_1.changeDirectory)();
         const { eslint, eslintBinPath } = yield (0, getESLint_1.getESLint)();
         const results = yield (0, getESLintOutput_1.getESLintOutput)(eslintBinPath);
         const indexedResults = {};
         for (const file of results) {
-            const relativePath = node_path_1.default.relative(WORKING_DIRECTORY, file.filePath);
+            const relativePath = node_path_1.default.relative(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, file.filePath);
             (0, core_1.info)(`File name: ${relativePath}`);
             indexedResults[relativePath] = file;
             for (const message of file.messages) {

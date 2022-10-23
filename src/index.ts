@@ -1,28 +1,16 @@
-import process from "node:process";
 import path from "node:path";
 import { context } from "@actions/github";
-import { getInput, info, startGroup, endGroup, error } from "@actions/core";
+import { info, startGroup, endGroup, error } from "@actions/core";
 import { WorkflowRunEvent } from "@octokit/webhooks-definitions/schema";
 import { getESLint } from "./getESLint";
 import { getESLintOutput } from "./getESLintOutput";
 import { pullRequestEventHandler } from "./pullRequestEventHandler";
 import { pushEventHandler } from "./pushEventHandler";
 import { defaultEventHandler } from "./defaultEventHandler";
+import { changeDirectory, DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
 
 type LintResult = import("eslint").ESLint.LintResult;
 type RuleMetaData = import("eslint").Rule.RuleMetaData;
-
-const WORKING_DIRECTORY = process.cwd();
-
-export function changeDirectory() {
-  info(`Working directory is: ${WORKING_DIRECTORY}`);
-  const absoluteDirectory = path.resolve(
-    WORKING_DIRECTORY,
-    getInput("directory")
-  );
-  info(`Working directory is changed to: ${absoluteDirectory}`);
-  process.chdir(absoluteDirectory);
-}
 
 export async function run() {
   startGroup("ESLint");
@@ -34,7 +22,10 @@ export async function run() {
     [file: string]: LintResult;
   } = {};
   for (const file of results) {
-    const relativePath = path.relative(WORKING_DIRECTORY, file.filePath);
+    const relativePath = path.relative(
+      DEFAULT_WORKING_DIRECTORY,
+      file.filePath
+    );
     info(`File name: ${relativePath}`);
     indexedResults[relativePath] = file;
     for (const message of file.messages) {
