@@ -11431,6 +11431,47 @@ exports.getPullRequestMetadata = getPullRequestMetadata;
 
 /***/ }),
 
+/***/ 7801:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getPushMetadata = void 0;
+const github_1 = __nccwpck_require__(5438);
+const core_1 = __nccwpck_require__(2186);
+function getPushMetadata() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const push = github_1.context.payload;
+        const owner = github_1.context.repo.owner;
+        const repo = github_1.context.repo.repo;
+        const beforeSha = push.before;
+        const afterSha = push.after;
+        (0, core_1.info)(`Owner: ${owner}`);
+        (0, core_1.info)(`Repo: ${repo}`);
+        (0, core_1.info)(`Before SHA: ${beforeSha}`);
+        (0, core_1.info)(`After SHA: ${afterSha}`);
+        return {
+            owner,
+            repo,
+            beforeSha,
+            afterSha,
+        };
+    });
+}
+exports.getPushMetadata = getPushMetadata;
+
+
+/***/ }),
+
 /***/ 6144:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -11448,7 +11489,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.defaultEventHandler = exports.pushEventHandler = exports.getPushFiles = exports.getPushMetadata = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.changeDirectory = void 0;
+exports.run = exports.defaultEventHandler = exports.pushEventHandler = exports.getPushFiles = exports.pullRequestEventHandler = exports.matchReviewComments = exports.getCommentFromFix = exports.getIndexedModifiedLines = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = exports.changeDirectory = void 0;
 const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
 const node_process_1 = __importDefault(__nccwpck_require__(7742));
@@ -11457,6 +11498,7 @@ const getESLint_1 = __nccwpck_require__(5173);
 const getESLintOutput_1 = __nccwpck_require__(2580);
 const getOctokit_1 = __nccwpck_require__(8442);
 const getPullRequestMetadata_1 = __nccwpck_require__(6941);
+const getPushMetadata_1 = __nccwpck_require__(7801);
 const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 const WORKING_DIRECTORY = node_process_1.default.cwd();
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
@@ -11819,26 +11861,6 @@ function pullRequestEventHandler(indexedResults, ruleMetaDatas) {
     });
 }
 exports.pullRequestEventHandler = pullRequestEventHandler;
-function getPushMetadata() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const push = github_1.context.payload;
-        const owner = github_1.context.repo.owner;
-        const repo = github_1.context.repo.repo;
-        const beforeSha = push.before;
-        const afterSha = push.after;
-        (0, core_1.info)(`Owner: ${owner}`);
-        (0, core_1.info)(`Repo: ${repo}`);
-        (0, core_1.info)(`Before SHA: ${beforeSha}`);
-        (0, core_1.info)(`After SHA: ${afterSha}`);
-        return {
-            owner,
-            repo,
-            beforeSha,
-            afterSha,
-        };
-    });
-}
-exports.getPushMetadata = getPushMetadata;
 function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
@@ -11858,7 +11880,7 @@ function pushEventHandler(indexedResults, ruleMetaDatas) {
         const failCheck = (0, core_1.getBooleanInput)("fail-check");
         (0, core_1.startGroup)("GitHub Push");
         const octokit = (0, getOctokit_1.getOctokit)();
-        const { owner, repo, beforeSha, afterSha } = yield getPushMetadata();
+        const { owner, repo, beforeSha, afterSha } = yield (0, getPushMetadata_1.getPushMetadata)();
         const files = yield getPushFiles(owner, repo, beforeSha, afterSha, octokit);
         if (files === undefined || files.length === 0) {
             (0, core_1.info)(`Push contains no files`);
