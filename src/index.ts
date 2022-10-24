@@ -5,8 +5,8 @@ import { WorkflowRunEvent } from "@octokit/webhooks-definitions/schema";
 import { getESLint } from "./getESLint";
 import { getESLintOutput } from "./getESLintOutput";
 import { handlePullRequest } from "./pullRequest";
-import { pushEventHandler } from "./pushEventHandler";
-import { defaultEventHandler } from "./defaultEventHandler";
+import { handlePush } from "./push";
+import { handleCommit } from "./commit";
 import { changeDirectory, DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
 import {
   getPullRequestMetadata,
@@ -14,6 +14,7 @@ import {
 } from "./getPullRequestMetadata";
 
 import type { ESLint, Rule } from "eslint";
+import { getPushMetadata } from "./getPushMetadata";
 
 export async function run() {
   startGroup("ESLint");
@@ -64,48 +65,50 @@ export async function run() {
       })();
       break;
     case "push":
-      pushEventHandler(indexedResults, ruleMetaDatas);
+      await (async () => {
+        const { owner, repo, beforeSha, afterSha } = await getPushMetadata();
+        await handlePush(
+          indexedResults,
+          ruleMetaDatas,
+          owner,
+          repo,
+          beforeSha,
+          afterSha
+        );
+      })();
       break;
     case "workflow_run":
       await (async () => {
         const workflowRun = context.payload as WorkflowRunEvent;
-        switch (workflowRun.workflow_run.event) {
-          case "pull_request":
-            for (const pullRequest of workflowRun.workflow_run.pull_requests) {
-              const { owner, repo, pullRequestNumber, baseSha, headSha } =
-                await getPullRequestMetadataByNumber(pullRequest.number);
-              await handlePullRequest(
-                indexedResults,
-                ruleMetaDatas,
-                owner,
-                repo,
-                pullRequestNumber,
-                baseSha,
-                headSha
-              );
-            }
-            return;
-          case "push":
-            error(`Unimplemented GitHub Action event: ${context.eventName}`);
-            return;
-          default:
-            (() => {
-              const workflowSourceEventName = workflowRun.workflow_run.event
-                .split("_")
-                .map((word) => word[0]?.toUpperCase() + word.substring(1))
-                .join(" ");
-              defaultEventHandler(
-                `Workflow (${workflowSourceEventName})`,
-                results,
-                ruleMetaDatas
-              );
-            })();
-            break;
+        if (workflowRun.workflow_run.pull_requests.length > 0) {
+          for (const pullRequest of workflowRun.workflow_run.pull_requests) {
+            const { owner, repo, pullRequestNumber, baseSha, headSha } =
+              await getPullRequestMetadataByNumber(pullRequest.number);
+            await handlePullRequest(
+              indexedResults,
+              ruleMetaDatas,
+              owner,
+              repo,
+              pullRequestNumber,
+              baseSha,
+              headSha
+            );
+          }
+        } else {
+          const workflowSourceEventName = workflowRun.workflow_run.event
+            .split("_")
+            .map((word) => word[0]?.toUpperCase() + word.substring(1))
+            .join(" ");
+          await handleCommit(
+            `Workflow (${workflowSourceEventName})`,
+            results,
+            ruleMetaDatas
+          );
         }
       })();
       break;
     default:
-      defaultEventHandler(
+      handleCommit(
         context.eventName
           .split("_")
           .map((word) => word[0]?.toUpperCase() + word.substring(1))

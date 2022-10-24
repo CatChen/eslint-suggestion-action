@@ -12,7 +12,7 @@ import { DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
 
 import type { ESLint, Rule } from "eslint";
 
-export async function defaultEventHandler(
+export async function handleCommit(
   eventName: string,
   results: ESLint.LintResult[],
   ruleMetaDatas: {
