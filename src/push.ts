@@ -8,7 +8,6 @@ import {
   warning,
 } from "@actions/core";
 import { getOctokit } from "./getOctokit";
-import { getPushMetadata } from "./getPushMetadata";
 import { getIndexedModifiedLines } from "./getIndexedModifiedLines";
 
 import type { Octokit } from "@octokit/core";
@@ -31,19 +30,22 @@ export async function getPushFiles(
   return response.data.files;
 }
 
-export async function pushEventHandler(
+export async function handlePush(
   indexedResults: {
     [file: string]: ESLint.LintResult;
   },
   ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
-  }
+  },
+  owner: string,
+  repo: string,
+  beforeSha: string,
+  afterSha: string
 ) {
   const failCheck = getBooleanInput("fail-check");
 
   startGroup("GitHub Push");
   const octokit = getOctokit();
-  const { owner, repo, beforeSha, afterSha } = await getPushMetadata();
   const files = await getPushFiles(owner, repo, beforeSha, afterSha, octokit);
 
   if (files === undefined || files.length === 0) {

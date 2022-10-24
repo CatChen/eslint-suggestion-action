@@ -11277,7 +11277,7 @@ exports.changeDirectory = changeDirectory;
 
 /***/ }),
 
-/***/ 5635:
+/***/ 1730:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -11294,11 +11294,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.defaultEventHandler = void 0;
+exports.handleCommit = void 0;
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const core_1 = __nccwpck_require__(2186);
 const changeDirectory_1 = __nccwpck_require__(6386);
-function defaultEventHandler(eventName, results, ruleMetaDatas) {
+function handleCommit(eventName, results, ruleMetaDatas) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         const failCheck = (0, core_1.getBooleanInput)("fail-check");
@@ -11353,7 +11353,7 @@ function defaultEventHandler(eventName, results, ruleMetaDatas) {
         (0, core_1.endGroup)();
     });
 }
-exports.defaultEventHandler = defaultEventHandler;
+exports.handleCommit = handleCommit;
 
 
 /***/ }),
@@ -11682,10 +11682,11 @@ const core_1 = __nccwpck_require__(2186);
 const getESLint_1 = __nccwpck_require__(5173);
 const getESLintOutput_1 = __nccwpck_require__(2580);
 const pullRequest_1 = __nccwpck_require__(3894);
-const pushEventHandler_1 = __nccwpck_require__(5570);
-const defaultEventHandler_1 = __nccwpck_require__(5635);
+const push_1 = __nccwpck_require__(4755);
+const commit_1 = __nccwpck_require__(1730);
 const changeDirectory_1 = __nccwpck_require__(6386);
 const getPullRequestMetadata_1 = __nccwpck_require__(6941);
+const getPushMetadata_1 = __nccwpck_require__(7801);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         (0, core_1.startGroup)("ESLint");
@@ -11718,35 +11719,31 @@ function run() {
                 }))();
                 break;
             case "push":
-                (0, pushEventHandler_1.pushEventHandler)(indexedResults, ruleMetaDatas);
+                yield (() => __awaiter(this, void 0, void 0, function* () {
+                    const { owner, repo, beforeSha, afterSha } = yield (0, getPushMetadata_1.getPushMetadata)();
+                    yield (0, push_1.handlePush)(indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha);
+                }))();
                 break;
             case "workflow_run":
                 yield (() => __awaiter(this, void 0, void 0, function* () {
                     const workflowRun = github_1.context.payload;
-                    switch (workflowRun.workflow_run.event) {
-                        case "pull_request":
-                            for (const pullRequest of workflowRun.workflow_run.pull_requests) {
-                                const { owner, repo, pullRequestNumber, baseSha, headSha } = yield (0, getPullRequestMetadata_1.getPullRequestMetadataByNumber)(pullRequest.number);
-                                yield (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha);
-                            }
-                            return;
-                        case "push":
-                            (0, core_1.error)(`Unimplemented GitHub Action event: ${github_1.context.eventName}`);
-                            return;
-                        default:
-                            (() => {
-                                const workflowSourceEventName = workflowRun.workflow_run.event
-                                    .split("_")
-                                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                                    .join(" ");
-                                (0, defaultEventHandler_1.defaultEventHandler)(`Workflow (${workflowSourceEventName})`, results, ruleMetaDatas);
-                            })();
-                            break;
+                    if (workflowRun.workflow_run.pull_requests.length > 0) {
+                        for (const pullRequest of workflowRun.workflow_run.pull_requests) {
+                            const { owner, repo, pullRequestNumber, baseSha, headSha } = yield (0, getPullRequestMetadata_1.getPullRequestMetadataByNumber)(pullRequest.number);
+                            yield (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha);
+                        }
+                    }
+                    else {
+                        const workflowSourceEventName = workflowRun.workflow_run.event
+                            .split("_")
+                            .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
+                            .join(" ");
+                        yield (0, commit_1.handleCommit)(`Workflow (${workflowSourceEventName})`, results, ruleMetaDatas);
                     }
                 }))();
                 break;
             default:
-                (0, defaultEventHandler_1.defaultEventHandler)(github_1.context.eventName
+                (0, commit_1.handleCommit)(github_1.context.eventName
                     .split("_")
                     .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
                     .join(" "), results, ruleMetaDatas);
@@ -12094,7 +12091,7 @@ exports.handlePullRequest = handlePullRequest;
 
 /***/ }),
 
-/***/ 5570:
+/***/ 4755:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -12108,10 +12105,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.pushEventHandler = exports.getPushFiles = void 0;
+exports.handlePush = exports.getPushFiles = void 0;
 const core_1 = __nccwpck_require__(2186);
 const getOctokit_1 = __nccwpck_require__(8442);
-const getPushMetadata_1 = __nccwpck_require__(7801);
 const getIndexedModifiedLines_1 = __nccwpck_require__(7738);
 function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
     var _a, _b;
@@ -12126,13 +12122,12 @@ function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
     });
 }
 exports.getPushFiles = getPushFiles;
-function pushEventHandler(indexedResults, ruleMetaDatas) {
+function handlePush(indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         const failCheck = (0, core_1.getBooleanInput)("fail-check");
         (0, core_1.startGroup)("GitHub Push");
         const octokit = (0, getOctokit_1.getOctokit)();
-        const { owner, repo, beforeSha, afterSha } = yield (0, getPushMetadata_1.getPushMetadata)();
         const files = yield getPushFiles(owner, repo, beforeSha, afterSha, octokit);
         if (files === undefined || files.length === 0) {
             (0, core_1.info)(`Push contains no files`);
@@ -12198,7 +12193,7 @@ function pushEventHandler(indexedResults, ruleMetaDatas) {
         (0, core_1.endGroup)();
     });
 }
-exports.pushEventHandler = pushEventHandler;
+exports.handlePush = handlePush;
 
 
 /***/ }),

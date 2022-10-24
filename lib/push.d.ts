@@ -14,8 +14,8 @@ export declare function getPushFiles(owner: string, repo: string, beforeSha: str
     patch?: string | undefined;
     previous_filename?: string | undefined;
 }[] | undefined>;
-export declare function pushEventHandler(indexedResults: {
+export declare function handlePush(indexedResults: {
     [file: string]: ESLint.LintResult;
 }, ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
-}): Promise<void>;
+}, owner: string, repo: string, beforeSha: string, afterSha: string): Promise<void>;
