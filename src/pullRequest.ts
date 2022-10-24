@@ -6,7 +6,6 @@ import {
   error,
 } from "@actions/core";
 import { getOctokit } from "./getOctokit";
-import { getPullRequestMetadata } from "./getPullRequestMetadata";
 import { getIndexedModifiedLines } from "./getIndexedModifiedLines";
 
 import type { Octokit } from "@octokit/core";
