@@ -4,10 +4,14 @@ import { info, startGroup, endGroup, error } from "@actions/core";
 import { WorkflowRunEvent } from "@octokit/webhooks-definitions/schema";
 import { getESLint } from "./getESLint";
 import { getESLintOutput } from "./getESLintOutput";
-import { pullRequestEventHandler } from "./pullRequestEventHandler";
+import { handlePullRequest } from "./pullRequest";
 import { pushEventHandler } from "./pushEventHandler";
 import { defaultEventHandler } from "./defaultEventHandler";
 import { changeDirectory, DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
+import {
+  getPullRequestMetadata,
+  getPullRequestMetadataByNumber,
+} from "./getPullRequestMetadata";
 
 import type { ESLint, Rule } from "eslint";
 
@@ -45,18 +49,41 @@ export async function run() {
   info(`Event name: ${context.eventName}`);
   switch (context.eventName) {
     case "pull_request":
-      pullRequestEventHandler(indexedResults, ruleMetaDatas);
+      await (async () => {
+        const { owner, repo, pullRequestNumber, baseSha, headSha } =
+          await getPullRequestMetadata();
+        await handlePullRequest(
+          indexedResults,
+          ruleMetaDatas,
+          owner,
+          repo,
+          pullRequestNumber,
+          baseSha,
+          headSha
+        );
+      })();
       break;
     case "push":
       pushEventHandler(indexedResults, ruleMetaDatas);
       break;
     case "workflow_run":
-      (() => {
+      await (async () => {
         const workflowRun = context.payload as WorkflowRunEvent;
         switch (workflowRun.workflow_run.event) {
           case "pull_request":
-            workflowRun.workflow_run.pull_requests;
-            error(`Unimplemented GitHub Action event: ${context.eventName}`);
+            for (const pullRequest of workflowRun.workflow_run.pull_requests) {
+              const { owner, repo, pullRequestNumber, baseSha, headSha } =
+                await getPullRequestMetadataByNumber(pullRequest.number);
+              await handlePullRequest(
+                indexedResults,
+                ruleMetaDatas,
+                owner,
+                repo,
+                pullRequestNumber,
+                baseSha,
+                headSha
+              );
+            }
             return;
           case "push":
             error(`Unimplemented GitHub Action event: ${context.eventName}`);
