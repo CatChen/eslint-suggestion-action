@@ -1,6 +1,6 @@
 import path from "node:path";
 import { context } from "@actions/github";
-import { info, startGroup, endGroup, error } from "@actions/core";
+import { info, startGroup, endGroup } from "@actions/core";
 import { WorkflowRunEvent } from "@octokit/webhooks-definitions/schema";
 import { getESLint } from "./getESLint";
 import { getESLintOutput } from "./getESLintOutput";
