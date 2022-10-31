@@ -118,7 +118,7 @@ export async function handlePush(
       error("ESLint fails");
     }
   } else {
-    info("ESLint passes");
+    notice("ESLint passes");
   }
   endGroup();
 }

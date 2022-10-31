@@ -4,6 +4,7 @@ import {
   startGroup,
   endGroup,
   error,
+  notice,
 } from "@actions/core";
 import { getOctokit } from "./getOctokit";
 import { getIndexedModifiedLines } from "./getIndexedModifiedLines";
@@ -459,7 +460,7 @@ export async function handlePullRequest(
       error("ESLint fails");
     }
   } else {
-    info("ESLint passes");
+    notice("ESLint passes");
   }
   endGroup();
 }
