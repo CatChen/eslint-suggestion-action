@@ -53,11 +53,11 @@ jobs:
             "/repos/$GITHUB_REPOSITORY/releases/latest" \
             -q .tag_name)
           echo "::notice:: Base release is $BASE_RELEASE"
-          echo "::set-output name=base-release::$BASE_RELEASE"
+          echo "base-release=$BASE_RELEASE" >> $GITHUB_OUTPUT
 
           BASE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
           echo "::notice:: Base tag is $BASE_TAG"
-          echo "::set-output name=base-tag::$BASE_TAG"
+          echo "base-tag=$BASE_TAG" >> $GITHUB_OUTPUT
 
           if [ "$BASE_RELEASE" != "$BASE_TAG" ]
           then
@@ -72,7 +72,7 @@ jobs:
             npm version patch
             HEAD_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
             echo "::notice:: Head tag is $HEAD_TAG"
-            echo "::set-output name=head-tag::$HEAD_TAG"
+            echo "head-tag=$HEAD_TAG" >> $GITHUB_OUTPUT
 
             git push -f --set-upstream origin main --follow-tags
           fi
