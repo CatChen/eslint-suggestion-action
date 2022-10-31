@@ -11348,7 +11348,7 @@ function handleCommit(eventName, results, ruleMetaDatas) {
             }
         }
         else {
-            (0, core_1.info)("ESLint passes");
+            (0, core_1.notice)("ESLint passes");
         }
         (0, core_1.endGroup)();
     });
@@ -12081,7 +12081,7 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
             }
         }
         else {
-            (0, core_1.info)("ESLint passes");
+            (0, core_1.notice)("ESLint passes");
         }
         (0, core_1.endGroup)();
     });
@@ -12188,7 +12188,7 @@ function handlePush(indexedResults, ruleMetaDatas, owner, repo, beforeSha, after
             }
         }
         else {
-            (0, core_1.info)("ESLint passes");
+            (0, core_1.notice)("ESLint passes");
         }
         (0, core_1.endGroup)();
     });

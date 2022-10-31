@@ -76,7 +76,7 @@ export async function handleCommit(
       error("ESLint fails");
     }
   } else {
-    info("ESLint passes");
+    notice("ESLint passes");
   }
   endGroup();
 }
