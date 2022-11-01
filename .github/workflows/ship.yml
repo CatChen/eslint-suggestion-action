@@ -70,7 +70,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: CatChen/accept-to-ship-action@v0.3.3
+      - uses: CatChen/accept-to-ship-action@v0.3.4
         with:
           merge-method: squash
           timeout: 0
@@ -90,7 +90,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: CatChen/accept-to-ship-action@v0.3.3
+      - uses: CatChen/accept-to-ship-action@v0.3.4
         with:
           merge-method: squash
           timeout: 0
