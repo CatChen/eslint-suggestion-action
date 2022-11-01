@@ -174,9 +174,9 @@
     bottleneck "^2.15.3"
 
 "@octokit/plugin-throttling@^4.0.1":
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-4.3.1.tgz#5266578b7b1538c3381970a7885c48b2954b8933"
-  integrity sha512-ga+sUf99rY94QA1BvZdhBCDfNqSZc+6u7h7uI/13jWHh77SuJVmHYWpPuISEH01fRf8wWkKH4liMI3SUwTizxQ==
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-4.3.2.tgz#d5eb363d5282c74b2839454a87545c5f90591a80"
+  integrity sha512-ZaCK599h3tzcoy0Jtdab95jgmD7X9iAk59E2E7hYKCAmnURaI4WpzwL9vckImilybUGrjY1JOWJapDs2N2D3vw==
   dependencies:
     "@octokit/types" "^8.0.0"
     bottleneck "^2.15.3"
