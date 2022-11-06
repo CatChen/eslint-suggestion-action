@@ -4081,15 +4081,14 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var BottleneckLight = _interopDefault(__nccwpck_require__(1174));
 
-const VERSION = "4.3.1";
+const VERSION = "4.3.2";
 
-const noop = () => Promise.resolve(); // @ts-expect-error
-
-
+const noop = () => Promise.resolve();
+// @ts-expect-error
 function wrapRequest(state, request, options) {
   return state.retryLimiter.schedule(doRequest, state, request, options);
-} // @ts-expect-error
-
+}
+// @ts-expect-error
 async function doRequest(state, request, options) {
   const isWrite = options.method !== "GET" && options.method !== "HEAD";
   const {
@@ -4097,41 +4096,35 @@ async function doRequest(state, request, options) {
   } = new URL(options.url, "http://github.test");
   const isSearch = options.method === "GET" && pathname.startsWith("/search/");
   const isGraphQL = pathname.startsWith("/graphql");
-  const retryCount = ~~options.request.retryCount;
+  const retryCount = ~~request.retryCount;
   const jobOptions = retryCount > 0 ? {
     priority: 0,
     weight: 0
   } : {};
-
   if (state.clustering) {
     // Remove a job from Redis if it has not completed or failed within 60s
     // Examples: Node process terminated, client disconnected, etc.
     // @ts-expect-error
     jobOptions.expiration = 1000 * 60;
-  } // Guarantee at least 1000ms between writes
+  }
+  // Guarantee at least 1000ms between writes
   // GraphQL can also trigger writes
-
-
   if (isWrite || isGraphQL) {
     await state.write.key(state.id).schedule(jobOptions, noop);
-  } // Guarantee at least 3000ms between requests that trigger notifications
-
-
+  }
+  // Guarantee at least 3000ms between requests that trigger notifications
   if (isWrite && state.triggersNotification(pathname)) {
     await state.notifications.key(state.id).schedule(jobOptions, noop);
-  } // Guarantee at least 2000ms between search requests
-
-
+  }
+  // Guarantee at least 2000ms between search requests
   if (isSearch) {
     await state.search.key(state.id).schedule(jobOptions, noop);
   }
-
   const req = state.global.key(state.id).schedule(jobOptions, request, options);
-
   if (isGraphQL) {
     const res = await req;
-
-    if (res.data.errors != null && // @ts-expect-error
+    if (res.data.errors != null &&
+    // @ts-expect-error
     res.data.errors.some(error => error.type === "RATE_LIMITED")) {
       const error = Object.assign(new Error("GraphQL Rate Limit Exceeded"), {
         response: res,
@@ -4140,7 +4133,6 @@ async function doRequest(state, request, options) {
       throw error;
     }
   }
-
   return req;
 }
 
@@ -4148,35 +4140,32 @@ var triggersNotificationPaths = ["/orgs/{org}/invitations", "/orgs/{org}/invitat
 
 function routeMatcher(paths) {
   // EXAMPLE. For the following paths:
-
   /* [
       "/orgs/{org}/invitations",
       "/repos/{owner}/{repo}/collaborators/{username}"
   ] */
-  const regexes = paths.map(path => path.split("/").map(c => c.startsWith("{") ? "(?:.+?)" : c).join("/")); // 'regexes' would contain:
-
+  const regexes = paths.map(path => path.split("/").map(c => c.startsWith("{") ? "(?:.+?)" : c).join("/"));
+  // 'regexes' would contain:
   /* [
       '/orgs/(?:.+?)/invitations',
       '/repos/(?:.+?)/(?:.+?)/collaborators/(?:.+?)'
   ] */
-
-  const regex = `^(?:${regexes.map(r => `(?:${r})`).join("|")})[^/]*$`; // 'regex' would contain:
-
+  const regex = `^(?:${regexes.map(r => `(?:${r})`).join("|")})[^/]*$`;
+  // 'regex' would contain:
   /*
     ^(?:(?:\/orgs\/(?:.+?)\/invitations)|(?:\/repos\/(?:.+?)\/(?:.+?)\/collaborators\/(?:.+?)))[^\/]*$
        It may look scary, but paste it into https://www.debuggex.com/
     and it will make a lot more sense!
   */
-
   return new RegExp(regex, "i");
 }
 
 // @ts-expect-error
-
+// Workaround to allow tests to directly access the triggersNotification function.
 const regex = routeMatcher(triggersNotificationPaths);
 const triggersNotification = regex.test.bind(regex);
-const groups = {}; // @ts-expect-error
-
+const groups = {};
+// @ts-expect-error
 const createGroups = function (Bottleneck, common) {
   groups.global = new Bottleneck.Group({
     id: "octokit-global",
@@ -4202,7 +4191,6 @@ const createGroups = function (Bottleneck, common) {
     ...common
   });
 };
-
 function throttling(octokit, octokitOptions) {
   const {
     enabled = true,
@@ -4212,20 +4200,16 @@ function throttling(octokit, octokitOptions) {
     // Redis TTL: 2 minutes
     connection
   } = octokitOptions.throttle || {};
-
   if (!enabled) {
     return {};
   }
-
   const common = {
     connection,
     timeout
   };
-
   if (groups.global == null) {
     createGroups(Bottleneck, common);
   }
-
   const state = Object.assign({
     clustering: connection != null,
     triggersNotification,
@@ -4236,7 +4220,6 @@ function throttling(octokit, octokitOptions) {
     ...groups
   }, octokitOptions.throttle);
   const isUsingDeprecatedOnAbuseLimitHandler = typeof state.onAbuseLimit === "function" && state.onAbuseLimit;
-
   if (typeof (isUsingDeprecatedOnAbuseLimitHandler ? state.onAbuseLimit : state.onSecondaryRateLimit) !== "function" || typeof state.onRateLimit !== "function") {
     throw new Error(`octokit/plugin-throttling error:
         You must pass the onSecondaryRateLimit and onRateLimit error handlers.
@@ -4250,31 +4233,31 @@ function throttling(octokit, octokitOptions) {
         })
     `);
   }
-
   const events = {};
-  const emitter = new Bottleneck.Events(events); // @ts-expect-error
-
+  const emitter = new Bottleneck.Events(events);
+  // @ts-expect-error
   events.on("secondary-limit", isUsingDeprecatedOnAbuseLimitHandler ? function (...args) {
     octokit.log.warn("[@octokit/plugin-throttling] `onAbuseLimit()` is deprecated and will be removed in a future release of `@octokit/plugin-throttling`, please use the `onSecondaryRateLimit` handler instead");
+    // @ts-expect-error
     return state.onAbuseLimit(...args);
-  } : state.onSecondaryRateLimit); // @ts-expect-error
-
-  events.on("rate-limit", state.onRateLimit); // @ts-expect-error
-
-  events.on("error", e => octokit.log.warn("Error in throttling-plugin limit handler", e)); // @ts-expect-error
-
+  } : state.onSecondaryRateLimit);
+  // @ts-expect-error
+  events.on("rate-limit", state.onRateLimit);
+  // @ts-expect-error
+  events.on("error", e => octokit.log.warn("Error in throttling-plugin limit handler", e));
+  // @ts-expect-error
   state.retryLimiter.on("failed", async function (error, info) {
-    const options = info.args[info.args.length - 1];
+    const [state, request, options] = info.args;
     const {
       pathname
     } = new URL(options.url, "http://github.test");
     const shouldRetryGraphQL = pathname.startsWith("/graphql") && error.status !== 401;
-
     if (!(shouldRetryGraphQL || error.status === 403)) {
       return;
     }
-
-    const retryCount = ~~options.request.retryCount;
+    const retryCount = ~~request.retryCount;
+    request.retryCount = retryCount;
+    // backward compatibility
     options.request.retryCount = retryCount;
     const {
       wantRetry,
@@ -4286,31 +4269,28 @@ function throttling(octokit, octokitOptions) {
         // The Retry-After header can sometimes be blank when hitting a secondary rate limit,
         // but is always present after 2-3s, so make sure to set `retryAfter` to at least 5s by default.
         const retryAfter = Math.max(~~error.response.headers["retry-after"], state.minimumSecondaryRateRetryAfter);
-        const wantRetry = await emitter.trigger("secondary-limit", retryAfter, options, octokit);
+        const wantRetry = await emitter.trigger("secondary-limit", retryAfter, options, octokit, retryCount);
         return {
           wantRetry,
           retryAfter
         };
       }
-
       if (error.response.headers != null && error.response.headers["x-ratelimit-remaining"] === "0") {
         // The user has used all their allowed calls for the current time period (REST and GraphQL)
         // https://docs.github.com/en/rest/reference/rate-limit (REST)
         // https://docs.github.com/en/graphql/overview/resource-limitations#rate-limit (GraphQL)
         const rateLimitReset = new Date(~~error.response.headers["x-ratelimit-reset"] * 1000).getTime();
         const retryAfter = Math.max(Math.ceil((rateLimitReset - Date.now()) / 1000), 0);
-        const wantRetry = await emitter.trigger("rate-limit", retryAfter, options, octokit);
+        const wantRetry = await emitter.trigger("rate-limit", retryAfter, options, octokit, retryCount);
         return {
           wantRetry,
           retryAfter
         };
       }
-
       return {};
     }();
-
     if (wantRetry) {
-      options.request.retryCount++;
+      request.retryCount++;
       return retryAfter * state.retryAfterBaseValue;
     }
   });
@@ -11371,25 +11351,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getESLint = void 0;
 const module_1 = __nccwpck_require__(8188);
 const node_fs_1 = __nccwpck_require__(7561);
-const node_path_1 = __importDefault(__nccwpck_require__(9411));
+const node_path_1 = __nccwpck_require__(9411);
 const core_1 = __nccwpck_require__(2186);
 const changeDirectory_1 = __nccwpck_require__(6386);
 function getESLint() {
     return __awaiter(this, void 0, void 0, function* () {
-        const absoluteDirectory = node_path_1.default.resolve(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
+        const absoluteDirectory = (0, node_path_1.resolve)(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
         const require = (0, module_1.createRequire)(absoluteDirectory);
-        const eslintJsPath = node_path_1.default.resolve(absoluteDirectory, (0, core_1.getInput)("eslint-lib-path"));
+        const eslintJsPath = (0, node_path_1.resolve)(absoluteDirectory, (0, core_1.getInput)("eslint-lib-path"));
         if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
-        (0, core_1.info)(`Using ESLint from: ${eslintJsPath}`);
+        (0, core_1.notice)(`Using ESLint from: ${eslintJsPath}`);
         const { ESLint } = require(eslintJsPath);
         const eslintConfig = yield new ESLint().calculateConfigForFile("package.json");
         const eslint = new ESLint({ baseConfig: eslintConfig });
@@ -11397,7 +11374,7 @@ function getESLint() {
         if (!(0, node_fs_1.existsSync)(eslintBinPath)) {
             throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
         }
-        (0, core_1.info)(`Using ESLint binary from: ${eslintBinPath}`);
+        (0, core_1.notice)(`Using ESLint binary from: ${eslintBinPath}`);
         return { eslint, eslintBinPath };
     });
 }
