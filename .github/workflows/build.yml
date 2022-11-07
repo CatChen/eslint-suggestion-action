@@ -54,7 +54,7 @@ jobs:
       - name: Package
         run: yarn package
 
-      - uses: CatChen/check-git-status-action@v1.0.9
+      - uses: CatChen/check-git-status-action@v1.0.10
         with:
           fail-if-not-clean: ${{ github.actor != 'dependabot[bot]' || github.event_name == 'workflow_call' }}
           push-if-not-clean: true
