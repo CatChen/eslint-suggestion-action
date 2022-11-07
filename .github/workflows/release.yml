@@ -26,6 +26,6 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - uses: CatChen/accept-to-ship-action@v0.1.2
+      - uses: CatChen/node-package-release-action@v0.1.3
         with:
           release-type: patch
