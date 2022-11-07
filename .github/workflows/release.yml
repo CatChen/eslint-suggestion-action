@@ -26,6 +26,6 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - uses: CatChen/node-package-release-action@v0.1.4
+      - uses: CatChen/node-package-release-action@v0.1.5
         with:
           release-type: patch
