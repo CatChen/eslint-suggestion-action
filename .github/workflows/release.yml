@@ -29,3 +29,4 @@ jobs:
       - uses: CatChen/node-package-release-action@v0.1.7
         with:
           release-type: patch
+          update-shorthand-release: true
