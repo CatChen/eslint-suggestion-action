@@ -4,6 +4,30 @@ on:
   schedule:
     - cron: "0 12 * * 0"
   workflow_dispatch:
+    inputs:
+      release-type:
+        description: "Release Type"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - premajor
+          - preminor
+          - prepatch
+          - prerelease
+      prerelease:
+        description: "Prerelease"
+        required: true
+        default: false
+        type: boolean
+      dry-run:
+        description: "Dry run"
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -26,7 +50,9 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - uses: CatChen/node-package-release-action@v1.0
+      - uses: CatChen/node-package-release-action@v1
         with:
-          release-type: patch
+          release-type: ${{ inputs.release-type || 'patch' }}
+          prerelease: ${{ inputs.prerelease || false }}
           update-shorthand-release: true
+          dry-run: ${{ inputs.dry-run || false }}
