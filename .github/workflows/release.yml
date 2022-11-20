@@ -44,15 +44,43 @@ jobs:
     needs: [build, eslint, codeql]
     concurrency: release
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      skipped: ${{ steps.release.outputs.skipped }}
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: main
+          ref: "main"
           fetch-depth: 0
 
-      - uses: CatChen/node-package-release-action@v1
+      - id: release
+        uses: CatChen/node-package-release-action@v1
         with:
           release-type: ${{ inputs.release-type || 'patch' }}
           prerelease: ${{ inputs.prerelease || false }}
           update-shorthand-release: true
           dry-run: ${{ inputs.dry-run || false }}
+
+  publish:
+    name: Publish
+    needs: [release]
+    if: ${{ needs.release.outputs.diff != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+          check-latest: true
+          registry-url: https://registry.npmjs.org/
+      - env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          yarn install
+          yarn build
+          npm whoami
+          npm config ls -l
+          npm publish
