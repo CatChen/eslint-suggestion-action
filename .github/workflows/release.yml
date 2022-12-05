@@ -28,6 +28,11 @@ on:
         required: true
         default: false
         type: boolean
+      skip-if-no-diff:
+        description: "Skip if no diff"
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -60,6 +65,7 @@ jobs:
           prerelease: ${{ inputs.prerelease || false }}
           update-shorthand-release: true
           dry-run: ${{ inputs.dry-run || false }}
+          skip-if-no-diff: ${{ inputs.skip-if-no-diff || true }}
 
   publish:
     name: Publish
