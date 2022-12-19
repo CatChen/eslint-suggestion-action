@@ -9,8 +9,8 @@ on:
     workflows: ["Build for Dependabot"]
     types:
       - completed
-  workflow_call:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
@@ -18,10 +18,9 @@ jobs:
     if: |-
       ${{
         (
-          github.actor == 'dependabot[bot]' || (
-            github.event_name != 'push' &&
-            github.event_name != 'pull_request'
-          )
+          github.actor == 'dependabot[bot]' && 
+          github.event_name != 'push' &&
+          github.event_name != 'pull_request'
         ) || (
           github.actor != 'dependabot[bot]' &&
           github.event_name != 'workflow_run'
