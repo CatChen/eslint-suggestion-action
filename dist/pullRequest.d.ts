@@ -3,14 +3,14 @@ import type { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types
 import type { components } from "@octokit/openapi-types/types";
 import type { PullRequestReviewThread } from "@octokit/graphql-schema";
 import type { ESLint, Rule } from "eslint";
-declare type ReviewSuggestion = {
+type ReviewSuggestion = {
     start_side?: "RIGHT";
     start_line?: number;
     side: "RIGHT";
     line: number;
     body: string;
 };
-declare type ReviewComment = ReviewSuggestion & {
+type ReviewComment = ReviewSuggestion & {
     path: string;
 };
 export declare function getPullRequestFiles(owner: string, repo: string, pullRequestNumber: number, octokit: Octokit & Api): Promise<{
