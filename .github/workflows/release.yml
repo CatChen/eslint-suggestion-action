@@ -23,13 +23,18 @@ on:
         required: true
         default: false
         type: boolean
-      dry-run:
-        description: "Dry run"
+      skip-if-no-diff:
+        description: "Skip if no diff"
         required: true
         default: false
         type: boolean
-      skip-if-no-diff:
-        description: "Skip if no diff"
+      diff-targets:
+        description: "Diff Targets"
+        required: false
+        default: "dist/**/*"
+        type: string
+      dry-run:
+        description: "Dry run"
         required: true
         default: false
         type: boolean
@@ -37,6 +42,7 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
+    secrets: inherit
 
   eslint:
     uses: ./.github/workflows/eslint.yml
@@ -66,11 +72,12 @@ jobs:
           update-shorthand-release: true
           dry-run: ${{ inputs.dry-run || false }}
           skip-if-no-diff: ${{ inputs.skip-if-no-diff || true }}
+          diff-targets: ${{ inputs.diff-targets || 'dist/**/*' }}
 
   publish:
     name: Publish
     needs: [release]
-    if: ${{ needs.release.outputs.diff != 'true' }}
+    if: ${{ needs.release.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -84,9 +91,15 @@ jobs:
       - env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DRY_RUN: ${{ inputs.dry-run || false }}
         run: |
           yarn install
           yarn build
           npm whoami
           npm config ls -l
-          npm publish
+          if [[ "$DRY_RUN" = true ]]
+          then
+            npm publish --dry-run
+          else
+            npm publish
+          fi
