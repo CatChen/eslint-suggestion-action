@@ -1,0 +1,22 @@
+{
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "semi": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "importOrder": [
+    "^@action/core/(.*)$",
+    "^@action/github/(.*)$",
+    "^@action/exec/(.*)$",
+    "^@action/glob/(.*)$",
+    "^@action/(.*)$",
+    "<THIRD_PARTY_MODULES>",
+    "^[./]"
+  ],
+  "importOrderSortIndividualImports": true,
+  "importOrderMergeDuplicateImports": true,
+  "importOrderBuiltinModulesToTop": true,
+  "importOrderTypeImportsToTop": true
+}

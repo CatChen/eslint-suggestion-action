@@ -1,23 +1,22 @@
-import path from "node:path";
-import { context } from "@actions/github";
-import { info, startGroup, endGroup } from "@actions/core";
-import { WorkflowRunEvent } from "@octokit/webhooks-definitions/schema";
-import { getESLint } from "./getESLint";
-import { getESLintOutput } from "./getESLintOutput";
-import { handlePullRequest } from "./pullRequest";
-import { handlePush } from "./push";
-import { handleCommit } from "./commit";
-import { changeDirectory, DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
+import type { ESLint, Rule } from 'eslint';
+import path from 'node:path';
+import { endGroup, info, startGroup } from '@actions/core';
+import { context } from '@actions/github';
+import { WorkflowRunEvent } from '@octokit/webhooks-definitions/schema';
+import { DEFAULT_WORKING_DIRECTORY, changeDirectory } from './changeDirectory';
+import { handleCommit } from './commit';
+import { getESLint } from './getESLint';
+import { getESLintOutput } from './getESLintOutput';
 import {
   getPullRequestMetadata,
   getPullRequestMetadataByNumber,
-} from "./getPullRequestMetadata";
-
-import type { ESLint, Rule } from "eslint";
-import { getPushMetadata } from "./getPushMetadata";
+} from './getPullRequestMetadata';
+import { getPushMetadata } from './getPushMetadata';
+import { handlePullRequest } from './pullRequest';
+import { handlePush } from './push';
 
 export async function run() {
-  startGroup("ESLint");
+  startGroup('ESLint');
   changeDirectory();
   const { eslint, eslintBinPath } = await getESLint();
   const results = await getESLintOutput(eslintBinPath);
@@ -28,7 +27,7 @@ export async function run() {
   for (const file of results) {
     const relativePath = path.relative(
       DEFAULT_WORKING_DIRECTORY,
-      file.filePath
+      file.filePath,
     );
     info(`File name: ${relativePath}`);
     indexedResults[relativePath] = file;
@@ -49,7 +48,7 @@ export async function run() {
 
   info(`Event name: ${context.eventName}`);
   switch (context.eventName) {
-    case "pull_request":
+    case 'pull_request':
       await (async () => {
         const { owner, repo, pullRequestNumber, baseSha, headSha } =
           await getPullRequestMetadata();
@@ -60,11 +59,11 @@ export async function run() {
           repo,
           pullRequestNumber,
           baseSha,
-          headSha
+          headSha,
         );
       })();
       break;
-    case "push":
+    case 'push':
       await (async () => {
         const { owner, repo, beforeSha, afterSha } = await getPushMetadata();
         await handlePush(
@@ -73,11 +72,11 @@ export async function run() {
           owner,
           repo,
           beforeSha,
-          afterSha
+          afterSha,
         );
       })();
       break;
-    case "workflow_run":
+    case 'workflow_run':
       await (async () => {
         const workflowRun = context.payload as WorkflowRunEvent;
         if (workflowRun.workflow_run.pull_requests.length > 0) {
@@ -91,18 +90,18 @@ export async function run() {
               repo,
               pullRequestNumber,
               baseSha,
-              headSha
+              headSha,
             );
           }
         } else {
           const workflowSourceEventName = workflowRun.workflow_run.event
-            .split("_")
+            .split('_')
             .map((word) => word[0]?.toUpperCase() + word.substring(1))
-            .join(" ");
+            .join(' ');
           await handleCommit(
             `Workflow (${workflowSourceEventName})`,
             results,
-            ruleMetaDatas
+            ruleMetaDatas,
           );
         }
       })();
@@ -110,11 +109,11 @@ export async function run() {
     default:
       handleCommit(
         context.eventName
-          .split("_")
+          .split('_')
           .map((word) => word[0]?.toUpperCase() + word.substring(1))
-          .join(" "),
+          .join(' '),
         results,
-        ruleMetaDatas
+        ruleMetaDatas,
       );
       break;
   }

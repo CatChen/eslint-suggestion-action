@@ -9,16 +9,16 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "CodeQL"
+name: 'CodeQL'
 
 on:
   push:
-    branches: [main, "[0-9]+-[0-9]+-*"]
+    branches: [main, '[0-9]+-[0-9]+-*']
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [main, "[0-9]+-[0-9]+-*"]
+    branches: [main, '[0-9]+-[0-9]+-*']
   schedule:
-    - cron: "0 0 * * *"
+    - cron: '0 0 * * *'
   workflow_call:
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ["javascript"]
+        language: ['javascript']
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 

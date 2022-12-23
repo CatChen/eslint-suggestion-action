@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: '16'
           check-latest: true
 
       - name: Install dependencies
@@ -52,10 +52,10 @@ jobs:
           request-changes: true # optional
           fail-check: false # optional
           github-token: ${{ secrets.GITHUB_TOKEN }} # optional
-          directory: "./" #optional
-          targets: "." #optional
-          eslint-lib-path: "./node_modules/eslint/lib/api.js" #optional
-          eslint-bin-path: "node_modules/.bin/eslint" # optional
+          directory: './' #optional
+          targets: '.' #optional
+          eslint-lib-path: './node_modules/eslint/lib/api.js' #optional
+          eslint-bin-path: 'node_modules/.bin/eslint' # optional
 ```
 
 Save the file to `.github/workflows/eslint.yml`. It will start working on new Pull Requests.

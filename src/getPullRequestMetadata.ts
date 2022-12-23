@@ -1,8 +1,7 @@
-import { context } from "@actions/github";
-import { info } from "@actions/core";
-import { getOctokit } from "./getOctokit";
-
-import type { PullRequestEvent } from "@octokit/webhooks-definitions/schema";
+import type { PullRequestEvent } from '@octokit/webhooks-definitions/schema';
+import { info } from '@actions/core';
+import { context } from '@actions/github';
+import { getOctokit } from './getOctokit';
 
 export async function getPullRequestMetadata() {
   const pullRequest = (context.payload as PullRequestEvent).pull_request;
@@ -28,7 +27,7 @@ export async function getPullRequestMetadata() {
 }
 
 export async function getPullRequestMetadataByNumber(
-  pullRequestNumber: number
+  pullRequestNumber: number,
 ) {
   const octokit = getOctokit();
   const owner = context.repo.owner;

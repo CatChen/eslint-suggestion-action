@@ -2,13 +2,13 @@ name: Release
 
 on:
   schedule:
-    - cron: "0 12 * * 0"
+    - cron: '0 12 * * 0'
   workflow_dispatch:
     inputs:
       release-type:
-        description: "Release Type"
+        description: 'Release Type'
         required: true
-        default: "patch"
+        default: 'patch'
         type: choice
         options:
           - major
@@ -19,22 +19,22 @@ on:
           - prepatch
           - prerelease
       prerelease:
-        description: "Prerelease"
+        description: 'Prerelease'
         required: true
         default: false
         type: boolean
       skip-if-no-diff:
-        description: "Skip if no diff"
+        description: 'Skip if no diff'
         required: true
         default: false
         type: boolean
       diff-targets:
-        description: "Diff Targets"
+        description: 'Diff Targets'
         required: false
-        default: "dist/**/*"
+        default: 'dist/**/*'
         type: string
       dry-run:
-        description: "Dry run"
+        description: 'Dry run'
         required: true
         default: false
         type: boolean
@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: "main"
+          ref: 'main'
           fetch-depth: 0
 
       - id: release
@@ -85,7 +85,7 @@ jobs:
           ref: ${{ needs.release.outputs.tag }}
       - uses: actions/setup-node@v3
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           check-latest: true
           registry-url: https://registry.npmjs.org/
       - env:

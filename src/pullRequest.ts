@@ -1,25 +1,23 @@
+import type { Octokit } from '@octokit/core';
+import type { PullRequestReviewThread, Query } from '@octokit/graphql-schema';
+import type { components } from '@octokit/openapi-types/types';
+import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types';
+import type { ESLint, Rule } from 'eslint';
 import {
-  getBooleanInput,
-  info,
-  startGroup,
   endGroup,
   error,
+  getBooleanInput,
+  info,
   notice,
-} from "@actions/core";
-import { getOctokit } from "./getOctokit";
-import { getIndexedModifiedLines } from "./getIndexedModifiedLines";
-
-import type { Octokit } from "@octokit/core";
-import type { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
-import type { components } from "@octokit/openapi-types/types";
-import type { Query } from "@octokit/graphql-schema";
-import type { PullRequestReviewThread } from "@octokit/graphql-schema";
-import type { ESLint, Rule } from "eslint";
+  startGroup,
+} from '@actions/core';
+import { getIndexedModifiedLines } from './getIndexedModifiedLines';
+import { getOctokit } from './getOctokit';
 
 type ReviewSuggestion = {
-  start_side?: "RIGHT";
+  start_side?: 'RIGHT';
   start_line?: number;
-  side: "RIGHT";
+  side: 'RIGHT';
   line: number;
   body: string;
 };
@@ -32,7 +30,7 @@ export async function getPullRequestFiles(
   owner: string,
   repo: string,
   pullRequestNumber: number,
-  octokit: Octokit & Api
+  octokit: Octokit & Api,
 ) {
   const response = await octokit.rest.pulls.listFiles({
     owner,
@@ -47,7 +45,7 @@ export async function getReviewComments(
   owner: string,
   repo: string,
   pullRequestNumber: number,
-  octokit: Octokit & Api
+  octokit: Octokit & Api,
 ) {
   const reviews = await octokit.rest.pulls.listReviews({
     owner,
@@ -60,14 +58,14 @@ export async function getReviewComments(
     pull_number: pullRequestNumber,
   });
   const relevantReviews = reviews.data.filter(
-    (review) => review.user?.id === 41898282 && review.body === REVIEW_BODY
+    (review) => review.user?.id === 41898282 && review.body === REVIEW_BODY,
   );
   const relevantReviewIds = relevantReviews.map((review) => review.id);
   const relevantReviewComments = reviewComments.data.filter(
     (reviewComment) =>
       reviewComment.user.id === 41898282 &&
       reviewComment.pull_request_review_id !== null &&
-      relevantReviewIds.includes(reviewComment.pull_request_review_id)
+      relevantReviewIds.includes(reviewComment.pull_request_review_id),
   );
   info(`Existing review comments: (${relevantReviewComments.length})`);
   return relevantReviewComments;
@@ -77,7 +75,7 @@ export async function getReviewThreads(
   owner: string,
   repo: string,
   pullRequestNumber: number,
-  octokit: Octokit & Api
+  octokit: Octokit & Api,
 ) {
   const commentNodeIdToReviewThreadMapping: {
     [id: string]: PullRequestReviewThread;
@@ -108,7 +106,7 @@ export async function getReviewThreads(
       owner,
       repo,
       pullRequestNumber,
-    }
+    },
   );
 
   const reviewThreadTotalCount =
@@ -127,7 +125,7 @@ export async function getReviewThreads(
       const commentTotalCount = reviewThread?.comments?.totalCount;
       if (commentTotalCount !== undefined && commentTotalCount > 100) {
         error(
-          `There are more than 100 review comments in review thread ${reviewThread?.id}: ${commentTotalCount}`
+          `There are more than 100 review comments in review thread ${reviewThread?.id}: ${commentTotalCount}`,
         );
       }
 
@@ -148,38 +146,38 @@ export async function getReviewThreads(
 
 export function getCommentFromFix(source: string, line: number, fix: Rule.Fix) {
   const textRange = source.substring(fix.range[0], fix.range[1]);
-  const impactedOriginalLines = textRange.split("\n").length;
+  const impactedOriginalLines = textRange.split('\n').length;
   const originalLines = source
-    .split("\n")
+    .split('\n')
     .slice(line - 1, line - 1 + impactedOriginalLines);
   const replacedSource =
     source.substring(0, fix.range[0]) +
     fix.text +
     source.substring(fix.range[1]);
-  const impactedReplaceLines = fix.text.split("\n").length;
+  const impactedReplaceLines = fix.text.split('\n').length;
   const replacedLines = replacedSource
-    .split("\n")
+    .split('\n')
     .slice(line - 1, line - 1 + impactedReplaceLines);
   info(
-    "    Fix:\n" +
-      "      " +
+    '    Fix:\n' +
+      '      ' +
       `@@ -${line},${impactedOriginalLines} +${impactedReplaceLines} @@\n` +
-      `${originalLines.map((line) => "      - " + line).join("\n")}\n` +
-      `${replacedLines.map((line) => "      + " + line).join("\n")}`
+      `${originalLines.map((line) => '      - ' + line).join('\n')}\n` +
+      `${replacedLines.map((line) => '      + ' + line).join('\n')}`,
   );
   const reviewSuggestion: ReviewSuggestion = {
-    start_side: impactedOriginalLines === 1 ? undefined : "RIGHT",
+    start_side: impactedOriginalLines === 1 ? undefined : 'RIGHT',
     start_line: impactedOriginalLines === 1 ? undefined : line,
-    side: "RIGHT",
+    side: 'RIGHT',
     line: line + impactedOriginalLines - 1,
-    body: "```suggestion\n" + `${replacedLines.join("\n")}\n` + "```\n",
+    body: '```suggestion\n' + `${replacedLines.join('\n')}\n` + '```\n',
   };
   return reviewSuggestion;
 }
 
 export function matchReviewComments(
-  reviewComments: components["schemas"]["review-comment"][],
-  reviewComment: ReviewComment
+  reviewComments: components['schemas']['review-comment'][],
+  reviewComment: ReviewComment,
 ) {
   const matchedNodeIds: string[] = [];
   for (const existingReviewComment of reviewComments) {
@@ -208,32 +206,32 @@ export async function handlePullRequest(
   repo: string,
   pullRequestNumber: number,
   baseSha: string,
-  headSha: string
+  headSha: string,
 ) {
-  const failCheck = getBooleanInput("fail-check");
-  const requestChanges = getBooleanInput("request-changes");
+  const failCheck = getBooleanInput('fail-check');
+  const requestChanges = getBooleanInput('request-changes');
 
-  startGroup("GitHub Pull Request");
+  startGroup('GitHub Pull Request');
   const octokit = getOctokit();
   const files = await getPullRequestFiles(
     owner,
     repo,
     pullRequestNumber,
-    octokit
+    octokit,
   );
 
   const existingReviewComments = await getReviewComments(
     owner,
     repo,
     pullRequestNumber,
-    octokit
+    octokit,
   );
 
   const commentNodeIdToReviewThreadMapping = await getReviewThreads(
     owner,
     repo,
     pullRequestNumber,
-    octokit
+    octokit,
   );
 
   let commentsCounter = 0;
@@ -242,7 +240,7 @@ export async function handlePullRequest(
   for (const file of files) {
     info(`  File name: ${file.filename}`);
     info(`  File status: ${file.status}`);
-    if (file.status === "removed") {
+    if (file.status === 'removed') {
       continue;
     }
 
@@ -261,7 +259,7 @@ export async function handlePullRequest(
             const reviewSuggestion = getCommentFromFix(
               result.source,
               message.line,
-              message.fix
+              message.fix,
             );
             const reviewComment = {
               ...reviewSuggestion,
@@ -272,7 +270,7 @@ export async function handlePullRequest(
             };
             const matchedComments = matchReviewComments(
               existingReviewComments,
-              reviewComment
+              reviewComment,
             );
             commentsCounter++;
             if (matchedComments.length === 0) {
@@ -282,7 +280,7 @@ export async function handlePullRequest(
               matchedReviewCommentNodeIds = {
                 ...matchedReviewCommentNodeIds,
                 ...Object.fromEntries(
-                  matchedComments.map((nodeId) => [nodeId, true])
+                  matchedComments.map((nodeId) => [nodeId, true]),
                 ),
               };
               info(`    Comment skipped`);
@@ -293,7 +291,7 @@ export async function handlePullRequest(
               const reviewSuggestion = getCommentFromFix(
                 result.source,
                 message.line,
-                suggestion.fix
+                suggestion.fix,
               );
               if (reviewSuggestions === undefined) {
                 reviewSuggestions = { ...reviewSuggestion };
@@ -306,16 +304,16 @@ export async function handlePullRequest(
                   error(
                     `    Suggestions have mismatched line(s): ${
                       reviewSuggestions.start_line === undefined
-                        ? ""
-                        : reviewSuggestions.start_line + ":"
+                        ? ''
+                        : reviewSuggestions.start_line + ':'
                     }${reviewSuggestions.line} and ${
                       reviewSuggestion.start_line === undefined
-                        ? ""
-                        : reviewSuggestion.start_line + ":"
-                    }${reviewSuggestion.line}`
+                        ? ''
+                        : reviewSuggestion.start_line + ':'
+                    }${reviewSuggestion.line}`,
                   );
                 }
-                reviewSuggestions.body += "\n" + reviewSuggestion.body;
+                reviewSuggestions.body += '\n' + reviewSuggestion.body;
               }
             }
             if (reviewSuggestions !== undefined) {
@@ -328,7 +326,7 @@ export async function handlePullRequest(
               };
               const matchedComments = matchReviewComments(
                 existingReviewComments,
-                reviewComment
+                reviewComment,
               );
               commentsCounter++;
               if (matchedComments.length === 0) {
@@ -338,7 +336,7 @@ export async function handlePullRequest(
                 matchedReviewCommentNodeIds = {
                   ...matchedReviewCommentNodeIds,
                   ...Object.fromEntries(
-                    matchedComments.map((nodeId) => [nodeId, true])
+                    matchedComments.map((nodeId) => [nodeId, true]),
                   ),
                 };
                 info(`    Comment skipped`);
@@ -348,12 +346,12 @@ export async function handlePullRequest(
             const reviewComment: ReviewComment = {
               body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
               path: file.filename,
-              side: "RIGHT",
+              side: 'RIGHT',
               line: message.line,
             };
             const matchedComments = matchReviewComments(
               existingReviewComments,
-              reviewComment
+              reviewComment,
             );
             commentsCounter++;
             if (matchedComments.length === 0) {
@@ -363,7 +361,7 @@ export async function handlePullRequest(
               matchedReviewCommentNodeIds = {
                 ...matchedReviewCommentNodeIds,
                 ...Object.fromEntries(
-                  matchedComments.map((nodeId) => [nodeId, true])
+                  matchedComments.map((nodeId) => [nodeId, true]),
                 ),
               };
               info(`    Comment skipped`);
@@ -375,7 +373,7 @@ export async function handlePullRequest(
   }
   endGroup();
 
-  startGroup("Feedback");
+  startGroup('Feedback');
   for (const reviewComment of existingReviewComments) {
     const reviewThread =
       commentNodeIdToReviewThreadMapping[reviewComment.node_id];
@@ -396,7 +394,7 @@ export async function handlePullRequest(
           `,
           {
             nodeId: reviewThread.id,
-          }
+          },
         );
         info(`Review comment unresolved: ${reviewComment.url}`);
       } else if (
@@ -415,19 +413,19 @@ export async function handlePullRequest(
           `,
           {
             nodeId: reviewThread.id,
-          }
+          },
         );
         info(`Review comment resolved: ${reviewComment.url}`);
       } else {
         info(
           `Review comment remains ${
-            reviewThread.isResolved ? "resolved" : "unresolved"
-          }: ${reviewComment.url}`
+            reviewThread.isResolved ? 'resolved' : 'unresolved'
+          }: ${reviewComment.url}`,
         );
       }
     } else {
       error(
-        `Review comment has no associated review thread: ${reviewComment.url}`
+        `Review comment has no associated review thread: ${reviewComment.url}`,
       );
     }
   }
@@ -438,29 +436,29 @@ export async function handlePullRequest(
       body: REVIEW_BODY,
       pull_number: pullRequestNumber,
       commit_id: headSha,
-      event: requestChanges ? "REQUEST_CHANGES" : "COMMENT",
+      event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
       comments: reviewComments,
     });
     if (response.status !== 200) {
       throw new Error(
-        `Failed to create review with ${reviewComments.length} comment(s).`
+        `Failed to create review with ${reviewComments.length} comment(s).`,
       );
     }
     if (commentsCounter - reviewComments.length > 0) {
       info(
         `Review comments existed and skipped: ${
           commentsCounter - reviewComments.length
-        }`
+        }`,
       );
     }
     info(`Review comments submitted: ${reviewComments.length}`);
     if (failCheck) {
-      throw new Error("ESLint fails. Please review comments.");
+      throw new Error('ESLint fails. Please review comments.');
     } else {
-      error("ESLint fails");
+      error('ESLint fails');
     }
   } else {
-    notice("ESLint passes");
+    notice('ESLint passes');
   }
   endGroup();
 }
