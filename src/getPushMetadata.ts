@@ -1,7 +1,6 @@
-import { context } from "@actions/github";
-import { info } from "@actions/core";
-
-import { PushEvent } from "@octokit/webhooks-definitions/schema";
+import { info } from '@actions/core';
+import { context } from '@actions/github';
+import { PushEvent } from '@octokit/webhooks-definitions/schema';
 
 export async function getPushMetadata() {
   const push = context.payload as PushEvent;

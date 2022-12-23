@@ -14934,13 +14934,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.changeDirectory = exports.DEFAULT_WORKING_DIRECTORY = void 0;
-const node_process_1 = __importDefault(__nccwpck_require__(7742));
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
+const node_process_1 = __importDefault(__nccwpck_require__(7742));
 const core_1 = __nccwpck_require__(2186);
 exports.DEFAULT_WORKING_DIRECTORY = node_process_1.default.cwd();
 function changeDirectory() {
     (0, core_1.info)(`Working directory is: ${exports.DEFAULT_WORKING_DIRECTORY}`);
-    const absoluteDirectory = node_path_1.default.resolve(exports.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
+    const absoluteDirectory = node_path_1.default.resolve(exports.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)('directory'));
     (0, core_1.info)(`Working directory is changed to: ${absoluteDirectory}`);
     node_process_1.default.chdir(absoluteDirectory);
 }
@@ -14973,7 +14973,7 @@ const changeDirectory_1 = __nccwpck_require__(6386);
 function handleCommit(eventName, results, ruleMetaDatas) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
-        const failCheck = (0, core_1.getBooleanInput)("fail-check");
+        const failCheck = (0, core_1.getBooleanInput)('fail-check');
         (0, core_1.startGroup)(`GitHub ${eventName}`);
         let warningCounter = 0;
         let errorCounter = 0;
@@ -15010,17 +15010,17 @@ function handleCommit(eventName, results, ruleMetaDatas) {
             }
         }
         (0, core_1.endGroup)();
-        (0, core_1.startGroup)("Feedback");
+        (0, core_1.startGroup)('Feedback');
         if (warningCounter > 0 || errorCounter > 0) {
             if (failCheck) {
-                throw new Error("ESLint fails.");
+                throw new Error('ESLint fails.');
             }
             else {
-                (0, core_1.error)("ESLint fails");
+                (0, core_1.error)('ESLint fails');
             }
         }
         else {
-            (0, core_1.notice)("ESLint passes");
+            (0, core_1.notice)('ESLint passes');
         }
         (0, core_1.endGroup)();
     });
@@ -15052,17 +15052,17 @@ const core_1 = __nccwpck_require__(2186);
 const changeDirectory_1 = __nccwpck_require__(6386);
 function getESLint() {
     return __awaiter(this, void 0, void 0, function* () {
-        const absoluteDirectory = (0, node_path_1.resolve)(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)("directory"));
+        const absoluteDirectory = (0, node_path_1.resolve)(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)('directory'));
         const require = (0, module_1.createRequire)(absoluteDirectory);
-        const eslintJsPath = (0, node_path_1.resolve)(absoluteDirectory, (0, core_1.getInput)("eslint-lib-path"));
+        const eslintJsPath = (0, node_path_1.resolve)(absoluteDirectory, (0, core_1.getInput)('eslint-lib-path'));
         if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
         (0, core_1.notice)(`Using ESLint from: ${eslintJsPath}`);
         const { ESLint } = require(eslintJsPath);
-        const eslintConfig = yield new ESLint().calculateConfigForFile("package.json");
+        const eslintConfig = yield new ESLint().calculateConfigForFile('package.json');
         const eslint = new ESLint({ baseConfig: eslintConfig });
-        const eslintBinPath = (0, core_1.getInput)("eslint-bin-path");
+        const eslintBinPath = (0, core_1.getInput)('eslint-bin-path');
         if (!(0, node_fs_1.existsSync)(eslintBinPath)) {
             throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
         }
@@ -15095,14 +15095,14 @@ const exec_1 = __nccwpck_require__(1514);
 const glob_1 = __nccwpck_require__(8090);
 function getESLintOutput(eslintBinPath) {
     return __awaiter(this, void 0, void 0, function* () {
-        const targets = (0, core_1.getInput)("targets");
+        const targets = (0, core_1.getInput)('targets');
         const globber = yield (0, glob_1.create)(targets);
         const glob = yield globber.glob();
         const eslintOutput = yield (0, exec_1.getExecOutput)(eslintBinPath, [
             ...glob,
-            "--no-error-on-unmatched-pattern",
-            "--format",
-            "json",
+            '--no-error-on-unmatched-pattern',
+            '--format',
+            'json',
         ]);
         if (eslintOutput.exitCode !== core_1.ExitCode.Success) {
             throw new Error(eslintOutput.stderr);
@@ -15130,22 +15130,22 @@ function getIndexedModifiedLines(file) {
     const indexedModifiedLines = {};
     let currentLine = 0;
     let remainingLinesInHunk = 0;
-    const lines = (_a = file.patch) === null || _a === void 0 ? void 0 : _a.split("\n");
+    const lines = (_a = file.patch) === null || _a === void 0 ? void 0 : _a.split('\n');
     if (lines) {
         for (const line of lines) {
             if (remainingLinesInHunk === 0) {
                 const matches = line.match(HUNK_HEADER_PATTERN);
-                currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || "1");
-                remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[4]) || "1");
+                currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || '1');
+                remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[4]) || '1');
                 if (!currentLine || !remainingLinesInHunk) {
                     throw new Error(`Expecting hunk header in ${file.filename} but seeing ${line}.`);
                 }
             }
-            else if (line[0] === "-") {
+            else if (line[0] === '-') {
                 continue;
             }
             else {
-                if (line[0] === "+") {
+                if (line[0] === '+') {
                     modifiedLines.push(currentLine);
                     indexedModifiedLines[currentLine] = true;
                 }
@@ -15157,9 +15157,9 @@ function getIndexedModifiedLines(file) {
     (0, core_1.info)(`  File modified lines: ${modifiedLines.join()}`);
     if (file.patch !== undefined) {
         (0, core_1.info)(`  File patch: \n${file.patch
-            .split("\n")
-            .map((line) => "    " + line)
-            .join("\n")}\n`);
+            .split('\n')
+            .map((line) => '    ' + line)
+            .join('\n')}\n`);
     }
     return indexedModifiedLines;
 }
@@ -15176,10 +15176,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getOctokit = void 0;
 const core_1 = __nccwpck_require__(2186);
 const utils_1 = __nccwpck_require__(3030);
-const plugin_throttling_1 = __nccwpck_require__(9968);
 const plugin_retry_1 = __nccwpck_require__(6298);
+const plugin_throttling_1 = __nccwpck_require__(9968);
 function getOctokit() {
-    const githubToken = (0, core_1.getInput)("github-token");
+    const githubToken = (0, core_1.getInput)('github-token');
     const Octokit = utils_1.GitHub.plugin(plugin_throttling_1.throttling, plugin_retry_1.retry);
     const octokit = new Octokit((0, utils_1.getOctokitOptions)(githubToken, {
         throttle: {
@@ -15205,7 +15205,7 @@ function getOctokit() {
             },
         },
         retry: {
-            doNotRetry: ["429"],
+            doNotRetry: ['429'],
         },
     }));
     return octokit;
@@ -15230,8 +15230,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getPullRequestMetadataByNumber = exports.getPullRequestMetadata = void 0;
-const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
+const github_1 = __nccwpck_require__(5438);
 const getOctokit_1 = __nccwpck_require__(8442);
 function getPullRequestMetadata() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -15303,8 +15303,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getPushMetadata = void 0;
-const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
+const github_1 = __nccwpck_require__(5438);
 function getPushMetadata() {
     return __awaiter(this, void 0, void 0, function* () {
         const push = github_1.context.payload;
@@ -15348,19 +15348,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
-const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
+const github_1 = __nccwpck_require__(5438);
+const changeDirectory_1 = __nccwpck_require__(6386);
+const commit_1 = __nccwpck_require__(1730);
 const getESLint_1 = __nccwpck_require__(5173);
 const getESLintOutput_1 = __nccwpck_require__(2580);
-const pullRequest_1 = __nccwpck_require__(3894);
-const push_1 = __nccwpck_require__(4755);
-const commit_1 = __nccwpck_require__(1730);
-const changeDirectory_1 = __nccwpck_require__(6386);
 const getPullRequestMetadata_1 = __nccwpck_require__(6941);
 const getPushMetadata_1 = __nccwpck_require__(7801);
+const pullRequest_1 = __nccwpck_require__(3894);
+const push_1 = __nccwpck_require__(4755);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.startGroup)("ESLint");
+        (0, core_1.startGroup)('ESLint');
         (0, changeDirectory_1.changeDirectory)();
         const { eslint, eslintBinPath } = yield (0, getESLint_1.getESLint)();
         const results = yield (0, getESLintOutput_1.getESLintOutput)(eslintBinPath);
@@ -15383,19 +15383,19 @@ function run() {
         (0, core_1.endGroup)();
         (0, core_1.info)(`Event name: ${github_1.context.eventName}`);
         switch (github_1.context.eventName) {
-            case "pull_request":
+            case 'pull_request':
                 yield (() => __awaiter(this, void 0, void 0, function* () {
                     const { owner, repo, pullRequestNumber, baseSha, headSha } = yield (0, getPullRequestMetadata_1.getPullRequestMetadata)();
                     yield (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha);
                 }))();
                 break;
-            case "push":
+            case 'push':
                 yield (() => __awaiter(this, void 0, void 0, function* () {
                     const { owner, repo, beforeSha, afterSha } = yield (0, getPushMetadata_1.getPushMetadata)();
                     yield (0, push_1.handlePush)(indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha);
                 }))();
                 break;
-            case "workflow_run":
+            case 'workflow_run':
                 yield (() => __awaiter(this, void 0, void 0, function* () {
                     const workflowRun = github_1.context.payload;
                     if (workflowRun.workflow_run.pull_requests.length > 0) {
@@ -15406,18 +15406,18 @@ function run() {
                     }
                     else {
                         const workflowSourceEventName = workflowRun.workflow_run.event
-                            .split("_")
+                            .split('_')
                             .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                            .join(" ");
+                            .join(' ');
                         yield (0, commit_1.handleCommit)(`Workflow (${workflowSourceEventName})`, results, ruleMetaDatas);
                     }
                 }))();
                 break;
             default:
                 (0, commit_1.handleCommit)(github_1.context.eventName
-                    .split("_")
+                    .split('_')
                     .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                    .join(" "), results, ruleMetaDatas);
+                    .join(' '), results, ruleMetaDatas);
                 break;
         }
     });
@@ -15444,8 +15444,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.handlePullRequest = exports.matchReviewComments = exports.getCommentFromFix = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = void 0;
 const core_1 = __nccwpck_require__(2186);
-const getOctokit_1 = __nccwpck_require__(8442);
 const getIndexedModifiedLines_1 = __nccwpck_require__(7738);
+const getOctokit_1 = __nccwpck_require__(8442);
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -15542,28 +15542,28 @@ function getReviewThreads(owner, repo, pullRequestNumber, octokit) {
 exports.getReviewThreads = getReviewThreads;
 function getCommentFromFix(source, line, fix) {
     const textRange = source.substring(fix.range[0], fix.range[1]);
-    const impactedOriginalLines = textRange.split("\n").length;
+    const impactedOriginalLines = textRange.split('\n').length;
     const originalLines = source
-        .split("\n")
+        .split('\n')
         .slice(line - 1, line - 1 + impactedOriginalLines);
     const replacedSource = source.substring(0, fix.range[0]) +
         fix.text +
         source.substring(fix.range[1]);
-    const impactedReplaceLines = fix.text.split("\n").length;
+    const impactedReplaceLines = fix.text.split('\n').length;
     const replacedLines = replacedSource
-        .split("\n")
+        .split('\n')
         .slice(line - 1, line - 1 + impactedReplaceLines);
-    (0, core_1.info)("    Fix:\n" +
-        "      " +
+    (0, core_1.info)('    Fix:\n' +
+        '      ' +
         `@@ -${line},${impactedOriginalLines} +${impactedReplaceLines} @@\n` +
-        `${originalLines.map((line) => "      - " + line).join("\n")}\n` +
-        `${replacedLines.map((line) => "      + " + line).join("\n")}`);
+        `${originalLines.map((line) => '      - ' + line).join('\n')}\n` +
+        `${replacedLines.map((line) => '      + ' + line).join('\n')}`);
     const reviewSuggestion = {
-        start_side: impactedOriginalLines === 1 ? undefined : "RIGHT",
+        start_side: impactedOriginalLines === 1 ? undefined : 'RIGHT',
         start_line: impactedOriginalLines === 1 ? undefined : line,
-        side: "RIGHT",
+        side: 'RIGHT',
         line: line + impactedOriginalLines - 1,
-        body: "```suggestion\n" + `${replacedLines.join("\n")}\n` + "```\n",
+        body: '```suggestion\n' + `${replacedLines.join('\n')}\n` + '```\n',
     };
     return reviewSuggestion;
 }
@@ -15586,9 +15586,9 @@ exports.matchReviewComments = matchReviewComments;
 function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
-        const failCheck = (0, core_1.getBooleanInput)("fail-check");
-        const requestChanges = (0, core_1.getBooleanInput)("request-changes");
-        (0, core_1.startGroup)("GitHub Pull Request");
+        const failCheck = (0, core_1.getBooleanInput)('fail-check');
+        const requestChanges = (0, core_1.getBooleanInput)('request-changes');
+        (0, core_1.startGroup)('GitHub Pull Request');
         const octokit = (0, getOctokit_1.getOctokit)();
         const files = yield getPullRequestFiles(owner, repo, pullRequestNumber, octokit);
         const existingReviewComments = yield getReviewComments(owner, repo, pullRequestNumber, octokit);
@@ -15599,7 +15599,7 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
         for (const file of files) {
             (0, core_1.info)(`  File name: ${file.filename}`);
             (0, core_1.info)(`  File status: ${file.status}`);
-            if (file.status === "removed") {
+            if (file.status === 'removed') {
                 continue;
             }
             const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
@@ -15639,12 +15639,12 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
                                         reviewSuggestions.start_line ||
                                         reviewSuggestion.line !== reviewSuggestions.line) {
                                         (0, core_1.error)(`    Suggestions have mismatched line(s): ${reviewSuggestions.start_line === undefined
-                                            ? ""
-                                            : reviewSuggestions.start_line + ":"}${reviewSuggestions.line} and ${reviewSuggestion.start_line === undefined
-                                            ? ""
-                                            : reviewSuggestion.start_line + ":"}${reviewSuggestion.line}`);
+                                            ? ''
+                                            : reviewSuggestions.start_line + ':'}${reviewSuggestions.line} and ${reviewSuggestion.start_line === undefined
+                                            ? ''
+                                            : reviewSuggestion.start_line + ':'}${reviewSuggestion.line}`);
                                     }
-                                    reviewSuggestions.body += "\n" + reviewSuggestion.body;
+                                    reviewSuggestions.body += '\n' + reviewSuggestion.body;
                                 }
                             }
                             if (reviewSuggestions !== undefined) {
@@ -15666,7 +15666,7 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
                             const reviewComment = {
                                 body: `**${message.message}** [${message.ruleId}](${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`,
                                 path: file.filename,
-                                side: "RIGHT",
+                                side: 'RIGHT',
                                 line: message.line,
                             };
                             const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
@@ -15685,7 +15685,7 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
             }
         }
         (0, core_1.endGroup)();
-        (0, core_1.startGroup)("Feedback");
+        (0, core_1.startGroup)('Feedback');
         for (const reviewComment of existingReviewComments) {
             const reviewThread = commentNodeIdToReviewThreadMapping[reviewComment.node_id];
             if (reviewThread !== undefined) {
@@ -15720,7 +15720,7 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
                     (0, core_1.info)(`Review comment resolved: ${reviewComment.url}`);
                 }
                 else {
-                    (0, core_1.info)(`Review comment remains ${reviewThread.isResolved ? "resolved" : "unresolved"}: ${reviewComment.url}`);
+                    (0, core_1.info)(`Review comment remains ${reviewThread.isResolved ? 'resolved' : 'unresolved'}: ${reviewComment.url}`);
                 }
             }
             else {
@@ -15734,7 +15734,7 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
                 body: REVIEW_BODY,
                 pull_number: pullRequestNumber,
                 commit_id: headSha,
-                event: requestChanges ? "REQUEST_CHANGES" : "COMMENT",
+                event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
                 comments: reviewComments,
             });
             if (response.status !== 200) {
@@ -15745,14 +15745,14 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
             }
             (0, core_1.info)(`Review comments submitted: ${reviewComments.length}`);
             if (failCheck) {
-                throw new Error("ESLint fails. Please review comments.");
+                throw new Error('ESLint fails. Please review comments.');
             }
             else {
-                (0, core_1.error)("ESLint fails");
+                (0, core_1.error)('ESLint fails');
             }
         }
         else {
-            (0, core_1.notice)("ESLint passes");
+            (0, core_1.notice)('ESLint passes');
         }
         (0, core_1.endGroup)();
     });
@@ -15778,8 +15778,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.handlePush = exports.getPushFiles = void 0;
 const core_1 = __nccwpck_require__(2186);
-const getOctokit_1 = __nccwpck_require__(8442);
 const getIndexedModifiedLines_1 = __nccwpck_require__(7738);
+const getOctokit_1 = __nccwpck_require__(8442);
 function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
@@ -15796,8 +15796,8 @@ exports.getPushFiles = getPushFiles;
 function handlePush(indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
     var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
-        const failCheck = (0, core_1.getBooleanInput)("fail-check");
-        (0, core_1.startGroup)("GitHub Push");
+        const failCheck = (0, core_1.getBooleanInput)('fail-check');
+        (0, core_1.startGroup)('GitHub Push');
         const octokit = (0, getOctokit_1.getOctokit)();
         const files = yield getPushFiles(owner, repo, beforeSha, afterSha, octokit);
         if (files === undefined || files.length === 0) {
@@ -15809,7 +15809,7 @@ function handlePush(indexedResults, ruleMetaDatas, owner, repo, beforeSha, after
         for (const file of files) {
             (0, core_1.info)(`  File name: ${file.filename}`);
             (0, core_1.info)(`  File status: ${file.status}`);
-            if (file.status === "removed") {
+            if (file.status === 'removed') {
                 continue;
             }
             const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
@@ -15849,17 +15849,17 @@ function handlePush(indexedResults, ruleMetaDatas, owner, repo, beforeSha, after
             }
         }
         (0, core_1.endGroup)();
-        (0, core_1.startGroup)("Feedback");
+        (0, core_1.startGroup)('Feedback');
         if (warningCounter > 0 || errorCounter > 0) {
             if (failCheck) {
-                throw new Error("ESLint fails. Please review comments.");
+                throw new Error('ESLint fails. Please review comments.');
             }
             else {
-                (0, core_1.error)("ESLint fails");
+                (0, core_1.error)('ESLint fails');
             }
         }
         else {
-            (0, core_1.notice)("ESLint passes");
+            (0, core_1.notice)('ESLint passes');
         }
         (0, core_1.endGroup)();
     });

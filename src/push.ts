@@ -1,25 +1,24 @@
+import type { Octokit } from '@octokit/core';
+import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types';
+import type { ESLint, Rule } from 'eslint';
 import {
-  getBooleanInput,
-  info,
-  startGroup,
   endGroup,
   error,
+  getBooleanInput,
+  info,
   notice,
+  startGroup,
   warning,
-} from "@actions/core";
-import { getOctokit } from "./getOctokit";
-import { getIndexedModifiedLines } from "./getIndexedModifiedLines";
-
-import type { Octokit } from "@octokit/core";
-import type { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
-import type { ESLint, Rule } from "eslint";
+} from '@actions/core';
+import { getIndexedModifiedLines } from './getIndexedModifiedLines';
+import { getOctokit } from './getOctokit';
 
 export async function getPushFiles(
   owner: string,
   repo: string,
   beforeSha: string,
   afterSha: string,
-  octokit: Octokit & Api
+  octokit: Octokit & Api,
 ) {
   const response = await octokit.rest.repos.compareCommitsWithBasehead({
     owner,
@@ -40,11 +39,11 @@ export async function handlePush(
   owner: string,
   repo: string,
   beforeSha: string,
-  afterSha: string
+  afterSha: string,
 ) {
-  const failCheck = getBooleanInput("fail-check");
+  const failCheck = getBooleanInput('fail-check');
 
-  startGroup("GitHub Push");
+  startGroup('GitHub Push');
   const octokit = getOctokit();
   const files = await getPushFiles(owner, repo, beforeSha, afterSha, octokit);
 
@@ -58,7 +57,7 @@ export async function handlePush(
   for (const file of files) {
     info(`  File name: ${file.filename}`);
     info(`  File status: ${file.status}`);
-    if (file.status === "removed") {
+    if (file.status === 'removed') {
       continue;
     }
 
@@ -80,7 +79,7 @@ export async function handlePush(
                 {
                   file: file.filename,
                   startLine: message.line,
-                }
+                },
               );
               break;
             case 1:
@@ -89,7 +88,7 @@ export async function handlePush(
                 {
                   file: file.filename,
                   startLine: message.line,
-                }
+                },
               );
               warningCounter++;
               break;
@@ -99,7 +98,7 @@ export async function handlePush(
                 {
                   file: file.filename,
                   startLine: message.line,
-                }
+                },
               );
               errorCounter++;
               break;
@@ -110,15 +109,15 @@ export async function handlePush(
   }
   endGroup();
 
-  startGroup("Feedback");
+  startGroup('Feedback');
   if (warningCounter > 0 || errorCounter > 0) {
     if (failCheck) {
-      throw new Error("ESLint fails. Please review comments.");
+      throw new Error('ESLint fails. Please review comments.');
     } else {
-      error("ESLint fails");
+      error('ESLint fails');
     }
   } else {
-    notice("ESLint passes");
+    notice('ESLint passes');
   }
   endGroup();
 }

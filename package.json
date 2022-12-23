@@ -8,6 +8,7 @@
   "devDependencies": {
     "@octokit/graphql-schema": "^12.0.0",
     "@octokit/webhooks-definitions": "^3.67.3",
+    "@serverless-guru/prettier-plugin-import-order": "^0.2.0",
     "@types/eslint": "^8.4.1",
     "@types/node": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^5.21.0",

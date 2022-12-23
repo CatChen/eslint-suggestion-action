@@ -1,12 +1,12 @@
-import type { Octokit } from "@octokit/core";
-import type { Api } from "@octokit/plugin-rest-endpoint-methods/dist-types/types";
-import type { components } from "@octokit/openapi-types/types";
-import type { PullRequestReviewThread } from "@octokit/graphql-schema";
-import type { ESLint, Rule } from "eslint";
+import type { Octokit } from '@octokit/core';
+import type { PullRequestReviewThread } from '@octokit/graphql-schema';
+import type { components } from '@octokit/openapi-types/types';
+import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types';
+import type { ESLint, Rule } from 'eslint';
 type ReviewSuggestion = {
-    start_side?: "RIGHT";
+    start_side?: 'RIGHT';
     start_line?: number;
-    side: "RIGHT";
+    side: 'RIGHT';
     line: number;
     body: string;
 };
@@ -103,7 +103,7 @@ export declare function getReviewThreads(owner: string, repo: string, pullReques
     [id: string]: PullRequestReviewThread;
 }>;
 export declare function getCommentFromFix(source: string, line: number, fix: Rule.Fix): ReviewSuggestion;
-export declare function matchReviewComments(reviewComments: components["schemas"]["review-comment"][], reviewComment: ReviewComment): string[];
+export declare function matchReviewComments(reviewComments: components['schemas']['review-comment'][], reviewComment: ReviewComment): string[];
 export declare function handlePullRequest(indexedResults: {
     [file: string]: ESLint.LintResult;
 }, ruleMetaDatas: {

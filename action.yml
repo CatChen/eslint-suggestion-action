@@ -1,5 +1,5 @@
-name: "ESLint Suggestion"
-description: "Pull Request Suggestions from ESLint"
+name: 'ESLint Suggestion'
+description: 'Pull Request Suggestions from ESLint'
 inputs:
   request-changes:
     description: "Request changes if ESLint doesn't pass."
@@ -10,28 +10,28 @@ inputs:
     required: false
     default: false
   github-token:
-    description: "GitHub token."
+    description: 'GitHub token.'
     required: false
     default: ${{ github.token }}
   directory:
     description: "Directory to run ESLint if it's not the project's root directory."
     required: false
-    default: "./"
+    default: './'
   targets:
-    description: "Files, directories, and/or globs to run ESLint."
+    description: 'Files, directories, and/or globs to run ESLint.'
     required: false
-    default: "."
+    default: '.'
   eslint-lib-path:
-    description: "Path to the ESLint JavaScript library file."
+    description: 'Path to the ESLint JavaScript library file.'
     required: false
-    default: "./node_modules/eslint/lib/api.js"
+    default: './node_modules/eslint/lib/api.js'
   eslint-bin-path:
-    description: "Path to the ESLint binary file."
+    description: 'Path to the ESLint binary file.'
     required: false
-    default: "./node_modules/.bin/eslint"
+    default: './node_modules/.bin/eslint'
 runs:
-  using: "node16"
-  main: "dist/index.js"
+  using: 'node16'
+  main: 'dist/index.js'
 branding:
-  icon: "plus-square"
-  color: "blue"
+  icon: 'plus-square'
+  color: 'blue'

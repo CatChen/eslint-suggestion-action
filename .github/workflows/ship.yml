@@ -21,8 +21,8 @@ on:
   check_suite:
     types: [completed]
   workflow_run:
-    branches: ["[0-9]+-[0-9]+-*"]
-    workflows: ["Build", "ESLint", "CodeQL"]
+    branches: ['[0-9]+-[0-9]+-*']
+    workflows: ['Build', 'ESLint', 'CodeQL']
     types: [completed]
 
 concurrency:
@@ -95,4 +95,4 @@ jobs:
           merge-method: squash
           timeout: 0
           request-zero-accept-zero: true
-          custom-hashtag: "#pass2ship"
+          custom-hashtag: '#pass2ship'

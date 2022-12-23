@@ -1,25 +1,24 @@
-import path from "node:path";
+import type { ESLint, Rule } from 'eslint';
+import path from 'node:path';
 import {
-  getBooleanInput,
-  info,
-  startGroup,
   endGroup,
   error,
+  getBooleanInput,
+  info,
   notice,
+  startGroup,
   warning,
-} from "@actions/core";
-import { DEFAULT_WORKING_DIRECTORY } from "./changeDirectory";
-
-import type { ESLint, Rule } from "eslint";
+} from '@actions/core';
+import { DEFAULT_WORKING_DIRECTORY } from './changeDirectory';
 
 export async function handleCommit(
   eventName: string,
   results: ESLint.LintResult[],
   ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
-  }
+  },
 ) {
-  const failCheck = getBooleanInput("fail-check");
+  const failCheck = getBooleanInput('fail-check');
 
   startGroup(`GitHub ${eventName}`);
   let warningCounter = 0;
@@ -28,7 +27,7 @@ export async function handleCommit(
   for (const result of results) {
     const relativePath = path.relative(
       DEFAULT_WORKING_DIRECTORY,
-      result.filePath
+      result.filePath,
     );
     for (const message of result.messages) {
       if (message.ruleId === null || result.source === undefined) {
@@ -43,7 +42,7 @@ export async function handleCommit(
             {
               file: relativePath,
               startLine: message.line,
-            }
+            },
           );
           break;
         case 1:
@@ -52,7 +51,7 @@ export async function handleCommit(
             {
               file: relativePath,
               startLine: message.line,
-            }
+            },
           );
           warningCounter++;
           break;
@@ -68,15 +67,15 @@ export async function handleCommit(
   }
   endGroup();
 
-  startGroup("Feedback");
+  startGroup('Feedback');
   if (warningCounter > 0 || errorCounter > 0) {
     if (failCheck) {
-      throw new Error("ESLint fails.");
+      throw new Error('ESLint fails.');
     } else {
-      error("ESLint fails");
+      error('ESLint fails');
     }
   } else {
-    notice("ESLint passes");
+    notice('ESLint passes');
   }
   endGroup();
 }
