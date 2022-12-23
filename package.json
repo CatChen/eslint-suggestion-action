@@ -10,6 +10,7 @@
     "@octokit/webhooks-definitions": "^3.67.3",
     "@serverless-guru/prettier-plugin-import-order": "^0.2.0",
     "@types/eslint": "^8.4.1",
+    "@types/glob": "^8.0.0",
     "@types/node": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
@@ -43,8 +44,8 @@
     "@actions/core": "^1.7.0",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^5.0.1",
-    "@actions/glob": "^0.3.0",
     "@octokit/plugin-retry": "^3.0.9",
-    "@octokit/plugin-throttling": "^4.0.1"
+    "@octokit/plugin-throttling": "^4.0.1",
+    "glob": "^8.0.3"
   }
 }
