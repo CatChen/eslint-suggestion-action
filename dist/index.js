@@ -15908,9 +15908,8 @@ function getESLintOutput(eslintBinPath) {
             '--format',
             'json',
         ]);
-        if (eslintOutput.exitCode !== core_1.ExitCode.Success) {
-            throw new Error(eslintOutput.stderr);
-        }
+        // eslintOutput.exitCode !== ExitCode.Success when there is any ESLint warning or error.
+        // Swallow this kind of error and parse the JSON that represents the warnings and errors.
         const results = JSON.parse(eslintOutput.stdout);
         return results;
     });
