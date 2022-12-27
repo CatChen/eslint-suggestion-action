@@ -1,5 +1,5 @@
 import type { ESLint } from 'eslint';
-import { ExitCode, getInput } from '@actions/core';
+import { getInput } from '@actions/core';
 import { getExecOutput } from '@actions/exec';
 import { sync } from 'glob';
 
