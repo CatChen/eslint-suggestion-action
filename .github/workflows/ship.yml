@@ -67,6 +67,8 @@ jobs:
       }}
     runs-on: ubuntu-latest
     permissions: write-all
+    outputs:
+      skipped: ${{ steps.ship.outputs.skipped }}
     steps:
       - uses: actions/checkout@v3
 
@@ -87,6 +89,8 @@ jobs:
       }}
     runs-on: ubuntu-latest
     permissions: write-all
+    outputs:
+      skipped: ${{ steps.ship.outputs.skipped }}
     steps:
       - uses: actions/checkout@v3
 
@@ -96,3 +100,33 @@ jobs:
           timeout: 0
           request-zero-accept-zero: true
           custom-hashtag: '#pass2ship'
+
+  build:
+    needs: [accept-to-ship, pass-to-ship]
+    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      ref: 'refs/heads/main'
+
+  test:
+    needs: [accept-to-ship, pass-to-ship]
+    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+    with:
+      ref: 'refs/heads/main'
+
+  eslint:
+    needs: [accept-to-ship, pass-to-ship]
+    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
+    uses: ./.github/workflows/eslint.yml
+    with:
+      ref: 'refs/heads/main'
+
+  codeql:
+    needs: [accept-to-ship, pass-to-ship]
+    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
+    uses: ./.github/workflows/codeql.yml
+    with:
+      ref: 'refs/heads/main'

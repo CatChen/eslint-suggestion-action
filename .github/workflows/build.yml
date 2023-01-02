@@ -11,6 +11,11 @@ on:
       - completed
   workflow_dispatch:
   workflow_call:
+    inputs:
+      ref:
+        description: 'Checkout a different git ref instead of the SHA from the GitHub event.'
+        required: false
+        type: string
 
 jobs:
   build:
@@ -32,7 +37,7 @@ jobs:
       - uses: actions/checkout@v3
         if: ${{ github.event_name != 'workflow_run' }}
         with:
-          ref: ${{ github.head_ref || github.base_ref }}
+          ref: ${{ inputs.ref || github.head_ref || github.base_ref }}
 
       - uses: actions/checkout@v3
         if: ${{ github.event_name == 'workflow_run' }}
