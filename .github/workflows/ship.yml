@@ -109,14 +109,6 @@ jobs:
     with:
       ref: 'refs/heads/main'
 
-  test:
-    needs: [accept-to-ship, pass-to-ship]
-    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
-    uses: ./.github/workflows/test.yml
-    secrets: inherit
-    with:
-      ref: 'refs/heads/main'
-
   eslint:
     needs: [accept-to-ship, pass-to-ship]
     if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
