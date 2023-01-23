@@ -45,7 +45,7 @@
     "@actions/exec": "^1.1.1",
     "@actions/github": "^5.0.1",
     "@octokit/plugin-retry": "^3.0.9",
-    "@octokit/plugin-throttling": "^4.0.1",
+    "@octokit/plugin-throttling": "^5.0.1",
     "glob": "^8.0.3"
   }
 }
