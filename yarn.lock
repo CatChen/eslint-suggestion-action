@@ -449,10 +449,10 @@
   resolved "https://registry.yarnpkg.com/@octokit/webhooks-definitions/-/webhooks-definitions-3.67.3.tgz#d2a905a90b04af8111982d0c13658a49fc4eecb9"
   integrity sha512-do4Z1r2OVhuI0ihJhQ8Hg+yPWnBYEBNuFNCrvtPKoYT1w81jD7pBXgGe86lYuuNirkDHb0Nxt+zt4O5GiFJfgA==
 
-"@serverless-guru/prettier-plugin-import-order@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@serverless-guru/prettier-plugin-import-order/-/prettier-plugin-import-order-0.3.0.tgz#2465cb237bc2ac21f1a54db561706c0e9b469b50"
-  integrity sha512-sD6wSEJufP9KulffHKYu9Q4AxUnB8iyTtuEAEMO6Z+hLhgPk4VL2UhRUyjWcKdvFW7unVK47KJgfA86AjysL6A==
+"@serverless-guru/prettier-plugin-import-order@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@serverless-guru/prettier-plugin-import-order/-/prettier-plugin-import-order-0.4.1.tgz#da5a01cdba171f1b123a57b6c43afeefa705ce3f"
+  integrity sha512-7o/0JN7yWYFkl98QSl8+Ge38c5TzhGI8QwAOvgsTAbdyh4LtCiGsRtbhD07lwsmgxLj216e1Q9O8TirI+C1Cpg==
   dependencies:
     "@babel/core" "~7.20.7"
     "@babel/generator" "~7.20.7"

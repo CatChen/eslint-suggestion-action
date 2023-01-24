@@ -8,7 +8,7 @@
   "devDependencies": {
     "@octokit/graphql-schema": "^12.0.0",
     "@octokit/webhooks-definitions": "^3.67.3",
-    "@serverless-guru/prettier-plugin-import-order": "^0.3.0",
+    "@serverless-guru/prettier-plugin-import-order": "^0.4.1",
     "@types/eslint": "^8.4.1",
     "@types/glob": "^8.0.0",
     "@types/node": "^18.0.0",
