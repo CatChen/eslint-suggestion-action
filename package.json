@@ -6,7 +6,7 @@
   "types": "lib/index.d.js",
   "type": "module",
   "devDependencies": {
-    "@octokit/graphql-schema": "^13.0.1",
+    "@octokit/graphql-schema": "^14.0.0",
     "@octokit/webhooks-definitions": "^3.67.3",
     "@serverless-guru/prettier-plugin-import-order": "^0.4.1",
     "@types/eslint": "^8.4.1",
