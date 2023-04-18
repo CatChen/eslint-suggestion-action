@@ -47,6 +47,6 @@
     "@actions/github": "^5.0.1",
     "@octokit/plugin-retry": "^3.0.9",
     "@octokit/plugin-throttling": "^5.0.1",
-    "glob": "^9.2.1"
+    "glob": "^10.2.1"
   }
 }
