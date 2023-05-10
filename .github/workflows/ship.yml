@@ -122,6 +122,13 @@ jobs:
     with:
       ref: 'refs/heads/main'
 
+  test:
+    needs: [accept-to-ship, pass-to-ship]
+    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
+    uses: ./.github/workflows/test.yml
+    with:
+      ref: 'refs/heads/main'
+
   codeql:
     needs: [accept-to-ship, pass-to-ship]
     if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
