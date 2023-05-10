@@ -49,12 +49,15 @@ jobs:
   eslint:
     uses: ./.github/workflows/eslint.yml
 
+  test:
+    uses: ./.github/workflows/test.yml
+
   codeql:
     uses: ./.github/workflows/codeql.yml
 
   release:
     name: Release
-    needs: [build, eslint, codeql]
+    needs: [build, eslint, test, codeql]
     concurrency: release
     runs-on: ubuntu-latest
     outputs:
