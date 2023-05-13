@@ -235,6 +235,7 @@ export async function handlePullRequest(
   );
 
   let commentsCounter = 0;
+  let outOfScopeResultsCounter = 0;
   const reviewComments: ReviewComment[] = [];
   let matchedReviewCommentNodeIds: { [nodeId: string]: boolean } = {};
   for (const file of files) {
@@ -367,6 +368,9 @@ export async function handlePullRequest(
               info(`    Comment skipped`);
             }
           }
+        } else {
+          info(`  Out of scope line: ${message.line}`);
+          outOfScopeResultsCounter++;
         }
       }
     }
@@ -429,17 +433,21 @@ export async function handlePullRequest(
       );
     }
   }
+  if (outOfScopeResultsCounter > 0) {
+    info(`Out of scope results: ${outOfScopeResultsCounter}`);
+  }
   if (commentsCounter > 0) {
-    const response = await octokit.rest.pulls.createReview({
-      owner,
-      repo,
-      body: REVIEW_BODY,
-      pull_number: pullRequestNumber,
-      commit_id: headSha,
-      event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
-      comments: reviewComments,
-    });
-    if (response.status !== 200) {
+    try {
+      await octokit.rest.pulls.createReview({
+        owner,
+        repo,
+        body: REVIEW_BODY,
+        pull_number: pullRequestNumber,
+        commit_id: headSha,
+        event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
+        comments: reviewComments,
+      });
+    } catch (error) {
       throw new Error(
         `Failed to create review with ${reviewComments.length} comment(s).`,
       );
