@@ -15015,14 +15015,10 @@ const glob_1 = __nccwpck_require__(7106);
 function getESLintOutput(eslintBinPath) {
     return __awaiter(this, void 0, void 0, function* () {
         const targets = (0, core_1.getInput)('targets');
-        const eslintOutput = yield (0, exec_1.getExecOutput)(eslintBinPath, [
-            ...(0, glob_1.sync)(targets),
-            '--no-error-on-unmatched-pattern',
-            '--format',
-            'json',
-        ]);
+        const eslintOutput = yield (0, exec_1.getExecOutput)(eslintBinPath, [...(0, glob_1.sync)(targets), '--no-error-on-unmatched-pattern', '--format', 'json'], { ignoreReturnCode: true });
         // eslintOutput.exitCode !== ExitCode.Success when there is any ESLint warning or error.
         // Swallow this kind of error and parse the JSON that represents the warnings and errors.
+        (0, core_1.info)(`ESLint exit code: ${eslintOutput.exitCode}`);
         const results = JSON.parse(eslintOutput.stdout);
         return results;
     });
