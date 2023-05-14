@@ -15506,6 +15506,7 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
         const existingReviewComments = yield getReviewComments(owner, repo, pullRequestNumber, octokit);
         const commentNodeIdToReviewThreadMapping = yield getReviewThreads(owner, repo, pullRequestNumber, octokit);
         let commentsCounter = 0;
+        let outOfScopeResultsCounter = 0;
         const reviewComments = [];
         let matchedReviewCommentNodeIds = {};
         for (const file of files) {
@@ -15593,6 +15594,10 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
                             }
                         }
                     }
+                    else {
+                        (0, core_1.info)(`  Out of scope line: ${message.line}`);
+                        outOfScopeResultsCounter++;
+                    }
                 }
             }
         }
@@ -15639,17 +15644,22 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
                 (0, core_1.error)(`Review comment has no associated review thread: ${reviewComment.url}`);
             }
         }
+        if (outOfScopeResultsCounter > 0) {
+            (0, core_1.info)(`Out of scope results: ${outOfScopeResultsCounter}`);
+        }
         if (commentsCounter > 0) {
-            const response = yield octokit.rest.pulls.createReview({
-                owner,
-                repo,
-                body: REVIEW_BODY,
-                pull_number: pullRequestNumber,
-                commit_id: headSha,
-                event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
-                comments: reviewComments,
-            });
-            if (response.status !== 200) {
+            try {
+                yield octokit.rest.pulls.createReview({
+                    owner,
+                    repo,
+                    body: REVIEW_BODY,
+                    pull_number: pullRequestNumber,
+                    commit_id: headSha,
+                    event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
+                    comments: reviewComments,
+                });
+            }
+            catch (error) {
                 throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
             }
             if (commentsCounter - reviewComments.length > 0) {
