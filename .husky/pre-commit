@@ -9,4 +9,4 @@ rm -rf dist
 yarn package
 git add dist
 
-yarn pretty-quick --staged
+yarn lint-staged
