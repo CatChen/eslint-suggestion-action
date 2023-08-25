@@ -4,6 +4,17 @@ updates:
     directory: '/'
     schedule:
       interval: daily
+    groups:
+      types:
+        patterns:
+          - '@types/*'
+      development-dependencies:
+        dependency-type: 'development'
+        exclude-patterns:
+          - '@types/*'
+      actions:
+        patterns:
+          - '@actions/*'
     reviewers:
       - catchen
     assignees:
