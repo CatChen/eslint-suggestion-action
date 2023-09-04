@@ -72,7 +72,7 @@ jobs:
     outputs:
       skipped: ${{ steps.ship.outputs.skipped }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: CatChen/accept-to-ship-action@v0.4
         with:
@@ -96,7 +96,7 @@ jobs:
     outputs:
       skipped: ${{ steps.ship.outputs.skipped }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: CatChen/accept-to-ship-action@v0.4
         with:
