@@ -30,7 +30,7 @@ inputs:
     required: false
     default: './node_modules/.bin/eslint'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 branding:
   icon: 'plus-square'
