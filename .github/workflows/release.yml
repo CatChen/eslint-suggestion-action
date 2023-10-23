@@ -70,7 +70,7 @@ jobs:
           fetch-depth: 0
 
       - id: release
-        uses: CatChen/node-package-release-action@v1
+        uses: CatChen/node-package-release-action@v2
         with:
           release-type: ${{ inputs.release-type || 'patch' }}
           prerelease: ${{ inputs.prerelease || false }}
