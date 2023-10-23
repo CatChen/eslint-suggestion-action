@@ -25,7 +25,7 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.head_ref }}
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           check-latest: true
