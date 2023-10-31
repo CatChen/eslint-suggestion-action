@@ -49,6 +49,7 @@ export async function run() {
   info(`Event name: ${context.eventName}`);
   switch (context.eventName) {
     case 'pull_request':
+    case 'pull_request_target':
       await (async () => {
         const { owner, repo, pullRequestNumber, baseSha, headSha } =
           await getPullRequestMetadata();

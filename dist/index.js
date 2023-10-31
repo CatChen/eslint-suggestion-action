@@ -13227,6 +13227,7 @@ function run() {
         (0, core_1.info)(`Event name: ${github_1.context.eventName}`);
         switch (github_1.context.eventName) {
             case 'pull_request':
+            case 'pull_request_target':
                 yield (() => __awaiter(this, void 0, void 0, function* () {
                     const { owner, repo, pullRequestNumber, baseSha, headSha } = yield (0, getPullRequestMetadata_1.getPullRequestMetadata)();
                     yield (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha);
