@@ -46,7 +46,7 @@
     "@actions/exec": "^1.1.1",
     "@actions/github": "^6.0.0",
     "@octokit/plugin-retry": "^3.0.9",
-    "@octokit/plugin-throttling": "^5.0.1",
+    "@octokit/plugin-throttling": "^8.1.2",
     "glob": "^10.2.3"
   },
   "lint-staged": {
