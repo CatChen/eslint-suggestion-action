@@ -33,8 +33,8 @@ export declare function getReviewComments(owner: string, repo: string, pullReque
     node_id: string;
     diff_hunk: string;
     path: string;
-    position: number;
-    original_position: number;
+    position?: number | undefined;
+    original_position?: number | undefined;
     commit_id: string;
     original_commit_id: string;
     in_reply_to_id?: number | undefined;
@@ -84,6 +84,7 @@ export declare function getReviewComments(owner: string, repo: string, pullReque
     line?: number | undefined;
     original_line?: number | undefined;
     side?: "RIGHT" | "LEFT" | undefined;
+    subject_type?: "file" | "line" | undefined;
     reactions?: {
         url: string;
         total_count: number;
