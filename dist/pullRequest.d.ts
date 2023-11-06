@@ -103,7 +103,7 @@ export declare function getReviewThreads(owner: string, repo: string, pullReques
     [id: string]: PullRequestReviewThread;
 }>;
 export declare function getCommentFromFix(source: string, line: number, fix: Rule.Fix): ReviewSuggestion;
-export declare function matchReviewComments(reviewComments: components['schemas']['review-comment'][], reviewComment: ReviewComment): string[];
+export declare function matchReviewComments(reviewComments: Pick<components['schemas']['review-comment'], 'path' | 'line' | 'side' | 'start_line' | 'start_side' | 'body' | 'node_id'>[], reviewComment: ReviewComment): string[];
 export declare function handlePullRequest(indexedResults: {
     [file: string]: ESLint.LintResult;
 }, ruleMetaDatas: {

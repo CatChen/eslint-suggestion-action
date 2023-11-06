@@ -176,7 +176,10 @@ export function getCommentFromFix(source: string, line: number, fix: Rule.Fix) {
 }
 
 export function matchReviewComments(
-  reviewComments: components['schemas']['review-comment'][],
+  reviewComments: Pick<
+    components['schemas']['review-comment'],
+    'path' | 'line' | 'side' | 'start_line' | 'start_side' | 'body' | 'node_id' // Only what we need
+  >[],
   reviewComment: ReviewComment,
 ) {
   const matchedNodeIds: string[] = [];
