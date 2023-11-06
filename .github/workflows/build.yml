@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository}}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ inputs.ref || github.head_ref }}
 
       - uses: actions/setup-node@v4
