@@ -7,17 +7,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  label:
     name: Label
-    if: |-
-      ${{
-        github.actor == 'dependabot[bot]' && 
-        github.actor_id == 49699333 && (
-          contains(github.event.pull_request.title, 'Bump the types group' || 
-          contains(github.event.pull_request.title, 'Bump the development-dependencies group'))
-        ) 
-      }}
+    if: ${{ github.actor == 'dependabot[bot]' && github.actor_id == 49699333 }}
     runs-on: ubuntu-latest
     steps:
-      - name: Add label
+      - name: Add label for types group
+        if: ${{ contains(github.event.pull_request.title, 'Bump the types group') }}
+        run: gh pr edit --add-label "pass2ship"
+
+      - name: Add label for development-dependencies group
+        if: ${{ contains(github.event.pull_request.title, 'Bump the development-dependencies group') }}
         run: gh pr edit --add-label "pass2ship"
