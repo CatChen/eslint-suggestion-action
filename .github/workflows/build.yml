@@ -43,6 +43,6 @@ jobs:
       - uses: CatChen/check-git-status-action@v1
         id: check-git-status
         with:
-          fail-if-not-clean: ${{ github.actor != 'dependabot[bot]' }}
+          fail-if-not-clean: ${{ github.actor != 'dependabot[bot]' || github.actor_id != 49699333 }}
           push-if-not-clean: true
           request-changes-token: ${{ secrets.CHECK_GIT_STATUS_ACTION_TOKEN }}

@@ -1,0 +1,23 @@
+name: Label
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Label
+    if: |-
+      ${{
+        github.actor == 'dependabot[bot]' && 
+        github.actor_id == 49699333 && (
+          contains(github.event.pull_request.title, 'Bump the types group' || 
+          contains(github.event.pull_request.title, 'Bump the development-dependencies group'))
+        ) 
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add label
+        run: gh pr edit --add-label "pass2ship"
