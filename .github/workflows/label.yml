@@ -14,8 +14,12 @@ jobs:
     steps:
       - name: Add label for types group
         if: ${{ contains(github.event.pull_request.title, 'Bump the types group') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: gh pr edit --add-label "pass2ship"
 
       - name: Add label for development-dependencies group
         if: ${{ contains(github.event.pull_request.title, 'Bump the development-dependencies group') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: gh pr edit --add-label "pass2ship"
