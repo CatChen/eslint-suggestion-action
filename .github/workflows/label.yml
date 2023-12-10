@@ -17,11 +17,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-        run: gh pr edit --repo "$REPO" --add-label "pass2ship"
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "pass2ship"
 
       - name: Add label for development-dependencies group
         if: ${{ contains(github.event.pull_request.title, 'Bump the development-dependencies group') }}
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-        run: gh pr edit --repo "$REPO" --add-label "pass2ship"
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "pass2ship"
