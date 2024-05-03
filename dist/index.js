@@ -9165,34 +9165,7 @@ function removeHook(state, name, method) {
 
 /***/ }),
 
-/***/ 8932:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-class Deprecation extends Error {
-  constructor(message) {
-    super(message); // Maintains proper stack trace (only available on V8)
-
-    /* istanbul ignore next */
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
-
-    this.name = 'Deprecation';
-  }
-
-}
-
-exports.Deprecation = Deprecation;
-
-
-/***/ }),
-
-/***/ 1046:
+/***/ 3717:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 var balanced = __nccwpck_require__(9417);
@@ -9398,6 +9371,33 @@ function expand(str, isTop) {
   return expansions;
 }
 
+
+
+/***/ }),
+
+/***/ 8932:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+class Deprecation extends Error {
+  constructor(message) {
+    super(message); // Maintains proper stack trace (only available on V8)
+
+    /* istanbul ignore next */
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+
+    this.name = 'Deprecation';
+  }
+
+}
+
+exports.Deprecation = Deprecation;
 
 
 /***/ }),
@@ -32373,15 +32373,6 @@ exports.changeDirectory = changeDirectory;
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -32390,60 +32381,57 @@ exports.handleCommit = void 0;
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const core_1 = __nccwpck_require__(2186);
 const changeDirectory_1 = __nccwpck_require__(6386);
-function handleCommit(eventName, results, ruleMetaDatas) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c;
-        const failCheck = (0, core_1.getBooleanInput)('fail-check');
-        (0, core_1.startGroup)(`GitHub ${eventName}`);
-        let warningCounter = 0;
-        let errorCounter = 0;
-        for (const result of results) {
-            const relativePath = node_path_1.default.relative(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, result.filePath);
-            for (const message of result.messages) {
-                if (message.ruleId === null || result.source === undefined) {
-                    continue;
-                }
-                const rule = ruleMetaDatas[message.ruleId];
-                (0, core_1.info)(`  ${relativePath}:${message.line}`);
-                switch (message.severity) {
-                    case 0:
-                        (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
-                            file: relativePath,
-                            startLine: message.line,
-                        });
-                        break;
-                    case 1:
-                        (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
-                            file: relativePath,
-                            startLine: message.line,
-                        });
-                        warningCounter++;
-                        break;
-                    case 2:
-                        (0, core_1.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
-                            file: relativePath,
-                            startLine: message.line,
-                        });
-                        errorCounter++;
-                        break;
-                }
+async function handleCommit(eventName, results, ruleMetaDatas) {
+    const failCheck = (0, core_1.getBooleanInput)('fail-check');
+    (0, core_1.startGroup)(`GitHub ${eventName}`);
+    let warningCounter = 0;
+    let errorCounter = 0;
+    for (const result of results) {
+        const relativePath = node_path_1.default.relative(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, result.filePath);
+        for (const message of result.messages) {
+            if (message.ruleId === null || result.source === undefined) {
+                continue;
+            }
+            const rule = ruleMetaDatas[message.ruleId];
+            (0, core_1.info)(`  ${relativePath}:${message.line}`);
+            switch (message.severity) {
+                case 0:
+                    (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
+                        file: relativePath,
+                        startLine: message.line,
+                    });
+                    break;
+                case 1:
+                    (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
+                        file: relativePath,
+                        startLine: message.line,
+                    });
+                    warningCounter++;
+                    break;
+                case 2:
+                    (0, core_1.error)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
+                        file: relativePath,
+                        startLine: message.line,
+                    });
+                    errorCounter++;
+                    break;
             }
         }
-        (0, core_1.endGroup)();
-        (0, core_1.startGroup)('Feedback');
-        if (warningCounter > 0 || errorCounter > 0) {
-            if (failCheck) {
-                throw new Error('ESLint fails.');
-            }
-            else {
-                (0, core_1.error)('ESLint fails');
-            }
+    }
+    (0, core_1.endGroup)();
+    (0, core_1.startGroup)('Feedback');
+    if (warningCounter > 0 || errorCounter > 0) {
+        if (failCheck) {
+            throw new Error('ESLint fails.');
         }
         else {
-            (0, core_1.notice)('ESLint passes');
+            (0, core_1.error)('ESLint fails');
         }
-        (0, core_1.endGroup)();
-    });
+    }
+    else {
+        (0, core_1.notice)('ESLint passes');
+    }
+    (0, core_1.endGroup)();
 }
 exports.handleCommit = handleCommit;
 
@@ -32451,18 +32439,9 @@ exports.handleCommit = handleCommit;
 /***/ }),
 
 /***/ 5173:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getESLint = void 0;
 const module_1 = __nccwpck_require__(8188);
@@ -32470,20 +32449,18 @@ const node_fs_1 = __nccwpck_require__(7561);
 const node_path_1 = __nccwpck_require__(9411);
 const core_1 = __nccwpck_require__(2186);
 const changeDirectory_1 = __nccwpck_require__(6386);
-function getESLint() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const absoluteDirectory = (0, node_path_1.resolve)(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)('directory'));
-        const require = (0, module_1.createRequire)(absoluteDirectory);
-        const eslintJsPath = (0, node_path_1.resolve)(absoluteDirectory, (0, core_1.getInput)('eslint-lib-path'));
-        if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
-            throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
-        }
-        (0, core_1.notice)(`Using ESLint from: ${eslintJsPath}`);
-        const { ESLint, loadESLint } = require(eslintJsPath);
-        (0, core_1.notice)(`ESLint version: ${ESLint.version}`);
-        const eslint = new (yield loadESLint())();
-        return eslint;
-    });
+async function getESLint() {
+    const absoluteDirectory = (0, node_path_1.resolve)(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)('directory'));
+    const require = (0, module_1.createRequire)(absoluteDirectory);
+    const eslintJsPath = (0, node_path_1.resolve)(absoluteDirectory, (0, core_1.getInput)('eslint-lib-path'));
+    if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
+        throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
+    }
+    (0, core_1.notice)(`Using ESLint from: ${eslintJsPath}`);
+    const { ESLint, loadESLint } = require(eslintJsPath);
+    (0, core_1.notice)(`ESLint version: ${ESLint.version}`);
+    const eslint = new (await loadESLint())();
+    return eslint;
 }
 exports.getESLint = getESLint;
 
@@ -32491,27 +32468,16 @@ exports.getESLint = getESLint;
 /***/ }),
 
 /***/ 7523:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getESLintResults = void 0;
 const core_1 = __nccwpck_require__(2186);
 const glob_1 = __nccwpck_require__(8211);
-function getESLintResults(eslint) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const targets = (0, core_1.getInput)('targets');
-        return eslint.lintFiles(targets ? (0, glob_1.sync)(targets) : []);
-    });
+async function getESLintResults(eslint) {
+    const targets = (0, core_1.getInput)('targets');
+    return eslint.lintFiles(targets ? (0, glob_1.sync)(targets) : []);
 }
 exports.getESLintResults = getESLintResults;
 
@@ -32527,18 +32493,17 @@ exports.getIndexedModifiedLines = void 0;
 const core_1 = __nccwpck_require__(2186);
 const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
 function getIndexedModifiedLines(file) {
-    var _a;
     const modifiedLines = [];
     const indexedModifiedLines = {};
     let currentLine = 0;
     let remainingLinesInHunk = 0;
-    const lines = (_a = file.patch) === null || _a === void 0 ? void 0 : _a.split('\n');
+    const lines = file.patch?.split('\n');
     if (lines) {
         for (const line of lines) {
             if (remainingLinesInHunk === 0) {
                 const matches = line.match(HUNK_HEADER_PATTERN);
-                currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || '1');
-                remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[4]) || '1');
+                currentLine = parseInt(matches?.[2] || '1');
+                remainingLinesInHunk = parseInt(matches?.[4] || '1');
                 if (!currentLine || !remainingLinesInHunk) {
                     throw new Error(`Expecting hunk header in ${file.filename} but seeing ${line}.`);
                 }
@@ -32618,72 +32583,59 @@ exports.getOctokit = getOctokit;
 /***/ }),
 
 /***/ 6941:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getPullRequestMetadataByNumber = exports.getPullRequestMetadata = void 0;
 const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
 const getOctokit_1 = __nccwpck_require__(8442);
-function getPullRequestMetadata() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const pullRequest = github_1.context.payload.pull_request;
-        const owner = github_1.context.repo.owner;
-        const repo = github_1.context.repo.repo;
-        const pullRequestNumber = pullRequest.number;
-        const baseSha = pullRequest.base.sha;
-        const headSha = pullRequest.head.sha;
-        (0, core_1.info)(`Owner: ${owner}`);
-        (0, core_1.info)(`Repo: ${repo}`);
-        (0, core_1.info)(`Pull Request number: ${pullRequestNumber}`);
-        (0, core_1.info)(`Base SHA: ${baseSha}`);
-        (0, core_1.info)(`Head SHA: ${headSha}`);
-        return {
-            owner,
-            repo,
-            pullRequestNumber,
-            baseSha,
-            headSha,
-        };
-    });
+async function getPullRequestMetadata() {
+    const pullRequest = github_1.context.payload.pull_request;
+    const owner = github_1.context.repo.owner;
+    const repo = github_1.context.repo.repo;
+    const pullRequestNumber = pullRequest.number;
+    const baseSha = pullRequest.base.sha;
+    const headSha = pullRequest.head.sha;
+    (0, core_1.info)(`Owner: ${owner}`);
+    (0, core_1.info)(`Repo: ${repo}`);
+    (0, core_1.info)(`Pull Request number: ${pullRequestNumber}`);
+    (0, core_1.info)(`Base SHA: ${baseSha}`);
+    (0, core_1.info)(`Head SHA: ${headSha}`);
+    return {
+        owner,
+        repo,
+        pullRequestNumber,
+        baseSha,
+        headSha,
+    };
 }
 exports.getPullRequestMetadata = getPullRequestMetadata;
-function getPullRequestMetadataByNumber(pullRequestNumber) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const octokit = (0, getOctokit_1.getOctokit)();
-        const owner = github_1.context.repo.owner;
-        const repo = github_1.context.repo.repo;
-        const response = yield octokit.rest.pulls.get({
-            owner,
-            repo,
-            pull_number: pullRequestNumber,
-        });
-        const pullRequest = response.data;
-        const baseSha = pullRequest.base.sha;
-        const headSha = pullRequest.head.sha;
-        (0, core_1.info)(`Owner: ${owner}`);
-        (0, core_1.info)(`Repo: ${repo}`);
-        (0, core_1.info)(`Pull Request number: ${pullRequestNumber}`);
-        (0, core_1.info)(`Base SHA: ${baseSha}`);
-        (0, core_1.info)(`Head SHA: ${headSha}`);
-        return {
-            owner,
-            repo,
-            pullRequestNumber,
-            baseSha,
-            headSha,
-        };
+async function getPullRequestMetadataByNumber(pullRequestNumber) {
+    const octokit = (0, getOctokit_1.getOctokit)();
+    const owner = github_1.context.repo.owner;
+    const repo = github_1.context.repo.repo;
+    const response = await octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number: pullRequestNumber,
     });
+    const pullRequest = response.data;
+    const baseSha = pullRequest.base.sha;
+    const headSha = pullRequest.head.sha;
+    (0, core_1.info)(`Owner: ${owner}`);
+    (0, core_1.info)(`Repo: ${repo}`);
+    (0, core_1.info)(`Pull Request number: ${pullRequestNumber}`);
+    (0, core_1.info)(`Base SHA: ${baseSha}`);
+    (0, core_1.info)(`Head SHA: ${headSha}`);
+    return {
+        owner,
+        repo,
+        pullRequestNumber,
+        baseSha,
+        headSha,
+    };
 }
 exports.getPullRequestMetadataByNumber = getPullRequestMetadataByNumber;
 
@@ -32691,40 +32643,29 @@ exports.getPullRequestMetadataByNumber = getPullRequestMetadataByNumber;
 /***/ }),
 
 /***/ 7801:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getPushMetadata = void 0;
 const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
-function getPushMetadata() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const push = github_1.context.payload;
-        const owner = github_1.context.repo.owner;
-        const repo = github_1.context.repo.repo;
-        const beforeSha = push.before;
-        const afterSha = push.after;
-        (0, core_1.info)(`Owner: ${owner}`);
-        (0, core_1.info)(`Repo: ${repo}`);
-        (0, core_1.info)(`Before SHA: ${beforeSha}`);
-        (0, core_1.info)(`After SHA: ${afterSha}`);
-        return {
-            owner,
-            repo,
-            beforeSha,
-            afterSha,
-        };
-    });
+async function getPushMetadata() {
+    const push = github_1.context.payload;
+    const owner = github_1.context.repo.owner;
+    const repo = github_1.context.repo.repo;
+    const beforeSha = push.before;
+    const afterSha = push.after;
+    (0, core_1.info)(`Owner: ${owner}`);
+    (0, core_1.info)(`Repo: ${repo}`);
+    (0, core_1.info)(`Before SHA: ${beforeSha}`);
+    (0, core_1.info)(`After SHA: ${afterSha}`);
+    return {
+        owner,
+        repo,
+        beforeSha,
+        afterSha,
+    };
 }
 exports.getPushMetadata = getPushMetadata;
 
@@ -32735,15 +32676,6 @@ exports.getPushMetadata = getPushMetadata;
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -32760,70 +32692,68 @@ const getPullRequestMetadata_1 = __nccwpck_require__(6941);
 const getPushMetadata_1 = __nccwpck_require__(7801);
 const pullRequest_1 = __nccwpck_require__(3894);
 const push_1 = __nccwpck_require__(4755);
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        (0, core_1.startGroup)('ESLint');
-        (0, changeDirectory_1.changeDirectory)();
-        const eslint = yield (0, getESLint_1.getESLint)();
-        const results = yield (0, getESLintResults_1.getESLintResults)(eslint);
-        const indexedResults = {};
-        for (const file of results) {
-            const relativePath = node_path_1.default.relative(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, file.filePath);
-            (0, core_1.info)(`File name: ${relativePath}`);
-            indexedResults[relativePath] = file;
-            for (const message of file.messages) {
-                (0, core_1.info)(`  [${message.severity}] ${message.message} @ ${message.line}`);
-                if (message.suggestions) {
-                    (0, core_1.info)(`  Suggestions (${message.suggestions.length}):`);
-                    for (const suggestion of message.suggestions) {
-                        (0, core_1.info)(`    ${suggestion.desc} (${suggestion.messageId})`);
-                    }
+async function run() {
+    (0, core_1.startGroup)('ESLint');
+    (0, changeDirectory_1.changeDirectory)();
+    const eslint = await (0, getESLint_1.getESLint)();
+    const results = await (0, getESLintResults_1.getESLintResults)(eslint);
+    const indexedResults = {};
+    for (const file of results) {
+        const relativePath = node_path_1.default.relative(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, file.filePath);
+        (0, core_1.info)(`File name: ${relativePath}`);
+        indexedResults[relativePath] = file;
+        for (const message of file.messages) {
+            (0, core_1.info)(`  [${message.severity}] ${message.message} @ ${message.line}`);
+            if (message.suggestions) {
+                (0, core_1.info)(`  Suggestions (${message.suggestions.length}):`);
+                for (const suggestion of message.suggestions) {
+                    (0, core_1.info)(`    ${suggestion.desc} (${suggestion.messageId})`);
                 }
             }
         }
-        const ruleMetaData = eslint.getRulesMetaForResults(results);
-        (0, core_1.endGroup)();
-        (0, core_1.info)(`Event name: ${github_1.context.eventName}`);
-        switch (github_1.context.eventName) {
-            case 'pull_request':
-            case 'pull_request_target':
-                yield (() => __awaiter(this, void 0, void 0, function* () {
-                    const { owner, repo, pullRequestNumber, baseSha, headSha } = yield (0, getPullRequestMetadata_1.getPullRequestMetadata)();
-                    yield (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
-                }))();
-                break;
-            case 'push':
-                yield (() => __awaiter(this, void 0, void 0, function* () {
-                    const { owner, repo, beforeSha, afterSha } = yield (0, getPushMetadata_1.getPushMetadata)();
-                    yield (0, push_1.handlePush)(indexedResults, ruleMetaData, owner, repo, beforeSha, afterSha);
-                }))();
-                break;
-            case 'workflow_run':
-                yield (() => __awaiter(this, void 0, void 0, function* () {
-                    const workflowRun = github_1.context.payload;
-                    if (workflowRun.workflow_run.pull_requests.length > 0) {
-                        for (const pullRequest of workflowRun.workflow_run.pull_requests) {
-                            const { owner, repo, pullRequestNumber, baseSha, headSha } = yield (0, getPullRequestMetadata_1.getPullRequestMetadataByNumber)(pullRequest.number);
-                            yield (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
-                        }
+    }
+    const ruleMetaData = eslint.getRulesMetaForResults(results);
+    (0, core_1.endGroup)();
+    (0, core_1.info)(`Event name: ${github_1.context.eventName}`);
+    switch (github_1.context.eventName) {
+        case 'pull_request':
+        case 'pull_request_target':
+            await (async () => {
+                const { owner, repo, pullRequestNumber, baseSha, headSha } = await (0, getPullRequestMetadata_1.getPullRequestMetadata)();
+                await (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
+            })();
+            break;
+        case 'push':
+            await (async () => {
+                const { owner, repo, beforeSha, afterSha } = await (0, getPushMetadata_1.getPushMetadata)();
+                await (0, push_1.handlePush)(indexedResults, ruleMetaData, owner, repo, beforeSha, afterSha);
+            })();
+            break;
+        case 'workflow_run':
+            await (async () => {
+                const workflowRun = github_1.context.payload;
+                if (workflowRun.workflow_run.pull_requests.length > 0) {
+                    for (const pullRequest of workflowRun.workflow_run.pull_requests) {
+                        const { owner, repo, pullRequestNumber, baseSha, headSha } = await (0, getPullRequestMetadata_1.getPullRequestMetadataByNumber)(pullRequest.number);
+                        await (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
                     }
-                    else {
-                        const workflowSourceEventName = workflowRun.workflow_run.event
-                            .split('_')
-                            .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                            .join(' ');
-                        yield (0, commit_1.handleCommit)(`Workflow (${workflowSourceEventName})`, results, ruleMetaData);
-                    }
-                }))();
-                break;
-            default:
-                (0, commit_1.handleCommit)(github_1.context.eventName
-                    .split('_')
-                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                    .join(' '), results, ruleMetaData);
-                break;
-        }
-    });
+                }
+                else {
+                    const workflowSourceEventName = workflowRun.workflow_run.event
+                        .split('_')
+                        .map((word) => word[0]?.toUpperCase() + word.substring(1))
+                        .join(' ');
+                    await (0, commit_1.handleCommit)(`Workflow (${workflowSourceEventName})`, results, ruleMetaData);
+                }
+            })();
+            break;
+        default:
+            (0, commit_1.handleCommit)(github_1.context.eventName
+                .split('_')
+                .map((word) => word[0]?.toUpperCase() + word.substring(1))
+                .join(' '), results, ruleMetaData);
+            break;
+    }
 }
 exports.run = run;
 run();
@@ -32832,63 +32762,48 @@ run();
 /***/ }),
 
 /***/ 3894:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.handlePullRequest = exports.matchReviewComments = exports.getCommentFromFix = exports.getReviewThreads = exports.getReviewComments = exports.getPullRequestFiles = void 0;
 const core_1 = __nccwpck_require__(2186);
 const getIndexedModifiedLines_1 = __nccwpck_require__(7738);
 const getOctokit_1 = __nccwpck_require__(8442);
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
-function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const response = yield octokit.rest.pulls.listFiles({
-            owner,
-            repo,
-            pull_number: pullRequestNumber,
-        });
-        (0, core_1.info)(`Files: (${response.data.length})`);
-        return response.data;
+async function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
+    const response = await octokit.rest.pulls.listFiles({
+        owner,
+        repo,
+        pull_number: pullRequestNumber,
     });
+    (0, core_1.info)(`Files: (${response.data.length})`);
+    return response.data;
 }
 exports.getPullRequestFiles = getPullRequestFiles;
-function getReviewComments(owner, repo, pullRequestNumber, octokit) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const reviews = yield octokit.rest.pulls.listReviews({
-            owner,
-            repo,
-            pull_number: pullRequestNumber,
-        });
-        const reviewComments = yield octokit.rest.pulls.listReviewComments({
-            owner,
-            repo,
-            pull_number: pullRequestNumber,
-        });
-        const relevantReviews = reviews.data.filter((review) => { var _a; return ((_a = review.user) === null || _a === void 0 ? void 0 : _a.id) === 41898282 && review.body === REVIEW_BODY; });
-        const relevantReviewIds = relevantReviews.map((review) => review.id);
-        const relevantReviewComments = reviewComments.data.filter((reviewComment) => reviewComment.user.id === 41898282 &&
-            reviewComment.pull_request_review_id !== null &&
-            relevantReviewIds.includes(reviewComment.pull_request_review_id));
-        (0, core_1.info)(`Existing review comments: (${relevantReviewComments.length})`);
-        return relevantReviewComments;
+async function getReviewComments(owner, repo, pullRequestNumber, octokit) {
+    const reviews = await octokit.rest.pulls.listReviews({
+        owner,
+        repo,
+        pull_number: pullRequestNumber,
     });
+    const reviewComments = await octokit.rest.pulls.listReviewComments({
+        owner,
+        repo,
+        pull_number: pullRequestNumber,
+    });
+    const relevantReviews = reviews.data.filter((review) => review.user?.id === 41898282 && review.body === REVIEW_BODY);
+    const relevantReviewIds = relevantReviews.map((review) => review.id);
+    const relevantReviewComments = reviewComments.data.filter((reviewComment) => reviewComment.user.id === 41898282 &&
+        reviewComment.pull_request_review_id !== null &&
+        relevantReviewIds.includes(reviewComment.pull_request_review_id));
+    (0, core_1.info)(`Existing review comments: (${relevantReviewComments.length})`);
+    return relevantReviewComments;
 }
 exports.getReviewComments = getReviewComments;
-function getReviewThreads(owner, repo, pullRequestNumber, octokit) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
-        const commentNodeIdToReviewThreadMapping = {};
-        const queryData = yield octokit.graphql(`
+async function getReviewThreads(owner, repo, pullRequestNumber, octokit) {
+    const commentNodeIdToReviewThreadMapping = {};
+    const queryData = await octokit.graphql(`
       query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
         repository(owner: $owner, name: $repo) {
           pullRequest(number: $pullRequestNumber) {
@@ -32909,38 +32824,37 @@ function getReviewThreads(owner, repo, pullRequestNumber, octokit) {
         }
       }
     `, {
-            owner,
-            repo,
-            pullRequestNumber,
-        });
-        const reviewThreadTotalCount = (_c = (_b = (_a = queryData === null || queryData === void 0 ? void 0 : queryData.repository) === null || _a === void 0 ? void 0 : _a.pullRequest) === null || _b === void 0 ? void 0 : _b.reviewThreads) === null || _c === void 0 ? void 0 : _c.totalCount;
-        if (reviewThreadTotalCount !== undefined && reviewThreadTotalCount > 100) {
-            (0, core_1.error)(`There are more than 100 review threads: ${reviewThreadTotalCount}`);
-        }
-        const reviewThreads = (_f = (_e = (_d = queryData === null || queryData === void 0 ? void 0 : queryData.repository) === null || _d === void 0 ? void 0 : _d.pullRequest) === null || _e === void 0 ? void 0 : _e.reviewThreads) === null || _f === void 0 ? void 0 : _f.nodes;
-        if (reviewThreads !== undefined && reviewThreads !== null) {
-            for (const reviewThread of reviewThreads) {
-                if (reviewThread === null) {
-                    continue;
-                }
-                const commentTotalCount = (_g = reviewThread === null || reviewThread === void 0 ? void 0 : reviewThread.comments) === null || _g === void 0 ? void 0 : _g.totalCount;
-                if (commentTotalCount !== undefined && commentTotalCount > 100) {
-                    (0, core_1.error)(`There are more than 100 review comments in review thread ${reviewThread === null || reviewThread === void 0 ? void 0 : reviewThread.id}: ${commentTotalCount}`);
-                }
-                const comments = (_h = reviewThread === null || reviewThread === void 0 ? void 0 : reviewThread.comments) === null || _h === void 0 ? void 0 : _h.nodes;
-                if (comments !== undefined && comments !== null) {
-                    for (const comment of comments) {
-                        const commentId = comment === null || comment === void 0 ? void 0 : comment.id;
-                        if (commentId === undefined) {
-                            continue;
-                        }
-                        commentNodeIdToReviewThreadMapping[commentId] = reviewThread;
+        owner,
+        repo,
+        pullRequestNumber,
+    });
+    const reviewThreadTotalCount = queryData?.repository?.pullRequest?.reviewThreads?.totalCount;
+    if (reviewThreadTotalCount !== undefined && reviewThreadTotalCount > 100) {
+        (0, core_1.error)(`There are more than 100 review threads: ${reviewThreadTotalCount}`);
+    }
+    const reviewThreads = queryData?.repository?.pullRequest?.reviewThreads?.nodes;
+    if (reviewThreads !== undefined && reviewThreads !== null) {
+        for (const reviewThread of reviewThreads) {
+            if (reviewThread === null) {
+                continue;
+            }
+            const commentTotalCount = reviewThread?.comments?.totalCount;
+            if (commentTotalCount !== undefined && commentTotalCount > 100) {
+                (0, core_1.error)(`There are more than 100 review comments in review thread ${reviewThread?.id}: ${commentTotalCount}`);
+            }
+            const comments = reviewThread?.comments?.nodes;
+            if (comments !== undefined && comments !== null) {
+                for (const comment of comments) {
+                    const commentId = comment?.id;
+                    if (commentId === undefined) {
+                        continue;
                     }
+                    commentNodeIdToReviewThreadMapping[commentId] = reviewThread;
                 }
             }
         }
-        return commentNodeIdToReviewThreadMapping;
-    });
+    }
+    return commentNodeIdToReviewThreadMapping;
 }
 exports.getReviewThreads = getReviewThreads;
 function getCommentFromFix(source, line, fix) {
@@ -32986,92 +32900,82 @@ function matchReviewComments(reviewComments, reviewComment) {
     return matchedNodeIds;
 }
 exports.matchReviewComments = matchReviewComments;
-function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c;
-        const failCheck = (0, core_1.getBooleanInput)('fail-check');
-        const requestChanges = (0, core_1.getBooleanInput)('request-changes');
-        (0, core_1.startGroup)('GitHub Pull Request');
-        const octokit = (0, getOctokit_1.getOctokit)();
-        const files = yield getPullRequestFiles(owner, repo, pullRequestNumber, octokit);
-        const existingReviewComments = yield getReviewComments(owner, repo, pullRequestNumber, octokit);
-        const commentNodeIdToReviewThreadMapping = yield getReviewThreads(owner, repo, pullRequestNumber, octokit);
-        let commentsCounter = 0;
-        let outOfScopeResultsCounter = 0;
-        const reviewComments = [];
-        let matchedReviewCommentNodeIds = {};
-        for (const file of files) {
-            (0, core_1.info)(`  File name: ${file.filename}`);
-            (0, core_1.info)(`  File status: ${file.status}`);
-            if (file.status === 'removed') {
-                continue;
-            }
-            const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
-            const result = indexedResults[file.filename];
-            if (result) {
-                for (const message of result.messages) {
-                    if (message.ruleId === null || result.source === undefined) {
-                        continue;
-                    }
-                    const rule = ruleMetaDatas[message.ruleId];
-                    if (indexedModifiedLines[message.line]) {
-                        (0, core_1.info)(`  Matched line: ${message.line}`);
-                        if (message.fix) {
-                            const reviewSuggestion = getCommentFromFix(result.source, message.line, message.fix);
-                            const reviewComment = Object.assign(Object.assign({}, reviewSuggestion), { body: `**${message.message}** [${message.ruleId}](${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})\n\nFix available:\n\n` +
-                                    reviewSuggestion.body, path: file.filename });
-                            const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
-                            commentsCounter++;
-                            if (matchedComments.length === 0) {
-                                reviewComments.push(reviewComment);
-                                (0, core_1.info)(`    Comment queued`);
-                            }
-                            else {
-                                matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
-                                (0, core_1.info)(`    Comment skipped`);
-                            }
-                        }
-                        else if (message.suggestions) {
-                            let reviewSuggestions = undefined;
-                            for (const suggestion of message.suggestions) {
-                                const reviewSuggestion = getCommentFromFix(result.source, message.line, suggestion.fix);
-                                if (reviewSuggestions === undefined) {
-                                    reviewSuggestions = Object.assign({}, reviewSuggestion);
-                                }
-                                else {
-                                    if (reviewSuggestion.start_line !==
-                                        reviewSuggestions.start_line ||
-                                        reviewSuggestion.line !== reviewSuggestions.line) {
-                                        (0, core_1.error)(`    Suggestions have mismatched line(s): ${reviewSuggestions.start_line === undefined
-                                            ? ''
-                                            : reviewSuggestions.start_line + ':'}${reviewSuggestions.line} and ${reviewSuggestion.start_line === undefined
-                                            ? ''
-                                            : reviewSuggestion.start_line + ':'}${reviewSuggestion.line}`);
-                                    }
-                                    reviewSuggestions.body += '\n' + reviewSuggestion.body;
-                                }
-                            }
-                            if (reviewSuggestions !== undefined) {
-                                const reviewComment = Object.assign(Object.assign({}, reviewSuggestions), { body: `**${message.message}** [${message.ruleId}](${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})\n\nSuggestion(s) available:\n\n` +
-                                        reviewSuggestions.body, path: file.filename });
-                                const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
-                                commentsCounter++;
-                                if (matchedComments.length === 0) {
-                                    reviewComments.push(reviewComment);
-                                    (0, core_1.info)(`    Comment queued`);
-                                }
-                                else {
-                                    matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
-                                    (0, core_1.info)(`    Comment skipped`);
-                                }
-                            }
+async function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha) {
+    const failCheck = (0, core_1.getBooleanInput)('fail-check');
+    const requestChanges = (0, core_1.getBooleanInput)('request-changes');
+    (0, core_1.startGroup)('GitHub Pull Request');
+    const octokit = (0, getOctokit_1.getOctokit)();
+    const files = await getPullRequestFiles(owner, repo, pullRequestNumber, octokit);
+    const existingReviewComments = await getReviewComments(owner, repo, pullRequestNumber, octokit);
+    const commentNodeIdToReviewThreadMapping = await getReviewThreads(owner, repo, pullRequestNumber, octokit);
+    let commentsCounter = 0;
+    let outOfScopeResultsCounter = 0;
+    const reviewComments = [];
+    let matchedReviewCommentNodeIds = {};
+    for (const file of files) {
+        (0, core_1.info)(`  File name: ${file.filename}`);
+        (0, core_1.info)(`  File status: ${file.status}`);
+        if (file.status === 'removed') {
+            continue;
+        }
+        const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
+        const result = indexedResults[file.filename];
+        if (result) {
+            for (const message of result.messages) {
+                if (message.ruleId === null || result.source === undefined) {
+                    continue;
+                }
+                const rule = ruleMetaDatas[message.ruleId];
+                if (indexedModifiedLines[message.line]) {
+                    (0, core_1.info)(`  Matched line: ${message.line}`);
+                    if (message.fix) {
+                        const reviewSuggestion = getCommentFromFix(result.source, message.line, message.fix);
+                        const reviewComment = {
+                            ...reviewSuggestion,
+                            body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nFix available:\n\n` +
+                                reviewSuggestion.body,
+                            path: file.filename,
+                        };
+                        const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
+                        commentsCounter++;
+                        if (matchedComments.length === 0) {
+                            reviewComments.push(reviewComment);
+                            (0, core_1.info)(`    Comment queued`);
                         }
                         else {
+                            matchedReviewCommentNodeIds = {
+                                ...matchedReviewCommentNodeIds,
+                                ...Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])),
+                            };
+                            (0, core_1.info)(`    Comment skipped`);
+                        }
+                    }
+                    else if (message.suggestions) {
+                        let reviewSuggestions = undefined;
+                        for (const suggestion of message.suggestions) {
+                            const reviewSuggestion = getCommentFromFix(result.source, message.line, suggestion.fix);
+                            if (reviewSuggestions === undefined) {
+                                reviewSuggestions = { ...reviewSuggestion };
+                            }
+                            else {
+                                if (reviewSuggestion.start_line !==
+                                    reviewSuggestions.start_line ||
+                                    reviewSuggestion.line !== reviewSuggestions.line) {
+                                    (0, core_1.error)(`    Suggestions have mismatched line(s): ${reviewSuggestions.start_line === undefined
+                                        ? ''
+                                        : reviewSuggestions.start_line + ':'}${reviewSuggestions.line} and ${reviewSuggestion.start_line === undefined
+                                        ? ''
+                                        : reviewSuggestion.start_line + ':'}${reviewSuggestion.line}`);
+                                }
+                                reviewSuggestions.body += '\n' + reviewSuggestion.body;
+                            }
+                        }
+                        if (reviewSuggestions !== undefined) {
                             const reviewComment = {
-                                body: `**${message.message}** [${message.ruleId}](${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`,
+                                ...reviewSuggestions,
+                                body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
+                                    reviewSuggestions.body,
                                 path: file.filename,
-                                side: 'RIGHT',
-                                line: message.line,
                             };
                             const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
                             commentsCounter++;
@@ -33080,26 +32984,51 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
                                 (0, core_1.info)(`    Comment queued`);
                             }
                             else {
-                                matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
+                                matchedReviewCommentNodeIds = {
+                                    ...matchedReviewCommentNodeIds,
+                                    ...Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])),
+                                };
                                 (0, core_1.info)(`    Comment skipped`);
                             }
                         }
                     }
                     else {
-                        (0, core_1.info)(`  Out of scope line: ${message.line}`);
-                        outOfScopeResultsCounter++;
+                        const reviewComment = {
+                            body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
+                            path: file.filename,
+                            side: 'RIGHT',
+                            line: message.line,
+                        };
+                        const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
+                        commentsCounter++;
+                        if (matchedComments.length === 0) {
+                            reviewComments.push(reviewComment);
+                            (0, core_1.info)(`    Comment queued`);
+                        }
+                        else {
+                            matchedReviewCommentNodeIds = {
+                                ...matchedReviewCommentNodeIds,
+                                ...Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])),
+                            };
+                            (0, core_1.info)(`    Comment skipped`);
+                        }
                     }
+                }
+                else {
+                    (0, core_1.info)(`  Out of scope line: ${message.line}`);
+                    outOfScopeResultsCounter++;
                 }
             }
         }
-        (0, core_1.endGroup)();
-        (0, core_1.startGroup)('Feedback');
-        for (const reviewComment of existingReviewComments) {
-            const reviewThread = commentNodeIdToReviewThreadMapping[reviewComment.node_id];
-            if (reviewThread !== undefined) {
-                if (matchedReviewCommentNodeIds[reviewComment.node_id] &&
-                    reviewThread.isResolved) {
-                    octokit.graphql(`
+    }
+    (0, core_1.endGroup)();
+    (0, core_1.startGroup)('Feedback');
+    for (const reviewComment of existingReviewComments) {
+        const reviewThread = commentNodeIdToReviewThreadMapping[reviewComment.node_id];
+        if (reviewThread !== undefined) {
+            if (matchedReviewCommentNodeIds[reviewComment.node_id] &&
+                reviewThread.isResolved) {
+                octokit.graphql(`
             mutation ($nodeId: ID!) {
               unresolveReviewThread(input: {threadId: $nodeId}) {
                 thread {
@@ -33108,13 +33037,13 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
               }
             }
           `, {
-                        nodeId: reviewThread.id,
-                    });
-                    (0, core_1.info)(`Review comment unresolved: ${reviewComment.url}`);
-                }
-                else if (!matchedReviewCommentNodeIds[reviewComment.node_id] &&
-                    !reviewThread.isResolved) {
-                    octokit.graphql(`
+                    nodeId: reviewThread.id,
+                });
+                (0, core_1.info)(`Review comment unresolved: ${reviewComment.url}`);
+            }
+            else if (!matchedReviewCommentNodeIds[reviewComment.node_id] &&
+                !reviewThread.isResolved) {
+                octokit.graphql(`
             mutation ($nodeId: ID!) {
               resolveReviewThread(input: {threadId: $nodeId}) {
                 thread {
@@ -33123,52 +33052,51 @@ function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullReque
               }
             }
           `, {
-                        nodeId: reviewThread.id,
-                    });
-                    (0, core_1.info)(`Review comment resolved: ${reviewComment.url}`);
-                }
-                else {
-                    (0, core_1.info)(`Review comment remains ${reviewThread.isResolved ? 'resolved' : 'unresolved'}: ${reviewComment.url}`);
-                }
-            }
-            else {
-                (0, core_1.error)(`Review comment has no associated review thread: ${reviewComment.url}`);
-            }
-        }
-        if (outOfScopeResultsCounter > 0) {
-            (0, core_1.info)(`Out of scope results: ${outOfScopeResultsCounter}`);
-        }
-        if (commentsCounter > 0) {
-            try {
-                yield octokit.rest.pulls.createReview({
-                    owner,
-                    repo,
-                    body: REVIEW_BODY,
-                    pull_number: pullRequestNumber,
-                    commit_id: headSha,
-                    event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
-                    comments: reviewComments,
+                    nodeId: reviewThread.id,
                 });
-            }
-            catch (error) {
-                throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
-            }
-            if (commentsCounter - reviewComments.length > 0) {
-                (0, core_1.info)(`Review comments existed and skipped: ${commentsCounter - reviewComments.length}`);
-            }
-            (0, core_1.info)(`Review comments submitted: ${reviewComments.length}`);
-            if (failCheck) {
-                throw new Error('ESLint fails. Please review comments.');
+                (0, core_1.info)(`Review comment resolved: ${reviewComment.url}`);
             }
             else {
-                (0, core_1.error)('ESLint fails');
+                (0, core_1.info)(`Review comment remains ${reviewThread.isResolved ? 'resolved' : 'unresolved'}: ${reviewComment.url}`);
             }
         }
         else {
-            (0, core_1.notice)('ESLint passes');
+            (0, core_1.error)(`Review comment has no associated review thread: ${reviewComment.url}`);
         }
-        (0, core_1.endGroup)();
-    });
+    }
+    if (outOfScopeResultsCounter > 0) {
+        (0, core_1.info)(`Out of scope results: ${outOfScopeResultsCounter}`);
+    }
+    if (commentsCounter > 0) {
+        try {
+            await octokit.rest.pulls.createReview({
+                owner,
+                repo,
+                body: REVIEW_BODY,
+                pull_number: pullRequestNumber,
+                commit_id: headSha,
+                event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
+                comments: reviewComments,
+            });
+        }
+        catch (error) {
+            throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
+        }
+        if (commentsCounter - reviewComments.length > 0) {
+            (0, core_1.info)(`Review comments existed and skipped: ${commentsCounter - reviewComments.length}`);
+        }
+        (0, core_1.info)(`Review comments submitted: ${reviewComments.length}`);
+        if (failCheck) {
+            throw new Error('ESLint fails. Please review comments.');
+        }
+        else {
+            (0, core_1.error)('ESLint fails');
+        }
+    }
+    else {
+        (0, core_1.notice)('ESLint passes');
+    }
+    (0, core_1.endGroup)();
 }
 exports.handlePullRequest = handlePullRequest;
 
@@ -33176,106 +33104,91 @@ exports.handlePullRequest = handlePullRequest;
 /***/ }),
 
 /***/ 4755:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.handlePush = exports.getPushFiles = void 0;
 const core_1 = __nccwpck_require__(2186);
 const getIndexedModifiedLines_1 = __nccwpck_require__(7738);
 const getOctokit_1 = __nccwpck_require__(8442);
-function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
-        const response = yield octokit.rest.repos.compareCommitsWithBasehead({
-            owner,
-            repo,
-            basehead: `${beforeSha}...${afterSha}`,
-        });
-        (0, core_1.info)(`Files: (${(_b = (_a = response.data.files) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0})`);
-        return response.data.files;
+async function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
+    const response = await octokit.rest.repos.compareCommitsWithBasehead({
+        owner,
+        repo,
+        basehead: `${beforeSha}...${afterSha}`,
     });
+    (0, core_1.info)(`Files: (${response.data.files?.length ?? 0})`);
+    return response.data.files;
 }
 exports.getPushFiles = getPushFiles;
-function handlePush(indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c;
-        const failCheck = (0, core_1.getBooleanInput)('fail-check');
-        (0, core_1.startGroup)('GitHub Push');
-        const octokit = (0, getOctokit_1.getOctokit)();
-        const files = yield getPushFiles(owner, repo, beforeSha, afterSha, octokit);
-        if (files === undefined || files.length === 0) {
-            (0, core_1.info)(`Push contains no files`);
-            return;
+async function handlePush(indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
+    const failCheck = (0, core_1.getBooleanInput)('fail-check');
+    (0, core_1.startGroup)('GitHub Push');
+    const octokit = (0, getOctokit_1.getOctokit)();
+    const files = await getPushFiles(owner, repo, beforeSha, afterSha, octokit);
+    if (files === undefined || files.length === 0) {
+        (0, core_1.info)(`Push contains no files`);
+        return;
+    }
+    let warningCounter = 0;
+    let errorCounter = 0;
+    for (const file of files) {
+        (0, core_1.info)(`  File name: ${file.filename}`);
+        (0, core_1.info)(`  File status: ${file.status}`);
+        if (file.status === 'removed') {
+            continue;
         }
-        let warningCounter = 0;
-        let errorCounter = 0;
-        for (const file of files) {
-            (0, core_1.info)(`  File name: ${file.filename}`);
-            (0, core_1.info)(`  File status: ${file.status}`);
-            if (file.status === 'removed') {
-                continue;
-            }
-            const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
-            const result = indexedResults[file.filename];
-            if (result) {
-                for (const message of result.messages) {
-                    if (message.ruleId === null || result.source === undefined) {
-                        continue;
-                    }
-                    const rule = ruleMetaDatas[message.ruleId];
-                    if (indexedModifiedLines[message.line]) {
-                        (0, core_1.info)(`  Matched line: ${message.line}`);
-                        switch (message.severity) {
-                            case 0:
-                                (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                });
-                                break;
-                            case 1:
-                                (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                });
-                                warningCounter++;
-                                break;
-                            case 2:
-                                (0, core_1.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                });
-                                errorCounter++;
-                                break;
-                        }
+        const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
+        const result = indexedResults[file.filename];
+        if (result) {
+            for (const message of result.messages) {
+                if (message.ruleId === null || result.source === undefined) {
+                    continue;
+                }
+                const rule = ruleMetaDatas[message.ruleId];
+                if (indexedModifiedLines[message.line]) {
+                    (0, core_1.info)(`  Matched line: ${message.line}`);
+                    switch (message.severity) {
+                        case 0:
+                            (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
+                                file: file.filename,
+                                startLine: message.line,
+                            });
+                            break;
+                        case 1:
+                            (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
+                                file: file.filename,
+                                startLine: message.line,
+                            });
+                            warningCounter++;
+                            break;
+                        case 2:
+                            (0, core_1.error)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
+                                file: file.filename,
+                                startLine: message.line,
+                            });
+                            errorCounter++;
+                            break;
                     }
                 }
             }
         }
-        (0, core_1.endGroup)();
-        (0, core_1.startGroup)('Feedback');
-        if (warningCounter > 0 || errorCounter > 0) {
-            if (failCheck) {
-                throw new Error('ESLint fails. Please review comments.');
-            }
-            else {
-                (0, core_1.error)('ESLint fails');
-            }
+    }
+    (0, core_1.endGroup)();
+    (0, core_1.startGroup)('Feedback');
+    if (warningCounter > 0 || errorCounter > 0) {
+        if (failCheck) {
+            throw new Error('ESLint fails. Please review comments.');
         }
         else {
-            (0, core_1.notice)('ESLint passes');
+            (0, core_1.error)('ESLint fails');
         }
-        (0, core_1.endGroup)();
-    });
+    }
+    else {
+        (0, core_1.notice)('ESLint passes');
+    }
+    (0, core_1.endGroup)();
 }
 exports.handlePush = handlePush;
 
@@ -35716,7 +35629,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.unescape = exports.escape = exports.AST = exports.Minimatch = exports.match = exports.makeRe = exports.braceExpand = exports.defaults = exports.filter = exports.GLOBSTAR = exports.sep = exports.minimatch = void 0;
-const brace_expansion_1 = __importDefault(__nccwpck_require__(1046));
+const brace_expansion_1 = __importDefault(__nccwpck_require__(3717));
 const assert_valid_pattern_js_1 = __nccwpck_require__(5934);
 const ast_js_1 = __nccwpck_require__(7642);
 const escape_js_1 = __nccwpck_require__(1477);
