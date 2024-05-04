@@ -15,17 +15,8 @@ export async function getESLint() {
     throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
   }
   notice(`Using ESLint from: ${eslintJsPath}`);
-  const { ESLint } = require(eslintJsPath);
-  const eslintConfig = await new ESLint().calculateConfigForFile(
-    'package.json',
-  );
-  const eslint = new ESLint({ baseConfig: eslintConfig });
-
-  const eslintBinPath = getInput('eslint-bin-path');
-  if (!existsSync(eslintBinPath)) {
-    throw new Error(`ESLint binary cannot be found at ${eslintBinPath}`);
-  }
-  notice(`Using ESLint binary from: ${eslintBinPath}`);
-
-  return { eslint, eslintBinPath };
+  const { ESLint, loadESLint } = require(eslintJsPath);
+  notice(`ESLint version: ${ESLint.version}`);
+  const eslint = new (await loadESLint())();
+  return eslint;
 }
