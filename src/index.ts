@@ -6,7 +6,7 @@ import { WorkflowRunEvent } from '@octokit/webhooks-definitions/schema';
 import { DEFAULT_WORKING_DIRECTORY, changeDirectory } from './changeDirectory';
 import { handleCommit } from './commit';
 import { getESLint } from './getESLint';
-import { getESLintOutput } from './getESLintOutput';
+import { getESLintResults } from './getESLintResults';
 import {
   getPullRequestMetadata,
   getPullRequestMetadataByNumber,
@@ -18,8 +18,8 @@ import { handlePush } from './push';
 export async function run() {
   startGroup('ESLint');
   changeDirectory();
-  const { eslint, eslintBinPath } = await getESLint();
-  const results = await getESLintOutput(eslintBinPath);
+  const eslint = await getESLint();
+  const results = await getESLintResults(eslint);
 
   const indexedResults: {
     [file: string]: ESLint.LintResult;
@@ -41,7 +41,7 @@ export async function run() {
       }
     }
   }
-  const ruleMetaDatas: {
+  const ruleMetaData: {
     [name: string]: Rule.RuleMetaData;
   } = eslint.getRulesMetaForResults(results);
   endGroup();
@@ -55,7 +55,7 @@ export async function run() {
           await getPullRequestMetadata();
         await handlePullRequest(
           indexedResults,
-          ruleMetaDatas,
+          ruleMetaData,
           owner,
           repo,
           pullRequestNumber,
@@ -69,7 +69,7 @@ export async function run() {
         const { owner, repo, beforeSha, afterSha } = await getPushMetadata();
         await handlePush(
           indexedResults,
-          ruleMetaDatas,
+          ruleMetaData,
           owner,
           repo,
           beforeSha,
@@ -86,7 +86,7 @@ export async function run() {
               await getPullRequestMetadataByNumber(pullRequest.number);
             await handlePullRequest(
               indexedResults,
-              ruleMetaDatas,
+              ruleMetaData,
               owner,
               repo,
               pullRequestNumber,
@@ -102,7 +102,7 @@ export async function run() {
           await handleCommit(
             `Workflow (${workflowSourceEventName})`,
             results,
-            ruleMetaDatas,
+            ruleMetaData,
           );
         }
       })();
@@ -114,7 +114,7 @@ export async function run() {
           .map((word) => word[0]?.toUpperCase() + word.substring(1))
           .join(' '),
         results,
-        ruleMetaDatas,
+        ruleMetaData,
       );
       break;
   }

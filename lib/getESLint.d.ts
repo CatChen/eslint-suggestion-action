@@ -1,4 +1,1 @@
-export declare function getESLint(): Promise<{
-    eslint: any;
-    eslintBinPath: string;
-}>;
+export declare function getESLint(): Promise<any>;
