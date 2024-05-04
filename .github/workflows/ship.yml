@@ -74,7 +74,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: CatChen/accept-to-ship-action@v0.4
+      - id: ship
+        uses: CatChen/accept-to-ship-action@v0.4
         with:
           merge-method: squash
           timeout: 0
@@ -98,7 +99,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: CatChen/accept-to-ship-action@v0.4
+      - id: ship
+        uses: CatChen/accept-to-ship-action@v0.4
         with:
           merge-method: squash
           timeout: 0
