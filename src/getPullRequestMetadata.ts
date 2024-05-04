@@ -3,7 +3,7 @@ import { info } from '@actions/core';
 import { context } from '@actions/github';
 import { getOctokit } from './getOctokit';
 
-export async function getPullRequestMetadata() {
+export function getPullRequestMetadata() {
   const pullRequest = (context.payload as PullRequestEvent).pull_request;
   const owner = context.repo.owner;
   const repo = context.repo.repo;

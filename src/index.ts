@@ -1,6 +1,6 @@
 import type { ESLint, Rule } from 'eslint';
 import path from 'node:path';
-import { endGroup, info, startGroup } from '@actions/core';
+import { endGroup, info, startGroup, setFailed } from '@actions/core';
 import { context } from '@actions/github';
 import { WorkflowRunEvent } from '@octokit/webhooks-definitions/schema';
 import { DEFAULT_WORKING_DIRECTORY, changeDirectory } from './changeDirectory';
@@ -52,7 +52,7 @@ export async function run() {
     case 'pull_request_target':
       await (async () => {
         const { owner, repo, pullRequestNumber, baseSha, headSha } =
-          await getPullRequestMetadata();
+          getPullRequestMetadata();
         await handlePullRequest(
           indexedResults,
           ruleMetaData,
@@ -66,7 +66,7 @@ export async function run() {
       break;
     case 'push':
       await (async () => {
-        const { owner, repo, beforeSha, afterSha } = await getPushMetadata();
+        const { owner, repo, beforeSha, afterSha } = getPushMetadata();
         await handlePush(
           indexedResults,
           ruleMetaData,
@@ -99,7 +99,7 @@ export async function run() {
             .split('_')
             .map((word) => word[0]?.toUpperCase() + word.substring(1))
             .join(' ');
-          await handleCommit(
+          handleCommit(
             `Workflow (${workflowSourceEventName})`,
             results,
             ruleMetaData,
@@ -120,4 +120,4 @@ export async function run() {
   }
 }
 
-run();
+run().catch((error: Error) => setFailed(error));
