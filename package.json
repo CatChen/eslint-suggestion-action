@@ -27,8 +27,8 @@
     "typescript-eslint": "^7.8.0"
   },
   "scripts": {
-    "build": "yarn tsc",
-    "package": "yarn ncc build src/index.ts --external eslint --source-map --license licenses.txt",
+    "build": "rm -rf lib && yarn tsc",
+    "package": "rm -rf dist && yarn ncc build src/index.ts --external eslint --source-map --license licenses.txt",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint -c eslint.config.js",
     "preversion": "rm -rf lib && rm -rf dist && yarn && yarn build && yarn package"
