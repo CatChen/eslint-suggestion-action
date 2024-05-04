@@ -29,7 +29,10 @@ inputs:
     description: 'Path to the ESLint binary file.'
     required: false
     default: './node_modules/.bin/eslint'
-    deprecationMessage: 'No longer in used.'
+    deprecationMessage: 'Use eslint-lib-path instead.'
+  config-path:
+    description: 'Path to the ESLint config file.'
+    required: false
 runs:
   using: 'node20'
   main: 'dist/index.js'
