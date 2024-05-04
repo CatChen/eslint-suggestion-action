@@ -2,7 +2,7 @@ import { info } from '@actions/core';
 import { context } from '@actions/github';
 import { PushEvent } from '@octokit/webhooks-definitions/schema';
 
-export async function getPushMetadata() {
+export function getPushMetadata() {
   const push = context.payload as PushEvent;
   const owner = context.repo.owner;
   const repo = context.repo.repo;

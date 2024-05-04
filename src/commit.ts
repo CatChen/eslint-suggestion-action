@@ -11,7 +11,7 @@ import {
 } from '@actions/core';
 import { DEFAULT_WORKING_DIRECTORY } from './changeDirectory';
 
-export async function handleCommit(
+export function handleCommit(
   eventName: string,
   results: ESLint.LintResult[],
   ruleMetaDatas: {

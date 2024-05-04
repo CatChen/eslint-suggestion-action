@@ -32648,7 +32648,7 @@ exports.handleCommit = void 0;
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const core_1 = __nccwpck_require__(2186);
 const changeDirectory_1 = __nccwpck_require__(6386);
-async function handleCommit(eventName, results, ruleMetaDatas) {
+function handleCommit(eventName, results, ruleMetaDatas) {
     const failCheck = (0, core_1.getBooleanInput)('fail-check');
     (0, core_1.startGroup)(`GitHub ${eventName}`);
     let warningCounter = 0;
@@ -32858,7 +32858,7 @@ exports.getPullRequestMetadataByNumber = exports.getPullRequestMetadata = void 0
 const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
 const getOctokit_1 = __nccwpck_require__(8442);
-async function getPullRequestMetadata() {
+function getPullRequestMetadata() {
     const pullRequest = github_1.context.payload.pull_request;
     const owner = github_1.context.repo.owner;
     const repo = github_1.context.repo.repo;
@@ -32917,7 +32917,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getPushMetadata = void 0;
 const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
-async function getPushMetadata() {
+function getPushMetadata() {
     const push = github_1.context.payload;
     const owner = github_1.context.repo.owner;
     const repo = github_1.context.repo.repo;
@@ -32986,13 +32986,13 @@ async function run() {
         case 'pull_request':
         case 'pull_request_target':
             await (async () => {
-                const { owner, repo, pullRequestNumber, baseSha, headSha } = await (0, getPullRequestMetadata_1.getPullRequestMetadata)();
+                const { owner, repo, pullRequestNumber, baseSha, headSha } = (0, getPullRequestMetadata_1.getPullRequestMetadata)();
                 await (0, pullRequest_1.handlePullRequest)(indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
             })();
             break;
         case 'push':
             await (async () => {
-                const { owner, repo, beforeSha, afterSha } = await (0, getPushMetadata_1.getPushMetadata)();
+                const { owner, repo, beforeSha, afterSha } = (0, getPushMetadata_1.getPushMetadata)();
                 await (0, push_1.handlePush)(indexedResults, ruleMetaData, owner, repo, beforeSha, afterSha);
             })();
             break;
@@ -33010,7 +33010,7 @@ async function run() {
                         .split('_')
                         .map((word) => word[0]?.toUpperCase() + word.substring(1))
                         .join(' ');
-                    await (0, commit_1.handleCommit)(`Workflow (${workflowSourceEventName})`, results, ruleMetaData);
+                    (0, commit_1.handleCommit)(`Workflow (${workflowSourceEventName})`, results, ruleMetaData);
                 }
             })();
             break;
@@ -33023,7 +33023,7 @@ async function run() {
     }
 }
 exports.run = run;
-run();
+run().catch((error) => (0, core_1.setFailed)(error));
 
 
 /***/ }),
@@ -33295,7 +33295,7 @@ async function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pul
         if (reviewThread !== undefined) {
             if (matchedReviewCommentNodeIds[reviewComment.node_id] &&
                 reviewThread.isResolved) {
-                octokit.graphql(`
+                await octokit.graphql(`
             mutation ($nodeId: ID!) {
               unresolveReviewThread(input: {threadId: $nodeId}) {
                 thread {
@@ -33310,7 +33310,7 @@ async function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pul
             }
             else if (!matchedReviewCommentNodeIds[reviewComment.node_id] &&
                 !reviewThread.isResolved) {
-                octokit.graphql(`
+                await octokit.graphql(`
             mutation ($nodeId: ID!) {
               resolveReviewThread(input: {threadId: $nodeId}) {
                 thread {

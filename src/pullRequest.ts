@@ -389,7 +389,7 @@ export async function handlePullRequest(
         matchedReviewCommentNodeIds[reviewComment.node_id] &&
         reviewThread.isResolved
       ) {
-        octokit.graphql(
+        await octokit.graphql(
           `
             mutation ($nodeId: ID!) {
               unresolveReviewThread(input: {threadId: $nodeId}) {
@@ -408,7 +408,7 @@ export async function handlePullRequest(
         !matchedReviewCommentNodeIds[reviewComment.node_id] &&
         !reviewThread.isResolved
       ) {
-        octokit.graphql(
+        await octokit.graphql(
           `
             mutation ($nodeId: ID!) {
               resolveReviewThread(input: {threadId: $nodeId}) {
