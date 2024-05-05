@@ -52,10 +52,10 @@ jobs:
           request-changes: true # optional
           fail-check: false # optional
           github-token: ${{ secrets.GITHUB_TOKEN }} # optional
-          directory: './' #optional
-          targets: '.' #optional
-          eslint-lib-path: './node_modules/eslint/lib/api.js' #optional
-          eslint-bin-path: 'node_modules/.bin/eslint' # optional
+          directory: './' # optional
+          targets: '.' # optional
+          eslint-lib-path: './node_modules/eslint/lib/api.js' # optional
+          config-path: '' # optional
 ```
 
 Save the file to `.github/workflows/eslint.yml`. It will start working on new Pull Requests.
@@ -86,9 +86,13 @@ The default value is `"."`. For example, it could be `"src"` or `"src/**/*.ts"` 
 
 The default value is `"./node_modules/eslint/lib/api.js"`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint version. It gets to know your project's ESLint library location from this value.
 
-### `eslint-bin-path`
+### `eslint-bin-path` (deprecated)
 
 The default value is `"node_modules/.bin/eslint"`. This action uses the ESLint installed in your project. This makes sure that it's using your project's ESLint version. It gets to know your project's ESLint binary location from this value.
+
+### `config-path`
+
+The default value is an empty string. This action uses ESLint's default config file when this value is empty. That means `.eslintrc.json` or `.eslintrc.js` for ESLint up to 8.56.0, and `eslint.config.json` for ESLint 8.57.0 or 9+. If you name your config file differently you can set it here.
 
 ## FAQ
 
