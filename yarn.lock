@@ -612,9 +612,9 @@
     lodash.isequal "~4.5.0"
 
 "@types/eslint@^8.4.1":
-  version "8.56.7"
-  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.56.7.tgz#c33b5b5a9cfb66881beb7b5be6c34aa3e81d3366"
-  integrity sha512-SjDvI/x3zsZnOkYZ3lCt9lOZWZLB2jIlNKz+LBgCtDurK0JZcwucxYHn1w2BJkD34dgX9Tjnak0txtq4WTggEA==
+  version "8.56.10"
+  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.56.10.tgz#eb2370a73bf04a901eeba8f22595c7ee0f7eb58d"
+  integrity sha512-Shavhk87gCtY2fhXDctcfS3e6FdxWkCx1iUZ9eEUbh7rTqlZT0/IzOkCOVt0fCjcFuZ9FPYfuezTBImfHCDBGQ==
   dependencies:
     "@types/estree" "*"
     "@types/json-schema" "*"
@@ -632,12 +632,7 @@
     "@types/minimatch" "^5.1.2"
     "@types/node" "*"
 
-"@types/json-schema@*":
-  version "7.0.12"
-  resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.12.tgz#d70faba7039d5fca54c83c7dbab41051d2b6f6cb"
-  integrity sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==
-
-"@types/json-schema@^7.0.15":
+"@types/json-schema@*", "@types/json-schema@^7.0.15":
   version "7.0.15"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.15.tgz#596a1747233694d50f6ad8a7869fcb6f56cf5841"
   integrity sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==
@@ -648,9 +643,9 @@
   integrity sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==
 
 "@types/node@*", "@types/node@^20.1.1":
-  version "20.12.8"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.12.8.tgz#35897bf2bfe3469847ab04634636de09552e8256"
-  integrity sha512-NU0rJLJnshZWdE/097cdCBbyW1h4hEg0xpovcoAQYHl8dnEyp/NAOiE45pvc+Bd1Dt+2r94v2eGFpQJ4R7g+2w==
+  version "20.12.10"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.12.10.tgz#8f0c3f12b0f075eee1fe20c1afb417e9765bef76"
+  integrity sha512-Eem5pH9pmWBHoGAT8Dr5fdc5rYA+4NAovdM4EktRPVAAiJhmWWfQrA0cFhAbOsQdSfIHjAud6YdkbL69+zSKjw==
   dependencies:
     undici-types "~5.26.4"
 
