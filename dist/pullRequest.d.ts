@@ -84,7 +84,7 @@ export declare function getReviewComments(owner: string, repo: string, pullReque
     line?: number | undefined;
     original_line?: number | undefined;
     side?: "RIGHT" | "LEFT" | undefined;
-    subject_type?: "file" | "line" | undefined;
+    subject_type?: "line" | "file" | undefined;
     reactions?: {
         url: string;
         total_count: number;
