@@ -29,6 +29,7 @@ on:
 jobs:
   analyze:
     name: Analyze
+    if: ${{!startsWith(github.head_ref, 'workflows/tests/')}}
     runs-on: ubuntu-latest
     permissions:
       actions: read
