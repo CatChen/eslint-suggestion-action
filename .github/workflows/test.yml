@@ -97,7 +97,7 @@ jobs:
           BASE_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           echo "::notice::Base PR number is $BASE_PR_NUMBER"
-          gh pr create --base "$BASE_BRANCH_NAME" --title "Flat Config Test PR for #$BASE_PR_NUMBER ($SHA)" --body "Generated from #$BASE_PR_NUMBER. Run $RUN_NUMBER. Attempt $RUN_ATTEMPT."
+          gh pr create --base "$BASE_BRANCH_NAME" --title "Test PR for #$BASE_PR_NUMBER ($SHA)" --body "Generated from #$BASE_PR_NUMBER. Run $RUN_NUMBER. Attempt $RUN_ATTEMPT."
           TEST_PR_NUMBER=`gh pr view | grep 'number:' | cut -f 2`
           echo "test-pr-number=$TEST_PR_NUMBER" >> $GITHUB_OUTPUT
           echo "::notice::Test PR number is $TEST_PR_NUMBER"
