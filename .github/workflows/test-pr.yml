@@ -43,3 +43,4 @@ jobs:
           DEBUG: 'eslint:cli-engine'
         with:
           targets: tests/**/*.js
+          config-path: './.eslintrc.legacy.json'
