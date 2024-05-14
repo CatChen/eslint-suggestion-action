@@ -1,0 +1,46 @@
+name: Test Pull Request
+
+on:
+  pull_request:
+    paths: ['[0-9a-fA-F]+']
+  workflow_dispatch:
+
+permissions: write-all
+
+jobs:
+  test_with_flat_config_in_pull_request:
+    name: Test with Flat Config in Pull Request
+    if: ${{ startsWith(github.head_ref, 'workflows/tests/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Test
+        uses: ./
+        env:
+          DEBUG: 'eslint:cli-engine'
+        with:
+          targets: tests/**/*.js
+
+  test_with_legacy_config:
+    name: Test with Legacy Config
+    if: ${{ startsWith(github.head_ref, 'workflows/tests/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Downgrade ESLint
+        run: yarn add -D eslint@8.56.0
+
+      - name: Test
+        uses: ./
+        env:
+          DEBUG: 'eslint:cli-engine'
+        with:
+          targets: tests/**/*.js
