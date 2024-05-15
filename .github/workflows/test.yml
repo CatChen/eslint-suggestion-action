@@ -129,7 +129,7 @@ jobs:
           gh pr comment "$BASE_PR_NUMBER" --body "**Checks from #$TEST_PR_NUMBER**
 
           | Check | Status |
-          | --- | --- | --- |
+          | --- | --- |
           $(cat $CHECKS_TEMP_FILE | grep -E 'https://' | awk 'BEGIN { FS ="\t" } ; { if (! seen[$1]++) print }' | sed -E 's/(.*)\t(.*)\t(.*)\t(.*)\t(.*)/| [\1](\4) | \2 |/')"
           rm -f $CHECKS_TEMP_FILE
 
