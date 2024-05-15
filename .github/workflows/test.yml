@@ -65,7 +65,7 @@ jobs:
           RUN_ATTEMPT: ${{ github.run_attempt }}
           BASE_BRANCH_NAME: ${{ github.head_ref }}
           TEST_BRANCH_NAME: ${{ format('workflows/tests/{0}-{1}-on-{2}', github.run_number, github.run_attempt, github.sha) }}
-          BASE_PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_PR_NUMBER: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests.*.number }}
           SELECTED_FILES: ${{ steps.select-files.outputs.selected-files }}
         run: |
           echo "::notice::Run number is $RUN_NUMBER"
@@ -91,13 +91,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.CREATE_PULL_REQUEST_ACTION_TOKEN }}
           SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
           RUN_ATTEMPT: ${{ github.run_attempt }}
           BASE_BRANCH_NAME: ${{ github.head_ref }}
-          BASE_PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_PR_NUMBER: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests.*.number }}
         run: |
           echo "::notice::Base PR number is $BASE_PR_NUMBER"
-          gh pr create --base "$BASE_BRANCH_NAME" --title "Test PR for #$BASE_PR_NUMBER ($SHA)" --body "Generated from #$BASE_PR_NUMBER. Run $RUN_NUMBER. Attempt $RUN_ATTEMPT."
+          gh pr create --base "$BASE_BRANCH_NAME" --title "Push Test PR for #$BASE_PR_NUMBER ($SHA)" --body "Generated from #$BASE_PR_NUMBER.
+
+          Run ID: [$RUN_ID]($(gh run view $RUN_ID --json 'url' --jq '.url')). Number: $RUN_NUMBER. Attempt: $RUN_ATTEMPT."
           TEST_PR_NUMBER=`gh pr view | grep 'number:' | cut -f 2`
           echo "test-pr-number=$TEST_PR_NUMBER" >> $GITHUB_OUTPUT
           echo "::notice::Test PR number is $TEST_PR_NUMBER"
@@ -122,7 +125,7 @@ jobs:
         if: ${{ steps.check-pr.outputs.checks-temp-file != '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_PR_NUMBER: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests.*.number }}
           TEST_PR_NUMBER: ${{ steps.open-pr.outputs.test-pr-number }}
           CHECKS_TEMP_FILE: ${{ steps.check-pr.outputs.checks-temp-file }}
         run: |
