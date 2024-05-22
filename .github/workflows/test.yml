@@ -125,7 +125,7 @@ jobs:
         if: ${{ steps.check-pr.outputs.checks-temp-file != '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_PR_NUMBER: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests.*.number }}
+          BASE_PR_NUMBER: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
           TEST_PR_NUMBER: ${{ steps.open-pr.outputs.test-pr-number }}
           CHECKS_TEMP_FILE: ${{ steps.check-pr.outputs.checks-temp-file }}
         run: |
