@@ -133,7 +133,7 @@ jobs:
 
           | Check | Status |
           | --- | --- |
-          $(cat $CHECKS_TEMP_FILE | grep -E 'https://' | awk 'BEGIN { FS ="\t" } ; { if (! seen[$1]++) print }' | sed -E 's/(.*)\t(.*)\t(.*)\t(.*)\t(.*)/| [\1](\4) | \2 |/')"
+          $(cat $CHECKS_TEMP_FILE | grep -E 'https://' | tac | awk 'BEGIN { FS ="\t" } ; { if (! seen[$1]++) print }' | sed -E 's/(.*)\t(.*)\t(.*)\t(.*)\t(.*)/| [\1](\4) | \2 |/')"
           rm -f $CHECKS_TEMP_FILE
 
       - name: Close PR
