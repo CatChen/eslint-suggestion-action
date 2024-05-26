@@ -17,7 +17,7 @@ on:
   pull_request_review:
     types: [submitted, edited, dismissed]
   check_run:
-    type: [created, rerequested, completed]
+    types: [created, rerequested, completed]
   check_suite:
     types: [completed]
   workflow_run:
@@ -74,9 +74,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - id: ship
-        uses: CatChen/accept-to-ship-action@v0.4
+      - uses: getsentry/action-github-app-token@v3
+        id: get-github-app-token
         with:
+          app_id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
+          private_key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
+
+      - id: ship
+        uses: CatChen/accept-to-ship-action@v0.5
+        with:
+          github-token: ${{ steps.get-github-app-token.outputs.token }}
           merge-method: squash
           timeout: 0
 
@@ -99,41 +106,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - id: ship
-        uses: CatChen/accept-to-ship-action@v0.4
+      - uses: getsentry/action-github-app-token@v3
+        id: get-github-app-token
         with:
+          app_id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
+          private_key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
+
+      - id: ship
+        uses: CatChen/accept-to-ship-action@v0.5
+        with:
+          github-token: ${{ steps.get-github-app-token.outputs.token }}
           merge-method: squash
           timeout: 0
           request-zero-accept-zero: true
           custom-hashtag: '#pass2ship'
-
-  build:
-    needs: [accept-to-ship, pass-to-ship]
-    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
-    permissions:
-      pull-requests: write
-      contents: write
-    uses: ./.github/workflows/build.yml
-    with:
-      ref: 'refs/heads/main'
-
-  eslint:
-    needs: [accept-to-ship, pass-to-ship]
-    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
-    uses: ./.github/workflows/eslint.yml
-    with:
-      ref: 'refs/heads/main'
-
-  test:
-    needs: [accept-to-ship, pass-to-ship]
-    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
-    uses: ./.github/workflows/test.yml
-    with:
-      ref: 'refs/heads/main'
-
-  codeql:
-    needs: [accept-to-ship, pass-to-ship]
-    if: ${{ !needs.accept-to-ship.outputs.skipped || !needs.pass-to-ship.outputs.skipped }}
-    uses: ./.github/workflows/codeql.yml
-    with:
-      ref: 'refs/heads/main'
