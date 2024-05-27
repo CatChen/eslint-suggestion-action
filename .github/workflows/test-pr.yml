@@ -25,7 +25,7 @@ jobs:
           targets: tests/**/*.js
 
   test_with_legacy_config:
-    name: Test with Legacy Config
+    name: Test with Legacy Config in Pull Request
     if: ${{ startsWith(github.head_ref, 'workflows/tests/') }}
     needs: test_with_flat_config_in_pull_request
     runs-on: ubuntu-latest
