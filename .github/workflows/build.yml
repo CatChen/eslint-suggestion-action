@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: yarn
 
+      - name: Lint
+        run: yarn lint --fix
+
       - name: Build
         run: yarn build
 
@@ -46,5 +49,4 @@ jobs:
         with:
           fail-if-not-clean: ${{ github.actor != 'dependabot[bot]' || github.actor_id != 49699333 }}
           push-if-not-clean: true
-          push-token: ${{ secrets.CHECK_GIT_STATUS_ACTION_TOKEN }}
-          request-changes-token: ${{ secrets.GITHUB_TOKEN }}
+          request-changes-if-not-clean: false
