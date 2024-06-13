@@ -1,6 +1,6 @@
 import type { ESLint, Rule } from 'eslint';
 import path from 'node:path';
-import { endGroup, info, startGroup, setFailed } from '@actions/core';
+import { endGroup, info, setFailed, startGroup } from '@actions/core';
 import { context } from '@actions/github';
 import { WorkflowRunEvent } from '@octokit/webhooks-definitions/schema';
 import { DEFAULT_WORKING_DIRECTORY, changeDirectory } from './changeDirectory';

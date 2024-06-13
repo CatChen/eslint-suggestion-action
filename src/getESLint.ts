@@ -1,9 +1,9 @@
+import type { ESLint as ProjectESLint } from 'eslint';
 import { createRequire } from 'module';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { getInput, notice } from '@actions/core';
 import { DEFAULT_WORKING_DIRECTORY } from './changeDirectory';
-import type { ESLint as ProjectESLint } from 'eslint';
 
 export async function getESLint() {
   const absoluteDirectory = resolve(
