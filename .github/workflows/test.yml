@@ -73,7 +73,7 @@ jobs:
           echo "$SELECTED_FILES" | tr ',' '\n' | xargs -n2 git checkout example/all
           BASE_NAME=$([[ -z $BASE_PR_NUMBER ]] && echo "$BASE_BRANCH_NAME" || echo "#$BASE_PR_NUMBER")
           COMMIT_MESSAGE="Test commit for $BASE_NAME ($SHA) by run $RUN_ID ($RUN_NUMBER-$RUN_ATTEMPT)"
-          git commit -am "COMMIT_MESSAGE"
+          git commit -am "$COMMIT_MESSAGE"
           echo "::notice::Test commit is `git rev-parse --verify HEAD`"
 
       - name: Git push
@@ -95,7 +95,9 @@ jobs:
           BASE_PR_NUMBER: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
         run: |
           echo "::notice::Base PR number is $BASE_PR_NUMBER"
-          gh pr create --base "$BASE_BRANCH_NAME" --title "Push Test PR for #$BASE_PR_NUMBER ($SHA)" --body "Generated from #$BASE_PR_NUMBER.
+          echo "::notice::Base branch is $BASE_BRANCH_NAME"
+          BASE_NAME=$([[ -z $BASE_PR_NUMBER ]] && echo "$BASE_BRANCH_NAME" || echo "#$BASE_PR_NUMBER")
+          gh pr create --base "$BASE_BRANCH_NAME" --title "Test PR for $BASE_NAME ($SHA)" --body "Generated from #BASE_NAME.
 
           Run ID: [$RUN_ID]($(gh run view $RUN_ID --json 'url' --jq '.url')). Number: $RUN_NUMBER. Attempt: $RUN_ATTEMPT."
           TEST_PR_NUMBER=`gh pr view | grep 'number:' | cut -f 2`
