@@ -97,7 +97,7 @@ jobs:
           echo "::notice::Base PR number is $BASE_PR_NUMBER"
           echo "::notice::Base branch is $BASE_BRANCH_NAME"
           BASE_NAME=$([[ -z $BASE_PR_NUMBER ]] && echo "$BASE_BRANCH_NAME" || echo "#$BASE_PR_NUMBER")
-          gh pr create --base "$BASE_BRANCH_NAME" --title "Test PR for $BASE_NAME ($SHA)" --body "Generated from #BASE_NAME.
+          gh pr create --base "$BASE_BRANCH_NAME" --title "Test PR for $BASE_NAME ($SHA)" --body "Generated from $BASE_NAME ($SHA).
 
           Run ID: [$RUN_ID]($(gh run view $RUN_ID --json 'url' --jq '.url')). Number: $RUN_NUMBER. Attempt: $RUN_ATTEMPT."
           TEST_PR_NUMBER=`gh pr view | grep 'number:' | cut -f 2`
