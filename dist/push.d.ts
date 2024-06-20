@@ -11,8 +11,8 @@ export declare function getPushFiles(owner: string, repo: string, beforeSha: str
     blob_url: string;
     raw_url: string;
     contents_url: string;
-    patch?: string | undefined;
-    previous_filename?: string | undefined;
+    patch?: string;
+    previous_filename?: string;
 }[] | undefined>;
 export declare function handlePush(indexedResults: {
     [file: string]: ESLint.LintResult;
