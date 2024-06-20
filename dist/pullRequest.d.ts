@@ -23,8 +23,8 @@ export declare function getPullRequestFiles(owner: string, repo: string, pullReq
     blob_url: string;
     raw_url: string;
     contents_url: string;
-    patch?: string | undefined;
-    previous_filename?: string | undefined;
+    patch?: string;
+    previous_filename?: string;
 }[]>;
 export declare function getReviewComments(owner: string, repo: string, pullRequestNumber: number, octokit: Octokit & Api): Promise<{
     url: string;
@@ -33,40 +33,18 @@ export declare function getReviewComments(owner: string, repo: string, pullReque
     node_id: string;
     diff_hunk: string;
     path: string;
-    position?: number | undefined;
-    original_position?: number | undefined;
+    position?: number;
+    original_position?: number;
     commit_id: string;
     original_commit_id: string;
-    in_reply_to_id?: number | undefined;
-    user: {
-        name?: string | null | undefined;
-        email?: string | null | undefined;
-        login: string;
-        id: number;
-        node_id: string;
-        avatar_url: string;
-        gravatar_id: string | null;
-        url: string;
-        html_url: string;
-        followers_url: string;
-        following_url: string;
-        gists_url: string;
-        starred_url: string;
-        subscriptions_url: string;
-        organizations_url: string;
-        repos_url: string;
-        events_url: string;
-        received_events_url: string;
-        type: string;
-        site_admin: boolean;
-        starred_at?: string | undefined;
-    };
+    in_reply_to_id?: number;
+    user: components["schemas"]["simple-user"];
     body: string;
     created_at: string;
     updated_at: string;
     html_url: string;
     pull_request_url: string;
-    author_association: "COLLABORATOR" | "CONTRIBUTOR" | "FIRST_TIMER" | "FIRST_TIME_CONTRIBUTOR" | "MANNEQUIN" | "MEMBER" | "NONE" | "OWNER";
+    author_association: components["schemas"]["author-association"];
     _links: {
         self: {
             href: string;
@@ -78,27 +56,16 @@ export declare function getReviewComments(owner: string, repo: string, pullReque
             href: string;
         };
     };
-    start_line?: number | null | undefined;
-    original_start_line?: number | null | undefined;
-    start_side?: "RIGHT" | "LEFT" | null | undefined;
-    line?: number | undefined;
-    original_line?: number | undefined;
-    side?: "RIGHT" | "LEFT" | undefined;
-    subject_type?: "file" | "line" | undefined;
-    reactions?: {
-        url: string;
-        total_count: number;
-        "+1": number;
-        "-1": number;
-        laugh: number;
-        confused: number;
-        heart: number;
-        hooray: number;
-        eyes: number;
-        rocket: number;
-    } | undefined;
-    body_html?: string | undefined;
-    body_text?: string | undefined;
+    start_line?: number | null;
+    original_start_line?: number | null;
+    start_side?: "LEFT" | "RIGHT" | null;
+    line?: number;
+    original_line?: number;
+    side?: "LEFT" | "RIGHT";
+    subject_type?: "line" | "file";
+    reactions?: components["schemas"]["reaction-rollup"];
+    body_html?: string;
+    body_text?: string;
 }[]>;
 export declare function getReviewThreads(owner: string, repo: string, pullRequestNumber: number, octokit: Octokit & Api): Promise<{
     [id: string]: PullRequestReviewThread;
