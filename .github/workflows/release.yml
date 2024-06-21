@@ -31,7 +31,7 @@ on:
       diff-targets:
         description: 'Diff Targets'
         required: false
-        default: 'dist/**/*'
+        default: '{README.md,dist/**/*}'
         type: string
       dry-run:
         description: 'Dry run'
@@ -77,7 +77,7 @@ jobs:
           update-shorthand-release: true
           dry-run: ${{ inputs.dry-run || false }}
           skip-if-no-diff: ${{ inputs.skip-if-no-diff || true }}
-          diff-targets: ${{ inputs.diff-targets || 'dist/**/*' }}
+          diff-targets: ${{ inputs.diff-targets || '{README.md,dist/**/*}' }}
 
   publish:
     name: Publish
