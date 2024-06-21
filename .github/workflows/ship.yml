@@ -22,7 +22,7 @@ on:
     types: [completed]
   workflow_run:
     branches: ['[0-9]+-[0-9]+-*']
-    workflows: ['Build', 'ESLint', 'CodeQL']
+    workflows: ['Build', 'Test', 'ESLint', 'CodeQL']
     types: [completed]
 
 concurrency:
@@ -57,8 +57,10 @@ jobs:
 
   accept-to-ship:
     name: Accept to Ship
+    needs: [concurrency-group]
     if: |-
       ${{
+        !startsWith(github.head_ref, 'workflows/tests/') &&
         github.base_ref == 'main' ||
         github.event.pull_request.base.ref == 'main' ||
         contains(github.event.check_run.pull_requests[0].base.ref, 'main') ||
@@ -89,8 +91,10 @@ jobs:
 
   pass-to-ship:
     name: Pass to Ship
+    needs: [concurrency-group]
     if: |-
       ${{
+        !startsWith(github.head_ref, 'workflows/tests/') &&
         github.base_ref == 'main' ||
         github.event.pull_request.base.ref == 'main' ||
         contains(github.event.check_run.pull_requests[0].base.ref, 'main') ||
