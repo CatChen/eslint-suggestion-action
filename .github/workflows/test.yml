@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main, '[0-9]+-[0-9]+-*']
   workflow_run:
-    workflows: ['Test for Dependabot']
+    workflows: ['Dependabot']
     types:
       - completed
   workflow_dispatch:

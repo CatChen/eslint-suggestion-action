@@ -1,21 +1,24 @@
-name: Label
+name: Dependabot
 
 on:
   pull_request:
-    branches: [main]
-    types: [opened]
+    branches: [main, '[0-9]+-[0-9]+-*']
   workflow_dispatch:
 
 jobs:
   label:
     name: Label
-    if: ${{ github.actor == 'dependabot[bot]' && github.actor_id == 49699333 }}
+    if: ${{ !startsWith(github.head_ref, 'workflows/tests/') && github.actor == 'dependabot[bot]' && github.actor_id == 49699333 }}
     permissions:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
+      - name: Dependabot metadata
+        id: dependabot-metadata
+        uses: dependabot/fetch-metadata@v2
+
       - name: Add label for types group
-        if: ${{ contains(github.event.pull_request.title, 'Bump the types group') }}
+        if: ${{ steps.dependabot-metadata.outputs.dependency-group == 'types' }}
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -23,7 +26,7 @@ jobs:
         run: gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "pass2ship" --remove-reviewer "catchen"
 
       - name: Add label for development-dependencies group
-        if: ${{ contains(github.event.pull_request.title, 'Bump the development-dependencies group') }}
+        if: ${{ steps.dependabot-metadata.outputs.dependency-group == 'development-dependencies' }}
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
