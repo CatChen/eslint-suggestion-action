@@ -82,7 +82,7 @@ jobs:
           prerelease: ${{ inputs.prerelease || false }}
           update-shorthand-release: true
           dry-run: ${{ inputs.dry-run || false }}
-          skip-if-no-diff: ${{ inputs.skip-if-no-diff || true }}
+          skip-if-no-diff: ${{ inputs.skip-if-no-diff || github.event_name != 'workflow_dispatch' }}
           diff-targets: ${{ inputs.diff-targets || '{README.md,dist/**/*}' }}
           github-token: ${{ steps.get-github-app-token.outputs.token }}
 
