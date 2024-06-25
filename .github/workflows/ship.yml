@@ -76,11 +76,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: getsentry/action-github-app-token@v3
+      - uses: actions/create-github-app-token@v1
         id: get-github-app-token
         with:
-          app_id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
-          private_key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
+          private-key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
 
       - id: ship
         uses: CatChen/accept-to-ship-action@v0.5
@@ -110,11 +110,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: getsentry/action-github-app-token@v3
+      - uses: actions/create-github-app-token@v1
         id: get-github-app-token
         with:
-          app_id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
-          private_key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
+          private-key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
 
       - id: ship
         uses: CatChen/accept-to-ship-action@v0.5
