@@ -20,11 +20,6 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_call:
-    inputs:
-      ref:
-        description: 'Checkout a different git ref instead of the SHA from the GitHub event.'
-        required: false
-        type: string
 
 jobs:
   analyze:
@@ -47,7 +42,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref || github.ref }}
+          ref: ${{ github.ref }}
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
