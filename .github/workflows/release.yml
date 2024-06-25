@@ -64,6 +64,12 @@ jobs:
       tag: ${{ steps.release.outputs.tag }}
       skipped: ${{ steps.release.outputs.skipped }}
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: get-github-app-token
+        with:
+          app-id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
+          private-key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
         with:
           ref: 'main'
@@ -78,6 +84,7 @@ jobs:
           dry-run: ${{ inputs.dry-run || false }}
           skip-if-no-diff: ${{ inputs.skip-if-no-diff || true }}
           diff-targets: ${{ inputs.diff-targets || '{README.md,dist/**/*}' }}
+          github-token: ${{ steps.get-github-app-token.outputs.token }}
 
   publish:
     name: Publish
