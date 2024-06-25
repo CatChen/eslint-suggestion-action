@@ -10,6 +10,7 @@ on:
     types:
       - completed
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   eslint:

@@ -11,11 +11,6 @@ on:
     types:
       - completed
   workflow_call:
-    inputs:
-      ref:
-        description: 'Checkout a different git ref instead of the SHA from the GitHub event.'
-        required: false
-        type: string
 
 jobs:
   build:
@@ -35,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-          ref: ${{ inputs.ref || github.head_ref }}
+          ref: ${{ github.head_ref }}
           token: ${{ steps.get-github-app-token.outputs.token }}
 
       - uses: actions/setup-node@v4
