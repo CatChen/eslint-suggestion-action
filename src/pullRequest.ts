@@ -1,7 +1,7 @@
 import type { Octokit } from '@octokit/core';
 import type { PullRequestReviewThread, Query } from '@octokit/graphql-schema';
-import type { components } from '@octokit/openapi-types/types';
-import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types';
+import type { components } from '@octokit/openapi-types/types.js';
+import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types.js';
 import type { ESLint, Rule } from 'eslint';
 import {
   endGroup,
@@ -11,8 +11,7 @@ import {
   notice,
   startGroup,
 } from '@actions/core';
-import { getIndexedModifiedLines } from './getIndexedModifiedLines';
-import { getOctokit } from './getOctokit';
+import { getIndexedModifiedLines } from './getIndexedModifiedLines.js';
 
 type ReviewSuggestion = {
   start_side?: 'RIGHT';
@@ -26,11 +25,11 @@ type ReviewComment = ReviewSuggestion & { path: string };
 
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 
-export async function getPullRequestFiles(
+async function getPullRequestFiles(
+  octokit: Octokit & Api,
   owner: string,
   repo: string,
   pullRequestNumber: number,
-  octokit: Octokit & Api,
 ) {
   const response = await octokit.rest.pulls.listFiles({
     owner,
@@ -41,11 +40,11 @@ export async function getPullRequestFiles(
   return response.data;
 }
 
-export async function getReviewComments(
+async function getReviewComments(
+  octokit: Octokit & Api,
   owner: string,
   repo: string,
   pullRequestNumber: number,
-  octokit: Octokit & Api,
 ) {
   const reviews = await octokit.rest.pulls.listReviews({
     owner,
@@ -71,11 +70,11 @@ export async function getReviewComments(
   return relevantReviewComments;
 }
 
-export async function getReviewThreads(
+async function getReviewThreads(
+  octokit: Octokit & Api,
   owner: string,
   repo: string,
   pullRequestNumber: number,
-  octokit: Octokit & Api,
 ) {
   const commentNodeIdToReviewThreadMapping: {
     [id: string]: PullRequestReviewThread;
@@ -199,6 +198,7 @@ export function matchReviewComments(
 }
 
 export async function handlePullRequest(
+  octokit: Octokit & Api,
   indexedResults: {
     [file: string]: ESLint.LintResult;
   },
@@ -215,26 +215,25 @@ export async function handlePullRequest(
   const requestChanges = getBooleanInput('request-changes');
 
   startGroup('GitHub Pull Request');
-  const octokit = getOctokit();
   const files = await getPullRequestFiles(
+    octokit,
     owner,
     repo,
     pullRequestNumber,
-    octokit,
   );
 
   const existingReviewComments = await getReviewComments(
+    octokit,
     owner,
     repo,
     pullRequestNumber,
-    octokit,
   );
 
   const commentNodeIdToReviewThreadMapping = await getReviewThreads(
+    octokit,
     owner,
     repo,
     pullRequestNumber,
-    octokit,
   );
 
   let commentsCounter = 0;
