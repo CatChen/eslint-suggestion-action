@@ -83,7 +83,7 @@ jobs:
           private-key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
 
       - id: ship
-        uses: CatChen/accept-to-ship-action@v0.5
+        uses: CatChen/accept-to-ship-action@v0.6
         with:
           github-token: ${{ steps.get-github-app-token.outputs.token }}
           merge-method: squash
@@ -117,7 +117,7 @@ jobs:
           private-key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
 
       - id: ship
-        uses: CatChen/accept-to-ship-action@v0.5
+        uses: CatChen/accept-to-ship-action@v0.6
         with:
           github-token: ${{ steps.get-github-app-token.outputs.token }}
           merge-method: squash
