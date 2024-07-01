@@ -3,7 +3,7 @@ import { createRequire } from 'module';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { getInput, notice } from '@actions/core';
-import { DEFAULT_WORKING_DIRECTORY } from './changeDirectory';
+import { DEFAULT_WORKING_DIRECTORY } from './changeDirectory.js';
 
 export async function getESLint() {
   const absoluteDirectory = resolve(
