@@ -1,14 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOctokit = getOctokit;
-const core_1 = require("@actions/core");
-const utils_1 = require("@actions/github/lib/utils");
-const plugin_retry_1 = require("@octokit/plugin-retry");
-const plugin_throttling_1 = require("@octokit/plugin-throttling");
-function getOctokit() {
-    const githubToken = (0, core_1.getInput)('github-token');
-    const Octokit = utils_1.GitHub.plugin(plugin_throttling_1.throttling, plugin_retry_1.retry);
-    const octokit = new Octokit((0, utils_1.getOctokitOptions)(githubToken, {
+import { GitHub, getOctokitOptions } from '@actions/github/lib/utils.js';
+import { retry } from '@octokit/plugin-retry';
+import { throttling } from '@octokit/plugin-throttling';
+export function getOctokit(githubToken) {
+    const Octokit = GitHub.plugin(throttling, retry);
+    const octokit = new Octokit(getOctokitOptions(githubToken, {
         throttle: {
             onRateLimit: (retryAfter, options, _, retryCount) => {
                 if (retryCount === 0) {
@@ -35,5 +30,10 @@ function getOctokit() {
             doNotRetry: ['429'],
         },
     }));
+    octokit.graphql = octokit.graphql.defaults({
+        headers: {
+            'X-GitHub-Next-Global-ID': 1,
+        },
+    });
     return octokit;
 }

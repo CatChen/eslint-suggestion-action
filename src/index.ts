@@ -1,21 +1,25 @@
 import type { ESLint, Rule } from 'eslint';
 import path from 'node:path';
-import { endGroup, info, setFailed, startGroup } from '@actions/core';
+import { endGroup, getInput, info, setFailed, startGroup } from '@actions/core';
 import { context } from '@actions/github';
-import { WorkflowRunEvent } from '@octokit/webhooks-definitions/schema';
-import { DEFAULT_WORKING_DIRECTORY, changeDirectory } from './changeDirectory';
-import { handleCommit } from './commit';
-import { getESLint } from './getESLint';
-import { getESLintResults } from './getESLintResults';
+import { WorkflowRunEvent } from '@octokit/webhooks-definitions/schema.js';
+import {
+  DEFAULT_WORKING_DIRECTORY,
+  changeDirectory,
+} from './changeDirectory.js';
+import { handleCommit } from './commit.js';
+import { getESLint } from './getESLint.js';
+import { getESLintResults } from './getESLintResults.js';
+import { getOctokit } from './getOctokit.js';
 import {
   getPullRequestMetadata,
   getPullRequestMetadataByNumber,
-} from './getPullRequestMetadata';
-import { getPushMetadata } from './getPushMetadata';
-import { handlePullRequest } from './pullRequest';
-import { handlePush } from './push';
+} from './getPullRequestMetadata.js';
+import { getPushMetadata } from './getPushMetadata.js';
+import { handlePullRequest } from './pullRequest.js';
+import { handlePush } from './push.js';
 
-export async function run() {
+export async function run(): Promise<void> {
   startGroup('ESLint');
   changeDirectory();
   const eslint = await getESLint();
@@ -46,6 +50,8 @@ export async function run() {
   } = eslint.getRulesMetaForResults(results);
   endGroup();
 
+  const githubToken = getInput('github-token');
+  const octokit = getOctokit(githubToken);
   info(`Event name: ${context.eventName}`);
   switch (context.eventName) {
     case 'pull_request':
@@ -54,6 +60,7 @@ export async function run() {
         const { owner, repo, pullRequestNumber, baseSha, headSha } =
           getPullRequestMetadata();
         await handlePullRequest(
+          octokit,
           indexedResults,
           ruleMetaData,
           owner,
@@ -68,6 +75,7 @@ export async function run() {
       await (async () => {
         const { owner, repo, beforeSha, afterSha } = getPushMetadata();
         await handlePush(
+          octokit,
           indexedResults,
           ruleMetaData,
           owner,
@@ -83,8 +91,9 @@ export async function run() {
         if (workflowRun.workflow_run.pull_requests.length > 0) {
           for (const pullRequest of workflowRun.workflow_run.pull_requests) {
             const { owner, repo, pullRequestNumber, baseSha, headSha } =
-              await getPullRequestMetadataByNumber(pullRequest.number);
+              await getPullRequestMetadataByNumber(octokit, pullRequest.number);
             await handlePullRequest(
+              octokit,
               indexedResults,
               ruleMetaData,
               owner,

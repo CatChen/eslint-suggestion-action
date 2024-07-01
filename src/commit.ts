@@ -9,7 +9,7 @@ import {
   startGroup,
   warning,
 } from '@actions/core';
-import { DEFAULT_WORKING_DIRECTORY } from './changeDirectory';
+import { DEFAULT_WORKING_DIRECTORY } from './changeDirectory.js';
 
 export function handleCommit(
   eventName: string,
