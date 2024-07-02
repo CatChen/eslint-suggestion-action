@@ -34,5 +34,5 @@ jobs:
         env:
           DEBUG: 'eslint:cli-engine'
         with:
-          targets: 'src/**/*'
-          fail-check: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          targets: 'src'
+          fail-check: ${{ github.event_name == 'workflow_call' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
