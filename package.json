@@ -2,9 +2,19 @@
   "name": "eslint-suggestion-action",
   "version": "4.1.1",
   "description": "",
-  "main": "lib/index.js",
-  "types": "lib/index.d.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
   "type": "module",
+  "scripts": {
+    "build": "rm -rf dist && yarn tsc",
+    "bundle": "rm -rf bundle && yarn ncc build src/index.ts --external eslint --source-map --license licenses.txt --out bundle",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint -c eslint.config.js",
+    "postinstall": "is-ci || husky install",
+    "prepublishOnly": "pinst --disable && yarn build",
+    "postpublish": "pinst --enable",
+    "preversion": "yarn && yarn build && yarn bundle"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.2",
     "@eslint/js": "^9.2.0",
@@ -22,16 +32,10 @@
     "eslint-plugin-prettier": "^5.0.0",
     "husky": "^9.0.5",
     "lint-staged": "^15.0.2",
+    "pinst": "^3.0.0",
     "prettier": "^3.0.2",
     "typescript": "^5.0.2",
     "typescript-eslint": "^7.8.0"
-  },
-  "scripts": {
-    "build": "rm -rf lib && yarn tsc",
-    "package": "rm -rf dist && yarn ncc build src/index.ts --external eslint --source-map --license licenses.txt",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint -c eslint.config.js",
-    "preversion": "yarn && yarn build && yarn package"
   },
   "repository": {
     "type": "git",
@@ -45,11 +49,11 @@
   "homepage": "https://github.com/CatChen/eslint-suggestion-action#readme",
   "funding": "https://github.com/CatChen/eslint-suggestion-action?sponsor=1",
   "dependencies": {
-    "@actions/core": "^1.7.0",
+    "@actions/core": "^1.10.0",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^6.0.0",
-    "@octokit/plugin-retry": "^6.0.1",
-    "@octokit/plugin-throttling": "^8.2.0",
+    "@octokit/plugin-retry": "^7.1.1",
+    "@octokit/plugin-throttling": "^9.3.0",
     "glob": "^10.2.3"
   },
   "resolutions": {

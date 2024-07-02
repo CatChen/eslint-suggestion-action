@@ -98,28 +98,42 @@ jobs:
         if: ${{ !inputs.dry-run }}
         with:
           ref: ${{ needs.release.outputs.tag }}
+
       - uses: actions/checkout@v4
         if: ${{ inputs.dry-run }}
         with:
           ref: ${{ github.ref_name || github.ref }}
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           check-latest: true
           registry-url: https://registry.npmjs.org/
           cache: yarn
-      - env:
+
+      - name: Build
+        run: |
+          yarn install
+          yarn build
+
+      - name: Publish
+        env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ inputs.dry-run || false }}
         run: |
-          yarn install
-          yarn build
-          npm whoami
+          NPM_WHOAMI=$(npm whoami)
+          echo "::notice::NPM username: $NPM_WHOAMI"
+
+          echo "::group::npm config"
           npm config ls -l
+          echo "::endgroup::"
+
+          echo "::group::npm publish"
           if [[ "$DRY_RUN" = true ]]
           then
             npm publish --dry-run
           else
             npm publish
           fi
+          echo "::endgroup::"

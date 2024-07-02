@@ -1,12 +1,14 @@
-.eslintrc.json
 .gitattributes
 .github/
 .husky/
+.vscode/
 .nvmrc
 .prettierignore
+.prettierrc.json
 action.yml
 assets/
-dist/
+bundle/
 src/
 tests/
+eslint.config.js
 tsconfig.json

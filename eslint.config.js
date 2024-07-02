@@ -1,7 +1,7 @@
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
 import ts from 'typescript-eslint';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,8 +31,8 @@ export default ts.config(
     rules: {},
     ignorePatterns: [
       'node_modules/**/*',
-      'lib/**/*',
       'dist/**/*',
+      'bundle/**/*',
       'eslint.config.js',
     ],
     overrides: [

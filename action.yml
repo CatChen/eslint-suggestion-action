@@ -35,7 +35,7 @@ inputs:
     required: false
 runs:
   using: 'node20'
-  main: 'dist/index.js'
+  main: 'bundle/index.js'
 branding:
   icon: 'plus-square'
   color: 'blue'

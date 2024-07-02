@@ -1,5 +1,5 @@
 import type { Octokit } from '@octokit/core';
-import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types';
+import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types.js';
 import type { ESLint, Rule } from 'eslint';
 import {
   endGroup,
@@ -10,15 +10,14 @@ import {
   startGroup,
   warning,
 } from '@actions/core';
-import { getIndexedModifiedLines } from './getIndexedModifiedLines';
-import { getOctokit } from './getOctokit';
+import { getIndexedModifiedLines } from './getIndexedModifiedLines.js';
 
-export async function getPushFiles(
+async function getPushFiles(
+  octokit: Octokit & Api,
   owner: string,
   repo: string,
   beforeSha: string,
   afterSha: string,
-  octokit: Octokit & Api,
 ) {
   const response = await octokit.rest.repos.compareCommitsWithBasehead({
     owner,
@@ -30,6 +29,7 @@ export async function getPushFiles(
 }
 
 export async function handlePush(
+  octokit: Octokit & Api,
   indexedResults: {
     [file: string]: ESLint.LintResult;
   },
@@ -44,8 +44,7 @@ export async function handlePush(
   const failCheck = getBooleanInput('fail-check');
 
   startGroup('GitHub Push');
-  const octokit = getOctokit();
-  const files = await getPushFiles(owner, repo, beforeSha, afterSha, octokit);
+  const files = await getPushFiles(octokit, owner, repo, beforeSha, afterSha);
 
   if (files === undefined || files.length === 0) {
     info(`Push contains no files`);

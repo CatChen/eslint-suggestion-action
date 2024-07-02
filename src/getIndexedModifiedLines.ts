@@ -1,4 +1,4 @@
-import type { components } from '@octokit/openapi-types/types';
+import type { components } from '@octokit/openapi-types/types.js';
 import { info } from '@actions/core';
 
 const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;

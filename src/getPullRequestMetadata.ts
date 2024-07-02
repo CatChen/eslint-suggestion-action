@@ -1,7 +1,8 @@
-import type { PullRequestEvent } from '@octokit/webhooks-definitions/schema';
+import type { Octokit } from '@octokit/core';
+import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types.js';
+import type { PullRequestEvent } from '@octokit/webhooks-definitions/schema.js';
 import { info } from '@actions/core';
 import { context } from '@actions/github';
-import { getOctokit } from './getOctokit';
 
 export function getPullRequestMetadata() {
   const pullRequest = (context.payload as PullRequestEvent).pull_request;
@@ -27,9 +28,9 @@ export function getPullRequestMetadata() {
 }
 
 export async function getPullRequestMetadataByNumber(
+  octokit: Octokit & Api,
   pullRequestNumber: number,
 ) {
-  const octokit = getOctokit();
   const owner = context.repo.owner;
   const repo = context.repo.repo;
   const response = await octokit.rest.pulls.get({
