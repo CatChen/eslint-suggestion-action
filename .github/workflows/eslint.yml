@@ -30,9 +30,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - uses: ./
-        env:
-          DEBUG: 'eslint:cli-engine'
+      - uses: CatChen/eslint-suggestion-action@v4
         with:
-          targets: 'src/**/*'
-          fail-check: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          targets: 'src'
+          fail-check: ${{ github.event_name == 'workflow_call' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
