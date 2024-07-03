@@ -31,7 +31,7 @@ on:
       diff-targets:
         description: 'Diff Targets'
         required: false
-        default: '{README.md,dist/**/*}'
+        default: '{README.md,LICENSE,dist/**/*}'
         type: string
       dry-run:
         description: 'Dry run'
@@ -47,19 +47,24 @@ jobs:
       contents: write
     secrets: inherit
 
-  eslint:
-    uses: ./.github/workflows/eslint.yml
-
   test:
     uses: ./.github/workflows/test.yml
     secrets: inherit
 
+  eslint:
+    uses: ./.github/workflows/eslint.yml
+
   codeql:
     uses: ./.github/workflows/codeql.yml
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
 
   release:
     name: Release
-    needs: [build, eslint, test, codeql]
+    needs: [build, test, eslint, codeql]
     concurrency: release
     runs-on: ubuntu-latest
     outputs:
@@ -76,6 +81,7 @@ jobs:
         with:
           ref: 'main'
           fetch-depth: 0
+          token: ${{ steps.get-github-app-token.outputs.token }}
 
       - id: release
         uses: CatChen/node-package-release-action@v2
@@ -85,7 +91,7 @@ jobs:
           update-shorthand-release: true
           dry-run: ${{ inputs.dry-run || false }}
           skip-if-no-diff: ${{ inputs.skip-if-no-diff || github.event_name != 'workflow_dispatch' }}
-          diff-targets: ${{ inputs.diff-targets || '{README.md,dist/**/*}' }}
+          diff-targets: ${{ inputs.diff-targets || '{README.md,LICENSE,dist/**/*}' }}
           github-token: ${{ steps.get-github-app-token.outputs.token }}
 
   publish:
@@ -98,28 +104,42 @@ jobs:
         if: ${{ !inputs.dry-run }}
         with:
           ref: ${{ needs.release.outputs.tag }}
+
       - uses: actions/checkout@v4
         if: ${{ inputs.dry-run }}
         with:
           ref: ${{ github.ref_name || github.ref }}
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           check-latest: true
           registry-url: https://registry.npmjs.org/
           cache: yarn
-      - env:
+
+      - name: Build
+        run: |
+          yarn install
+          yarn build
+
+      - name: Publish
+        env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ inputs.dry-run || false }}
         run: |
-          yarn install
-          yarn build
-          npm whoami
+          NPM_WHOAMI=$(npm whoami)
+          echo "::notice::NPM username: $NPM_WHOAMI"
+
+          echo "::group::npm config"
           npm config ls -l
+          echo "::endgroup::"
+
+          echo "::group::npm publish"
           if [[ "$DRY_RUN" = true ]]
           then
             npm publish --dry-run
           else
             npm publish
           fi
+          echo "::endgroup::"
