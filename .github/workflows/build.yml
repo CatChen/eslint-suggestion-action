@@ -48,8 +48,8 @@ jobs:
       - name: Build
         run: yarn build
 
-      - name: Package
-        run: yarn package
+      - name: Bundle
+        run: yarn bundle
 
       - uses: CatChen/check-git-status-action@v1
         id: check-git-status

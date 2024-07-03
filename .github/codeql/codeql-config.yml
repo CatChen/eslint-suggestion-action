@@ -1,3 +1,4 @@
 paths-ignore:
   - dist/
+  - bundle/
   - node_modules/
