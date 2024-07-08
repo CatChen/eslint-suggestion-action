@@ -10,6 +10,8 @@ export function changeDirectory() {
     DEFAULT_WORKING_DIRECTORY,
     getInput('directory'),
   );
-  info(`Working directory is changed to: ${absoluteDirectory}`);
-  process.chdir(absoluteDirectory);
+  if (absoluteDirectory !== DEFAULT_WORKING_DIRECTORY) {
+    info(`Working directory is changed to: ${absoluteDirectory}`);
+    process.chdir(absoluteDirectory);
+  }
 }
