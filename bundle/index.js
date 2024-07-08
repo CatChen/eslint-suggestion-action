@@ -30978,46 +30978,25 @@ function handleCommit(eventName, results, ruleMetaDatas) {
 /***/ }),
 
 /***/ 5173:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getESLint = getESLint;
+const module_1 = __nccwpck_require__(8188);
 const node_fs_1 = __nccwpck_require__(7561);
 const node_path_1 = __nccwpck_require__(9411);
 const core_1 = __nccwpck_require__(2186);
-const changeDirectory_js_1 = __nccwpck_require__(6386);
+const changeDirectory_1 = __nccwpck_require__(6386);
 async function getESLint() {
-    const absoluteDirectory = (0, node_path_1.resolve)(changeDirectory_js_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)('directory'));
+    const absoluteDirectory = (0, node_path_1.resolve)(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)('directory'));
+    const require = (0, module_1.createRequire)(absoluteDirectory);
     const eslintJsPath = (0, node_path_1.resolve)(absoluteDirectory, (0, core_1.getInput)('eslint-lib-path'));
     if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
         throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
     }
     (0, core_1.notice)(`Using ESLint from: ${eslintJsPath}`);
-    const { ESLint, loadESLint } = (await Promise.resolve(`${(0, node_path_1.resolve)(absoluteDirectory, eslintJsPath)}`).then(s => __importStar(require(s))));
+    const { ESLint, loadESLint } = require(eslintJsPath);
     (0, core_1.notice)(`ESLint version: ${ESLint.version}`);
     const configPath = (0, core_1.getInput)('config-path');
     if (configPath) {
@@ -31833,6 +31812,13 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("http2");
 /***/ ((module) => {
 
 module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("https");
+
+/***/ }),
+
+/***/ 8188:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("module");
 
 /***/ }),
 
