@@ -1,6 +1,9 @@
-import { info } from '@actions/core';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getIndexedModifiedLines = getIndexedModifiedLines;
+const core_1 = require("@actions/core");
 const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
-export function getIndexedModifiedLines(file) {
+function getIndexedModifiedLines(file) {
     const modifiedLines = [];
     const indexedModifiedLines = {};
     let currentLine = 0;
@@ -29,9 +32,9 @@ export function getIndexedModifiedLines(file) {
             }
         }
     }
-    info(`  File modified lines: ${modifiedLines.join()}`);
+    (0, core_1.info)(`  File modified lines: ${modifiedLines.join()}`);
     if (file.patch !== undefined) {
-        info(`  File patch: \n${file.patch
+        (0, core_1.info)(`  File patch: \n${file.patch
             .split('\n')
             .map((line) => '    ' + line)
             .join('\n')}\n`);

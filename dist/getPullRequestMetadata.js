@@ -1,17 +1,21 @@
-import { info } from '@actions/core';
-import { context } from '@actions/github';
-export function getPullRequestMetadata() {
-    const pullRequest = context.payload.pull_request;
-    const owner = context.repo.owner;
-    const repo = context.repo.repo;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getPullRequestMetadata = getPullRequestMetadata;
+exports.getPullRequestMetadataByNumber = getPullRequestMetadataByNumber;
+const core_1 = require("@actions/core");
+const github_1 = require("@actions/github");
+function getPullRequestMetadata() {
+    const pullRequest = github_1.context.payload.pull_request;
+    const owner = github_1.context.repo.owner;
+    const repo = github_1.context.repo.repo;
     const pullRequestNumber = pullRequest.number;
     const baseSha = pullRequest.base.sha;
     const headSha = pullRequest.head.sha;
-    info(`Owner: ${owner}`);
-    info(`Repo: ${repo}`);
-    info(`Pull Request number: ${pullRequestNumber}`);
-    info(`Base SHA: ${baseSha}`);
-    info(`Head SHA: ${headSha}`);
+    (0, core_1.info)(`Owner: ${owner}`);
+    (0, core_1.info)(`Repo: ${repo}`);
+    (0, core_1.info)(`Pull Request number: ${pullRequestNumber}`);
+    (0, core_1.info)(`Base SHA: ${baseSha}`);
+    (0, core_1.info)(`Head SHA: ${headSha}`);
     return {
         owner,
         repo,
@@ -20,9 +24,9 @@ export function getPullRequestMetadata() {
         headSha,
     };
 }
-export async function getPullRequestMetadataByNumber(octokit, pullRequestNumber) {
-    const owner = context.repo.owner;
-    const repo = context.repo.repo;
+async function getPullRequestMetadataByNumber(octokit, pullRequestNumber) {
+    const owner = github_1.context.repo.owner;
+    const repo = github_1.context.repo.repo;
     const response = await octokit.rest.pulls.get({
         owner,
         repo,
@@ -31,11 +35,11 @@ export async function getPullRequestMetadataByNumber(octokit, pullRequestNumber)
     const pullRequest = response.data;
     const baseSha = pullRequest.base.sha;
     const headSha = pullRequest.head.sha;
-    info(`Owner: ${owner}`);
-    info(`Repo: ${repo}`);
-    info(`Pull Request number: ${pullRequestNumber}`);
-    info(`Base SHA: ${baseSha}`);
-    info(`Head SHA: ${headSha}`);
+    (0, core_1.info)(`Owner: ${owner}`);
+    (0, core_1.info)(`Repo: ${repo}`);
+    (0, core_1.info)(`Pull Request number: ${pullRequestNumber}`);
+    (0, core_1.info)(`Base SHA: ${baseSha}`);
+    (0, core_1.info)(`Head SHA: ${headSha}`);
     return {
         owner,
         repo,

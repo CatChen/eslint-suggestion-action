@@ -1,9 +1,12 @@
-import { GitHub, getOctokitOptions } from '@actions/github/lib/utils.js';
-import { retry } from '@octokit/plugin-retry';
-import { throttling } from '@octokit/plugin-throttling';
-export function getOctokit(githubToken) {
-    const Octokit = GitHub.plugin(throttling, retry);
-    const octokit = new Octokit(getOctokitOptions(githubToken, {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getOctokit = getOctokit;
+const utils_js_1 = require("@actions/github/lib/utils.js");
+const plugin_retry_1 = require("@octokit/plugin-retry");
+const plugin_throttling_1 = require("@octokit/plugin-throttling");
+function getOctokit(githubToken) {
+    const Octokit = utils_js_1.GitHub.plugin(plugin_throttling_1.throttling, plugin_retry_1.retry);
+    const octokit = new Octokit((0, utils_js_1.getOctokitOptions)(githubToken, {
         throttle: {
             onRateLimit: (retryAfter, options, _, retryCount) => {
                 if (retryCount === 0) {
