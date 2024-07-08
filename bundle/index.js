@@ -30902,8 +30902,10 @@ exports.DEFAULT_WORKING_DIRECTORY = node_process_1.default.cwd();
 function changeDirectory() {
     (0, core_1.info)(`Working directory is: ${exports.DEFAULT_WORKING_DIRECTORY}`);
     const absoluteDirectory = node_path_1.default.resolve(exports.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)('directory'));
-    (0, core_1.info)(`Working directory is changed to: ${absoluteDirectory}`);
-    node_process_1.default.chdir(absoluteDirectory);
+    if (absoluteDirectory !== exports.DEFAULT_WORKING_DIRECTORY) {
+        (0, core_1.info)(`Working directory is changed to: ${absoluteDirectory}`);
+        node_process_1.default.chdir(absoluteDirectory);
+    }
 }
 
 
