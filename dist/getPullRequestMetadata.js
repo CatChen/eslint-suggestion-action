@@ -4,7 +4,6 @@ exports.getPullRequestMetadata = getPullRequestMetadata;
 exports.getPullRequestMetadataByNumber = getPullRequestMetadataByNumber;
 const core_1 = require("@actions/core");
 const github_1 = require("@actions/github");
-const getOctokit_1 = require("./getOctokit");
 function getPullRequestMetadata() {
     const pullRequest = github_1.context.payload.pull_request;
     const owner = github_1.context.repo.owner;
@@ -25,8 +24,7 @@ function getPullRequestMetadata() {
         headSha,
     };
 }
-async function getPullRequestMetadataByNumber(pullRequestNumber) {
-    const octokit = (0, getOctokit_1.getOctokit)();
+async function getPullRequestMetadataByNumber(octokit, pullRequestNumber) {
     const owner = github_1.context.repo.owner;
     const repo = github_1.context.repo.repo;
     const response = await octokit.rest.pulls.get({

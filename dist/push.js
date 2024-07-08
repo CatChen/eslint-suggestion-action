@@ -1,11 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPushFiles = getPushFiles;
 exports.handlePush = handlePush;
 const core_1 = require("@actions/core");
-const getIndexedModifiedLines_1 = require("./getIndexedModifiedLines");
-const getOctokit_1 = require("./getOctokit");
-async function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
+const getIndexedModifiedLines_js_1 = require("./getIndexedModifiedLines.js");
+async function getPushFiles(octokit, owner, repo, beforeSha, afterSha) {
     const response = await octokit.rest.repos.compareCommitsWithBasehead({
         owner,
         repo,
@@ -14,11 +12,10 @@ async function getPushFiles(owner, repo, beforeSha, afterSha, octokit) {
     (0, core_1.info)(`Files: (${response.data.files?.length ?? 0})`);
     return response.data.files;
 }
-async function handlePush(indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
+async function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
     const failCheck = (0, core_1.getBooleanInput)('fail-check');
     (0, core_1.startGroup)('GitHub Push');
-    const octokit = (0, getOctokit_1.getOctokit)();
-    const files = await getPushFiles(owner, repo, beforeSha, afterSha, octokit);
+    const files = await getPushFiles(octokit, owner, repo, beforeSha, afterSha);
     if (files === undefined || files.length === 0) {
         (0, core_1.info)(`Push contains no files`);
         return;
@@ -31,7 +28,7 @@ async function handlePush(indexedResults, ruleMetaDatas, owner, repo, beforeSha,
         if (file.status === 'removed') {
             continue;
         }
-        const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
+        const indexedModifiedLines = (0, getIndexedModifiedLines_js_1.getIndexedModifiedLines)(file);
         const result = indexedResults[file.filename];
         if (result) {
             for (const message of result.messages) {

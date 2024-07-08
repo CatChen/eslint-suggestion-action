@@ -1,16 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPullRequestFiles = getPullRequestFiles;
-exports.getReviewComments = getReviewComments;
-exports.getReviewThreads = getReviewThreads;
 exports.getCommentFromFix = getCommentFromFix;
 exports.matchReviewComments = matchReviewComments;
 exports.handlePullRequest = handlePullRequest;
 const core_1 = require("@actions/core");
-const getIndexedModifiedLines_1 = require("./getIndexedModifiedLines");
-const getOctokit_1 = require("./getOctokit");
+const getIndexedModifiedLines_js_1 = require("./getIndexedModifiedLines.js");
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
-async function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
+async function getPullRequestFiles(octokit, owner, repo, pullRequestNumber) {
     const response = await octokit.rest.pulls.listFiles({
         owner,
         repo,
@@ -19,7 +15,7 @@ async function getPullRequestFiles(owner, repo, pullRequestNumber, octokit) {
     (0, core_1.info)(`Files: (${response.data.length})`);
     return response.data;
 }
-async function getReviewComments(owner, repo, pullRequestNumber, octokit) {
+async function getReviewComments(octokit, owner, repo, pullRequestNumber) {
     const reviews = await octokit.rest.pulls.listReviews({
         owner,
         repo,
@@ -38,7 +34,7 @@ async function getReviewComments(owner, repo, pullRequestNumber, octokit) {
     (0, core_1.info)(`Existing review comments: (${relevantReviewComments.length})`);
     return relevantReviewComments;
 }
-async function getReviewThreads(owner, repo, pullRequestNumber, octokit) {
+async function getReviewThreads(octokit, owner, repo, pullRequestNumber) {
     const commentNodeIdToReviewThreadMapping = {};
     const queryData = await octokit.graphql(`
       query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
@@ -134,14 +130,13 @@ function matchReviewComments(reviewComments, reviewComment) {
     }
     return matchedNodeIds;
 }
-async function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha) {
+async function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha) {
     const failCheck = (0, core_1.getBooleanInput)('fail-check');
     const requestChanges = (0, core_1.getBooleanInput)('request-changes');
     (0, core_1.startGroup)('GitHub Pull Request');
-    const octokit = (0, getOctokit_1.getOctokit)();
-    const files = await getPullRequestFiles(owner, repo, pullRequestNumber, octokit);
-    const existingReviewComments = await getReviewComments(owner, repo, pullRequestNumber, octokit);
-    const commentNodeIdToReviewThreadMapping = await getReviewThreads(owner, repo, pullRequestNumber, octokit);
+    const files = await getPullRequestFiles(octokit, owner, repo, pullRequestNumber);
+    const existingReviewComments = await getReviewComments(octokit, owner, repo, pullRequestNumber);
+    const commentNodeIdToReviewThreadMapping = await getReviewThreads(octokit, owner, repo, pullRequestNumber);
     let commentsCounter = 0;
     let outOfScopeResultsCounter = 0;
     const reviewComments = [];
@@ -152,7 +147,7 @@ async function handlePullRequest(indexedResults, ruleMetaDatas, owner, repo, pul
         if (file.status === 'removed') {
             continue;
         }
-        const indexedModifiedLines = (0, getIndexedModifiedLines_1.getIndexedModifiedLines)(file);
+        const indexedModifiedLines = (0, getIndexedModifiedLines_js_1.getIndexedModifiedLines)(file);
         const result = indexedResults[file.filename];
         if (result) {
             for (const message of result.messages) {
