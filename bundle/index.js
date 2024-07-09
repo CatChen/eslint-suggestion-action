@@ -30885,861 +30885,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 6386:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.DEFAULT_WORKING_DIRECTORY = void 0;
-exports.changeDirectory = changeDirectory;
-const node_path_1 = __importDefault(__nccwpck_require__(9411));
-const node_process_1 = __importDefault(__nccwpck_require__(7742));
-const core_1 = __nccwpck_require__(2186);
-exports.DEFAULT_WORKING_DIRECTORY = node_process_1.default.cwd();
-function changeDirectory() {
-    (0, core_1.info)(`Working directory is: ${exports.DEFAULT_WORKING_DIRECTORY}`);
-    const absoluteDirectory = node_path_1.default.resolve(exports.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)('directory'));
-    if (absoluteDirectory !== exports.DEFAULT_WORKING_DIRECTORY) {
-        (0, core_1.info)(`Working directory is changed to: ${absoluteDirectory}`);
-        node_process_1.default.chdir(absoluteDirectory);
-    }
-}
-
-
-/***/ }),
-
-/***/ 1730:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.handleCommit = handleCommit;
-const node_path_1 = __importDefault(__nccwpck_require__(9411));
-const core_1 = __nccwpck_require__(2186);
-const changeDirectory_js_1 = __nccwpck_require__(6386);
-function handleCommit(eventName, results, ruleMetaDatas) {
-    const failCheck = (0, core_1.getBooleanInput)('fail-check');
-    (0, core_1.startGroup)(`GitHub ${eventName}`);
-    let warningCounter = 0;
-    let errorCounter = 0;
-    for (const result of results) {
-        const relativePath = node_path_1.default.relative(changeDirectory_js_1.DEFAULT_WORKING_DIRECTORY, result.filePath);
-        for (const message of result.messages) {
-            if (message.ruleId === null || result.source === undefined) {
-                continue;
-            }
-            const rule = ruleMetaDatas[message.ruleId];
-            (0, core_1.info)(`  ${relativePath}:${message.line}`);
-            switch (message.severity) {
-                case 0:
-                    (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
-                        file: relativePath,
-                        startLine: message.line,
-                    });
-                    break;
-                case 1:
-                    (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
-                        file: relativePath,
-                        startLine: message.line,
-                    });
-                    warningCounter++;
-                    break;
-                case 2:
-                    (0, core_1.error)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
-                        file: relativePath,
-                        startLine: message.line,
-                    });
-                    errorCounter++;
-                    break;
-            }
-        }
-    }
-    (0, core_1.endGroup)();
-    (0, core_1.startGroup)('Feedback');
-    if (warningCounter > 0 || errorCounter > 0) {
-        if (failCheck) {
-            throw new Error('ESLint fails.');
-        }
-        else {
-            (0, core_1.error)('ESLint fails');
-        }
-    }
-    else {
-        (0, core_1.notice)('ESLint passes');
-    }
-    (0, core_1.endGroup)();
-}
-
-
-/***/ }),
-
-/***/ 5173:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getESLint = getESLint;
-const module_1 = __nccwpck_require__(8188);
-const node_fs_1 = __nccwpck_require__(7561);
-const node_path_1 = __nccwpck_require__(9411);
-const core_1 = __nccwpck_require__(2186);
-const changeDirectory_1 = __nccwpck_require__(6386);
-async function getESLint() {
-    const absoluteDirectory = (0, node_path_1.resolve)(changeDirectory_1.DEFAULT_WORKING_DIRECTORY, (0, core_1.getInput)('directory'));
-    const require = (0, module_1.createRequire)(absoluteDirectory);
-    const eslintJsPath = (0, node_path_1.resolve)(absoluteDirectory, (0, core_1.getInput)('eslint-lib-path'));
-    if (!(0, node_fs_1.existsSync)(eslintJsPath)) {
-        throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
-    }
-    (0, core_1.notice)(`Using ESLint from: ${eslintJsPath}`);
-    const { ESLint, loadESLint } = require(eslintJsPath);
-    (0, core_1.notice)(`ESLint version: ${ESLint.version}`);
-    const configPath = (0, core_1.getInput)('config-path');
-    if (configPath) {
-        const absoluteConfigPath = (0, node_path_1.resolve)(absoluteDirectory, configPath);
-        (0, core_1.notice)(`Using ESLint config from: ${absoluteConfigPath}`);
-        const eslint = new ESLint({ overrideConfigFile: absoluteConfigPath });
-        return eslint;
-    }
-    if (loadESLint) {
-        // ESLint 8.57.0 and later
-        (0, core_1.notice)('Using ESLint with default configuration');
-        const eslint = new (await loadESLint())();
-        return eslint;
-    }
-    const eslintConfig = (await new ESLint().calculateConfigForFile('package.json'));
-    if (!eslintConfig) {
-        throw new Error('Failed to find ESLint configuration. Please set the config-path input.');
-    }
-    const eslint = new ESLint({ baseConfig: eslintConfig });
-    return eslint;
-}
-
-
-/***/ }),
-
-/***/ 7523:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getESLintResults = getESLintResults;
-const core_1 = __nccwpck_require__(2186);
-const glob_1 = __nccwpck_require__(8211);
-async function getESLintResults(eslint) {
-    const targets = (0, core_1.getInput)('targets');
-    return eslint.lintFiles(targets ? (0, glob_1.sync)(targets) : []);
-}
-
-
-/***/ }),
-
-/***/ 7738:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getIndexedModifiedLines = getIndexedModifiedLines;
-const core_1 = __nccwpck_require__(2186);
-const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
-function getIndexedModifiedLines(file) {
-    const modifiedLines = [];
-    const indexedModifiedLines = {};
-    let currentLine = 0;
-    let remainingLinesInHunk = 0;
-    const lines = file.patch?.split('\n');
-    if (lines) {
-        for (const line of lines) {
-            if (remainingLinesInHunk === 0) {
-                const matches = line.match(HUNK_HEADER_PATTERN);
-                currentLine = parseInt(matches?.[2] || '1');
-                remainingLinesInHunk = parseInt(matches?.[4] || '1');
-                if (!currentLine || !remainingLinesInHunk) {
-                    throw new Error(`Expecting hunk header in ${file.filename} but seeing ${line}.`);
-                }
-            }
-            else if (line[0] === '-') {
-                continue;
-            }
-            else {
-                if (line[0] === '+') {
-                    modifiedLines.push(currentLine);
-                    indexedModifiedLines[currentLine] = true;
-                }
-                currentLine++;
-                remainingLinesInHunk--;
-            }
-        }
-    }
-    (0, core_1.info)(`  File modified lines: ${modifiedLines.join()}`);
-    if (file.patch !== undefined) {
-        (0, core_1.info)(`  File patch: \n${file.patch
-            .split('\n')
-            .map((line) => '    ' + line)
-            .join('\n')}\n`);
-    }
-    return indexedModifiedLines;
-}
-
-
-/***/ }),
-
-/***/ 8442:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getOctokit = getOctokit;
-const utils_js_1 = __nccwpck_require__(3030);
-const plugin_retry_1 = __nccwpck_require__(675);
-const plugin_throttling_1 = __nccwpck_require__(3432);
-function getOctokit(githubToken) {
-    const Octokit = utils_js_1.GitHub.plugin(plugin_throttling_1.throttling, plugin_retry_1.retry);
-    const octokit = new Octokit((0, utils_js_1.getOctokitOptions)(githubToken, {
-        throttle: {
-            onRateLimit: (retryAfter, options, _, retryCount) => {
-                if (retryCount === 0) {
-                    octokit.log.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
-                    octokit.log.info(`Retrying after ${retryAfter} seconds!`);
-                    return true;
-                }
-                else {
-                    octokit.log.error(`Request quota exhausted for request ${options.method} ${options.url}`);
-                }
-            },
-            onSecondaryRateLimit: (retryAfter, options, _, retryCount) => {
-                if (retryCount === 0) {
-                    octokit.log.warn(`Abuse detected for request ${options.method} ${options.url}`);
-                    octokit.log.info(`Retrying after ${retryAfter} seconds!`);
-                    return true;
-                }
-                else {
-                    octokit.log.warn(`Abuse detected for request ${options.method} ${options.url}`);
-                }
-            },
-        },
-        retry: {
-            doNotRetry: ['429'],
-        },
-    }));
-    octokit.graphql = octokit.graphql.defaults({
-        headers: {
-            'X-GitHub-Next-Global-ID': 1,
-        },
-    });
-    return octokit;
-}
-
-
-/***/ }),
-
-/***/ 6941:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getPullRequestMetadata = getPullRequestMetadata;
-exports.getPullRequestMetadataByNumber = getPullRequestMetadataByNumber;
-const core_1 = __nccwpck_require__(2186);
-const github_1 = __nccwpck_require__(5438);
-function getPullRequestMetadata() {
-    const pullRequest = github_1.context.payload.pull_request;
-    const owner = github_1.context.repo.owner;
-    const repo = github_1.context.repo.repo;
-    const pullRequestNumber = pullRequest.number;
-    const baseSha = pullRequest.base.sha;
-    const headSha = pullRequest.head.sha;
-    (0, core_1.info)(`Owner: ${owner}`);
-    (0, core_1.info)(`Repo: ${repo}`);
-    (0, core_1.info)(`Pull Request number: ${pullRequestNumber}`);
-    (0, core_1.info)(`Base SHA: ${baseSha}`);
-    (0, core_1.info)(`Head SHA: ${headSha}`);
-    return {
-        owner,
-        repo,
-        pullRequestNumber,
-        baseSha,
-        headSha,
-    };
-}
-async function getPullRequestMetadataByNumber(octokit, pullRequestNumber) {
-    const owner = github_1.context.repo.owner;
-    const repo = github_1.context.repo.repo;
-    const response = await octokit.rest.pulls.get({
-        owner,
-        repo,
-        pull_number: pullRequestNumber,
-    });
-    const pullRequest = response.data;
-    const baseSha = pullRequest.base.sha;
-    const headSha = pullRequest.head.sha;
-    (0, core_1.info)(`Owner: ${owner}`);
-    (0, core_1.info)(`Repo: ${repo}`);
-    (0, core_1.info)(`Pull Request number: ${pullRequestNumber}`);
-    (0, core_1.info)(`Base SHA: ${baseSha}`);
-    (0, core_1.info)(`Head SHA: ${headSha}`);
-    return {
-        owner,
-        repo,
-        pullRequestNumber,
-        baseSha,
-        headSha,
-    };
-}
-
-
-/***/ }),
-
-/***/ 7801:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getPushMetadata = getPushMetadata;
-const core_1 = __nccwpck_require__(2186);
-const github_1 = __nccwpck_require__(5438);
-function getPushMetadata() {
-    const push = github_1.context.payload;
-    const owner = github_1.context.repo.owner;
-    const repo = github_1.context.repo.repo;
-    const beforeSha = push.before;
-    const afterSha = push.after;
-    (0, core_1.info)(`Owner: ${owner}`);
-    (0, core_1.info)(`Repo: ${repo}`);
-    (0, core_1.info)(`Before SHA: ${beforeSha}`);
-    (0, core_1.info)(`After SHA: ${afterSha}`);
-    return {
-        owner,
-        repo,
-        beforeSha,
-        afterSha,
-    };
-}
-
-
-/***/ }),
-
-/***/ 6144:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = run;
-const node_path_1 = __importDefault(__nccwpck_require__(9411));
-const core_1 = __nccwpck_require__(2186);
-const github_1 = __nccwpck_require__(5438);
-const changeDirectory_js_1 = __nccwpck_require__(6386);
-const commit_js_1 = __nccwpck_require__(1730);
-const getESLint_js_1 = __nccwpck_require__(5173);
-const getESLintResults_js_1 = __nccwpck_require__(7523);
-const getOctokit_js_1 = __nccwpck_require__(8442);
-const getPullRequestMetadata_js_1 = __nccwpck_require__(6941);
-const getPushMetadata_js_1 = __nccwpck_require__(7801);
-const pullRequest_js_1 = __nccwpck_require__(3894);
-const push_js_1 = __nccwpck_require__(4755);
-async function run() {
-    (0, core_1.startGroup)('ESLint');
-    (0, changeDirectory_js_1.changeDirectory)();
-    const eslint = await (0, getESLint_js_1.getESLint)();
-    const results = await (0, getESLintResults_js_1.getESLintResults)(eslint);
-    const indexedResults = {};
-    for (const file of results) {
-        const relativePath = node_path_1.default.relative(changeDirectory_js_1.DEFAULT_WORKING_DIRECTORY, file.filePath);
-        (0, core_1.info)(`File name: ${relativePath}`);
-        indexedResults[relativePath] = file;
-        for (const message of file.messages) {
-            (0, core_1.info)(`  [${message.severity}] ${message.message} @ ${message.line}`);
-            if (message.suggestions) {
-                (0, core_1.info)(`  Suggestions (${message.suggestions.length}):`);
-                for (const suggestion of message.suggestions) {
-                    (0, core_1.info)(`    ${suggestion.desc} (${suggestion.messageId})`);
-                }
-            }
-        }
-    }
-    const ruleMetaData = eslint.getRulesMetaForResults(results);
-    (0, core_1.endGroup)();
-    const githubToken = (0, core_1.getInput)('github-token');
-    const octokit = (0, getOctokit_js_1.getOctokit)(githubToken);
-    (0, core_1.info)(`Event name: ${github_1.context.eventName}`);
-    switch (github_1.context.eventName) {
-        case 'pull_request':
-        case 'pull_request_target':
-            await (async () => {
-                const { owner, repo, pullRequestNumber, baseSha, headSha } = (0, getPullRequestMetadata_js_1.getPullRequestMetadata)();
-                await (0, pullRequest_js_1.handlePullRequest)(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
-            })();
-            break;
-        case 'push':
-            await (async () => {
-                const { owner, repo, beforeSha, afterSha } = (0, getPushMetadata_js_1.getPushMetadata)();
-                await (0, push_js_1.handlePush)(octokit, indexedResults, ruleMetaData, owner, repo, beforeSha, afterSha);
-            })();
-            break;
-        case 'workflow_run':
-            await (async () => {
-                const workflowRun = github_1.context.payload;
-                if (workflowRun.workflow_run.pull_requests.length > 0) {
-                    for (const pullRequest of workflowRun.workflow_run.pull_requests) {
-                        const { owner, repo, pullRequestNumber, baseSha, headSha } = await (0, getPullRequestMetadata_js_1.getPullRequestMetadataByNumber)(octokit, pullRequest.number);
-                        await (0, pullRequest_js_1.handlePullRequest)(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
-                    }
-                }
-                else {
-                    const workflowSourceEventName = workflowRun.workflow_run.event
-                        .split('_')
-                        .map((word) => word[0]?.toUpperCase() + word.substring(1))
-                        .join(' ');
-                    (0, commit_js_1.handleCommit)(`Workflow (${workflowSourceEventName})`, results, ruleMetaData);
-                }
-            })();
-            break;
-        default:
-            (0, commit_js_1.handleCommit)(github_1.context.eventName
-                .split('_')
-                .map((word) => word[0]?.toUpperCase() + word.substring(1))
-                .join(' '), results, ruleMetaData);
-            break;
-    }
-}
-run().catch((error) => (0, core_1.setFailed)(error));
-
-
-/***/ }),
-
-/***/ 3894:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getCommentFromFix = getCommentFromFix;
-exports.matchReviewComments = matchReviewComments;
-exports.handlePullRequest = handlePullRequest;
-const core_1 = __nccwpck_require__(2186);
-const getIndexedModifiedLines_js_1 = __nccwpck_require__(7738);
-const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
-async function getPullRequestFiles(octokit, owner, repo, pullRequestNumber) {
-    const response = await octokit.rest.pulls.listFiles({
-        owner,
-        repo,
-        pull_number: pullRequestNumber,
-    });
-    (0, core_1.info)(`Files: (${response.data.length})`);
-    return response.data;
-}
-async function getReviewComments(octokit, owner, repo, pullRequestNumber) {
-    const reviews = await octokit.rest.pulls.listReviews({
-        owner,
-        repo,
-        pull_number: pullRequestNumber,
-    });
-    const reviewComments = await octokit.rest.pulls.listReviewComments({
-        owner,
-        repo,
-        pull_number: pullRequestNumber,
-    });
-    const relevantReviews = reviews.data.filter((review) => review.user?.id === 41898282 && review.body === REVIEW_BODY);
-    const relevantReviewIds = relevantReviews.map((review) => review.id);
-    const relevantReviewComments = reviewComments.data.filter((reviewComment) => reviewComment.user.id === 41898282 &&
-        reviewComment.pull_request_review_id !== null &&
-        relevantReviewIds.includes(reviewComment.pull_request_review_id));
-    (0, core_1.info)(`Existing review comments: (${relevantReviewComments.length})`);
-    return relevantReviewComments;
-}
-async function getReviewThreads(octokit, owner, repo, pullRequestNumber) {
-    const commentNodeIdToReviewThreadMapping = {};
-    const queryData = await octokit.graphql(`
-      query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
-        repository(owner: $owner, name: $repo) {
-          pullRequest(number: $pullRequestNumber) {
-            reviewThreads(last: 100) {
-              totalCount
-              nodes {
-                id
-                isResolved
-                comments(last: 100) {
-                  totalCount
-                  nodes {
-                    id
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `, {
-        owner,
-        repo,
-        pullRequestNumber,
-    });
-    const reviewThreadTotalCount = queryData?.repository?.pullRequest?.reviewThreads?.totalCount;
-    if (reviewThreadTotalCount !== undefined && reviewThreadTotalCount > 100) {
-        (0, core_1.error)(`There are more than 100 review threads: ${reviewThreadTotalCount}`);
-    }
-    const reviewThreads = queryData?.repository?.pullRequest?.reviewThreads?.nodes;
-    if (reviewThreads !== undefined && reviewThreads !== null) {
-        for (const reviewThread of reviewThreads) {
-            if (reviewThread === null) {
-                continue;
-            }
-            const commentTotalCount = reviewThread?.comments?.totalCount;
-            if (commentTotalCount !== undefined && commentTotalCount > 100) {
-                (0, core_1.error)(`There are more than 100 review comments in review thread ${reviewThread?.id}: ${commentTotalCount}`);
-            }
-            const comments = reviewThread?.comments?.nodes;
-            if (comments !== undefined && comments !== null) {
-                for (const comment of comments) {
-                    const commentId = comment?.id;
-                    if (commentId === undefined) {
-                        continue;
-                    }
-                    commentNodeIdToReviewThreadMapping[commentId] = reviewThread;
-                }
-            }
-        }
-    }
-    return commentNodeIdToReviewThreadMapping;
-}
-function getCommentFromFix(source, line, fix) {
-    const textRange = source.substring(fix.range[0], fix.range[1]);
-    const impactedOriginalLines = textRange.split('\n').length;
-    const originalLines = source
-        .split('\n')
-        .slice(line - 1, line - 1 + impactedOriginalLines);
-    const replacedSource = source.substring(0, fix.range[0]) +
-        fix.text +
-        source.substring(fix.range[1]);
-    const impactedReplaceLines = fix.text.split('\n').length;
-    const replacedLines = replacedSource
-        .split('\n')
-        .slice(line - 1, line - 1 + impactedReplaceLines);
-    (0, core_1.info)('    Fix:\n' +
-        '      ' +
-        `@@ -${line},${impactedOriginalLines} +${impactedReplaceLines} @@\n` +
-        `${originalLines.map((line) => '      - ' + line).join('\n')}\n` +
-        `${replacedLines.map((line) => '      + ' + line).join('\n')}`);
-    const reviewSuggestion = {
-        start_side: impactedOriginalLines === 1 ? undefined : 'RIGHT',
-        start_line: impactedOriginalLines === 1 ? undefined : line,
-        side: 'RIGHT',
-        line: line + impactedOriginalLines - 1,
-        body: '```suggestion\n' + `${replacedLines.join('\n')}\n` + '```\n',
-    };
-    return reviewSuggestion;
-}
-function matchReviewComments(reviewComments, reviewComment) {
-    const matchedNodeIds = [];
-    for (const existingReviewComment of reviewComments) {
-        if (existingReviewComment.path === reviewComment.path &&
-            existingReviewComment.line === reviewComment.line &&
-            existingReviewComment.side === reviewComment.side &&
-            existingReviewComment.start_line == reviewComment.start_line && // null-undefined comparison
-            existingReviewComment.start_side == reviewComment.start_side && // null-undefined comparison
-            existingReviewComment.body === reviewComment.body) {
-            matchedNodeIds.push(existingReviewComment.node_id);
-        }
-    }
-    return matchedNodeIds;
-}
-async function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha) {
-    const failCheck = (0, core_1.getBooleanInput)('fail-check');
-    const requestChanges = (0, core_1.getBooleanInput)('request-changes');
-    (0, core_1.startGroup)('GitHub Pull Request');
-    const files = await getPullRequestFiles(octokit, owner, repo, pullRequestNumber);
-    const existingReviewComments = await getReviewComments(octokit, owner, repo, pullRequestNumber);
-    const commentNodeIdToReviewThreadMapping = await getReviewThreads(octokit, owner, repo, pullRequestNumber);
-    let commentsCounter = 0;
-    let outOfScopeResultsCounter = 0;
-    const reviewComments = [];
-    let matchedReviewCommentNodeIds = {};
-    for (const file of files) {
-        (0, core_1.info)(`  File name: ${file.filename}`);
-        (0, core_1.info)(`  File status: ${file.status}`);
-        if (file.status === 'removed') {
-            continue;
-        }
-        const indexedModifiedLines = (0, getIndexedModifiedLines_js_1.getIndexedModifiedLines)(file);
-        const result = indexedResults[file.filename];
-        if (result) {
-            for (const message of result.messages) {
-                if (message.ruleId === null || result.source === undefined) {
-                    continue;
-                }
-                const rule = ruleMetaDatas[message.ruleId];
-                if (indexedModifiedLines[message.line]) {
-                    (0, core_1.info)(`  Matched line: ${message.line}`);
-                    if (message.fix) {
-                        const reviewSuggestion = getCommentFromFix(result.source, message.line, message.fix);
-                        const reviewComment = {
-                            ...reviewSuggestion,
-                            body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nFix available:\n\n` +
-                                reviewSuggestion.body,
-                            path: file.filename,
-                        };
-                        const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
-                        commentsCounter++;
-                        if (matchedComments.length === 0) {
-                            reviewComments.push(reviewComment);
-                            (0, core_1.info)(`    Comment queued`);
-                        }
-                        else {
-                            matchedReviewCommentNodeIds = {
-                                ...matchedReviewCommentNodeIds,
-                                ...Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])),
-                            };
-                            (0, core_1.info)(`    Comment skipped`);
-                        }
-                    }
-                    else if (message.suggestions) {
-                        let reviewSuggestions = undefined;
-                        for (const suggestion of message.suggestions) {
-                            const reviewSuggestion = getCommentFromFix(result.source, message.line, suggestion.fix);
-                            if (reviewSuggestions === undefined) {
-                                reviewSuggestions = { ...reviewSuggestion };
-                            }
-                            else {
-                                if (reviewSuggestion.start_line !==
-                                    reviewSuggestions.start_line ||
-                                    reviewSuggestion.line !== reviewSuggestions.line) {
-                                    (0, core_1.error)(`    Suggestions have mismatched line(s): ${reviewSuggestions.start_line === undefined
-                                        ? ''
-                                        : reviewSuggestions.start_line + ':'}${reviewSuggestions.line} and ${reviewSuggestion.start_line === undefined
-                                        ? ''
-                                        : reviewSuggestion.start_line + ':'}${reviewSuggestion.line}`);
-                                }
-                                reviewSuggestions.body += '\n' + reviewSuggestion.body;
-                            }
-                        }
-                        if (reviewSuggestions !== undefined) {
-                            const reviewComment = {
-                                ...reviewSuggestions,
-                                body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
-                                    reviewSuggestions.body,
-                                path: file.filename,
-                            };
-                            const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
-                            commentsCounter++;
-                            if (matchedComments.length === 0) {
-                                reviewComments.push(reviewComment);
-                                (0, core_1.info)(`    Comment queued`);
-                            }
-                            else {
-                                matchedReviewCommentNodeIds = {
-                                    ...matchedReviewCommentNodeIds,
-                                    ...Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])),
-                                };
-                                (0, core_1.info)(`    Comment skipped`);
-                            }
-                        }
-                    }
-                    else {
-                        const reviewComment = {
-                            body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
-                            path: file.filename,
-                            side: 'RIGHT',
-                            line: message.line,
-                        };
-                        const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
-                        commentsCounter++;
-                        if (matchedComments.length === 0) {
-                            reviewComments.push(reviewComment);
-                            (0, core_1.info)(`    Comment queued`);
-                        }
-                        else {
-                            matchedReviewCommentNodeIds = {
-                                ...matchedReviewCommentNodeIds,
-                                ...Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])),
-                            };
-                            (0, core_1.info)(`    Comment skipped`);
-                        }
-                    }
-                }
-                else {
-                    (0, core_1.info)(`  Out of scope line: ${message.line}`);
-                    outOfScopeResultsCounter++;
-                }
-            }
-        }
-    }
-    (0, core_1.endGroup)();
-    (0, core_1.startGroup)('Feedback');
-    for (const reviewComment of existingReviewComments) {
-        const reviewThread = commentNodeIdToReviewThreadMapping[reviewComment.node_id];
-        if (reviewThread !== undefined) {
-            if (matchedReviewCommentNodeIds[reviewComment.node_id] &&
-                reviewThread.isResolved) {
-                await octokit.graphql(`
-            mutation ($nodeId: ID!) {
-              unresolveReviewThread(input: {threadId: $nodeId}) {
-                thread {
-                  id
-                }
-              }
-            }
-          `, {
-                    nodeId: reviewThread.id,
-                });
-                (0, core_1.info)(`Review comment unresolved: ${reviewComment.url}`);
-            }
-            else if (!matchedReviewCommentNodeIds[reviewComment.node_id] &&
-                !reviewThread.isResolved) {
-                await octokit.graphql(`
-            mutation ($nodeId: ID!) {
-              resolveReviewThread(input: {threadId: $nodeId}) {
-                thread {
-                  id
-                }
-              }
-            }
-          `, {
-                    nodeId: reviewThread.id,
-                });
-                (0, core_1.info)(`Review comment resolved: ${reviewComment.url}`);
-            }
-            else {
-                (0, core_1.info)(`Review comment remains ${reviewThread.isResolved ? 'resolved' : 'unresolved'}: ${reviewComment.url}`);
-            }
-        }
-        else {
-            (0, core_1.error)(`Review comment has no associated review thread: ${reviewComment.url}`);
-        }
-    }
-    if (outOfScopeResultsCounter > 0) {
-        (0, core_1.info)(`Out of scope results: ${outOfScopeResultsCounter}`);
-    }
-    if (commentsCounter > 0) {
-        try {
-            await octokit.rest.pulls.createReview({
-                owner,
-                repo,
-                body: REVIEW_BODY,
-                pull_number: pullRequestNumber,
-                commit_id: headSha,
-                event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
-                comments: reviewComments,
-            });
-        }
-        catch (error) {
-            throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
-        }
-        if (commentsCounter - reviewComments.length > 0) {
-            (0, core_1.info)(`Review comments existed and skipped: ${commentsCounter - reviewComments.length}`);
-        }
-        (0, core_1.info)(`Review comments submitted: ${reviewComments.length}`);
-        if (failCheck) {
-            throw new Error('ESLint fails. Please review comments.');
-        }
-        else {
-            (0, core_1.error)('ESLint fails');
-        }
-    }
-    else {
-        (0, core_1.notice)('ESLint passes');
-    }
-    (0, core_1.endGroup)();
-}
-
-
-/***/ }),
-
-/***/ 4755:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.handlePush = handlePush;
-const core_1 = __nccwpck_require__(2186);
-const getIndexedModifiedLines_js_1 = __nccwpck_require__(7738);
-async function getPushFiles(octokit, owner, repo, beforeSha, afterSha) {
-    const response = await octokit.rest.repos.compareCommitsWithBasehead({
-        owner,
-        repo,
-        basehead: `${beforeSha}...${afterSha}`,
-    });
-    (0, core_1.info)(`Files: (${response.data.files?.length ?? 0})`);
-    return response.data.files;
-}
-async function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
-    const failCheck = (0, core_1.getBooleanInput)('fail-check');
-    (0, core_1.startGroup)('GitHub Push');
-    const files = await getPushFiles(octokit, owner, repo, beforeSha, afterSha);
-    if (files === undefined || files.length === 0) {
-        (0, core_1.info)(`Push contains no files`);
-        return;
-    }
-    let warningCounter = 0;
-    let errorCounter = 0;
-    for (const file of files) {
-        (0, core_1.info)(`  File name: ${file.filename}`);
-        (0, core_1.info)(`  File status: ${file.status}`);
-        if (file.status === 'removed') {
-            continue;
-        }
-        const indexedModifiedLines = (0, getIndexedModifiedLines_js_1.getIndexedModifiedLines)(file);
-        const result = indexedResults[file.filename];
-        if (result) {
-            for (const message of result.messages) {
-                if (message.ruleId === null || result.source === undefined) {
-                    continue;
-                }
-                const rule = ruleMetaDatas[message.ruleId];
-                if (indexedModifiedLines[message.line]) {
-                    (0, core_1.info)(`  Matched line: ${message.line}`);
-                    switch (message.severity) {
-                        case 0:
-                            (0, core_1.notice)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
-                                file: file.filename,
-                                startLine: message.line,
-                            });
-                            break;
-                        case 1:
-                            (0, core_1.warning)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
-                                file: file.filename,
-                                startLine: message.line,
-                            });
-                            warningCounter++;
-                            break;
-                        case 2:
-                            (0, core_1.error)(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
-                                file: file.filename,
-                                startLine: message.line,
-                            });
-                            errorCounter++;
-                            break;
-                    }
-                }
-            }
-        }
-    }
-    (0, core_1.endGroup)();
-    (0, core_1.startGroup)('Feedback');
-    if (warningCounter > 0 || errorCounter > 0) {
-        if (failCheck) {
-            throw new Error('ESLint fails. Please review comments.');
-        }
-        else {
-            (0, core_1.error)('ESLint fails');
-        }
-    }
-    else {
-        (0, core_1.notice)('ESLint passes');
-    }
-    (0, core_1.endGroup)();
-}
-
-
-/***/ }),
-
 /***/ 9491:
 /***/ ((module) => {
 
@@ -31817,13 +30962,6 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("https");
 
 /***/ }),
 
-/***/ 8188:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("module");
-
-/***/ }),
-
 /***/ 1808:
 /***/ ((module) => {
 
@@ -31838,52 +30976,10 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:events"
 
 /***/ }),
 
-/***/ 7561:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
-
-/***/ }),
-
-/***/ 3977:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs/promises");
-
-/***/ }),
-
-/***/ 9411:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
-
-/***/ }),
-
-/***/ 7742:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:process");
-
-/***/ }),
-
 /***/ 4492:
 /***/ ((module) => {
 
 module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:stream");
-
-/***/ }),
-
-/***/ 6915:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:string_decoder");
-
-/***/ }),
-
-/***/ 1041:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:url");
 
 /***/ }),
 
@@ -33596,1424 +32692,263 @@ function parseParams (str) {
 module.exports = parseParams
 
 
-/***/ }),
+/***/ })
 
-/***/ 2487:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/******/ });
+/************************************************************************/
+/******/ // The module cache
+/******/ var __webpack_module_cache__ = {};
+/******/ 
+/******/ // The require function
+/******/ function __nccwpck_require__(moduleId) {
+/******/ 	// Check if module is in cache
+/******/ 	var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 	if (cachedModule !== undefined) {
+/******/ 		return cachedModule.exports;
+/******/ 	}
+/******/ 	// Create a new module (and put it into the cache)
+/******/ 	var module = __webpack_module_cache__[moduleId] = {
+/******/ 		// no module.id needed
+/******/ 		// no module.loaded needed
+/******/ 		exports: {}
+/******/ 	};
+/******/ 
+/******/ 	// Execute the module function
+/******/ 	var threw = true;
+/******/ 	try {
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nccwpck_require__);
+/******/ 		threw = false;
+/******/ 	} finally {
+/******/ 		if(threw) delete __webpack_module_cache__[moduleId];
+/******/ 	}
+/******/ 
+/******/ 	// Return the exports of the module
+/******/ 	return module.exports;
+/******/ }
+/******/ 
+/************************************************************************/
+/******/ /* webpack/runtime/compat get default export */
+/******/ (() => {
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__nccwpck_require__.n = (module) => {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__nccwpck_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/create fake namespace object */
+/******/ (() => {
+/******/ 	var getProto = Object.getPrototypeOf ? (obj) => (Object.getPrototypeOf(obj)) : (obj) => (obj.__proto__);
+/******/ 	var leafPrototypes;
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 16: return value when it's Promise-like
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__nccwpck_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = this(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if(typeof value === 'object' && value) {
+/******/ 			if((mode & 4) && value.__esModule) return value;
+/******/ 			if((mode & 16) && typeof value.then === 'function') return value;
+/******/ 		}
+/******/ 		var ns = Object.create(null);
+/******/ 		__nccwpck_require__.r(ns);
+/******/ 		var def = {};
+/******/ 		leafPrototypes = leafPrototypes || [null, getProto({}), getProto([]), getProto(getProto)];
+/******/ 		for(var current = mode & 2 && value; typeof current == 'object' && !~leafPrototypes.indexOf(current); current = getProto(current)) {
+/******/ 			Object.getOwnPropertyNames(current).forEach((key) => (def[key] = () => (value[key])));
+/******/ 		}
+/******/ 		def['default'] = () => (value);
+/******/ 		__nccwpck_require__.d(ns, def);
+/******/ 		return ns;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter functions for harmony exports
+/******/ 	__nccwpck_require__.d = (exports, definition) => {
+/******/ 		for(var key in definition) {
+/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/make namespace object */
+/******/ (() => {
+/******/ 	// define __esModule on exports
+/******/ 	__nccwpck_require__.r = (exports) => {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/compat */
+/******/ 
+/******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
+/******/ 
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "K": () => (/* binding */ run)
+});
+
+;// CONCATENATED MODULE: external "node:path"
+const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
+var external_node_path_default = /*#__PURE__*/__nccwpck_require__.n(external_node_path_namespaceObject);
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2186);
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var github = __nccwpck_require__(5438);
+;// CONCATENATED MODULE: external "node:process"
+const external_node_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:process");
+var external_node_process_default = /*#__PURE__*/__nccwpck_require__.n(external_node_process_namespaceObject);
+;// CONCATENATED MODULE: ./src/changeDirectory.ts
 
 
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Glob = void 0;
-const minimatch_1 = __nccwpck_require__(658);
-const node_url_1 = __nccwpck_require__(1041);
-const path_scurry_1 = __nccwpck_require__(1081);
-const pattern_js_1 = __nccwpck_require__(6866);
-const walker_js_1 = __nccwpck_require__(153);
-// if no process global, just call it linux.
-// so we default to case-sensitive, / separators
-const defaultPlatform = (typeof process === 'object' &&
-    process &&
-    typeof process.platform === 'string') ?
-    process.platform
-    : 'linux';
-/**
- * An object that can perform glob pattern traversals.
- */
-class Glob {
-    absolute;
-    cwd;
-    root;
-    dot;
-    dotRelative;
-    follow;
-    ignore;
-    magicalBraces;
-    mark;
-    matchBase;
-    maxDepth;
-    nobrace;
-    nocase;
-    nodir;
-    noext;
-    noglobstar;
-    pattern;
-    platform;
-    realpath;
-    scurry;
-    stat;
-    signal;
-    windowsPathsNoEscape;
-    withFileTypes;
-    includeChildMatches;
-    /**
-     * The options provided to the constructor.
-     */
-    opts;
-    /**
-     * An array of parsed immutable {@link Pattern} objects.
-     */
-    patterns;
-    /**
-     * All options are stored as properties on the `Glob` object.
-     *
-     * See {@link GlobOptions} for full options descriptions.
-     *
-     * Note that a previous `Glob` object can be passed as the
-     * `GlobOptions` to another `Glob` instantiation to re-use settings
-     * and caches with a new pattern.
-     *
-     * Traversal functions can be called multiple times to run the walk
-     * again.
-     */
-    constructor(pattern, opts) {
-        /* c8 ignore start */
-        if (!opts)
-            throw new TypeError('glob options required');
-        /* c8 ignore stop */
-        this.withFileTypes = !!opts.withFileTypes;
-        this.signal = opts.signal;
-        this.follow = !!opts.follow;
-        this.dot = !!opts.dot;
-        this.dotRelative = !!opts.dotRelative;
-        this.nodir = !!opts.nodir;
-        this.mark = !!opts.mark;
-        if (!opts.cwd) {
-            this.cwd = '';
-        }
-        else if (opts.cwd instanceof URL || opts.cwd.startsWith('file://')) {
-            opts.cwd = (0, node_url_1.fileURLToPath)(opts.cwd);
-        }
-        this.cwd = opts.cwd || '';
-        this.root = opts.root;
-        this.magicalBraces = !!opts.magicalBraces;
-        this.nobrace = !!opts.nobrace;
-        this.noext = !!opts.noext;
-        this.realpath = !!opts.realpath;
-        this.absolute = opts.absolute;
-        this.includeChildMatches = opts.includeChildMatches !== false;
-        this.noglobstar = !!opts.noglobstar;
-        this.matchBase = !!opts.matchBase;
-        this.maxDepth =
-            typeof opts.maxDepth === 'number' ? opts.maxDepth : Infinity;
-        this.stat = !!opts.stat;
-        this.ignore = opts.ignore;
-        if (this.withFileTypes && this.absolute !== undefined) {
-            throw new Error('cannot set absolute and withFileTypes:true');
-        }
-        if (typeof pattern === 'string') {
-            pattern = [pattern];
-        }
-        this.windowsPathsNoEscape =
-            !!opts.windowsPathsNoEscape ||
-                opts.allowWindowsEscape ===
-                    false;
-        if (this.windowsPathsNoEscape) {
-            pattern = pattern.map(p => p.replace(/\\/g, '/'));
-        }
-        if (this.matchBase) {
-            if (opts.noglobstar) {
-                throw new TypeError('base matching requires globstar');
-            }
-            pattern = pattern.map(p => (p.includes('/') ? p : `./**/${p}`));
-        }
-        this.pattern = pattern;
-        this.platform = opts.platform || defaultPlatform;
-        this.opts = { ...opts, platform: this.platform };
-        if (opts.scurry) {
-            this.scurry = opts.scurry;
-            if (opts.nocase !== undefined &&
-                opts.nocase !== opts.scurry.nocase) {
-                throw new Error('nocase option contradicts provided scurry option');
-            }
-        }
-        else {
-            const Scurry = opts.platform === 'win32' ? path_scurry_1.PathScurryWin32
-                : opts.platform === 'darwin' ? path_scurry_1.PathScurryDarwin
-                    : opts.platform ? path_scurry_1.PathScurryPosix
-                        : path_scurry_1.PathScurry;
-            this.scurry = new Scurry(this.cwd, {
-                nocase: opts.nocase,
-                fs: opts.fs,
-            });
-        }
-        this.nocase = this.scurry.nocase;
-        // If you do nocase:true on a case-sensitive file system, then
-        // we need to use regexps instead of strings for non-magic
-        // path portions, because statting `aBc` won't return results
-        // for the file `AbC` for example.
-        const nocaseMagicOnly = this.platform === 'darwin' || this.platform === 'win32';
-        const mmo = {
-            // default nocase based on platform
-            ...opts,
-            dot: this.dot,
-            matchBase: this.matchBase,
-            nobrace: this.nobrace,
-            nocase: this.nocase,
-            nocaseMagicOnly,
-            nocomment: true,
-            noext: this.noext,
-            nonegate: true,
-            optimizationLevel: 2,
-            platform: this.platform,
-            windowsPathsNoEscape: this.windowsPathsNoEscape,
-            debug: !!this.opts.debug,
-        };
-        const mms = this.pattern.map(p => new minimatch_1.Minimatch(p, mmo));
-        const [matchSet, globParts] = mms.reduce((set, m) => {
-            set[0].push(...m.set);
-            set[1].push(...m.globParts);
-            return set;
-        }, [[], []]);
-        this.patterns = matchSet.map((set, i) => {
-            const g = globParts[i];
-            /* c8 ignore start */
-            if (!g)
-                throw new Error('invalid pattern object');
-            /* c8 ignore stop */
-            return new pattern_js_1.Pattern(set, g, 0, this.platform);
-        });
-    }
-    async walk() {
-        // Walkers always return array of Path objects, so we just have to
-        // coerce them into the right shape.  It will have already called
-        // realpath() if the option was set to do so, so we know that's cached.
-        // start out knowing the cwd, at least
-        return [
-            ...(await new walker_js_1.GlobWalker(this.patterns, this.scurry.cwd, {
-                ...this.opts,
-                maxDepth: this.maxDepth !== Infinity ?
-                    this.maxDepth + this.scurry.cwd.depth()
-                    : Infinity,
-                platform: this.platform,
-                nocase: this.nocase,
-                includeChildMatches: this.includeChildMatches,
-            }).walk()),
-        ];
-    }
-    walkSync() {
-        return [
-            ...new walker_js_1.GlobWalker(this.patterns, this.scurry.cwd, {
-                ...this.opts,
-                maxDepth: this.maxDepth !== Infinity ?
-                    this.maxDepth + this.scurry.cwd.depth()
-                    : Infinity,
-                platform: this.platform,
-                nocase: this.nocase,
-                includeChildMatches: this.includeChildMatches,
-            }).walkSync(),
-        ];
-    }
-    stream() {
-        return new walker_js_1.GlobStream(this.patterns, this.scurry.cwd, {
-            ...this.opts,
-            maxDepth: this.maxDepth !== Infinity ?
-                this.maxDepth + this.scurry.cwd.depth()
-                : Infinity,
-            platform: this.platform,
-            nocase: this.nocase,
-            includeChildMatches: this.includeChildMatches,
-        }).stream();
-    }
-    streamSync() {
-        return new walker_js_1.GlobStream(this.patterns, this.scurry.cwd, {
-            ...this.opts,
-            maxDepth: this.maxDepth !== Infinity ?
-                this.maxDepth + this.scurry.cwd.depth()
-                : Infinity,
-            platform: this.platform,
-            nocase: this.nocase,
-            includeChildMatches: this.includeChildMatches,
-        }).streamSync();
-    }
-    /**
-     * Default sync iteration function. Returns a Generator that
-     * iterates over the results.
-     */
-    iterateSync() {
-        return this.streamSync()[Symbol.iterator]();
-    }
-    [Symbol.iterator]() {
-        return this.iterateSync();
-    }
-    /**
-     * Default async iteration function. Returns an AsyncGenerator that
-     * iterates over the results.
-     */
-    iterate() {
-        return this.stream()[Symbol.asyncIterator]();
-    }
-    [Symbol.asyncIterator]() {
-        return this.iterate();
+
+const DEFAULT_WORKING_DIRECTORY = external_node_process_default().cwd();
+function changeDirectory() {
+    (0,core.info)(`Working directory is: ${DEFAULT_WORKING_DIRECTORY}`);
+    const absoluteDirectory = external_node_path_default().resolve(DEFAULT_WORKING_DIRECTORY, (0,core.getInput)('directory'));
+    if (absoluteDirectory !== DEFAULT_WORKING_DIRECTORY) {
+        (0,core.info)(`Working directory is changed to: ${absoluteDirectory}`);
+        external_node_process_default().chdir(absoluteDirectory);
     }
 }
-exports.Glob = Glob;
-//# sourceMappingURL=glob.js.map
 
-/***/ }),
-
-/***/ 3133:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+;// CONCATENATED MODULE: ./src/commit.ts
 
 
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.hasMagic = void 0;
-const minimatch_1 = __nccwpck_require__(658);
-/**
- * Return true if the patterns provided contain any magic glob characters,
- * given the options provided.
- *
- * Brace expansion is not considered "magic" unless the `magicalBraces` option
- * is set, as brace expansion just turns one string into an array of strings.
- * So a pattern like `'x{a,b}y'` would return `false`, because `'xay'` and
- * `'xby'` both do not contain any magic glob characters, and it's treated the
- * same as if you had called it on `['xay', 'xby']`. When `magicalBraces:true`
- * is in the options, brace expansion _is_ treated as a pattern having magic.
- */
-const hasMagic = (pattern, options = {}) => {
-    if (!Array.isArray(pattern)) {
-        pattern = [pattern];
+
+function handleCommit(eventName, results, ruleMetaDatas) {
+    var _a, _b, _c;
+    const failCheck = (0,core.getBooleanInput)('fail-check');
+    (0,core.startGroup)(`GitHub ${eventName}`);
+    let warningCounter = 0;
+    let errorCounter = 0;
+    for (const result of results) {
+        const relativePath = external_node_path_default().relative(DEFAULT_WORKING_DIRECTORY, result.filePath);
+        for (const message of result.messages) {
+            if (message.ruleId === null || result.source === undefined) {
+                continue;
+            }
+            const rule = ruleMetaDatas[message.ruleId];
+            (0,core.info)(`  ${relativePath}:${message.line}`);
+            switch (message.severity) {
+                case 0:
+                    (0,core.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
+                        file: relativePath,
+                        startLine: message.line,
+                    });
+                    break;
+                case 1:
+                    (0,core.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                        file: relativePath,
+                        startLine: message.line,
+                    });
+                    warningCounter++;
+                    break;
+                case 2:
+                    (0,core.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
+                        file: relativePath,
+                        startLine: message.line,
+                    });
+                    errorCounter++;
+                    break;
+            }
+        }
     }
-    for (const p of pattern) {
-        if (new minimatch_1.Minimatch(p, options).hasMagic())
-            return true;
+    (0,core.endGroup)();
+    (0,core.startGroup)('Feedback');
+    if (warningCounter > 0 || errorCounter > 0) {
+        if (failCheck) {
+            throw new Error('ESLint fails.');
+        }
+        else {
+            (0,core.error)('ESLint fails');
+        }
     }
-    return false;
+    else {
+        (0,core.notice)('ESLint passes');
+    }
+    (0,core.endGroup)();
+}
+
+;// CONCATENATED MODULE: external "node:fs"
+const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
+var external_node_fs_namespaceObject_0 = /*#__PURE__*/__nccwpck_require__.t(external_node_fs_namespaceObject, 2);
+;// CONCATENATED MODULE: external "node:module"
+const external_node_module_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:module");
+;// CONCATENATED MODULE: ./src/getESLint.ts
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
-exports.hasMagic = hasMagic;
-//# sourceMappingURL=has-magic.js.map
-
-/***/ }),
-
-/***/ 9703:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
-// give it a pattern, and it'll be able to tell you if
-// a given path should be ignored.
-// Ignoring a path ignores its children if the pattern ends in /**
-// Ignores are always parsed in dot:true mode
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Ignore = void 0;
-const minimatch_1 = __nccwpck_require__(658);
-const pattern_js_1 = __nccwpck_require__(6866);
-const defaultPlatform = (typeof process === 'object' &&
-    process &&
-    typeof process.platform === 'string') ?
-    process.platform
-    : 'linux';
-/**
- * Class used to process ignored patterns
- */
-class Ignore {
-    relative;
-    relativeChildren;
-    absolute;
-    absoluteChildren;
-    platform;
-    mmopts;
-    constructor(ignored, { nobrace, nocase, noext, noglobstar, platform = defaultPlatform, }) {
-        this.relative = [];
-        this.absolute = [];
-        this.relativeChildren = [];
-        this.absoluteChildren = [];
-        this.platform = platform;
-        this.mmopts = {
-            dot: true,
-            nobrace,
-            nocase,
-            noext,
-            noglobstar,
-            optimizationLevel: 2,
-            platform,
-            nocomment: true,
-            nonegate: true,
-        };
-        for (const ign of ignored)
-            this.add(ign);
-    }
-    add(ign) {
-        // this is a little weird, but it gives us a clean set of optimized
-        // minimatch matchers, without getting tripped up if one of them
-        // ends in /** inside a brace section, and it's only inefficient at
-        // the start of the walk, not along it.
-        // It'd be nice if the Pattern class just had a .test() method, but
-        // handling globstars is a bit of a pita, and that code already lives
-        // in minimatch anyway.
-        // Another way would be if maybe Minimatch could take its set/globParts
-        // as an option, and then we could at least just use Pattern to test
-        // for absolute-ness.
-        // Yet another way, Minimatch could take an array of glob strings, and
-        // a cwd option, and do the right thing.
-        const mm = new minimatch_1.Minimatch(ign, this.mmopts);
-        for (let i = 0; i < mm.set.length; i++) {
-            const parsed = mm.set[i];
-            const globParts = mm.globParts[i];
-            /* c8 ignore start */
-            if (!parsed || !globParts) {
-                throw new Error('invalid pattern object');
-            }
-            // strip off leading ./ portions
-            // https://github.com/isaacs/node-glob/issues/570
-            while (parsed[0] === '.' && globParts[0] === '.') {
-                parsed.shift();
-                globParts.shift();
-            }
-            /* c8 ignore stop */
-            const p = new pattern_js_1.Pattern(parsed, globParts, 0, this.platform);
-            const m = new minimatch_1.Minimatch(p.globString(), this.mmopts);
-            const children = globParts[globParts.length - 1] === '**';
-            const absolute = p.isAbsolute();
-            if (absolute)
-                this.absolute.push(m);
-            else
-                this.relative.push(m);
-            if (children) {
-                if (absolute)
-                    this.absoluteChildren.push(m);
-                else
-                    this.relativeChildren.push(m);
-            }
+
+
+
+function getESLint() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const absoluteDirectory = (0,external_node_path_namespaceObject.resolve)(DEFAULT_WORKING_DIRECTORY, (0,core.getInput)('directory'));
+        const require = (0,external_node_module_namespaceObject.createRequire)(absoluteDirectory);
+        const eslintJsPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, (0,core.getInput)('eslint-lib-path'));
+        if (!(0,external_node_fs_namespaceObject.existsSync)(eslintJsPath)) {
+            throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
-    }
-    ignored(p) {
-        const fullpath = p.fullpath();
-        const fullpaths = `${fullpath}/`;
-        const relative = p.relative() || '.';
-        const relatives = `${relative}/`;
-        for (const m of this.relative) {
-            if (m.match(relative) || m.match(relatives))
-                return true;
+        (0,core.notice)(`Using ESLint from: ${eslintJsPath}`);
+        const { ESLint, loadESLint } = require(eslintJsPath);
+        (0,core.notice)(`ESLint version: ${ESLint.version}`);
+        const configPath = (0,core.getInput)('config-path');
+        if (configPath) {
+            const absoluteConfigPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, configPath);
+            (0,core.notice)(`Using ESLint config from: ${absoluteConfigPath}`);
+            const eslint = new ESLint({ overrideConfigFile: absoluteConfigPath });
+            return eslint;
         }
-        for (const m of this.absolute) {
-            if (m.match(fullpath) || m.match(fullpaths))
-                return true;
+        if (loadESLint) {
+            // ESLint 8.57.0 and later
+            (0,core.notice)('Using ESLint with default configuration');
+            const eslint = new (yield loadESLint())();
+            return eslint;
         }
-        return false;
-    }
-    childrenIgnored(p) {
-        const fullpath = p.fullpath() + '/';
-        const relative = (p.relative() || '.') + '/';
-        for (const m of this.relativeChildren) {
-            if (m.match(relative))
-                return true;
+        const eslintConfig = (yield new ESLint().calculateConfigForFile('package.json'));
+        if (!eslintConfig) {
+            throw new Error('Failed to find ESLint configuration. Please set the config-path input.');
         }
-        for (const m of this.absoluteChildren) {
-            if (m.match(fullpath))
-                return true;
-        }
-        return false;
-    }
+        const eslint = new ESLint({ baseConfig: eslintConfig });
+        return eslint;
+    });
 }
-exports.Ignore = Ignore;
-//# sourceMappingURL=ignore.js.map
 
-/***/ }),
-
-/***/ 8211:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.glob = exports.sync = exports.iterate = exports.iterateSync = exports.stream = exports.streamSync = exports.globIterate = exports.globIterateSync = exports.globSync = exports.globStream = exports.globStreamSync = exports.Ignore = exports.hasMagic = exports.Glob = exports.unescape = exports.escape = void 0;
-const minimatch_1 = __nccwpck_require__(658);
-const glob_js_1 = __nccwpck_require__(2487);
-const has_magic_js_1 = __nccwpck_require__(3133);
-var minimatch_2 = __nccwpck_require__(658);
-Object.defineProperty(exports, "escape", ({ enumerable: true, get: function () { return minimatch_2.escape; } }));
-Object.defineProperty(exports, "unescape", ({ enumerable: true, get: function () { return minimatch_2.unescape; } }));
-var glob_js_2 = __nccwpck_require__(2487);
-Object.defineProperty(exports, "Glob", ({ enumerable: true, get: function () { return glob_js_2.Glob; } }));
-var has_magic_js_2 = __nccwpck_require__(3133);
-Object.defineProperty(exports, "hasMagic", ({ enumerable: true, get: function () { return has_magic_js_2.hasMagic; } }));
-var ignore_js_1 = __nccwpck_require__(9703);
-Object.defineProperty(exports, "Ignore", ({ enumerable: true, get: function () { return ignore_js_1.Ignore; } }));
-function globStreamSync(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).streamSync();
-}
-exports.globStreamSync = globStreamSync;
-function globStream(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).stream();
-}
-exports.globStream = globStream;
-function globSync(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).walkSync();
-}
-exports.globSync = globSync;
-async function glob_(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).walk();
-}
-function globIterateSync(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).iterateSync();
-}
-exports.globIterateSync = globIterateSync;
-function globIterate(pattern, options = {}) {
-    return new glob_js_1.Glob(pattern, options).iterate();
-}
-exports.globIterate = globIterate;
-// aliases: glob.sync.stream() glob.stream.sync() glob.sync() etc
-exports.streamSync = globStreamSync;
-exports.stream = Object.assign(globStream, { sync: globStreamSync });
-exports.iterateSync = globIterateSync;
-exports.iterate = Object.assign(globIterate, {
-    sync: globIterateSync,
-});
-exports.sync = Object.assign(globSync, {
-    stream: globStreamSync,
-    iterate: globIterateSync,
-});
-exports.glob = Object.assign(glob_, {
-    glob: glob_,
-    globSync,
-    sync: exports.sync,
-    globStream,
-    stream: exports.stream,
-    globStreamSync,
-    streamSync: exports.streamSync,
-    globIterate,
-    iterate: exports.iterate,
-    globIterateSync,
-    iterateSync: exports.iterateSync,
-    Glob: glob_js_1.Glob,
-    hasMagic: has_magic_js_1.hasMagic,
-    escape: minimatch_1.escape,
-    unescape: minimatch_1.unescape,
-});
-exports.glob.glob = exports.glob;
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 6866:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-// this is just a very light wrapper around 2 arrays with an offset index
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Pattern = void 0;
-const minimatch_1 = __nccwpck_require__(658);
-const isPatternList = (pl) => pl.length >= 1;
-const isGlobList = (gl) => gl.length >= 1;
-/**
- * An immutable-ish view on an array of glob parts and their parsed
- * results
- */
-class Pattern {
-    #patternList;
-    #globList;
-    #index;
-    length;
-    #platform;
-    #rest;
-    #globString;
-    #isDrive;
-    #isUNC;
-    #isAbsolute;
-    #followGlobstar = true;
-    constructor(patternList, globList, index, platform) {
-        if (!isPatternList(patternList)) {
-            throw new TypeError('empty pattern list');
-        }
-        if (!isGlobList(globList)) {
-            throw new TypeError('empty glob list');
-        }
-        if (globList.length !== patternList.length) {
-            throw new TypeError('mismatched pattern list and glob list lengths');
-        }
-        this.length = patternList.length;
-        if (index < 0 || index >= this.length) {
-            throw new TypeError('index out of range');
-        }
-        this.#patternList = patternList;
-        this.#globList = globList;
-        this.#index = index;
-        this.#platform = platform;
-        // normalize root entries of absolute patterns on initial creation.
-        if (this.#index === 0) {
-            // c: => ['c:/']
-            // C:/ => ['C:/']
-            // C:/x => ['C:/', 'x']
-            // //host/share => ['//host/share/']
-            // //host/share/ => ['//host/share/']
-            // //host/share/x => ['//host/share/', 'x']
-            // /etc => ['/', 'etc']
-            // / => ['/']
-            if (this.isUNC()) {
-                // '' / '' / 'host' / 'share'
-                const [p0, p1, p2, p3, ...prest] = this.#patternList;
-                const [g0, g1, g2, g3, ...grest] = this.#globList;
-                if (prest[0] === '') {
-                    // ends in /
-                    prest.shift();
-                    grest.shift();
-                }
-                const p = [p0, p1, p2, p3, ''].join('/');
-                const g = [g0, g1, g2, g3, ''].join('/');
-                this.#patternList = [p, ...prest];
-                this.#globList = [g, ...grest];
-                this.length = this.#patternList.length;
-            }
-            else if (this.isDrive() || this.isAbsolute()) {
-                const [p1, ...prest] = this.#patternList;
-                const [g1, ...grest] = this.#globList;
-                if (prest[0] === '') {
-                    // ends in /
-                    prest.shift();
-                    grest.shift();
-                }
-                const p = p1 + '/';
-                const g = g1 + '/';
-                this.#patternList = [p, ...prest];
-                this.#globList = [g, ...grest];
-                this.length = this.#patternList.length;
-            }
-        }
-    }
-    /**
-     * The first entry in the parsed list of patterns
-     */
-    pattern() {
-        return this.#patternList[this.#index];
-    }
-    /**
-     * true of if pattern() returns a string
-     */
-    isString() {
-        return typeof this.#patternList[this.#index] === 'string';
-    }
-    /**
-     * true of if pattern() returns GLOBSTAR
-     */
-    isGlobstar() {
-        return this.#patternList[this.#index] === minimatch_1.GLOBSTAR;
-    }
-    /**
-     * true if pattern() returns a regexp
-     */
-    isRegExp() {
-        return this.#patternList[this.#index] instanceof RegExp;
-    }
-    /**
-     * The /-joined set of glob parts that make up this pattern
-     */
-    globString() {
-        return (this.#globString =
-            this.#globString ||
-                (this.#index === 0 ?
-                    this.isAbsolute() ?
-                        this.#globList[0] + this.#globList.slice(1).join('/')
-                        : this.#globList.join('/')
-                    : this.#globList.slice(this.#index).join('/')));
-    }
-    /**
-     * true if there are more pattern parts after this one
-     */
-    hasMore() {
-        return this.length > this.#index + 1;
-    }
-    /**
-     * The rest of the pattern after this part, or null if this is the end
-     */
-    rest() {
-        if (this.#rest !== undefined)
-            return this.#rest;
-        if (!this.hasMore())
-            return (this.#rest = null);
-        this.#rest = new Pattern(this.#patternList, this.#globList, this.#index + 1, this.#platform);
-        this.#rest.#isAbsolute = this.#isAbsolute;
-        this.#rest.#isUNC = this.#isUNC;
-        this.#rest.#isDrive = this.#isDrive;
-        return this.#rest;
-    }
-    /**
-     * true if the pattern represents a //unc/path/ on windows
-     */
-    isUNC() {
-        const pl = this.#patternList;
-        return this.#isUNC !== undefined ?
-            this.#isUNC
-            : (this.#isUNC =
-                this.#platform === 'win32' &&
-                    this.#index === 0 &&
-                    pl[0] === '' &&
-                    pl[1] === '' &&
-                    typeof pl[2] === 'string' &&
-                    !!pl[2] &&
-                    typeof pl[3] === 'string' &&
-                    !!pl[3]);
-    }
-    // pattern like C:/...
-    // split = ['C:', ...]
-    // XXX: would be nice to handle patterns like `c:*` to test the cwd
-    // in c: for *, but I don't know of a way to even figure out what that
-    // cwd is without actually chdir'ing into it?
-    /**
-     * True if the pattern starts with a drive letter on Windows
-     */
-    isDrive() {
-        const pl = this.#patternList;
-        return this.#isDrive !== undefined ?
-            this.#isDrive
-            : (this.#isDrive =
-                this.#platform === 'win32' &&
-                    this.#index === 0 &&
-                    this.length > 1 &&
-                    typeof pl[0] === 'string' &&
-                    /^[a-z]:$/i.test(pl[0]));
-    }
-    // pattern = '/' or '/...' or '/x/...'
-    // split = ['', ''] or ['', ...] or ['', 'x', ...]
-    // Drive and UNC both considered absolute on windows
-    /**
-     * True if the pattern is rooted on an absolute path
-     */
-    isAbsolute() {
-        const pl = this.#patternList;
-        return this.#isAbsolute !== undefined ?
-            this.#isAbsolute
-            : (this.#isAbsolute =
-                (pl[0] === '' && pl.length > 1) ||
-                    this.isDrive() ||
-                    this.isUNC());
-    }
-    /**
-     * consume the root of the pattern, and return it
-     */
-    root() {
-        const p = this.#patternList[0];
-        return (typeof p === 'string' && this.isAbsolute() && this.#index === 0) ?
-            p
-            : '';
-    }
-    /**
-     * Check to see if the current globstar pattern is allowed to follow
-     * a symbolic link.
-     */
-    checkFollowGlobstar() {
-        return !(this.#index === 0 ||
-            !this.isGlobstar() ||
-            !this.#followGlobstar);
-    }
-    /**
-     * Mark that the current globstar pattern is following a symbolic link
-     */
-    markFollowGlobstar() {
-        if (this.#index === 0 || !this.isGlobstar() || !this.#followGlobstar)
-            return false;
-        this.#followGlobstar = false;
-        return true;
-    }
-}
-exports.Pattern = Pattern;
-//# sourceMappingURL=pattern.js.map
-
-/***/ }),
-
-/***/ 4628:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-// synchronous utility for filtering entries and calculating subwalks
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Processor = exports.SubWalks = exports.MatchRecord = exports.HasWalkedCache = void 0;
-const minimatch_1 = __nccwpck_require__(658);
-/**
- * A cache of which patterns have been processed for a given Path
- */
-class HasWalkedCache {
-    store;
-    constructor(store = new Map()) {
-        this.store = store;
-    }
-    copy() {
-        return new HasWalkedCache(new Map(this.store));
-    }
-    hasWalked(target, pattern) {
-        return this.store.get(target.fullpath())?.has(pattern.globString());
-    }
-    storeWalked(target, pattern) {
-        const fullpath = target.fullpath();
-        const cached = this.store.get(fullpath);
-        if (cached)
-            cached.add(pattern.globString());
-        else
-            this.store.set(fullpath, new Set([pattern.globString()]));
-    }
-}
-exports.HasWalkedCache = HasWalkedCache;
-/**
- * A record of which paths have been matched in a given walk step,
- * and whether they only are considered a match if they are a directory,
- * and whether their absolute or relative path should be returned.
- */
-class MatchRecord {
-    store = new Map();
-    add(target, absolute, ifDir) {
-        const n = (absolute ? 2 : 0) | (ifDir ? 1 : 0);
-        const current = this.store.get(target);
-        this.store.set(target, current === undefined ? n : n & current);
-    }
-    // match, absolute, ifdir
-    entries() {
-        return [...this.store.entries()].map(([path, n]) => [
-            path,
-            !!(n & 2),
-            !!(n & 1),
-        ]);
-    }
-}
-exports.MatchRecord = MatchRecord;
-/**
- * A collection of patterns that must be processed in a subsequent step
- * for a given path.
- */
-class SubWalks {
-    store = new Map();
-    add(target, pattern) {
-        if (!target.canReaddir()) {
-            return;
-        }
-        const subs = this.store.get(target);
-        if (subs) {
-            if (!subs.find(p => p.globString() === pattern.globString())) {
-                subs.push(pattern);
-            }
-        }
-        else
-            this.store.set(target, [pattern]);
-    }
-    get(target) {
-        const subs = this.store.get(target);
-        /* c8 ignore start */
-        if (!subs) {
-            throw new Error('attempting to walk unknown path');
-        }
-        /* c8 ignore stop */
-        return subs;
-    }
-    entries() {
-        return this.keys().map(k => [k, this.store.get(k)]);
-    }
-    keys() {
-        return [...this.store.keys()].filter(t => t.canReaddir());
-    }
-}
-exports.SubWalks = SubWalks;
-/**
- * The class that processes patterns for a given path.
- *
- * Handles child entry filtering, and determining whether a path's
- * directory contents must be read.
- */
-class Processor {
-    hasWalkedCache;
-    matches = new MatchRecord();
-    subwalks = new SubWalks();
-    patterns;
-    follow;
-    dot;
-    opts;
-    constructor(opts, hasWalkedCache) {
-        this.opts = opts;
-        this.follow = !!opts.follow;
-        this.dot = !!opts.dot;
-        this.hasWalkedCache =
-            hasWalkedCache ? hasWalkedCache.copy() : new HasWalkedCache();
-    }
-    processPatterns(target, patterns) {
-        this.patterns = patterns;
-        const processingSet = patterns.map(p => [target, p]);
-        // map of paths to the magic-starting subwalks they need to walk
-        // first item in patterns is the filter
-        for (let [t, pattern] of processingSet) {
-            this.hasWalkedCache.storeWalked(t, pattern);
-            const root = pattern.root();
-            const absolute = pattern.isAbsolute() && this.opts.absolute !== false;
-            // start absolute patterns at root
-            if (root) {
-                t = t.resolve(root === '/' && this.opts.root !== undefined ?
-                    this.opts.root
-                    : root);
-                const rest = pattern.rest();
-                if (!rest) {
-                    this.matches.add(t, true, false);
-                    continue;
-                }
-                else {
-                    pattern = rest;
-                }
-            }
-            if (t.isENOENT())
-                continue;
-            let p;
-            let rest;
-            let changed = false;
-            while (typeof (p = pattern.pattern()) === 'string' &&
-                (rest = pattern.rest())) {
-                const c = t.resolve(p);
-                t = c;
-                pattern = rest;
-                changed = true;
-            }
-            p = pattern.pattern();
-            rest = pattern.rest();
-            if (changed) {
-                if (this.hasWalkedCache.hasWalked(t, pattern))
-                    continue;
-                this.hasWalkedCache.storeWalked(t, pattern);
-            }
-            // now we have either a final string for a known entry,
-            // more strings for an unknown entry,
-            // or a pattern starting with magic, mounted on t.
-            if (typeof p === 'string') {
-                // must not be final entry, otherwise we would have
-                // concatenated it earlier.
-                const ifDir = p === '..' || p === '' || p === '.';
-                this.matches.add(t.resolve(p), absolute, ifDir);
-                continue;
-            }
-            else if (p === minimatch_1.GLOBSTAR) {
-                // if no rest, match and subwalk pattern
-                // if rest, process rest and subwalk pattern
-                // if it's a symlink, but we didn't get here by way of a
-                // globstar match (meaning it's the first time THIS globstar
-                // has traversed a symlink), then we follow it. Otherwise, stop.
-                if (!t.isSymbolicLink() ||
-                    this.follow ||
-                    pattern.checkFollowGlobstar()) {
-                    this.subwalks.add(t, pattern);
-                }
-                const rp = rest?.pattern();
-                const rrest = rest?.rest();
-                if (!rest || ((rp === '' || rp === '.') && !rrest)) {
-                    // only HAS to be a dir if it ends in **/ or **/.
-                    // but ending in ** will match files as well.
-                    this.matches.add(t, absolute, rp === '' || rp === '.');
-                }
-                else {
-                    if (rp === '..') {
-                        // this would mean you're matching **/.. at the fs root,
-                        // and no thanks, I'm not gonna test that specific case.
-                        /* c8 ignore start */
-                        const tp = t.parent || t;
-                        /* c8 ignore stop */
-                        if (!rrest)
-                            this.matches.add(tp, absolute, true);
-                        else if (!this.hasWalkedCache.hasWalked(tp, rrest)) {
-                            this.subwalks.add(tp, rrest);
-                        }
-                    }
-                }
-            }
-            else if (p instanceof RegExp) {
-                this.subwalks.add(t, pattern);
-            }
-        }
-        return this;
-    }
-    subwalkTargets() {
-        return this.subwalks.keys();
-    }
-    child() {
-        return new Processor(this.opts, this.hasWalkedCache);
-    }
-    // return a new Processor containing the subwalks for each
-    // child entry, and a set of matches, and
-    // a hasWalkedCache that's a copy of this one
-    // then we're going to call
-    filterEntries(parent, entries) {
-        const patterns = this.subwalks.get(parent);
-        // put matches and entry walks into the results processor
-        const results = this.child();
-        for (const e of entries) {
-            for (const pattern of patterns) {
-                const absolute = pattern.isAbsolute();
-                const p = pattern.pattern();
-                const rest = pattern.rest();
-                if (p === minimatch_1.GLOBSTAR) {
-                    results.testGlobstar(e, pattern, rest, absolute);
-                }
-                else if (p instanceof RegExp) {
-                    results.testRegExp(e, p, rest, absolute);
-                }
-                else {
-                    results.testString(e, p, rest, absolute);
-                }
-            }
-        }
-        return results;
-    }
-    testGlobstar(e, pattern, rest, absolute) {
-        if (this.dot || !e.name.startsWith('.')) {
-            if (!pattern.hasMore()) {
-                this.matches.add(e, absolute, false);
-            }
-            if (e.canReaddir()) {
-                // if we're in follow mode or it's not a symlink, just keep
-                // testing the same pattern. If there's more after the globstar,
-                // then this symlink consumes the globstar. If not, then we can
-                // follow at most ONE symlink along the way, so we mark it, which
-                // also checks to ensure that it wasn't already marked.
-                if (this.follow || !e.isSymbolicLink()) {
-                    this.subwalks.add(e, pattern);
-                }
-                else if (e.isSymbolicLink()) {
-                    if (rest && pattern.checkFollowGlobstar()) {
-                        this.subwalks.add(e, rest);
-                    }
-                    else if (pattern.markFollowGlobstar()) {
-                        this.subwalks.add(e, pattern);
-                    }
-                }
-            }
-        }
-        // if the NEXT thing matches this entry, then also add
-        // the rest.
-        if (rest) {
-            const rp = rest.pattern();
-            if (typeof rp === 'string' &&
-                // dots and empty were handled already
-                rp !== '..' &&
-                rp !== '' &&
-                rp !== '.') {
-                this.testString(e, rp, rest.rest(), absolute);
-            }
-            else if (rp === '..') {
-                /* c8 ignore start */
-                const ep = e.parent || e;
-                /* c8 ignore stop */
-                this.subwalks.add(ep, rest);
-            }
-            else if (rp instanceof RegExp) {
-                this.testRegExp(e, rp, rest.rest(), absolute);
-            }
-        }
-    }
-    testRegExp(e, p, rest, absolute) {
-        if (!p.test(e.name))
-            return;
-        if (!rest) {
-            this.matches.add(e, absolute, false);
-        }
-        else {
-            this.subwalks.add(e, rest);
-        }
-    }
-    testString(e, p, rest, absolute) {
-        // should never happen?
-        if (!e.isNamed(p))
-            return;
-        if (!rest) {
-            this.matches.add(e, absolute, false);
-        }
-        else {
-            this.subwalks.add(e, rest);
-        }
-    }
-}
-exports.Processor = Processor;
-//# sourceMappingURL=processor.js.map
-
-/***/ }),
-
-/***/ 153:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GlobStream = exports.GlobWalker = exports.GlobUtil = void 0;
-/**
- * Single-use utility classes to provide functionality to the {@link Glob}
- * methods.
- *
- * @module
- */
-const minipass_1 = __nccwpck_require__(4968);
-const ignore_js_1 = __nccwpck_require__(9703);
-const processor_js_1 = __nccwpck_require__(4628);
-const makeIgnore = (ignore, opts) => typeof ignore === 'string' ? new ignore_js_1.Ignore([ignore], opts)
-    : Array.isArray(ignore) ? new ignore_js_1.Ignore(ignore, opts)
-        : ignore;
-/**
- * basic walking utilities that all the glob walker types use
- */
-class GlobUtil {
-    path;
-    patterns;
-    opts;
-    seen = new Set();
-    paused = false;
-    aborted = false;
-    #onResume = [];
-    #ignore;
-    #sep;
-    signal;
-    maxDepth;
-    includeChildMatches;
-    constructor(patterns, path, opts) {
-        this.patterns = patterns;
-        this.path = path;
-        this.opts = opts;
-        this.#sep = !opts.posix && opts.platform === 'win32' ? '\\' : '/';
-        this.includeChildMatches = opts.includeChildMatches !== false;
-        if (opts.ignore || !this.includeChildMatches) {
-            this.#ignore = makeIgnore(opts.ignore ?? [], opts);
-            if (!this.includeChildMatches &&
-                typeof this.#ignore.add !== 'function') {
-                const m = 'cannot ignore child matches, ignore lacks add() method.';
-                throw new Error(m);
-            }
-        }
-        // ignore, always set with maxDepth, but it's optional on the
-        // GlobOptions type
-        /* c8 ignore start */
-        this.maxDepth = opts.maxDepth || Infinity;
-        /* c8 ignore stop */
-        if (opts.signal) {
-            this.signal = opts.signal;
-            this.signal.addEventListener('abort', () => {
-                this.#onResume.length = 0;
-            });
-        }
-    }
-    #ignored(path) {
-        return this.seen.has(path) || !!this.#ignore?.ignored?.(path);
-    }
-    #childrenIgnored(path) {
-        return !!this.#ignore?.childrenIgnored?.(path);
-    }
-    // backpressure mechanism
-    pause() {
-        this.paused = true;
-    }
-    resume() {
-        /* c8 ignore start */
-        if (this.signal?.aborted)
-            return;
-        /* c8 ignore stop */
-        this.paused = false;
-        let fn = undefined;
-        while (!this.paused && (fn = this.#onResume.shift())) {
-            fn();
-        }
-    }
-    onResume(fn) {
-        if (this.signal?.aborted)
-            return;
-        /* c8 ignore start */
-        if (!this.paused) {
-            fn();
-        }
-        else {
-            /* c8 ignore stop */
-            this.#onResume.push(fn);
-        }
-    }
-    // do the requisite realpath/stat checking, and return the path
-    // to add or undefined to filter it out.
-    async matchCheck(e, ifDir) {
-        if (ifDir && this.opts.nodir)
-            return undefined;
-        let rpc;
-        if (this.opts.realpath) {
-            rpc = e.realpathCached() || (await e.realpath());
-            if (!rpc)
-                return undefined;
-            e = rpc;
-        }
-        const needStat = e.isUnknown() || this.opts.stat;
-        const s = needStat ? await e.lstat() : e;
-        if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
-            const target = await s.realpath();
-            /* c8 ignore start */
-            if (target && (target.isUnknown() || this.opts.stat)) {
-                await target.lstat();
-            }
-            /* c8 ignore stop */
-        }
-        return this.matchCheckTest(s, ifDir);
-    }
-    matchCheckTest(e, ifDir) {
-        return (e &&
-            (this.maxDepth === Infinity || e.depth() <= this.maxDepth) &&
-            (!ifDir || e.canReaddir()) &&
-            (!this.opts.nodir || !e.isDirectory()) &&
-            (!this.opts.nodir ||
-                !this.opts.follow ||
-                !e.isSymbolicLink() ||
-                !e.realpathCached()?.isDirectory()) &&
-            !this.#ignored(e)) ?
-            e
-            : undefined;
-    }
-    matchCheckSync(e, ifDir) {
-        if (ifDir && this.opts.nodir)
-            return undefined;
-        let rpc;
-        if (this.opts.realpath) {
-            rpc = e.realpathCached() || e.realpathSync();
-            if (!rpc)
-                return undefined;
-            e = rpc;
-        }
-        const needStat = e.isUnknown() || this.opts.stat;
-        const s = needStat ? e.lstatSync() : e;
-        if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
-            const target = s.realpathSync();
-            if (target && (target?.isUnknown() || this.opts.stat)) {
-                target.lstatSync();
-            }
-        }
-        return this.matchCheckTest(s, ifDir);
-    }
-    matchFinish(e, absolute) {
-        if (this.#ignored(e))
-            return;
-        // we know we have an ignore if this is false, but TS doesn't
-        if (!this.includeChildMatches && this.#ignore?.add) {
-            const ign = `${e.relativePosix()}/**`;
-            this.#ignore.add(ign);
-        }
-        const abs = this.opts.absolute === undefined ? absolute : this.opts.absolute;
-        this.seen.add(e);
-        const mark = this.opts.mark && e.isDirectory() ? this.#sep : '';
-        // ok, we have what we need!
-        if (this.opts.withFileTypes) {
-            this.matchEmit(e);
-        }
-        else if (abs) {
-            const abs = this.opts.posix ? e.fullpathPosix() : e.fullpath();
-            this.matchEmit(abs + mark);
-        }
-        else {
-            const rel = this.opts.posix ? e.relativePosix() : e.relative();
-            const pre = this.opts.dotRelative && !rel.startsWith('..' + this.#sep) ?
-                '.' + this.#sep
-                : '';
-            this.matchEmit(!rel ? '.' + mark : pre + rel + mark);
-        }
-    }
-    async match(e, absolute, ifDir) {
-        const p = await this.matchCheck(e, ifDir);
-        if (p)
-            this.matchFinish(p, absolute);
-    }
-    matchSync(e, absolute, ifDir) {
-        const p = this.matchCheckSync(e, ifDir);
-        if (p)
-            this.matchFinish(p, absolute);
-    }
-    walkCB(target, patterns, cb) {
-        /* c8 ignore start */
-        if (this.signal?.aborted)
-            cb();
-        /* c8 ignore stop */
-        this.walkCB2(target, patterns, new processor_js_1.Processor(this.opts), cb);
-    }
-    walkCB2(target, patterns, processor, cb) {
-        if (this.#childrenIgnored(target))
-            return cb();
-        if (this.signal?.aborted)
-            cb();
-        if (this.paused) {
-            this.onResume(() => this.walkCB2(target, patterns, processor, cb));
-            return;
-        }
-        processor.processPatterns(target, patterns);
-        // done processing.  all of the above is sync, can be abstracted out.
-        // subwalks is a map of paths to the entry filters they need
-        // matches is a map of paths to [absolute, ifDir] tuples.
-        let tasks = 1;
-        const next = () => {
-            if (--tasks === 0)
-                cb();
-        };
-        for (const [m, absolute, ifDir] of processor.matches.entries()) {
-            if (this.#ignored(m))
-                continue;
-            tasks++;
-            this.match(m, absolute, ifDir).then(() => next());
-        }
-        for (const t of processor.subwalkTargets()) {
-            if (this.maxDepth !== Infinity && t.depth() >= this.maxDepth) {
-                continue;
-            }
-            tasks++;
-            const childrenCached = t.readdirCached();
-            if (t.calledReaddir())
-                this.walkCB3(t, childrenCached, processor, next);
-            else {
-                t.readdirCB((_, entries) => this.walkCB3(t, entries, processor, next), true);
-            }
-        }
-        next();
-    }
-    walkCB3(target, entries, processor, cb) {
-        processor = processor.filterEntries(target, entries);
-        let tasks = 1;
-        const next = () => {
-            if (--tasks === 0)
-                cb();
-        };
-        for (const [m, absolute, ifDir] of processor.matches.entries()) {
-            if (this.#ignored(m))
-                continue;
-            tasks++;
-            this.match(m, absolute, ifDir).then(() => next());
-        }
-        for (const [target, patterns] of processor.subwalks.entries()) {
-            tasks++;
-            this.walkCB2(target, patterns, processor.child(), next);
-        }
-        next();
-    }
-    walkCBSync(target, patterns, cb) {
-        /* c8 ignore start */
-        if (this.signal?.aborted)
-            cb();
-        /* c8 ignore stop */
-        this.walkCB2Sync(target, patterns, new processor_js_1.Processor(this.opts), cb);
-    }
-    walkCB2Sync(target, patterns, processor, cb) {
-        if (this.#childrenIgnored(target))
-            return cb();
-        if (this.signal?.aborted)
-            cb();
-        if (this.paused) {
-            this.onResume(() => this.walkCB2Sync(target, patterns, processor, cb));
-            return;
-        }
-        processor.processPatterns(target, patterns);
-        // done processing.  all of the above is sync, can be abstracted out.
-        // subwalks is a map of paths to the entry filters they need
-        // matches is a map of paths to [absolute, ifDir] tuples.
-        let tasks = 1;
-        const next = () => {
-            if (--tasks === 0)
-                cb();
-        };
-        for (const [m, absolute, ifDir] of processor.matches.entries()) {
-            if (this.#ignored(m))
-                continue;
-            this.matchSync(m, absolute, ifDir);
-        }
-        for (const t of processor.subwalkTargets()) {
-            if (this.maxDepth !== Infinity && t.depth() >= this.maxDepth) {
-                continue;
-            }
-            tasks++;
-            const children = t.readdirSync();
-            this.walkCB3Sync(t, children, processor, next);
-        }
-        next();
-    }
-    walkCB3Sync(target, entries, processor, cb) {
-        processor = processor.filterEntries(target, entries);
-        let tasks = 1;
-        const next = () => {
-            if (--tasks === 0)
-                cb();
-        };
-        for (const [m, absolute, ifDir] of processor.matches.entries()) {
-            if (this.#ignored(m))
-                continue;
-            this.matchSync(m, absolute, ifDir);
-        }
-        for (const [target, patterns] of processor.subwalks.entries()) {
-            tasks++;
-            this.walkCB2Sync(target, patterns, processor.child(), next);
-        }
-        next();
-    }
-}
-exports.GlobUtil = GlobUtil;
-class GlobWalker extends GlobUtil {
-    matches = new Set();
-    constructor(patterns, path, opts) {
-        super(patterns, path, opts);
-    }
-    matchEmit(e) {
-        this.matches.add(e);
-    }
-    async walk() {
-        if (this.signal?.aborted)
-            throw this.signal.reason;
-        if (this.path.isUnknown()) {
-            await this.path.lstat();
-        }
-        await new Promise((res, rej) => {
-            this.walkCB(this.path, this.patterns, () => {
-                if (this.signal?.aborted) {
-                    rej(this.signal.reason);
-                }
-                else {
-                    res(this.matches);
-                }
-            });
-        });
-        return this.matches;
-    }
-    walkSync() {
-        if (this.signal?.aborted)
-            throw this.signal.reason;
-        if (this.path.isUnknown()) {
-            this.path.lstatSync();
-        }
-        // nothing for the callback to do, because this never pauses
-        this.walkCBSync(this.path, this.patterns, () => {
-            if (this.signal?.aborted)
-                throw this.signal.reason;
-        });
-        return this.matches;
-    }
-}
-exports.GlobWalker = GlobWalker;
-class GlobStream extends GlobUtil {
-    results;
-    constructor(patterns, path, opts) {
-        super(patterns, path, opts);
-        this.results = new minipass_1.Minipass({
-            signal: this.signal,
-            objectMode: true,
-        });
-        this.results.on('drain', () => this.resume());
-        this.results.on('resume', () => this.resume());
-    }
-    matchEmit(e) {
-        this.results.write(e);
-        if (!this.results.flowing)
-            this.pause();
-    }
-    stream() {
-        const target = this.path;
-        if (target.isUnknown()) {
-            target.lstat().then(() => {
-                this.walkCB(target, this.patterns, () => this.results.end());
-            });
-        }
-        else {
-            this.walkCB(target, this.patterns, () => this.results.end());
-        }
-        return this.results;
-    }
-    streamSync() {
-        if (this.path.isUnknown()) {
-            this.path.lstatSync();
-        }
-        this.walkCBSync(this.path, this.patterns, () => this.results.end());
-        return this.results;
-    }
-}
-exports.GlobStream = GlobStream;
-//# sourceMappingURL=walker.js.map
-
-/***/ }),
-
-/***/ 2401:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.assertValidPattern = void 0;
+// EXTERNAL MODULE: ./node_modules/glob/node_modules/brace-expansion/index.js
+var brace_expansion = __nccwpck_require__(1046);
+;// CONCATENATED MODULE: ./node_modules/glob/node_modules/minimatch/dist/esm/assert-valid-pattern.js
 const MAX_PATTERN_LENGTH = 1024 * 64;
 const assertValidPattern = (pattern) => {
     if (typeof pattern !== 'string') {
@@ -35023,20 +32958,181 @@ const assertValidPattern = (pattern) => {
         throw new TypeError('pattern is too long');
     }
 };
-exports.assertValidPattern = assertValidPattern;
 //# sourceMappingURL=assert-valid-pattern.js.map
-
-/***/ }),
-
-/***/ 6034:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
+;// CONCATENATED MODULE: ./node_modules/glob/node_modules/minimatch/dist/esm/brace-expressions.js
+// translate the various posix character classes into unicode properties
+// this works across all unicode locales
+// { <posix class>: [<translation>, /u flag required, negated]
+const posixClasses = {
+    '[:alnum:]': ['\\p{L}\\p{Nl}\\p{Nd}', true],
+    '[:alpha:]': ['\\p{L}\\p{Nl}', true],
+    '[:ascii:]': ['\\x' + '00-\\x' + '7f', false],
+    '[:blank:]': ['\\p{Zs}\\t', true],
+    '[:cntrl:]': ['\\p{Cc}', true],
+    '[:digit:]': ['\\p{Nd}', true],
+    '[:graph:]': ['\\p{Z}\\p{C}', true, true],
+    '[:lower:]': ['\\p{Ll}', true],
+    '[:print:]': ['\\p{C}', true],
+    '[:punct:]': ['\\p{P}', true],
+    '[:space:]': ['\\p{Z}\\t\\r\\n\\v\\f', true],
+    '[:upper:]': ['\\p{Lu}', true],
+    '[:word:]': ['\\p{L}\\p{Nl}\\p{Nd}\\p{Pc}', true],
+    '[:xdigit:]': ['A-Fa-f0-9', false],
+};
+// only need to escape a few things inside of brace expressions
+// escapes: [ \ ] -
+const braceEscape = (s) => s.replace(/[[\]\\-]/g, '\\$&');
+// escape all regexp magic characters
+const regexpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+// everything has already been escaped, we just have to join
+const rangesToString = (ranges) => ranges.join('');
+// takes a glob string at a posix brace expression, and returns
+// an equivalent regular expression source, and boolean indicating
+// whether the /u flag needs to be applied, and the number of chars
+// consumed to parse the character class.
+// This also removes out of order ranges, and returns ($.) if the
+// entire class just no good.
+const parseClass = (glob, position) => {
+    const pos = position;
+    /* c8 ignore start */
+    if (glob.charAt(pos) !== '[') {
+        throw new Error('not in a brace expression');
+    }
+    /* c8 ignore stop */
+    const ranges = [];
+    const negs = [];
+    let i = pos + 1;
+    let sawStart = false;
+    let uflag = false;
+    let escaping = false;
+    let negate = false;
+    let endPos = pos;
+    let rangeStart = '';
+    WHILE: while (i < glob.length) {
+        const c = glob.charAt(i);
+        if ((c === '!' || c === '^') && i === pos + 1) {
+            negate = true;
+            i++;
+            continue;
+        }
+        if (c === ']' && sawStart && !escaping) {
+            endPos = i + 1;
+            break;
+        }
+        sawStart = true;
+        if (c === '\\') {
+            if (!escaping) {
+                escaping = true;
+                i++;
+                continue;
+            }
+            // escaped \ char, fall through and treat like normal char
+        }
+        if (c === '[' && !escaping) {
+            // either a posix class, a collation equivalent, or just a [
+            for (const [cls, [unip, u, neg]] of Object.entries(posixClasses)) {
+                if (glob.startsWith(cls, i)) {
+                    // invalid, [a-[] is fine, but not [a-[:alpha]]
+                    if (rangeStart) {
+                        return ['$.', false, glob.length - pos, true];
+                    }
+                    i += cls.length;
+                    if (neg)
+                        negs.push(unip);
+                    else
+                        ranges.push(unip);
+                    uflag = uflag || u;
+                    continue WHILE;
+                }
+            }
+        }
+        // now it's just a normal character, effectively
+        escaping = false;
+        if (rangeStart) {
+            // throw this range away if it's not valid, but others
+            // can still match.
+            if (c > rangeStart) {
+                ranges.push(braceEscape(rangeStart) + '-' + braceEscape(c));
+            }
+            else if (c === rangeStart) {
+                ranges.push(braceEscape(c));
+            }
+            rangeStart = '';
+            i++;
+            continue;
+        }
+        // now might be the start of a range.
+        // can be either c-d or c-] or c<more...>] or c] at this point
+        if (glob.startsWith('-]', i + 1)) {
+            ranges.push(braceEscape(c + '-'));
+            i += 2;
+            continue;
+        }
+        if (glob.startsWith('-', i + 1)) {
+            rangeStart = c;
+            i += 2;
+            continue;
+        }
+        // not the start of a range, just a single character
+        ranges.push(braceEscape(c));
+        i++;
+    }
+    if (endPos < i) {
+        // didn't see the end of the class, not a valid class,
+        // but might still be valid as a literal match.
+        return ['', false, 0, false];
+    }
+    // if we got no ranges and no negates, then we have a range that
+    // cannot possibly match anything, and that poisons the whole glob
+    if (!ranges.length && !negs.length) {
+        return ['$.', false, glob.length - pos, true];
+    }
+    // if we got one positive range, and it's a single character, then that's
+    // not actually a magic pattern, it's just that one literal character.
+    // we should not treat that as "magic", we should just return the literal
+    // character. [_] is a perfectly valid way to escape glob magic chars.
+    if (negs.length === 0 &&
+        ranges.length === 1 &&
+        /^\\?.$/.test(ranges[0]) &&
+        !negate) {
+        const r = ranges[0].length === 2 ? ranges[0].slice(-1) : ranges[0];
+        return [regexpEscape(r), false, endPos - pos, false];
+    }
+    const sranges = '[' + (negate ? '^' : '') + rangesToString(ranges) + ']';
+    const snegs = '[' + (negate ? '' : '^') + rangesToString(negs) + ']';
+    const comb = ranges.length && negs.length
+        ? '(' + sranges + '|' + snegs + ')'
+        : ranges.length
+            ? sranges
+            : snegs;
+    return [comb, uflag, endPos - pos, true];
+};
+//# sourceMappingURL=brace-expressions.js.map
+;// CONCATENATED MODULE: ./node_modules/glob/node_modules/minimatch/dist/esm/unescape.js
+/**
+ * Un-escape a string that has been escaped with {@link escape}.
+ *
+ * If the {@link windowsPathsNoEscape} option is used, then square-brace
+ * escapes are removed, but not backslash escapes.  For example, it will turn
+ * the string `'[*]'` into `*`, but it will not turn `'\\*'` into `'*'`,
+ * becuase `\` is a path separator in `windowsPathsNoEscape` mode.
+ *
+ * When `windowsPathsNoEscape` is not set, then both brace escapes and
+ * backslash escapes are removed.
+ *
+ * Slashes (and backslashes in `windowsPathsNoEscape` mode) cannot be escaped
+ * or unescaped.
+ */
+const unescape_unescape = (s, { windowsPathsNoEscape = false, } = {}) => {
+    return windowsPathsNoEscape
+        ? s.replace(/\[([^\/\\])\]/g, '$1')
+        : s.replace(/((?!\\).|^)\[([^\/\\])\]/g, '$1$2').replace(/\\([^\/])/g, '$1');
+};
+//# sourceMappingURL=unescape.js.map
+;// CONCATENATED MODULE: ./node_modules/glob/node_modules/minimatch/dist/esm/ast.js
 // parse a single path portion
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AST = void 0;
-const brace_expressions_js_1 = __nccwpck_require__(3096);
-const unescape_js_1 = __nccwpck_require__(7226);
+
+
 const types = new Set(['!', '?', '+', '*', '@']);
 const isExtglobType = (c) => types.has(c);
 // Patterns that get prepended to bind to the start of either the
@@ -35495,7 +33591,7 @@ class AST {
             const final = start + src + end;
             return [
                 final,
-                (0, unescape_js_1.unescape)(src),
+                unescape_unescape(src),
                 (this.#hasMagic = !!this.#hasMagic),
                 this.#uflag,
             ];
@@ -35514,7 +33610,7 @@ class AST {
             this.#parts = [s];
             this.type = null;
             this.#hasMagic = undefined;
-            return [s, (0, unescape_js_1.unescape)(this.toString()), false, false];
+            return [s, unescape_unescape(this.toString()), false, false];
         }
         // XXX abstract out this map method
         let bodyDotAllowed = !repeated || allowDot || dot || !startNoDot
@@ -35551,7 +33647,7 @@ class AST {
         }
         return [
             final,
-            (0, unescape_js_1.unescape)(body),
+            unescape_unescape(body),
             (this.#hasMagic = !!this.#hasMagic),
             this.#uflag,
         ];
@@ -35594,7 +33690,7 @@ class AST {
                 continue;
             }
             if (c === '[') {
-                const [src, needUflag, consumed, magic] = (0, brace_expressions_js_1.parseClass)(glob, i);
+                const [src, needUflag, consumed, magic] = parseClass(glob, i);
                 if (consumed) {
                     re += src;
                     uflag = uflag || needUflag;
@@ -35618,178 +33714,11 @@ class AST {
             }
             re += regExpEscape(c);
         }
-        return [re, (0, unescape_js_1.unescape)(glob), !!hasMagic, uflag];
+        return [re, unescape_unescape(glob), !!hasMagic, uflag];
     }
 }
-exports.AST = AST;
 //# sourceMappingURL=ast.js.map
-
-/***/ }),
-
-/***/ 3096:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-// translate the various posix character classes into unicode properties
-// this works across all unicode locales
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseClass = void 0;
-// { <posix class>: [<translation>, /u flag required, negated]
-const posixClasses = {
-    '[:alnum:]': ['\\p{L}\\p{Nl}\\p{Nd}', true],
-    '[:alpha:]': ['\\p{L}\\p{Nl}', true],
-    '[:ascii:]': ['\\x' + '00-\\x' + '7f', false],
-    '[:blank:]': ['\\p{Zs}\\t', true],
-    '[:cntrl:]': ['\\p{Cc}', true],
-    '[:digit:]': ['\\p{Nd}', true],
-    '[:graph:]': ['\\p{Z}\\p{C}', true, true],
-    '[:lower:]': ['\\p{Ll}', true],
-    '[:print:]': ['\\p{C}', true],
-    '[:punct:]': ['\\p{P}', true],
-    '[:space:]': ['\\p{Z}\\t\\r\\n\\v\\f', true],
-    '[:upper:]': ['\\p{Lu}', true],
-    '[:word:]': ['\\p{L}\\p{Nl}\\p{Nd}\\p{Pc}', true],
-    '[:xdigit:]': ['A-Fa-f0-9', false],
-};
-// only need to escape a few things inside of brace expressions
-// escapes: [ \ ] -
-const braceEscape = (s) => s.replace(/[[\]\\-]/g, '\\$&');
-// escape all regexp magic characters
-const regexpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-// everything has already been escaped, we just have to join
-const rangesToString = (ranges) => ranges.join('');
-// takes a glob string at a posix brace expression, and returns
-// an equivalent regular expression source, and boolean indicating
-// whether the /u flag needs to be applied, and the number of chars
-// consumed to parse the character class.
-// This also removes out of order ranges, and returns ($.) if the
-// entire class just no good.
-const parseClass = (glob, position) => {
-    const pos = position;
-    /* c8 ignore start */
-    if (glob.charAt(pos) !== '[') {
-        throw new Error('not in a brace expression');
-    }
-    /* c8 ignore stop */
-    const ranges = [];
-    const negs = [];
-    let i = pos + 1;
-    let sawStart = false;
-    let uflag = false;
-    let escaping = false;
-    let negate = false;
-    let endPos = pos;
-    let rangeStart = '';
-    WHILE: while (i < glob.length) {
-        const c = glob.charAt(i);
-        if ((c === '!' || c === '^') && i === pos + 1) {
-            negate = true;
-            i++;
-            continue;
-        }
-        if (c === ']' && sawStart && !escaping) {
-            endPos = i + 1;
-            break;
-        }
-        sawStart = true;
-        if (c === '\\') {
-            if (!escaping) {
-                escaping = true;
-                i++;
-                continue;
-            }
-            // escaped \ char, fall through and treat like normal char
-        }
-        if (c === '[' && !escaping) {
-            // either a posix class, a collation equivalent, or just a [
-            for (const [cls, [unip, u, neg]] of Object.entries(posixClasses)) {
-                if (glob.startsWith(cls, i)) {
-                    // invalid, [a-[] is fine, but not [a-[:alpha]]
-                    if (rangeStart) {
-                        return ['$.', false, glob.length - pos, true];
-                    }
-                    i += cls.length;
-                    if (neg)
-                        negs.push(unip);
-                    else
-                        ranges.push(unip);
-                    uflag = uflag || u;
-                    continue WHILE;
-                }
-            }
-        }
-        // now it's just a normal character, effectively
-        escaping = false;
-        if (rangeStart) {
-            // throw this range away if it's not valid, but others
-            // can still match.
-            if (c > rangeStart) {
-                ranges.push(braceEscape(rangeStart) + '-' + braceEscape(c));
-            }
-            else if (c === rangeStart) {
-                ranges.push(braceEscape(c));
-            }
-            rangeStart = '';
-            i++;
-            continue;
-        }
-        // now might be the start of a range.
-        // can be either c-d or c-] or c<more...>] or c] at this point
-        if (glob.startsWith('-]', i + 1)) {
-            ranges.push(braceEscape(c + '-'));
-            i += 2;
-            continue;
-        }
-        if (glob.startsWith('-', i + 1)) {
-            rangeStart = c;
-            i += 2;
-            continue;
-        }
-        // not the start of a range, just a single character
-        ranges.push(braceEscape(c));
-        i++;
-    }
-    if (endPos < i) {
-        // didn't see the end of the class, not a valid class,
-        // but might still be valid as a literal match.
-        return ['', false, 0, false];
-    }
-    // if we got no ranges and no negates, then we have a range that
-    // cannot possibly match anything, and that poisons the whole glob
-    if (!ranges.length && !negs.length) {
-        return ['$.', false, glob.length - pos, true];
-    }
-    // if we got one positive range, and it's a single character, then that's
-    // not actually a magic pattern, it's just that one literal character.
-    // we should not treat that as "magic", we should just return the literal
-    // character. [_] is a perfectly valid way to escape glob magic chars.
-    if (negs.length === 0 &&
-        ranges.length === 1 &&
-        /^\\?.$/.test(ranges[0]) &&
-        !negate) {
-        const r = ranges[0].length === 2 ? ranges[0].slice(-1) : ranges[0];
-        return [regexpEscape(r), false, endPos - pos, false];
-    }
-    const sranges = '[' + (negate ? '^' : '') + rangesToString(ranges) + ']';
-    const snegs = '[' + (negate ? '' : '^') + rangesToString(negs) + ']';
-    const comb = ranges.length && negs.length
-        ? '(' + sranges + '|' + snegs + ')'
-        : ranges.length
-            ? sranges
-            : snegs;
-    return [comb, uflag, endPos - pos, true];
-};
-exports.parseClass = parseClass;
-//# sourceMappingURL=brace-expressions.js.map
-
-/***/ }),
-
-/***/ 1496:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.escape = void 0;
+;// CONCATENATED MODULE: ./node_modules/glob/node_modules/minimatch/dist/esm/escape.js
 /**
  * Escape all magic characters in a glob pattern.
  *
@@ -35799,7 +33728,7 @@ exports.escape = void 0;
  * that exact character.  In this mode, `\` is _not_ escaped, because it is
  * not interpreted as a magic character, but instead as a path separator.
  */
-const escape = (s, { windowsPathsNoEscape = false, } = {}) => {
+const escape_escape = (s, { windowsPathsNoEscape = false, } = {}) => {
     // don't need to escape +@! because we escape the parens
     // that make those magic, and escaping ! as [!] isn't valid,
     // because [!]] is a valid glob class meaning not ']'.
@@ -35807,34 +33736,21 @@ const escape = (s, { windowsPathsNoEscape = false, } = {}) => {
         ? s.replace(/[?*()[\]]/g, '[$&]')
         : s.replace(/[?*()[\]\\]/g, '\\$&');
 };
-exports.escape = escape;
 //# sourceMappingURL=escape.js.map
-
-/***/ }),
-
-/***/ 658:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+;// CONCATENATED MODULE: ./node_modules/glob/node_modules/minimatch/dist/esm/index.js
 
 
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.unescape = exports.escape = exports.AST = exports.Minimatch = exports.match = exports.makeRe = exports.braceExpand = exports.defaults = exports.filter = exports.GLOBSTAR = exports.sep = exports.minimatch = void 0;
-const brace_expansion_1 = __importDefault(__nccwpck_require__(1046));
-const assert_valid_pattern_js_1 = __nccwpck_require__(2401);
-const ast_js_1 = __nccwpck_require__(6034);
-const escape_js_1 = __nccwpck_require__(1496);
-const unescape_js_1 = __nccwpck_require__(7226);
+
+
+
 const minimatch = (p, pattern, options = {}) => {
-    (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+    assertValidPattern(pattern);
     // shortcut: comments match nothing.
     if (!options.nocomment && pattern.charAt(0) === '#') {
         return false;
     }
     return new Minimatch(pattern, options).match(p);
 };
-exports.minimatch = minimatch;
 // Optimized checking for the most common glob patterns.
 const starDotExtRE = /^\*+([^+@!?\*\[\(]*)$/;
 const starDotExtTest = (ext) => (f) => !f.startsWith('.') && f.endsWith(ext);
@@ -35898,15 +33814,15 @@ const path = {
     posix: { sep: '/' },
 };
 /* c8 ignore stop */
-exports.sep = defaultPlatform === 'win32' ? path.win32.sep : path.posix.sep;
-exports.minimatch.sep = exports.sep;
-exports.GLOBSTAR = Symbol('globstar **');
-exports.minimatch.GLOBSTAR = exports.GLOBSTAR;
+const sep = defaultPlatform === 'win32' ? path.win32.sep : path.posix.sep;
+minimatch.sep = sep;
+const GLOBSTAR = Symbol('globstar **');
+minimatch.GLOBSTAR = GLOBSTAR;
 // any single thing other than /
 // don't need to escape / when using new RegExp()
-const qmark = '[^/]';
+const esm_qmark = '[^/]';
 // * => any number of characters
-const star = qmark + '*?';
+const esm_star = esm_qmark + '*?';
 // ** when dots are allowed.  Anything goes, except .. and .
 // not (^ or / followed by one or two dots followed by $ or /),
 // followed by anything, any number of times.
@@ -35914,15 +33830,14 @@ const twoStarDot = '(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?';
 // not a ^ or / followed by a dot,
 // followed by anything, any number of times.
 const twoStarNoDot = '(?:(?!(?:\\/|^)\\.).)*?';
-const filter = (pattern, options = {}) => (p) => (0, exports.minimatch)(p, pattern, options);
-exports.filter = filter;
-exports.minimatch.filter = exports.filter;
+const filter = (pattern, options = {}) => (p) => minimatch(p, pattern, options);
+minimatch.filter = filter;
 const ext = (a, b = {}) => Object.assign({}, a, b);
 const defaults = (def) => {
     if (!def || typeof def !== 'object' || !Object.keys(def).length) {
-        return exports.minimatch;
+        return minimatch;
     }
-    const orig = exports.minimatch;
+    const orig = minimatch;
     const m = (p, pattern, options = {}) => orig(p, pattern, ext(def, options));
     return Object.assign(m, {
         Minimatch: class Minimatch extends orig.Minimatch {
@@ -35951,11 +33866,10 @@ const defaults = (def) => {
         braceExpand: (pattern, options = {}) => orig.braceExpand(pattern, ext(def, options)),
         match: (list, pattern, options = {}) => orig.match(list, pattern, ext(def, options)),
         sep: orig.sep,
-        GLOBSTAR: exports.GLOBSTAR,
+        GLOBSTAR: GLOBSTAR,
     });
 };
-exports.defaults = defaults;
-exports.minimatch.defaults = exports.defaults;
+minimatch.defaults = defaults;
 // Brace expansion:
 // a{b,c}d -> abd acd
 // a{b,}c -> abc ac
@@ -35967,17 +33881,16 @@ exports.minimatch.defaults = exports.defaults;
 // a{2..}b -> a{2..}b
 // a{b}c -> a{b}c
 const braceExpand = (pattern, options = {}) => {
-    (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+    assertValidPattern(pattern);
     // Thanks to Yeting Li <https://github.com/yetingli> for
     // improving this regexp to avoid a ReDOS vulnerability.
     if (options.nobrace || !/\{(?:(?!\{).)*\}/.test(pattern)) {
         // shortcut. no need to expand.
         return [pattern];
     }
-    return (0, brace_expansion_1.default)(pattern);
+    return brace_expansion(pattern);
 };
-exports.braceExpand = braceExpand;
-exports.minimatch.braceExpand = exports.braceExpand;
+minimatch.braceExpand = braceExpand;
 // parse a component of the expanded set.
 // At this point, no pattern may contain "/" in it
 // so we're going to return a 2d array, where each entry is the full
@@ -35990,8 +33903,7 @@ exports.minimatch.braceExpand = exports.braceExpand;
 // of * is equivalent to a single *.  Globstar behavior is enabled by
 // default, and can be disabled by setting options.noglobstar.
 const makeRe = (pattern, options = {}) => new Minimatch(pattern, options).makeRe();
-exports.makeRe = makeRe;
-exports.minimatch.makeRe = exports.makeRe;
+minimatch.makeRe = makeRe;
 const match = (list, pattern, options = {}) => {
     const mm = new Minimatch(pattern, options);
     list = list.filter(f => mm.match(f));
@@ -36000,11 +33912,10 @@ const match = (list, pattern, options = {}) => {
     }
     return list;
 };
-exports.match = match;
-exports.minimatch.match = exports.match;
+minimatch.match = match;
 // replace stuff like \* with *
 const globMagic = /[?*]|[+@!]\(.*?\)|\[|\]/;
-const regExpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+const esm_regExpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 class Minimatch {
     options;
     set;
@@ -36024,7 +33935,7 @@ class Minimatch {
     windowsNoMagicRoot;
     regexp;
     constructor(pattern, options = {}) {
-        (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+        assertValidPattern(pattern);
         options = options || {};
         this.options = options;
         this.pattern = pattern;
@@ -36479,7 +34390,7 @@ class Minimatch {
                 return false;
             }
             /* c8 ignore stop */
-            if (p === exports.GLOBSTAR) {
+            if (p === GLOBSTAR) {
                 this.debug('GLOBSTAR', [pattern, p, f]);
                 // "**"
                 // a/**/b/**/c would match the following:
@@ -36610,14 +34521,14 @@ class Minimatch {
         /* c8 ignore stop */
     }
     braceExpand() {
-        return (0, exports.braceExpand)(this.pattern, this.options);
+        return braceExpand(this.pattern, this.options);
     }
     parse(pattern) {
-        (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+        assertValidPattern(pattern);
         const options = this.options;
         // shortcuts
         if (pattern === '**')
-            return exports.GLOBSTAR;
+            return GLOBSTAR;
         if (pattern === '')
             return '';
         // far and away, the most common glob pattern parts are
@@ -36651,7 +34562,7 @@ class Minimatch {
         else if ((m = pattern.match(dotStarRE))) {
             fastTest = dotStarTest;
         }
-        const re = ast_js_1.AST.fromGlob(pattern, this.options).toMMPattern();
+        const re = AST.fromGlob(pattern, this.options).toMMPattern();
         if (fastTest && typeof re === 'object') {
             // Avoids overriding in frozen environments
             Reflect.defineProperty(re, 'test', { value: fastTest });
@@ -36674,7 +34585,7 @@ class Minimatch {
         }
         const options = this.options;
         const twoStar = options.noglobstar
-            ? star
+            ? esm_star
             : options.dot
                 ? twoStarDot
                 : twoStarNoDot;
@@ -36693,19 +34604,19 @@ class Minimatch {
                         flags.add(f);
                 }
                 return typeof p === 'string'
-                    ? regExpEscape(p)
-                    : p === exports.GLOBSTAR
-                        ? exports.GLOBSTAR
+                    ? esm_regExpEscape(p)
+                    : p === GLOBSTAR
+                        ? GLOBSTAR
                         : p._src;
             });
             pp.forEach((p, i) => {
                 const next = pp[i + 1];
                 const prev = pp[i - 1];
-                if (p !== exports.GLOBSTAR || prev === exports.GLOBSTAR) {
+                if (p !== GLOBSTAR || prev === GLOBSTAR) {
                     return;
                 }
                 if (prev === undefined) {
-                    if (next !== undefined && next !== exports.GLOBSTAR) {
+                    if (next !== undefined && next !== GLOBSTAR) {
                         pp[i + 1] = '(?:\\/|' + twoStar + '\\/)?' + next;
                     }
                     else {
@@ -36715,12 +34626,12 @@ class Minimatch {
                 else if (next === undefined) {
                     pp[i - 1] = prev + '(?:\\/|' + twoStar + ')?';
                 }
-                else if (next !== exports.GLOBSTAR) {
+                else if (next !== GLOBSTAR) {
                     pp[i - 1] = prev + '(?:\\/|\\/' + twoStar + '\\/)' + next;
-                    pp[i + 1] = exports.GLOBSTAR;
+                    pp[i + 1] = GLOBSTAR;
                 }
             });
-            return pp.filter(p => p !== exports.GLOBSTAR).join('/');
+            return pp.filter(p => p !== GLOBSTAR).join('/');
         })
             .join('|');
         // need to wrap in parens if we had more than one thing with |,
@@ -36815,65 +34726,25 @@ class Minimatch {
         return this.negate;
     }
     static defaults(def) {
-        return exports.minimatch.defaults(def).Minimatch;
+        return minimatch.defaults(def).Minimatch;
     }
 }
-exports.Minimatch = Minimatch;
 /* c8 ignore start */
-var ast_js_2 = __nccwpck_require__(6034);
-Object.defineProperty(exports, "AST", ({ enumerable: true, get: function () { return ast_js_2.AST; } }));
-var escape_js_2 = __nccwpck_require__(1496);
-Object.defineProperty(exports, "escape", ({ enumerable: true, get: function () { return escape_js_2.escape; } }));
-var unescape_js_2 = __nccwpck_require__(7226);
-Object.defineProperty(exports, "unescape", ({ enumerable: true, get: function () { return unescape_js_2.unescape; } }));
+
+
+
 /* c8 ignore stop */
-exports.minimatch.AST = ast_js_1.AST;
-exports.minimatch.Minimatch = Minimatch;
-exports.minimatch.escape = escape_js_1.escape;
-exports.minimatch.unescape = unescape_js_1.unescape;
+minimatch.AST = AST;
+minimatch.Minimatch = Minimatch;
+minimatch.escape = escape_escape;
+minimatch.unescape = unescape_unescape;
 //# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 7226:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.unescape = void 0;
-/**
- * Un-escape a string that has been escaped with {@link escape}.
- *
- * If the {@link windowsPathsNoEscape} option is used, then square-brace
- * escapes are removed, but not backslash escapes.  For example, it will turn
- * the string `'[*]'` into `*`, but it will not turn `'\\*'` into `'*'`,
- * becuase `\` is a path separator in `windowsPathsNoEscape` mode.
- *
- * When `windowsPathsNoEscape` is not set, then both brace escapes and
- * backslash escapes are removed.
- *
- * Slashes (and backslashes in `windowsPathsNoEscape` mode) cannot be escaped
- * or unescaped.
- */
-const unescape = (s, { windowsPathsNoEscape = false, } = {}) => {
-    return windowsPathsNoEscape
-        ? s.replace(/\[([^\/\\])\]/g, '$1')
-        : s.replace(/((?!\\).|^)\[([^\/\\])\]/g, '$1$2').replace(/\\([^\/])/g, '$1');
-};
-exports.unescape = unescape;
-//# sourceMappingURL=unescape.js.map
-
-/***/ }),
-
-/***/ 3866:
-/***/ ((__unused_webpack_module, exports) => {
-
-
+;// CONCATENATED MODULE: external "node:url"
+const external_node_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:url");
+;// CONCATENATED MODULE: ./node_modules/lru-cache/dist/esm/index.js
 /**
  * @module LRUCache
  */
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.LRUCache = void 0;
 const perf = typeof performance === 'object' &&
     performance &&
     typeof performance.now === 'function'
@@ -38412,29 +36283,27 @@ class LRUCache {
         }
     }
 }
-exports.LRUCache = LRUCache;
 //# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 4968:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Minipass = exports.isWritable = exports.isReadable = exports.isStream = void 0;
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __nccwpck_require__(7147);
+;// CONCATENATED MODULE: external "node:fs/promises"
+const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs/promises");
+// EXTERNAL MODULE: external "node:events"
+var external_node_events_ = __nccwpck_require__(5673);
+// EXTERNAL MODULE: external "node:stream"
+var external_node_stream_ = __nccwpck_require__(4492);
+;// CONCATENATED MODULE: external "node:string_decoder"
+const external_node_string_decoder_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:string_decoder");
+;// CONCATENATED MODULE: ./node_modules/minipass/dist/esm/index.js
 const proc = typeof process === 'object' && process
     ? process
     : {
         stdout: null,
         stderr: null,
     };
-const node_events_1 = __nccwpck_require__(5673);
-const node_stream_1 = __importDefault(__nccwpck_require__(4492));
-const node_string_decoder_1 = __nccwpck_require__(6915);
+
+
+
 /**
  * Return true if the argument is a Minipass stream, Node stream, or something
  * else that Minipass can interact with.
@@ -38442,29 +36311,26 @@ const node_string_decoder_1 = __nccwpck_require__(6915);
 const isStream = (s) => !!s &&
     typeof s === 'object' &&
     (s instanceof Minipass ||
-        s instanceof node_stream_1.default ||
-        (0, exports.isReadable)(s) ||
-        (0, exports.isWritable)(s));
-exports.isStream = isStream;
+        s instanceof external_node_stream_ ||
+        isReadable(s) ||
+        isWritable(s));
 /**
  * Return true if the argument is a valid {@link Minipass.Readable}
  */
 const isReadable = (s) => !!s &&
     typeof s === 'object' &&
-    s instanceof node_events_1.EventEmitter &&
+    s instanceof external_node_events_.EventEmitter &&
     typeof s.pipe === 'function' &&
     // node core Writable streams have a pipe() method, but it throws
-    s.pipe !== node_stream_1.default.Writable.prototype.pipe;
-exports.isReadable = isReadable;
+    s.pipe !== external_node_stream_.Writable.prototype.pipe;
 /**
  * Return true if the argument is a valid {@link Minipass.Writable}
  */
 const isWritable = (s) => !!s &&
     typeof s === 'object' &&
-    s instanceof node_events_1.EventEmitter &&
+    s instanceof external_node_events_.EventEmitter &&
     typeof s.write === 'function' &&
     typeof s.end === 'function';
-exports.isWritable = isWritable;
 const EOF = Symbol('EOF');
 const MAYBE_EMIT_END = Symbol('maybeEmitEnd');
 const EMITTED_END = Symbol('emittedEnd');
@@ -38568,7 +36434,7 @@ const isEncodingOptions = (o) => !o.objectMode && !!o.encoding && o.encoding !==
  * `Events` is the set of event handler signatures that this object
  * will emit, see {@link Minipass.Events}
  */
-class Minipass extends node_events_1.EventEmitter {
+class Minipass extends external_node_events_.EventEmitter {
     [FLOWING] = false;
     [PAUSED] = false;
     [PIPES] = [];
@@ -38623,7 +36489,7 @@ class Minipass extends node_events_1.EventEmitter {
         }
         this[ASYNC] = !!options.async;
         this[DECODER] = this[ENCODING]
-            ? new node_string_decoder_1.StringDecoder(this[ENCODING])
+            ? new external_node_string_decoder_namespaceObject.StringDecoder(this[ENCODING])
             : null;
         //@ts-ignore - private option for debugging and testing
         if (options && options.debugExposeBuffer === true) {
@@ -39443,68 +37309,36 @@ class Minipass extends node_events_1.EventEmitter {
      * @deprecated
      */
     static get isStream() {
-        return exports.isStream;
+        return isStream;
     }
 }
-exports.Minipass = Minipass;
 //# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 1081:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+;// CONCATENATED MODULE: ./node_modules/path-scurry/dist/esm/index.js
 
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.PathScurry = exports.Path = exports.PathScurryDarwin = exports.PathScurryPosix = exports.PathScurryWin32 = exports.PathScurryBase = exports.PathPosix = exports.PathWin32 = exports.PathBase = exports.ChildrenCache = exports.ResolveCache = void 0;
-const lru_cache_1 = __nccwpck_require__(3866);
-const node_path_1 = __nccwpck_require__(9411);
-const node_url_1 = __nccwpck_require__(1041);
-const fs_1 = __nccwpck_require__(7147);
-const actualFS = __importStar(__nccwpck_require__(7561));
-const realpathSync = fs_1.realpathSync.native;
+
+
+
+const realpathSync = external_fs_.realpathSync.native;
 // TODO: test perf of fs/promises realpath vs realpathCB,
 // since the promises one uses realpath.native
-const promises_1 = __nccwpck_require__(3977);
-const minipass_1 = __nccwpck_require__(4968);
+
+
 const defaultFS = {
-    lstatSync: fs_1.lstatSync,
-    readdir: fs_1.readdir,
-    readdirSync: fs_1.readdirSync,
-    readlinkSync: fs_1.readlinkSync,
+    lstatSync: external_fs_.lstatSync,
+    readdir: external_fs_.readdir,
+    readdirSync: external_fs_.readdirSync,
+    readlinkSync: external_fs_.readlinkSync,
     realpathSync,
     promises: {
-        lstat: promises_1.lstat,
-        readdir: promises_1.readdir,
-        readlink: promises_1.readlink,
-        realpath: promises_1.realpath,
+        lstat: promises_namespaceObject.lstat,
+        readdir: promises_namespaceObject.readdir,
+        readlink: promises_namespaceObject.readlink,
+        realpath: promises_namespaceObject.realpath,
     },
 };
 // if they just gave us require('fs') then use our default
-const fsFromOption = (fsOption) => !fsOption || fsOption === defaultFS || fsOption === actualFS ?
+const fsFromOption = (fsOption) => !fsOption || fsOption === defaultFS || fsOption === external_node_fs_namespaceObject_0 ?
     defaultFS
     : {
         ...defaultFS,
@@ -39577,12 +37411,11 @@ const normalizeNocase = (s) => {
  * An LRUCache for storing resolved path strings or Path objects.
  * @internal
  */
-class ResolveCache extends lru_cache_1.LRUCache {
+class ResolveCache extends LRUCache {
     constructor() {
         super({ max: 256 });
     }
 }
-exports.ResolveCache = ResolveCache;
 // In order to prevent blowing out the js heap by allocating hundreds of
 // thousands of Path entries when walking extremely large trees, the "children"
 // in this tree are represented by storing an array of Path entries in an
@@ -39598,7 +37431,7 @@ exports.ResolveCache = ResolveCache;
  * an LRUCache for storing child entries.
  * @internal
  */
-class ChildrenCache extends lru_cache_1.LRUCache {
+class ChildrenCache extends LRUCache {
     constructor(maxSize = 16 * 1024) {
         super({
             maxSize,
@@ -39607,7 +37440,6 @@ class ChildrenCache extends lru_cache_1.LRUCache {
         });
     }
 }
-exports.ChildrenCache = ChildrenCache;
 const setAsCwd = Symbol('PathScurry setAsCwd');
 /**
  * Path objects are sort of like a super-powered
@@ -40625,7 +38457,6 @@ class PathBase {
         }
     }
 }
-exports.PathBase = PathBase;
 /**
  * Path class used on win32 systems
  *
@@ -40660,7 +38491,7 @@ class PathWin32 extends PathBase {
      * @internal
      */
     getRootString(path) {
-        return node_path_1.win32.parse(path).root;
+        return external_node_path_namespaceObject.win32.parse(path).root;
     }
     /**
      * @internal
@@ -40693,7 +38524,6 @@ class PathWin32 extends PathBase {
         return rootPath === compare;
     }
 }
-exports.PathWin32 = PathWin32;
 /**
  * Path class used on all posix systems.
  *
@@ -40736,7 +38566,6 @@ class PathPosix extends PathBase {
         return new PathPosix(name, type, this.root, this.roots, this.nocase, this.childrenCache(), opts);
     }
 }
-exports.PathPosix = PathPosix;
 /**
  * The base class for all PathScurry classes, providing the interface for path
  * resolution and filesystem operations.
@@ -40782,7 +38611,7 @@ class PathScurryBase {
     constructor(cwd = process.cwd(), pathImpl, sep, { nocase, childrenCacheSize = 16 * 1024, fs = defaultFS, } = {}) {
         this.#fs = fsFromOption(fs);
         if (cwd instanceof URL || cwd.startsWith('file://')) {
-            cwd = (0, node_url_1.fileURLToPath)(cwd);
+            cwd = (0,external_node_url_namespaceObject.fileURLToPath)(cwd);
         }
         // resolve and split root, and then add to the store.
         // this is the only time we call path.resolve()
@@ -41229,7 +39058,7 @@ class PathScurryBase {
             entry = this.cwd;
         }
         const { withFileTypes = true, follow = false, filter, walkFilter, } = opts;
-        const results = new minipass_1.Minipass({ objectMode: true });
+        const results = new Minipass({ objectMode: true });
         if (!filter || filter(entry)) {
             results.write(withFileTypes ? entry : entry.fullpath());
         }
@@ -41305,7 +39134,7 @@ class PathScurryBase {
             entry = this.cwd;
         }
         const { withFileTypes = true, follow = false, filter, walkFilter, } = opts;
-        const results = new minipass_1.Minipass({ objectMode: true });
+        const results = new Minipass({ objectMode: true });
         const dirs = new Set();
         if (!filter || filter(entry)) {
             results.write(withFileTypes ? entry : entry.fullpath());
@@ -41357,7 +39186,6 @@ class PathScurryBase {
         this.cwd[setAsCwd](oldCwd);
     }
 }
-exports.PathScurryBase = PathScurryBase;
 /**
  * Windows implementation of {@link PathScurryBase}
  *
@@ -41371,7 +39199,7 @@ class PathScurryWin32 extends PathScurryBase {
     sep = '\\';
     constructor(cwd = process.cwd(), opts = {}) {
         const { nocase = true } = opts;
-        super(cwd, node_path_1.win32, '\\', { ...opts, nocase });
+        super(cwd, external_node_path_namespaceObject.win32, '\\', { ...opts, nocase });
         this.nocase = nocase;
         for (let p = this.cwd; p; p = p.parent) {
             p.nocase = this.nocase;
@@ -41384,7 +39212,7 @@ class PathScurryWin32 extends PathScurryBase {
         // if the path starts with a single separator, it's not a UNC, and we'll
         // just get separator as the root, and driveFromUNC will return \
         // In that case, mount \ on the root from the cwd.
-        return node_path_1.win32.parse(dir).root.toUpperCase();
+        return external_node_path_namespaceObject.win32.parse(dir).root.toUpperCase();
     }
     /**
      * @internal
@@ -41399,7 +39227,6 @@ class PathScurryWin32 extends PathScurryBase {
         return (p.startsWith('/') || p.startsWith('\\') || /^[a-z]:(\/|\\)/i.test(p));
     }
 }
-exports.PathScurryWin32 = PathScurryWin32;
 /**
  * {@link PathScurryBase} implementation for all posix systems other than Darwin.
  *
@@ -41414,7 +39241,7 @@ class PathScurryPosix extends PathScurryBase {
     sep = '/';
     constructor(cwd = process.cwd(), opts = {}) {
         const { nocase = false } = opts;
-        super(cwd, node_path_1.posix, '/', { ...opts, nocase });
+        super(cwd, external_node_path_namespaceObject.posix, '/', { ...opts, nocase });
         this.nocase = nocase;
     }
     /**
@@ -41436,7 +39263,6 @@ class PathScurryPosix extends PathScurryBase {
         return p.startsWith('/');
     }
 }
-exports.PathScurryPosix = PathScurryPosix;
 /**
  * {@link PathScurryBase} implementation for Darwin (macOS) systems.
  *
@@ -41451,38 +39277,1376 @@ class PathScurryDarwin extends PathScurryPosix {
         super(cwd, { ...opts, nocase });
     }
 }
-exports.PathScurryDarwin = PathScurryDarwin;
 /**
  * Default {@link PathBase} implementation for the current platform.
  *
  * {@link PathWin32} on Windows systems, {@link PathPosix} on all others.
  */
-exports.Path = process.platform === 'win32' ? PathWin32 : PathPosix;
+const Path = process.platform === 'win32' ? PathWin32 : PathPosix;
 /**
  * Default {@link PathScurryBase} implementation for the current platform.
  *
  * {@link PathScurryWin32} on Windows systems, {@link PathScurryDarwin} on
  * Darwin (macOS) systems, {@link PathScurryPosix} on all others.
  */
-exports.PathScurry = process.platform === 'win32' ? PathScurryWin32
+const PathScurry = process.platform === 'win32' ? PathScurryWin32
     : process.platform === 'darwin' ? PathScurryDarwin
         : PathScurryPosix;
 //# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ./node_modules/glob/dist/esm/pattern.js
+// this is just a very light wrapper around 2 arrays with an offset index
 
-/***/ }),
+const isPatternList = (pl) => pl.length >= 1;
+const isGlobList = (gl) => gl.length >= 1;
+/**
+ * An immutable-ish view on an array of glob parts and their parsed
+ * results
+ */
+class Pattern {
+    #patternList;
+    #globList;
+    #index;
+    length;
+    #platform;
+    #rest;
+    #globString;
+    #isDrive;
+    #isUNC;
+    #isAbsolute;
+    #followGlobstar = true;
+    constructor(patternList, globList, index, platform) {
+        if (!isPatternList(patternList)) {
+            throw new TypeError('empty pattern list');
+        }
+        if (!isGlobList(globList)) {
+            throw new TypeError('empty glob list');
+        }
+        if (globList.length !== patternList.length) {
+            throw new TypeError('mismatched pattern list and glob list lengths');
+        }
+        this.length = patternList.length;
+        if (index < 0 || index >= this.length) {
+            throw new TypeError('index out of range');
+        }
+        this.#patternList = patternList;
+        this.#globList = globList;
+        this.#index = index;
+        this.#platform = platform;
+        // normalize root entries of absolute patterns on initial creation.
+        if (this.#index === 0) {
+            // c: => ['c:/']
+            // C:/ => ['C:/']
+            // C:/x => ['C:/', 'x']
+            // //host/share => ['//host/share/']
+            // //host/share/ => ['//host/share/']
+            // //host/share/x => ['//host/share/', 'x']
+            // /etc => ['/', 'etc']
+            // / => ['/']
+            if (this.isUNC()) {
+                // '' / '' / 'host' / 'share'
+                const [p0, p1, p2, p3, ...prest] = this.#patternList;
+                const [g0, g1, g2, g3, ...grest] = this.#globList;
+                if (prest[0] === '') {
+                    // ends in /
+                    prest.shift();
+                    grest.shift();
+                }
+                const p = [p0, p1, p2, p3, ''].join('/');
+                const g = [g0, g1, g2, g3, ''].join('/');
+                this.#patternList = [p, ...prest];
+                this.#globList = [g, ...grest];
+                this.length = this.#patternList.length;
+            }
+            else if (this.isDrive() || this.isAbsolute()) {
+                const [p1, ...prest] = this.#patternList;
+                const [g1, ...grest] = this.#globList;
+                if (prest[0] === '') {
+                    // ends in /
+                    prest.shift();
+                    grest.shift();
+                }
+                const p = p1 + '/';
+                const g = g1 + '/';
+                this.#patternList = [p, ...prest];
+                this.#globList = [g, ...grest];
+                this.length = this.#patternList.length;
+            }
+        }
+    }
+    /**
+     * The first entry in the parsed list of patterns
+     */
+    pattern() {
+        return this.#patternList[this.#index];
+    }
+    /**
+     * true of if pattern() returns a string
+     */
+    isString() {
+        return typeof this.#patternList[this.#index] === 'string';
+    }
+    /**
+     * true of if pattern() returns GLOBSTAR
+     */
+    isGlobstar() {
+        return this.#patternList[this.#index] === GLOBSTAR;
+    }
+    /**
+     * true if pattern() returns a regexp
+     */
+    isRegExp() {
+        return this.#patternList[this.#index] instanceof RegExp;
+    }
+    /**
+     * The /-joined set of glob parts that make up this pattern
+     */
+    globString() {
+        return (this.#globString =
+            this.#globString ||
+                (this.#index === 0 ?
+                    this.isAbsolute() ?
+                        this.#globList[0] + this.#globList.slice(1).join('/')
+                        : this.#globList.join('/')
+                    : this.#globList.slice(this.#index).join('/')));
+    }
+    /**
+     * true if there are more pattern parts after this one
+     */
+    hasMore() {
+        return this.length > this.#index + 1;
+    }
+    /**
+     * The rest of the pattern after this part, or null if this is the end
+     */
+    rest() {
+        if (this.#rest !== undefined)
+            return this.#rest;
+        if (!this.hasMore())
+            return (this.#rest = null);
+        this.#rest = new Pattern(this.#patternList, this.#globList, this.#index + 1, this.#platform);
+        this.#rest.#isAbsolute = this.#isAbsolute;
+        this.#rest.#isUNC = this.#isUNC;
+        this.#rest.#isDrive = this.#isDrive;
+        return this.#rest;
+    }
+    /**
+     * true if the pattern represents a //unc/path/ on windows
+     */
+    isUNC() {
+        const pl = this.#patternList;
+        return this.#isUNC !== undefined ?
+            this.#isUNC
+            : (this.#isUNC =
+                this.#platform === 'win32' &&
+                    this.#index === 0 &&
+                    pl[0] === '' &&
+                    pl[1] === '' &&
+                    typeof pl[2] === 'string' &&
+                    !!pl[2] &&
+                    typeof pl[3] === 'string' &&
+                    !!pl[3]);
+    }
+    // pattern like C:/...
+    // split = ['C:', ...]
+    // XXX: would be nice to handle patterns like `c:*` to test the cwd
+    // in c: for *, but I don't know of a way to even figure out what that
+    // cwd is without actually chdir'ing into it?
+    /**
+     * True if the pattern starts with a drive letter on Windows
+     */
+    isDrive() {
+        const pl = this.#patternList;
+        return this.#isDrive !== undefined ?
+            this.#isDrive
+            : (this.#isDrive =
+                this.#platform === 'win32' &&
+                    this.#index === 0 &&
+                    this.length > 1 &&
+                    typeof pl[0] === 'string' &&
+                    /^[a-z]:$/i.test(pl[0]));
+    }
+    // pattern = '/' or '/...' or '/x/...'
+    // split = ['', ''] or ['', ...] or ['', 'x', ...]
+    // Drive and UNC both considered absolute on windows
+    /**
+     * True if the pattern is rooted on an absolute path
+     */
+    isAbsolute() {
+        const pl = this.#patternList;
+        return this.#isAbsolute !== undefined ?
+            this.#isAbsolute
+            : (this.#isAbsolute =
+                (pl[0] === '' && pl.length > 1) ||
+                    this.isDrive() ||
+                    this.isUNC());
+    }
+    /**
+     * consume the root of the pattern, and return it
+     */
+    root() {
+        const p = this.#patternList[0];
+        return (typeof p === 'string' && this.isAbsolute() && this.#index === 0) ?
+            p
+            : '';
+    }
+    /**
+     * Check to see if the current globstar pattern is allowed to follow
+     * a symbolic link.
+     */
+    checkFollowGlobstar() {
+        return !(this.#index === 0 ||
+            !this.isGlobstar() ||
+            !this.#followGlobstar);
+    }
+    /**
+     * Mark that the current globstar pattern is following a symbolic link
+     */
+    markFollowGlobstar() {
+        if (this.#index === 0 || !this.isGlobstar() || !this.#followGlobstar)
+            return false;
+        this.#followGlobstar = false;
+        return true;
+    }
+}
+//# sourceMappingURL=pattern.js.map
+;// CONCATENATED MODULE: ./node_modules/glob/dist/esm/ignore.js
+// give it a pattern, and it'll be able to tell you if
+// a given path should be ignored.
+// Ignoring a path ignores its children if the pattern ends in /**
+// Ignores are always parsed in dot:true mode
 
-/***/ 675:
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
-// ESM COMPAT FLAG
-__nccwpck_require__.r(__webpack_exports__);
+const ignore_defaultPlatform = (typeof process === 'object' &&
+    process &&
+    typeof process.platform === 'string') ?
+    process.platform
+    : 'linux';
+/**
+ * Class used to process ignored patterns
+ */
+class Ignore {
+    relative;
+    relativeChildren;
+    absolute;
+    absoluteChildren;
+    platform;
+    mmopts;
+    constructor(ignored, { nobrace, nocase, noext, noglobstar, platform = ignore_defaultPlatform, }) {
+        this.relative = [];
+        this.absolute = [];
+        this.relativeChildren = [];
+        this.absoluteChildren = [];
+        this.platform = platform;
+        this.mmopts = {
+            dot: true,
+            nobrace,
+            nocase,
+            noext,
+            noglobstar,
+            optimizationLevel: 2,
+            platform,
+            nocomment: true,
+            nonegate: true,
+        };
+        for (const ign of ignored)
+            this.add(ign);
+    }
+    add(ign) {
+        // this is a little weird, but it gives us a clean set of optimized
+        // minimatch matchers, without getting tripped up if one of them
+        // ends in /** inside a brace section, and it's only inefficient at
+        // the start of the walk, not along it.
+        // It'd be nice if the Pattern class just had a .test() method, but
+        // handling globstars is a bit of a pita, and that code already lives
+        // in minimatch anyway.
+        // Another way would be if maybe Minimatch could take its set/globParts
+        // as an option, and then we could at least just use Pattern to test
+        // for absolute-ness.
+        // Yet another way, Minimatch could take an array of glob strings, and
+        // a cwd option, and do the right thing.
+        const mm = new Minimatch(ign, this.mmopts);
+        for (let i = 0; i < mm.set.length; i++) {
+            const parsed = mm.set[i];
+            const globParts = mm.globParts[i];
+            /* c8 ignore start */
+            if (!parsed || !globParts) {
+                throw new Error('invalid pattern object');
+            }
+            // strip off leading ./ portions
+            // https://github.com/isaacs/node-glob/issues/570
+            while (parsed[0] === '.' && globParts[0] === '.') {
+                parsed.shift();
+                globParts.shift();
+            }
+            /* c8 ignore stop */
+            const p = new Pattern(parsed, globParts, 0, this.platform);
+            const m = new Minimatch(p.globString(), this.mmopts);
+            const children = globParts[globParts.length - 1] === '**';
+            const absolute = p.isAbsolute();
+            if (absolute)
+                this.absolute.push(m);
+            else
+                this.relative.push(m);
+            if (children) {
+                if (absolute)
+                    this.absoluteChildren.push(m);
+                else
+                    this.relativeChildren.push(m);
+            }
+        }
+    }
+    ignored(p) {
+        const fullpath = p.fullpath();
+        const fullpaths = `${fullpath}/`;
+        const relative = p.relative() || '.';
+        const relatives = `${relative}/`;
+        for (const m of this.relative) {
+            if (m.match(relative) || m.match(relatives))
+                return true;
+        }
+        for (const m of this.absolute) {
+            if (m.match(fullpath) || m.match(fullpaths))
+                return true;
+        }
+        return false;
+    }
+    childrenIgnored(p) {
+        const fullpath = p.fullpath() + '/';
+        const relative = (p.relative() || '.') + '/';
+        for (const m of this.relativeChildren) {
+            if (m.match(relative))
+                return true;
+        }
+        for (const m of this.absoluteChildren) {
+            if (m.match(fullpath))
+                return true;
+        }
+        return false;
+    }
+}
+//# sourceMappingURL=ignore.js.map
+;// CONCATENATED MODULE: ./node_modules/glob/dist/esm/processor.js
+// synchronous utility for filtering entries and calculating subwalks
 
-// EXPORTS
-__nccwpck_require__.d(__webpack_exports__, {
-  "VERSION": () => (/* binding */ VERSION),
-  "retry": () => (/* binding */ retry)
+/**
+ * A cache of which patterns have been processed for a given Path
+ */
+class HasWalkedCache {
+    store;
+    constructor(store = new Map()) {
+        this.store = store;
+    }
+    copy() {
+        return new HasWalkedCache(new Map(this.store));
+    }
+    hasWalked(target, pattern) {
+        return this.store.get(target.fullpath())?.has(pattern.globString());
+    }
+    storeWalked(target, pattern) {
+        const fullpath = target.fullpath();
+        const cached = this.store.get(fullpath);
+        if (cached)
+            cached.add(pattern.globString());
+        else
+            this.store.set(fullpath, new Set([pattern.globString()]));
+    }
+}
+/**
+ * A record of which paths have been matched in a given walk step,
+ * and whether they only are considered a match if they are a directory,
+ * and whether their absolute or relative path should be returned.
+ */
+class MatchRecord {
+    store = new Map();
+    add(target, absolute, ifDir) {
+        const n = (absolute ? 2 : 0) | (ifDir ? 1 : 0);
+        const current = this.store.get(target);
+        this.store.set(target, current === undefined ? n : n & current);
+    }
+    // match, absolute, ifdir
+    entries() {
+        return [...this.store.entries()].map(([path, n]) => [
+            path,
+            !!(n & 2),
+            !!(n & 1),
+        ]);
+    }
+}
+/**
+ * A collection of patterns that must be processed in a subsequent step
+ * for a given path.
+ */
+class SubWalks {
+    store = new Map();
+    add(target, pattern) {
+        if (!target.canReaddir()) {
+            return;
+        }
+        const subs = this.store.get(target);
+        if (subs) {
+            if (!subs.find(p => p.globString() === pattern.globString())) {
+                subs.push(pattern);
+            }
+        }
+        else
+            this.store.set(target, [pattern]);
+    }
+    get(target) {
+        const subs = this.store.get(target);
+        /* c8 ignore start */
+        if (!subs) {
+            throw new Error('attempting to walk unknown path');
+        }
+        /* c8 ignore stop */
+        return subs;
+    }
+    entries() {
+        return this.keys().map(k => [k, this.store.get(k)]);
+    }
+    keys() {
+        return [...this.store.keys()].filter(t => t.canReaddir());
+    }
+}
+/**
+ * The class that processes patterns for a given path.
+ *
+ * Handles child entry filtering, and determining whether a path's
+ * directory contents must be read.
+ */
+class Processor {
+    hasWalkedCache;
+    matches = new MatchRecord();
+    subwalks = new SubWalks();
+    patterns;
+    follow;
+    dot;
+    opts;
+    constructor(opts, hasWalkedCache) {
+        this.opts = opts;
+        this.follow = !!opts.follow;
+        this.dot = !!opts.dot;
+        this.hasWalkedCache =
+            hasWalkedCache ? hasWalkedCache.copy() : new HasWalkedCache();
+    }
+    processPatterns(target, patterns) {
+        this.patterns = patterns;
+        const processingSet = patterns.map(p => [target, p]);
+        // map of paths to the magic-starting subwalks they need to walk
+        // first item in patterns is the filter
+        for (let [t, pattern] of processingSet) {
+            this.hasWalkedCache.storeWalked(t, pattern);
+            const root = pattern.root();
+            const absolute = pattern.isAbsolute() && this.opts.absolute !== false;
+            // start absolute patterns at root
+            if (root) {
+                t = t.resolve(root === '/' && this.opts.root !== undefined ?
+                    this.opts.root
+                    : root);
+                const rest = pattern.rest();
+                if (!rest) {
+                    this.matches.add(t, true, false);
+                    continue;
+                }
+                else {
+                    pattern = rest;
+                }
+            }
+            if (t.isENOENT())
+                continue;
+            let p;
+            let rest;
+            let changed = false;
+            while (typeof (p = pattern.pattern()) === 'string' &&
+                (rest = pattern.rest())) {
+                const c = t.resolve(p);
+                t = c;
+                pattern = rest;
+                changed = true;
+            }
+            p = pattern.pattern();
+            rest = pattern.rest();
+            if (changed) {
+                if (this.hasWalkedCache.hasWalked(t, pattern))
+                    continue;
+                this.hasWalkedCache.storeWalked(t, pattern);
+            }
+            // now we have either a final string for a known entry,
+            // more strings for an unknown entry,
+            // or a pattern starting with magic, mounted on t.
+            if (typeof p === 'string') {
+                // must not be final entry, otherwise we would have
+                // concatenated it earlier.
+                const ifDir = p === '..' || p === '' || p === '.';
+                this.matches.add(t.resolve(p), absolute, ifDir);
+                continue;
+            }
+            else if (p === GLOBSTAR) {
+                // if no rest, match and subwalk pattern
+                // if rest, process rest and subwalk pattern
+                // if it's a symlink, but we didn't get here by way of a
+                // globstar match (meaning it's the first time THIS globstar
+                // has traversed a symlink), then we follow it. Otherwise, stop.
+                if (!t.isSymbolicLink() ||
+                    this.follow ||
+                    pattern.checkFollowGlobstar()) {
+                    this.subwalks.add(t, pattern);
+                }
+                const rp = rest?.pattern();
+                const rrest = rest?.rest();
+                if (!rest || ((rp === '' || rp === '.') && !rrest)) {
+                    // only HAS to be a dir if it ends in **/ or **/.
+                    // but ending in ** will match files as well.
+                    this.matches.add(t, absolute, rp === '' || rp === '.');
+                }
+                else {
+                    if (rp === '..') {
+                        // this would mean you're matching **/.. at the fs root,
+                        // and no thanks, I'm not gonna test that specific case.
+                        /* c8 ignore start */
+                        const tp = t.parent || t;
+                        /* c8 ignore stop */
+                        if (!rrest)
+                            this.matches.add(tp, absolute, true);
+                        else if (!this.hasWalkedCache.hasWalked(tp, rrest)) {
+                            this.subwalks.add(tp, rrest);
+                        }
+                    }
+                }
+            }
+            else if (p instanceof RegExp) {
+                this.subwalks.add(t, pattern);
+            }
+        }
+        return this;
+    }
+    subwalkTargets() {
+        return this.subwalks.keys();
+    }
+    child() {
+        return new Processor(this.opts, this.hasWalkedCache);
+    }
+    // return a new Processor containing the subwalks for each
+    // child entry, and a set of matches, and
+    // a hasWalkedCache that's a copy of this one
+    // then we're going to call
+    filterEntries(parent, entries) {
+        const patterns = this.subwalks.get(parent);
+        // put matches and entry walks into the results processor
+        const results = this.child();
+        for (const e of entries) {
+            for (const pattern of patterns) {
+                const absolute = pattern.isAbsolute();
+                const p = pattern.pattern();
+                const rest = pattern.rest();
+                if (p === GLOBSTAR) {
+                    results.testGlobstar(e, pattern, rest, absolute);
+                }
+                else if (p instanceof RegExp) {
+                    results.testRegExp(e, p, rest, absolute);
+                }
+                else {
+                    results.testString(e, p, rest, absolute);
+                }
+            }
+        }
+        return results;
+    }
+    testGlobstar(e, pattern, rest, absolute) {
+        if (this.dot || !e.name.startsWith('.')) {
+            if (!pattern.hasMore()) {
+                this.matches.add(e, absolute, false);
+            }
+            if (e.canReaddir()) {
+                // if we're in follow mode or it's not a symlink, just keep
+                // testing the same pattern. If there's more after the globstar,
+                // then this symlink consumes the globstar. If not, then we can
+                // follow at most ONE symlink along the way, so we mark it, which
+                // also checks to ensure that it wasn't already marked.
+                if (this.follow || !e.isSymbolicLink()) {
+                    this.subwalks.add(e, pattern);
+                }
+                else if (e.isSymbolicLink()) {
+                    if (rest && pattern.checkFollowGlobstar()) {
+                        this.subwalks.add(e, rest);
+                    }
+                    else if (pattern.markFollowGlobstar()) {
+                        this.subwalks.add(e, pattern);
+                    }
+                }
+            }
+        }
+        // if the NEXT thing matches this entry, then also add
+        // the rest.
+        if (rest) {
+            const rp = rest.pattern();
+            if (typeof rp === 'string' &&
+                // dots and empty were handled already
+                rp !== '..' &&
+                rp !== '' &&
+                rp !== '.') {
+                this.testString(e, rp, rest.rest(), absolute);
+            }
+            else if (rp === '..') {
+                /* c8 ignore start */
+                const ep = e.parent || e;
+                /* c8 ignore stop */
+                this.subwalks.add(ep, rest);
+            }
+            else if (rp instanceof RegExp) {
+                this.testRegExp(e, rp, rest.rest(), absolute);
+            }
+        }
+    }
+    testRegExp(e, p, rest, absolute) {
+        if (!p.test(e.name))
+            return;
+        if (!rest) {
+            this.matches.add(e, absolute, false);
+        }
+        else {
+            this.subwalks.add(e, rest);
+        }
+    }
+    testString(e, p, rest, absolute) {
+        // should never happen?
+        if (!e.isNamed(p))
+            return;
+        if (!rest) {
+            this.matches.add(e, absolute, false);
+        }
+        else {
+            this.subwalks.add(e, rest);
+        }
+    }
+}
+//# sourceMappingURL=processor.js.map
+;// CONCATENATED MODULE: ./node_modules/glob/dist/esm/walker.js
+/**
+ * Single-use utility classes to provide functionality to the {@link Glob}
+ * methods.
+ *
+ * @module
+ */
+
+
+
+const makeIgnore = (ignore, opts) => typeof ignore === 'string' ? new Ignore([ignore], opts)
+    : Array.isArray(ignore) ? new Ignore(ignore, opts)
+        : ignore;
+/**
+ * basic walking utilities that all the glob walker types use
+ */
+class GlobUtil {
+    path;
+    patterns;
+    opts;
+    seen = new Set();
+    paused = false;
+    aborted = false;
+    #onResume = [];
+    #ignore;
+    #sep;
+    signal;
+    maxDepth;
+    includeChildMatches;
+    constructor(patterns, path, opts) {
+        this.patterns = patterns;
+        this.path = path;
+        this.opts = opts;
+        this.#sep = !opts.posix && opts.platform === 'win32' ? '\\' : '/';
+        this.includeChildMatches = opts.includeChildMatches !== false;
+        if (opts.ignore || !this.includeChildMatches) {
+            this.#ignore = makeIgnore(opts.ignore ?? [], opts);
+            if (!this.includeChildMatches &&
+                typeof this.#ignore.add !== 'function') {
+                const m = 'cannot ignore child matches, ignore lacks add() method.';
+                throw new Error(m);
+            }
+        }
+        // ignore, always set with maxDepth, but it's optional on the
+        // GlobOptions type
+        /* c8 ignore start */
+        this.maxDepth = opts.maxDepth || Infinity;
+        /* c8 ignore stop */
+        if (opts.signal) {
+            this.signal = opts.signal;
+            this.signal.addEventListener('abort', () => {
+                this.#onResume.length = 0;
+            });
+        }
+    }
+    #ignored(path) {
+        return this.seen.has(path) || !!this.#ignore?.ignored?.(path);
+    }
+    #childrenIgnored(path) {
+        return !!this.#ignore?.childrenIgnored?.(path);
+    }
+    // backpressure mechanism
+    pause() {
+        this.paused = true;
+    }
+    resume() {
+        /* c8 ignore start */
+        if (this.signal?.aborted)
+            return;
+        /* c8 ignore stop */
+        this.paused = false;
+        let fn = undefined;
+        while (!this.paused && (fn = this.#onResume.shift())) {
+            fn();
+        }
+    }
+    onResume(fn) {
+        if (this.signal?.aborted)
+            return;
+        /* c8 ignore start */
+        if (!this.paused) {
+            fn();
+        }
+        else {
+            /* c8 ignore stop */
+            this.#onResume.push(fn);
+        }
+    }
+    // do the requisite realpath/stat checking, and return the path
+    // to add or undefined to filter it out.
+    async matchCheck(e, ifDir) {
+        if (ifDir && this.opts.nodir)
+            return undefined;
+        let rpc;
+        if (this.opts.realpath) {
+            rpc = e.realpathCached() || (await e.realpath());
+            if (!rpc)
+                return undefined;
+            e = rpc;
+        }
+        const needStat = e.isUnknown() || this.opts.stat;
+        const s = needStat ? await e.lstat() : e;
+        if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
+            const target = await s.realpath();
+            /* c8 ignore start */
+            if (target && (target.isUnknown() || this.opts.stat)) {
+                await target.lstat();
+            }
+            /* c8 ignore stop */
+        }
+        return this.matchCheckTest(s, ifDir);
+    }
+    matchCheckTest(e, ifDir) {
+        return (e &&
+            (this.maxDepth === Infinity || e.depth() <= this.maxDepth) &&
+            (!ifDir || e.canReaddir()) &&
+            (!this.opts.nodir || !e.isDirectory()) &&
+            (!this.opts.nodir ||
+                !this.opts.follow ||
+                !e.isSymbolicLink() ||
+                !e.realpathCached()?.isDirectory()) &&
+            !this.#ignored(e)) ?
+            e
+            : undefined;
+    }
+    matchCheckSync(e, ifDir) {
+        if (ifDir && this.opts.nodir)
+            return undefined;
+        let rpc;
+        if (this.opts.realpath) {
+            rpc = e.realpathCached() || e.realpathSync();
+            if (!rpc)
+                return undefined;
+            e = rpc;
+        }
+        const needStat = e.isUnknown() || this.opts.stat;
+        const s = needStat ? e.lstatSync() : e;
+        if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
+            const target = s.realpathSync();
+            if (target && (target?.isUnknown() || this.opts.stat)) {
+                target.lstatSync();
+            }
+        }
+        return this.matchCheckTest(s, ifDir);
+    }
+    matchFinish(e, absolute) {
+        if (this.#ignored(e))
+            return;
+        // we know we have an ignore if this is false, but TS doesn't
+        if (!this.includeChildMatches && this.#ignore?.add) {
+            const ign = `${e.relativePosix()}/**`;
+            this.#ignore.add(ign);
+        }
+        const abs = this.opts.absolute === undefined ? absolute : this.opts.absolute;
+        this.seen.add(e);
+        const mark = this.opts.mark && e.isDirectory() ? this.#sep : '';
+        // ok, we have what we need!
+        if (this.opts.withFileTypes) {
+            this.matchEmit(e);
+        }
+        else if (abs) {
+            const abs = this.opts.posix ? e.fullpathPosix() : e.fullpath();
+            this.matchEmit(abs + mark);
+        }
+        else {
+            const rel = this.opts.posix ? e.relativePosix() : e.relative();
+            const pre = this.opts.dotRelative && !rel.startsWith('..' + this.#sep) ?
+                '.' + this.#sep
+                : '';
+            this.matchEmit(!rel ? '.' + mark : pre + rel + mark);
+        }
+    }
+    async match(e, absolute, ifDir) {
+        const p = await this.matchCheck(e, ifDir);
+        if (p)
+            this.matchFinish(p, absolute);
+    }
+    matchSync(e, absolute, ifDir) {
+        const p = this.matchCheckSync(e, ifDir);
+        if (p)
+            this.matchFinish(p, absolute);
+    }
+    walkCB(target, patterns, cb) {
+        /* c8 ignore start */
+        if (this.signal?.aborted)
+            cb();
+        /* c8 ignore stop */
+        this.walkCB2(target, patterns, new Processor(this.opts), cb);
+    }
+    walkCB2(target, patterns, processor, cb) {
+        if (this.#childrenIgnored(target))
+            return cb();
+        if (this.signal?.aborted)
+            cb();
+        if (this.paused) {
+            this.onResume(() => this.walkCB2(target, patterns, processor, cb));
+            return;
+        }
+        processor.processPatterns(target, patterns);
+        // done processing.  all of the above is sync, can be abstracted out.
+        // subwalks is a map of paths to the entry filters they need
+        // matches is a map of paths to [absolute, ifDir] tuples.
+        let tasks = 1;
+        const next = () => {
+            if (--tasks === 0)
+                cb();
+        };
+        for (const [m, absolute, ifDir] of processor.matches.entries()) {
+            if (this.#ignored(m))
+                continue;
+            tasks++;
+            this.match(m, absolute, ifDir).then(() => next());
+        }
+        for (const t of processor.subwalkTargets()) {
+            if (this.maxDepth !== Infinity && t.depth() >= this.maxDepth) {
+                continue;
+            }
+            tasks++;
+            const childrenCached = t.readdirCached();
+            if (t.calledReaddir())
+                this.walkCB3(t, childrenCached, processor, next);
+            else {
+                t.readdirCB((_, entries) => this.walkCB3(t, entries, processor, next), true);
+            }
+        }
+        next();
+    }
+    walkCB3(target, entries, processor, cb) {
+        processor = processor.filterEntries(target, entries);
+        let tasks = 1;
+        const next = () => {
+            if (--tasks === 0)
+                cb();
+        };
+        for (const [m, absolute, ifDir] of processor.matches.entries()) {
+            if (this.#ignored(m))
+                continue;
+            tasks++;
+            this.match(m, absolute, ifDir).then(() => next());
+        }
+        for (const [target, patterns] of processor.subwalks.entries()) {
+            tasks++;
+            this.walkCB2(target, patterns, processor.child(), next);
+        }
+        next();
+    }
+    walkCBSync(target, patterns, cb) {
+        /* c8 ignore start */
+        if (this.signal?.aborted)
+            cb();
+        /* c8 ignore stop */
+        this.walkCB2Sync(target, patterns, new Processor(this.opts), cb);
+    }
+    walkCB2Sync(target, patterns, processor, cb) {
+        if (this.#childrenIgnored(target))
+            return cb();
+        if (this.signal?.aborted)
+            cb();
+        if (this.paused) {
+            this.onResume(() => this.walkCB2Sync(target, patterns, processor, cb));
+            return;
+        }
+        processor.processPatterns(target, patterns);
+        // done processing.  all of the above is sync, can be abstracted out.
+        // subwalks is a map of paths to the entry filters they need
+        // matches is a map of paths to [absolute, ifDir] tuples.
+        let tasks = 1;
+        const next = () => {
+            if (--tasks === 0)
+                cb();
+        };
+        for (const [m, absolute, ifDir] of processor.matches.entries()) {
+            if (this.#ignored(m))
+                continue;
+            this.matchSync(m, absolute, ifDir);
+        }
+        for (const t of processor.subwalkTargets()) {
+            if (this.maxDepth !== Infinity && t.depth() >= this.maxDepth) {
+                continue;
+            }
+            tasks++;
+            const children = t.readdirSync();
+            this.walkCB3Sync(t, children, processor, next);
+        }
+        next();
+    }
+    walkCB3Sync(target, entries, processor, cb) {
+        processor = processor.filterEntries(target, entries);
+        let tasks = 1;
+        const next = () => {
+            if (--tasks === 0)
+                cb();
+        };
+        for (const [m, absolute, ifDir] of processor.matches.entries()) {
+            if (this.#ignored(m))
+                continue;
+            this.matchSync(m, absolute, ifDir);
+        }
+        for (const [target, patterns] of processor.subwalks.entries()) {
+            tasks++;
+            this.walkCB2Sync(target, patterns, processor.child(), next);
+        }
+        next();
+    }
+}
+class GlobWalker extends GlobUtil {
+    matches = new Set();
+    constructor(patterns, path, opts) {
+        super(patterns, path, opts);
+    }
+    matchEmit(e) {
+        this.matches.add(e);
+    }
+    async walk() {
+        if (this.signal?.aborted)
+            throw this.signal.reason;
+        if (this.path.isUnknown()) {
+            await this.path.lstat();
+        }
+        await new Promise((res, rej) => {
+            this.walkCB(this.path, this.patterns, () => {
+                if (this.signal?.aborted) {
+                    rej(this.signal.reason);
+                }
+                else {
+                    res(this.matches);
+                }
+            });
+        });
+        return this.matches;
+    }
+    walkSync() {
+        if (this.signal?.aborted)
+            throw this.signal.reason;
+        if (this.path.isUnknown()) {
+            this.path.lstatSync();
+        }
+        // nothing for the callback to do, because this never pauses
+        this.walkCBSync(this.path, this.patterns, () => {
+            if (this.signal?.aborted)
+                throw this.signal.reason;
+        });
+        return this.matches;
+    }
+}
+class GlobStream extends GlobUtil {
+    results;
+    constructor(patterns, path, opts) {
+        super(patterns, path, opts);
+        this.results = new Minipass({
+            signal: this.signal,
+            objectMode: true,
+        });
+        this.results.on('drain', () => this.resume());
+        this.results.on('resume', () => this.resume());
+    }
+    matchEmit(e) {
+        this.results.write(e);
+        if (!this.results.flowing)
+            this.pause();
+    }
+    stream() {
+        const target = this.path;
+        if (target.isUnknown()) {
+            target.lstat().then(() => {
+                this.walkCB(target, this.patterns, () => this.results.end());
+            });
+        }
+        else {
+            this.walkCB(target, this.patterns, () => this.results.end());
+        }
+        return this.results;
+    }
+    streamSync() {
+        if (this.path.isUnknown()) {
+            this.path.lstatSync();
+        }
+        this.walkCBSync(this.path, this.patterns, () => this.results.end());
+        return this.results;
+    }
+}
+//# sourceMappingURL=walker.js.map
+;// CONCATENATED MODULE: ./node_modules/glob/dist/esm/glob.js
+
+
+
+
+
+// if no process global, just call it linux.
+// so we default to case-sensitive, / separators
+const glob_defaultPlatform = (typeof process === 'object' &&
+    process &&
+    typeof process.platform === 'string') ?
+    process.platform
+    : 'linux';
+/**
+ * An object that can perform glob pattern traversals.
+ */
+class Glob {
+    absolute;
+    cwd;
+    root;
+    dot;
+    dotRelative;
+    follow;
+    ignore;
+    magicalBraces;
+    mark;
+    matchBase;
+    maxDepth;
+    nobrace;
+    nocase;
+    nodir;
+    noext;
+    noglobstar;
+    pattern;
+    platform;
+    realpath;
+    scurry;
+    stat;
+    signal;
+    windowsPathsNoEscape;
+    withFileTypes;
+    includeChildMatches;
+    /**
+     * The options provided to the constructor.
+     */
+    opts;
+    /**
+     * An array of parsed immutable {@link Pattern} objects.
+     */
+    patterns;
+    /**
+     * All options are stored as properties on the `Glob` object.
+     *
+     * See {@link GlobOptions} for full options descriptions.
+     *
+     * Note that a previous `Glob` object can be passed as the
+     * `GlobOptions` to another `Glob` instantiation to re-use settings
+     * and caches with a new pattern.
+     *
+     * Traversal functions can be called multiple times to run the walk
+     * again.
+     */
+    constructor(pattern, opts) {
+        /* c8 ignore start */
+        if (!opts)
+            throw new TypeError('glob options required');
+        /* c8 ignore stop */
+        this.withFileTypes = !!opts.withFileTypes;
+        this.signal = opts.signal;
+        this.follow = !!opts.follow;
+        this.dot = !!opts.dot;
+        this.dotRelative = !!opts.dotRelative;
+        this.nodir = !!opts.nodir;
+        this.mark = !!opts.mark;
+        if (!opts.cwd) {
+            this.cwd = '';
+        }
+        else if (opts.cwd instanceof URL || opts.cwd.startsWith('file://')) {
+            opts.cwd = (0,external_node_url_namespaceObject.fileURLToPath)(opts.cwd);
+        }
+        this.cwd = opts.cwd || '';
+        this.root = opts.root;
+        this.magicalBraces = !!opts.magicalBraces;
+        this.nobrace = !!opts.nobrace;
+        this.noext = !!opts.noext;
+        this.realpath = !!opts.realpath;
+        this.absolute = opts.absolute;
+        this.includeChildMatches = opts.includeChildMatches !== false;
+        this.noglobstar = !!opts.noglobstar;
+        this.matchBase = !!opts.matchBase;
+        this.maxDepth =
+            typeof opts.maxDepth === 'number' ? opts.maxDepth : Infinity;
+        this.stat = !!opts.stat;
+        this.ignore = opts.ignore;
+        if (this.withFileTypes && this.absolute !== undefined) {
+            throw new Error('cannot set absolute and withFileTypes:true');
+        }
+        if (typeof pattern === 'string') {
+            pattern = [pattern];
+        }
+        this.windowsPathsNoEscape =
+            !!opts.windowsPathsNoEscape ||
+                opts.allowWindowsEscape ===
+                    false;
+        if (this.windowsPathsNoEscape) {
+            pattern = pattern.map(p => p.replace(/\\/g, '/'));
+        }
+        if (this.matchBase) {
+            if (opts.noglobstar) {
+                throw new TypeError('base matching requires globstar');
+            }
+            pattern = pattern.map(p => (p.includes('/') ? p : `./**/${p}`));
+        }
+        this.pattern = pattern;
+        this.platform = opts.platform || glob_defaultPlatform;
+        this.opts = { ...opts, platform: this.platform };
+        if (opts.scurry) {
+            this.scurry = opts.scurry;
+            if (opts.nocase !== undefined &&
+                opts.nocase !== opts.scurry.nocase) {
+                throw new Error('nocase option contradicts provided scurry option');
+            }
+        }
+        else {
+            const Scurry = opts.platform === 'win32' ? PathScurryWin32
+                : opts.platform === 'darwin' ? PathScurryDarwin
+                    : opts.platform ? PathScurryPosix
+                        : PathScurry;
+            this.scurry = new Scurry(this.cwd, {
+                nocase: opts.nocase,
+                fs: opts.fs,
+            });
+        }
+        this.nocase = this.scurry.nocase;
+        // If you do nocase:true on a case-sensitive file system, then
+        // we need to use regexps instead of strings for non-magic
+        // path portions, because statting `aBc` won't return results
+        // for the file `AbC` for example.
+        const nocaseMagicOnly = this.platform === 'darwin' || this.platform === 'win32';
+        const mmo = {
+            // default nocase based on platform
+            ...opts,
+            dot: this.dot,
+            matchBase: this.matchBase,
+            nobrace: this.nobrace,
+            nocase: this.nocase,
+            nocaseMagicOnly,
+            nocomment: true,
+            noext: this.noext,
+            nonegate: true,
+            optimizationLevel: 2,
+            platform: this.platform,
+            windowsPathsNoEscape: this.windowsPathsNoEscape,
+            debug: !!this.opts.debug,
+        };
+        const mms = this.pattern.map(p => new Minimatch(p, mmo));
+        const [matchSet, globParts] = mms.reduce((set, m) => {
+            set[0].push(...m.set);
+            set[1].push(...m.globParts);
+            return set;
+        }, [[], []]);
+        this.patterns = matchSet.map((set, i) => {
+            const g = globParts[i];
+            /* c8 ignore start */
+            if (!g)
+                throw new Error('invalid pattern object');
+            /* c8 ignore stop */
+            return new Pattern(set, g, 0, this.platform);
+        });
+    }
+    async walk() {
+        // Walkers always return array of Path objects, so we just have to
+        // coerce them into the right shape.  It will have already called
+        // realpath() if the option was set to do so, so we know that's cached.
+        // start out knowing the cwd, at least
+        return [
+            ...(await new GlobWalker(this.patterns, this.scurry.cwd, {
+                ...this.opts,
+                maxDepth: this.maxDepth !== Infinity ?
+                    this.maxDepth + this.scurry.cwd.depth()
+                    : Infinity,
+                platform: this.platform,
+                nocase: this.nocase,
+                includeChildMatches: this.includeChildMatches,
+            }).walk()),
+        ];
+    }
+    walkSync() {
+        return [
+            ...new GlobWalker(this.patterns, this.scurry.cwd, {
+                ...this.opts,
+                maxDepth: this.maxDepth !== Infinity ?
+                    this.maxDepth + this.scurry.cwd.depth()
+                    : Infinity,
+                platform: this.platform,
+                nocase: this.nocase,
+                includeChildMatches: this.includeChildMatches,
+            }).walkSync(),
+        ];
+    }
+    stream() {
+        return new GlobStream(this.patterns, this.scurry.cwd, {
+            ...this.opts,
+            maxDepth: this.maxDepth !== Infinity ?
+                this.maxDepth + this.scurry.cwd.depth()
+                : Infinity,
+            platform: this.platform,
+            nocase: this.nocase,
+            includeChildMatches: this.includeChildMatches,
+        }).stream();
+    }
+    streamSync() {
+        return new GlobStream(this.patterns, this.scurry.cwd, {
+            ...this.opts,
+            maxDepth: this.maxDepth !== Infinity ?
+                this.maxDepth + this.scurry.cwd.depth()
+                : Infinity,
+            platform: this.platform,
+            nocase: this.nocase,
+            includeChildMatches: this.includeChildMatches,
+        }).streamSync();
+    }
+    /**
+     * Default sync iteration function. Returns a Generator that
+     * iterates over the results.
+     */
+    iterateSync() {
+        return this.streamSync()[Symbol.iterator]();
+    }
+    [Symbol.iterator]() {
+        return this.iterateSync();
+    }
+    /**
+     * Default async iteration function. Returns an AsyncGenerator that
+     * iterates over the results.
+     */
+    iterate() {
+        return this.stream()[Symbol.asyncIterator]();
+    }
+    [Symbol.asyncIterator]() {
+        return this.iterate();
+    }
+}
+//# sourceMappingURL=glob.js.map
+;// CONCATENATED MODULE: ./node_modules/glob/dist/esm/has-magic.js
+
+/**
+ * Return true if the patterns provided contain any magic glob characters,
+ * given the options provided.
+ *
+ * Brace expansion is not considered "magic" unless the `magicalBraces` option
+ * is set, as brace expansion just turns one string into an array of strings.
+ * So a pattern like `'x{a,b}y'` would return `false`, because `'xay'` and
+ * `'xby'` both do not contain any magic glob characters, and it's treated the
+ * same as if you had called it on `['xay', 'xby']`. When `magicalBraces:true`
+ * is in the options, brace expansion _is_ treated as a pattern having magic.
+ */
+const hasMagic = (pattern, options = {}) => {
+    if (!Array.isArray(pattern)) {
+        pattern = [pattern];
+    }
+    for (const p of pattern) {
+        if (new Minimatch(p, options).hasMagic())
+            return true;
+    }
+    return false;
+};
+//# sourceMappingURL=has-magic.js.map
+;// CONCATENATED MODULE: ./node_modules/glob/dist/esm/index.js
+
+
+
+
+
+
+
+function globStreamSync(pattern, options = {}) {
+    return new Glob(pattern, options).streamSync();
+}
+function globStream(pattern, options = {}) {
+    return new Glob(pattern, options).stream();
+}
+function globSync(pattern, options = {}) {
+    return new Glob(pattern, options).walkSync();
+}
+async function glob_(pattern, options = {}) {
+    return new Glob(pattern, options).walk();
+}
+function globIterateSync(pattern, options = {}) {
+    return new Glob(pattern, options).iterateSync();
+}
+function globIterate(pattern, options = {}) {
+    return new Glob(pattern, options).iterate();
+}
+// aliases: glob.sync.stream() glob.stream.sync() glob.sync() etc
+const streamSync = globStreamSync;
+const stream = Object.assign(globStream, { sync: globStreamSync });
+const iterateSync = globIterateSync;
+const iterate = Object.assign(globIterate, {
+    sync: globIterateSync,
 });
+const sync = Object.assign(globSync, {
+    stream: globStreamSync,
+    iterate: globIterateSync,
+});
+const glob = Object.assign(glob_, {
+    glob: glob_,
+    globSync,
+    sync,
+    globStream,
+    stream,
+    globStreamSync,
+    streamSync,
+    globIterate,
+    iterate,
+    globIterateSync,
+    iterateSync,
+    Glob: Glob,
+    hasMagic: hasMagic,
+    escape: escape_escape,
+    unescape: unescape_unescape,
+});
+glob.glob = glob;
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ./src/getESLintResults.ts
+var getESLintResults_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
+
+function getESLintResults(eslint) {
+    return getESLintResults_awaiter(this, void 0, void 0, function* () {
+        const targets = (0,core.getInput)('targets');
+        return eslint.lintFiles(targets ? sync(targets) : []);
+    });
+}
+
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/utils.js
+var utils = __nccwpck_require__(3030);
 // EXTERNAL MODULE: ./node_modules/bottleneck/light.js
 var light = __nccwpck_require__(1174);
 ;// CONCATENATED MODULE: ./node_modules/@octokit/plugin-retry/node_modules/@octokit/request-error/dist-src/index.js
@@ -41605,27 +40769,17 @@ function retry(octokit, octokitOptions) {
 retry.VERSION = VERSION;
 
 
-
-/***/ }),
-
-/***/ 3432:
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
-
-__nccwpck_require__.r(__webpack_exports__);
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "throttling": () => (/* binding */ throttling)
-/* harmony export */ });
-/* harmony import */ var bottleneck_light_js__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(1174);
+;// CONCATENATED MODULE: ./node_modules/@octokit/plugin-throttling/dist-bundle/index.js
 // pkg/dist-src/index.js
 
 
 
 // pkg/dist-src/version.js
-var VERSION = "0.0.0-development";
+var dist_bundle_VERSION = "0.0.0-development";
 
 // pkg/dist-src/wrap-request.js
 var noop = () => Promise.resolve();
-function wrapRequest(state, request, options) {
+function dist_bundle_wrapRequest(state, request, options) {
   return state.retryLimiter.schedule(doRequest, state, request, options);
 }
 async function doRequest(state, request, options) {
@@ -41723,7 +40877,7 @@ var createGroups = function(Bottleneck, common) {
 function throttling(octokit, octokitOptions) {
   const {
     enabled = true,
-    Bottleneck = bottleneck_light_js__WEBPACK_IMPORTED_MODULE_0__,
+    Bottleneck = light,
     id = "no-id",
     timeout = 1e3 * 60 * 2,
     // Redis TTL: 2 minutes
@@ -41819,87 +40973,693 @@ function throttling(octokit, octokitOptions) {
       return retryAfter * state2.retryAfterBaseValue;
     }
   });
-  octokit.hook.wrap("request", wrapRequest.bind(null, state));
+  octokit.hook.wrap("request", dist_bundle_wrapRequest.bind(null, state));
   return {};
 }
-throttling.VERSION = VERSION;
+throttling.VERSION = dist_bundle_VERSION;
 throttling.triggersNotification = triggersNotification;
 
 
+;// CONCATENATED MODULE: ./src/getOctokit.ts
 
-/***/ })
 
-/******/ });
-/************************************************************************/
-/******/ // The module cache
-/******/ var __webpack_module_cache__ = {};
-/******/ 
-/******/ // The require function
-/******/ function __nccwpck_require__(moduleId) {
-/******/ 	// Check if module is in cache
-/******/ 	var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 	if (cachedModule !== undefined) {
-/******/ 		return cachedModule.exports;
-/******/ 	}
-/******/ 	// Create a new module (and put it into the cache)
-/******/ 	var module = __webpack_module_cache__[moduleId] = {
-/******/ 		// no module.id needed
-/******/ 		// no module.loaded needed
-/******/ 		exports: {}
-/******/ 	};
-/******/ 
-/******/ 	// Execute the module function
-/******/ 	var threw = true;
-/******/ 	try {
-/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nccwpck_require__);
-/******/ 		threw = false;
-/******/ 	} finally {
-/******/ 		if(threw) delete __webpack_module_cache__[moduleId];
-/******/ 	}
-/******/ 
-/******/ 	// Return the exports of the module
-/******/ 	return module.exports;
-/******/ }
-/******/ 
-/************************************************************************/
-/******/ /* webpack/runtime/define property getters */
-/******/ (() => {
-/******/ 	// define getter functions for harmony exports
-/******/ 	__nccwpck_require__.d = (exports, definition) => {
-/******/ 		for(var key in definition) {
-/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 			}
-/******/ 		}
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/hasOwnProperty shorthand */
-/******/ (() => {
-/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/make namespace object */
-/******/ (() => {
-/******/ 	// define __esModule on exports
-/******/ 	__nccwpck_require__.r = (exports) => {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/compat */
-/******/ 
-/******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
-/******/ 
-/************************************************************************/
-/******/ 
-/******/ // startup
-/******/ // Load entry module and return exports
-/******/ // This entry module is referenced by other modules so it can't be inlined
-/******/ var __webpack_exports__ = __nccwpck_require__(6144);
-/******/ 
+
+function getOctokit(githubToken) {
+    const Octokit = utils.GitHub.plugin(throttling, retry);
+    const octokit = new Octokit((0,utils.getOctokitOptions)(githubToken, {
+        throttle: {
+            onRateLimit: (retryAfter, options, _, retryCount) => {
+                if (retryCount === 0) {
+                    octokit.log.warn(`Request quota exhausted for request ${options.method} ${options.url}`);
+                    octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+                    return true;
+                }
+                else {
+                    octokit.log.error(`Request quota exhausted for request ${options.method} ${options.url}`);
+                }
+            },
+            onSecondaryRateLimit: (retryAfter, options, _, retryCount) => {
+                if (retryCount === 0) {
+                    octokit.log.warn(`Abuse detected for request ${options.method} ${options.url}`);
+                    octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+                    return true;
+                }
+                else {
+                    octokit.log.warn(`Abuse detected for request ${options.method} ${options.url}`);
+                }
+            },
+        },
+        retry: {
+            doNotRetry: ['429'],
+        },
+    }));
+    octokit.graphql = octokit.graphql.defaults({
+        headers: {
+            'X-GitHub-Next-Global-ID': 1,
+        },
+    });
+    return octokit;
+}
+
+;// CONCATENATED MODULE: ./src/getPullRequestMetadata.ts
+var getPullRequestMetadata_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+function getPullRequestMetadata() {
+    const pullRequest = github.context.payload.pull_request;
+    const owner = github.context.repo.owner;
+    const repo = github.context.repo.repo;
+    const pullRequestNumber = pullRequest.number;
+    const baseSha = pullRequest.base.sha;
+    const headSha = pullRequest.head.sha;
+    (0,core.info)(`Owner: ${owner}`);
+    (0,core.info)(`Repo: ${repo}`);
+    (0,core.info)(`Pull Request number: ${pullRequestNumber}`);
+    (0,core.info)(`Base SHA: ${baseSha}`);
+    (0,core.info)(`Head SHA: ${headSha}`);
+    return {
+        owner,
+        repo,
+        pullRequestNumber,
+        baseSha,
+        headSha,
+    };
+}
+function getPullRequestMetadataByNumber(octokit, pullRequestNumber) {
+    return getPullRequestMetadata_awaiter(this, void 0, void 0, function* () {
+        const owner = github.context.repo.owner;
+        const repo = github.context.repo.repo;
+        const response = yield octokit.rest.pulls.get({
+            owner,
+            repo,
+            pull_number: pullRequestNumber,
+        });
+        const pullRequest = response.data;
+        const baseSha = pullRequest.base.sha;
+        const headSha = pullRequest.head.sha;
+        (0,core.info)(`Owner: ${owner}`);
+        (0,core.info)(`Repo: ${repo}`);
+        (0,core.info)(`Pull Request number: ${pullRequestNumber}`);
+        (0,core.info)(`Base SHA: ${baseSha}`);
+        (0,core.info)(`Head SHA: ${headSha}`);
+        return {
+            owner,
+            repo,
+            pullRequestNumber,
+            baseSha,
+            headSha,
+        };
+    });
+}
+
+;// CONCATENATED MODULE: ./src/getPushMetadata.ts
+
+
+function getPushMetadata() {
+    const push = github.context.payload;
+    const owner = github.context.repo.owner;
+    const repo = github.context.repo.repo;
+    const beforeSha = push.before;
+    const afterSha = push.after;
+    (0,core.info)(`Owner: ${owner}`);
+    (0,core.info)(`Repo: ${repo}`);
+    (0,core.info)(`Before SHA: ${beforeSha}`);
+    (0,core.info)(`After SHA: ${afterSha}`);
+    return {
+        owner,
+        repo,
+        beforeSha,
+        afterSha,
+    };
+}
+
+;// CONCATENATED MODULE: ./src/getIndexedModifiedLines.ts
+
+const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
+function getIndexedModifiedLines(file) {
+    var _a;
+    const modifiedLines = [];
+    const indexedModifiedLines = {};
+    let currentLine = 0;
+    let remainingLinesInHunk = 0;
+    const lines = (_a = file.patch) === null || _a === void 0 ? void 0 : _a.split('\n');
+    if (lines) {
+        for (const line of lines) {
+            if (remainingLinesInHunk === 0) {
+                const matches = line.match(HUNK_HEADER_PATTERN);
+                currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || '1');
+                remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[4]) || '1');
+                if (!currentLine || !remainingLinesInHunk) {
+                    throw new Error(`Expecting hunk header in ${file.filename} but seeing ${line}.`);
+                }
+            }
+            else if (line[0] === '-') {
+                continue;
+            }
+            else {
+                if (line[0] === '+') {
+                    modifiedLines.push(currentLine);
+                    indexedModifiedLines[currentLine] = true;
+                }
+                currentLine++;
+                remainingLinesInHunk--;
+            }
+        }
+    }
+    (0,core.info)(`  File modified lines: ${modifiedLines.join()}`);
+    if (file.patch !== undefined) {
+        (0,core.info)(`  File patch: \n${file.patch
+            .split('\n')
+            .map((line) => '    ' + line)
+            .join('\n')}\n`);
+    }
+    return indexedModifiedLines;
+}
+
+;// CONCATENATED MODULE: ./src/pullRequest.ts
+var pullRequest_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
+function getPullRequestFiles(octokit, owner, repo, pullRequestNumber) {
+    return pullRequest_awaiter(this, void 0, void 0, function* () {
+        const response = yield octokit.rest.pulls.listFiles({
+            owner,
+            repo,
+            pull_number: pullRequestNumber,
+        });
+        (0,core.info)(`Files: (${response.data.length})`);
+        return response.data;
+    });
+}
+function getReviewComments(octokit, owner, repo, pullRequestNumber) {
+    return pullRequest_awaiter(this, void 0, void 0, function* () {
+        const reviews = yield octokit.rest.pulls.listReviews({
+            owner,
+            repo,
+            pull_number: pullRequestNumber,
+        });
+        const reviewComments = yield octokit.rest.pulls.listReviewComments({
+            owner,
+            repo,
+            pull_number: pullRequestNumber,
+        });
+        const relevantReviews = reviews.data.filter((review) => { var _a; return ((_a = review.user) === null || _a === void 0 ? void 0 : _a.id) === 41898282 && review.body === REVIEW_BODY; });
+        const relevantReviewIds = relevantReviews.map((review) => review.id);
+        const relevantReviewComments = reviewComments.data.filter((reviewComment) => reviewComment.user.id === 41898282 &&
+            reviewComment.pull_request_review_id !== null &&
+            relevantReviewIds.includes(reviewComment.pull_request_review_id));
+        (0,core.info)(`Existing review comments: (${relevantReviewComments.length})`);
+        return relevantReviewComments;
+    });
+}
+function getReviewThreads(octokit, owner, repo, pullRequestNumber) {
+    return pullRequest_awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c, _d, _e, _f, _g, _h;
+        const commentNodeIdToReviewThreadMapping = {};
+        const queryData = yield octokit.graphql(`
+      query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
+        repository(owner: $owner, name: $repo) {
+          pullRequest(number: $pullRequestNumber) {
+            reviewThreads(last: 100) {
+              totalCount
+              nodes {
+                id
+                isResolved
+                comments(last: 100) {
+                  totalCount
+                  nodes {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `, {
+            owner,
+            repo,
+            pullRequestNumber,
+        });
+        const reviewThreadTotalCount = (_c = (_b = (_a = queryData === null || queryData === void 0 ? void 0 : queryData.repository) === null || _a === void 0 ? void 0 : _a.pullRequest) === null || _b === void 0 ? void 0 : _b.reviewThreads) === null || _c === void 0 ? void 0 : _c.totalCount;
+        if (reviewThreadTotalCount !== undefined && reviewThreadTotalCount > 100) {
+            (0,core.error)(`There are more than 100 review threads: ${reviewThreadTotalCount}`);
+        }
+        const reviewThreads = (_f = (_e = (_d = queryData === null || queryData === void 0 ? void 0 : queryData.repository) === null || _d === void 0 ? void 0 : _d.pullRequest) === null || _e === void 0 ? void 0 : _e.reviewThreads) === null || _f === void 0 ? void 0 : _f.nodes;
+        if (reviewThreads !== undefined && reviewThreads !== null) {
+            for (const reviewThread of reviewThreads) {
+                if (reviewThread === null) {
+                    continue;
+                }
+                const commentTotalCount = (_g = reviewThread === null || reviewThread === void 0 ? void 0 : reviewThread.comments) === null || _g === void 0 ? void 0 : _g.totalCount;
+                if (commentTotalCount !== undefined && commentTotalCount > 100) {
+                    (0,core.error)(`There are more than 100 review comments in review thread ${reviewThread === null || reviewThread === void 0 ? void 0 : reviewThread.id}: ${commentTotalCount}`);
+                }
+                const comments = (_h = reviewThread === null || reviewThread === void 0 ? void 0 : reviewThread.comments) === null || _h === void 0 ? void 0 : _h.nodes;
+                if (comments !== undefined && comments !== null) {
+                    for (const comment of comments) {
+                        const commentId = comment === null || comment === void 0 ? void 0 : comment.id;
+                        if (commentId === undefined) {
+                            continue;
+                        }
+                        commentNodeIdToReviewThreadMapping[commentId] = reviewThread;
+                    }
+                }
+            }
+        }
+        return commentNodeIdToReviewThreadMapping;
+    });
+}
+function getCommentFromFix(source, line, fix) {
+    const textRange = source.substring(fix.range[0], fix.range[1]);
+    const impactedOriginalLines = textRange.split('\n').length;
+    const originalLines = source
+        .split('\n')
+        .slice(line - 1, line - 1 + impactedOriginalLines);
+    const replacedSource = source.substring(0, fix.range[0]) +
+        fix.text +
+        source.substring(fix.range[1]);
+    const impactedReplaceLines = fix.text.split('\n').length;
+    const replacedLines = replacedSource
+        .split('\n')
+        .slice(line - 1, line - 1 + impactedReplaceLines);
+    (0,core.info)('    Fix:\n' +
+        '      ' +
+        `@@ -${line},${impactedOriginalLines} +${impactedReplaceLines} @@\n` +
+        `${originalLines.map((line) => '      - ' + line).join('\n')}\n` +
+        `${replacedLines.map((line) => '      + ' + line).join('\n')}`);
+    const reviewSuggestion = {
+        start_side: impactedOriginalLines === 1 ? undefined : 'RIGHT',
+        start_line: impactedOriginalLines === 1 ? undefined : line,
+        side: 'RIGHT',
+        line: line + impactedOriginalLines - 1,
+        body: '```suggestion\n' + `${replacedLines.join('\n')}\n` + '```\n',
+    };
+    return reviewSuggestion;
+}
+function matchReviewComments(reviewComments, reviewComment) {
+    const matchedNodeIds = [];
+    for (const existingReviewComment of reviewComments) {
+        if (existingReviewComment.path === reviewComment.path &&
+            existingReviewComment.line === reviewComment.line &&
+            existingReviewComment.side === reviewComment.side &&
+            existingReviewComment.start_line == reviewComment.start_line && // null-undefined comparison
+            existingReviewComment.start_side == reviewComment.start_side && // null-undefined comparison
+            existingReviewComment.body === reviewComment.body) {
+            matchedNodeIds.push(existingReviewComment.node_id);
+        }
+    }
+    return matchedNodeIds;
+}
+function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha) {
+    return pullRequest_awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c;
+        const failCheck = (0,core.getBooleanInput)('fail-check');
+        const requestChanges = (0,core.getBooleanInput)('request-changes');
+        (0,core.startGroup)('GitHub Pull Request');
+        const files = yield getPullRequestFiles(octokit, owner, repo, pullRequestNumber);
+        const existingReviewComments = yield getReviewComments(octokit, owner, repo, pullRequestNumber);
+        const commentNodeIdToReviewThreadMapping = yield getReviewThreads(octokit, owner, repo, pullRequestNumber);
+        let commentsCounter = 0;
+        let outOfScopeResultsCounter = 0;
+        const reviewComments = [];
+        let matchedReviewCommentNodeIds = {};
+        for (const file of files) {
+            (0,core.info)(`  File name: ${file.filename}`);
+            (0,core.info)(`  File status: ${file.status}`);
+            if (file.status === 'removed') {
+                continue;
+            }
+            const indexedModifiedLines = getIndexedModifiedLines(file);
+            const result = indexedResults[file.filename];
+            if (result) {
+                for (const message of result.messages) {
+                    if (message.ruleId === null || result.source === undefined) {
+                        continue;
+                    }
+                    const rule = ruleMetaDatas[message.ruleId];
+                    if (indexedModifiedLines[message.line]) {
+                        (0,core.info)(`  Matched line: ${message.line}`);
+                        if (message.fix) {
+                            const reviewSuggestion = getCommentFromFix(result.source, message.line, message.fix);
+                            const reviewComment = Object.assign(Object.assign({}, reviewSuggestion), { body: `**${message.message}** [${message.ruleId}](${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})\n\nFix available:\n\n` +
+                                    reviewSuggestion.body, path: file.filename });
+                            const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
+                            commentsCounter++;
+                            if (matchedComments.length === 0) {
+                                reviewComments.push(reviewComment);
+                                (0,core.info)(`    Comment queued`);
+                            }
+                            else {
+                                matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
+                                (0,core.info)(`    Comment skipped`);
+                            }
+                        }
+                        else if (message.suggestions) {
+                            let reviewSuggestions = undefined;
+                            for (const suggestion of message.suggestions) {
+                                const reviewSuggestion = getCommentFromFix(result.source, message.line, suggestion.fix);
+                                if (reviewSuggestions === undefined) {
+                                    reviewSuggestions = Object.assign({}, reviewSuggestion);
+                                }
+                                else {
+                                    if (reviewSuggestion.start_line !==
+                                        reviewSuggestions.start_line ||
+                                        reviewSuggestion.line !== reviewSuggestions.line) {
+                                        (0,core.error)(`    Suggestions have mismatched line(s): ${reviewSuggestions.start_line === undefined
+                                            ? ''
+                                            : reviewSuggestions.start_line + ':'}${reviewSuggestions.line} and ${reviewSuggestion.start_line === undefined
+                                            ? ''
+                                            : reviewSuggestion.start_line + ':'}${reviewSuggestion.line}`);
+                                    }
+                                    reviewSuggestions.body += '\n' + reviewSuggestion.body;
+                                }
+                            }
+                            if (reviewSuggestions !== undefined) {
+                                const reviewComment = Object.assign(Object.assign({}, reviewSuggestions), { body: `**${message.message}** [${message.ruleId}](${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})\n\nSuggestion(s) available:\n\n` +
+                                        reviewSuggestions.body, path: file.filename });
+                                const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
+                                commentsCounter++;
+                                if (matchedComments.length === 0) {
+                                    reviewComments.push(reviewComment);
+                                    (0,core.info)(`    Comment queued`);
+                                }
+                                else {
+                                    matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
+                                    (0,core.info)(`    Comment skipped`);
+                                }
+                            }
+                        }
+                        else {
+                            const reviewComment = {
+                                body: `**${message.message}** [${message.ruleId}](${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`,
+                                path: file.filename,
+                                side: 'RIGHT',
+                                line: message.line,
+                            };
+                            const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
+                            commentsCounter++;
+                            if (matchedComments.length === 0) {
+                                reviewComments.push(reviewComment);
+                                (0,core.info)(`    Comment queued`);
+                            }
+                            else {
+                                matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
+                                (0,core.info)(`    Comment skipped`);
+                            }
+                        }
+                    }
+                    else {
+                        (0,core.info)(`  Out of scope line: ${message.line}`);
+                        outOfScopeResultsCounter++;
+                    }
+                }
+            }
+        }
+        (0,core.endGroup)();
+        (0,core.startGroup)('Feedback');
+        for (const reviewComment of existingReviewComments) {
+            const reviewThread = commentNodeIdToReviewThreadMapping[reviewComment.node_id];
+            if (reviewThread !== undefined) {
+                if (matchedReviewCommentNodeIds[reviewComment.node_id] &&
+                    reviewThread.isResolved) {
+                    yield octokit.graphql(`
+            mutation ($nodeId: ID!) {
+              unresolveReviewThread(input: {threadId: $nodeId}) {
+                thread {
+                  id
+                }
+              }
+            }
+          `, {
+                        nodeId: reviewThread.id,
+                    });
+                    (0,core.info)(`Review comment unresolved: ${reviewComment.url}`);
+                }
+                else if (!matchedReviewCommentNodeIds[reviewComment.node_id] &&
+                    !reviewThread.isResolved) {
+                    yield octokit.graphql(`
+            mutation ($nodeId: ID!) {
+              resolveReviewThread(input: {threadId: $nodeId}) {
+                thread {
+                  id
+                }
+              }
+            }
+          `, {
+                        nodeId: reviewThread.id,
+                    });
+                    (0,core.info)(`Review comment resolved: ${reviewComment.url}`);
+                }
+                else {
+                    (0,core.info)(`Review comment remains ${reviewThread.isResolved ? 'resolved' : 'unresolved'}: ${reviewComment.url}`);
+                }
+            }
+            else {
+                (0,core.error)(`Review comment has no associated review thread: ${reviewComment.url}`);
+            }
+        }
+        if (outOfScopeResultsCounter > 0) {
+            (0,core.info)(`Out of scope results: ${outOfScopeResultsCounter}`);
+        }
+        if (commentsCounter > 0) {
+            try {
+                yield octokit.rest.pulls.createReview({
+                    owner,
+                    repo,
+                    body: REVIEW_BODY,
+                    pull_number: pullRequestNumber,
+                    commit_id: headSha,
+                    event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
+                    comments: reviewComments,
+                });
+            }
+            catch (error) {
+                throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
+            }
+            if (commentsCounter - reviewComments.length > 0) {
+                (0,core.info)(`Review comments existed and skipped: ${commentsCounter - reviewComments.length}`);
+            }
+            (0,core.info)(`Review comments submitted: ${reviewComments.length}`);
+            if (failCheck) {
+                throw new Error('ESLint fails. Please review comments.');
+            }
+            else {
+                (0,core.error)('ESLint fails');
+            }
+        }
+        else {
+            (0,core.notice)('ESLint passes');
+        }
+        (0,core.endGroup)();
+    });
+}
+
+;// CONCATENATED MODULE: ./src/push.ts
+var push_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+function getPushFiles(octokit, owner, repo, beforeSha, afterSha) {
+    return push_awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
+        const response = yield octokit.rest.repos.compareCommitsWithBasehead({
+            owner,
+            repo,
+            basehead: `${beforeSha}...${afterSha}`,
+        });
+        (0,core.info)(`Files: (${(_b = (_a = response.data.files) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0})`);
+        return response.data.files;
+    });
+}
+function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
+    return push_awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c;
+        const failCheck = (0,core.getBooleanInput)('fail-check');
+        (0,core.startGroup)('GitHub Push');
+        const files = yield getPushFiles(octokit, owner, repo, beforeSha, afterSha);
+        if (files === undefined || files.length === 0) {
+            (0,core.info)(`Push contains no files`);
+            return;
+        }
+        let warningCounter = 0;
+        let errorCounter = 0;
+        for (const file of files) {
+            (0,core.info)(`  File name: ${file.filename}`);
+            (0,core.info)(`  File status: ${file.status}`);
+            if (file.status === 'removed') {
+                continue;
+            }
+            const indexedModifiedLines = getIndexedModifiedLines(file);
+            const result = indexedResults[file.filename];
+            if (result) {
+                for (const message of result.messages) {
+                    if (message.ruleId === null || result.source === undefined) {
+                        continue;
+                    }
+                    const rule = ruleMetaDatas[message.ruleId];
+                    if (indexedModifiedLines[message.line]) {
+                        (0,core.info)(`  Matched line: ${message.line}`);
+                        switch (message.severity) {
+                            case 0:
+                                (0,core.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                });
+                                break;
+                            case 1:
+                                (0,core.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                });
+                                warningCounter++;
+                                break;
+                            case 2:
+                                (0,core.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
+                                    file: file.filename,
+                                    startLine: message.line,
+                                });
+                                errorCounter++;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        (0,core.endGroup)();
+        (0,core.startGroup)('Feedback');
+        if (warningCounter > 0 || errorCounter > 0) {
+            if (failCheck) {
+                throw new Error('ESLint fails. Please review comments.');
+            }
+            else {
+                (0,core.error)('ESLint fails');
+            }
+        }
+        else {
+            (0,core.notice)('ESLint passes');
+        }
+        (0,core.endGroup)();
+    });
+}
+
+;// CONCATENATED MODULE: ./src/index.ts
+var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+function run() {
+    return src_awaiter(this, void 0, void 0, function* () {
+        (0,core.startGroup)('ESLint');
+        changeDirectory();
+        const eslint = yield getESLint();
+        const results = yield getESLintResults(eslint);
+        const indexedResults = {};
+        for (const file of results) {
+            const relativePath = external_node_path_default().relative(DEFAULT_WORKING_DIRECTORY, file.filePath);
+            (0,core.info)(`File name: ${relativePath}`);
+            indexedResults[relativePath] = file;
+            for (const message of file.messages) {
+                (0,core.info)(`  [${message.severity}] ${message.message} @ ${message.line}`);
+                if (message.suggestions) {
+                    (0,core.info)(`  Suggestions (${message.suggestions.length}):`);
+                    for (const suggestion of message.suggestions) {
+                        (0,core.info)(`    ${suggestion.desc} (${suggestion.messageId})`);
+                    }
+                }
+            }
+        }
+        const ruleMetaData = eslint.getRulesMetaForResults(results);
+        (0,core.endGroup)();
+        const githubToken = (0,core.getInput)('github-token');
+        const octokit = getOctokit(githubToken);
+        (0,core.info)(`Event name: ${github.context.eventName}`);
+        switch (github.context.eventName) {
+            case 'pull_request':
+            case 'pull_request_target':
+                yield (() => src_awaiter(this, void 0, void 0, function* () {
+                    const { owner, repo, pullRequestNumber, baseSha, headSha } = getPullRequestMetadata();
+                    yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
+                }))();
+                break;
+            case 'push':
+                yield (() => src_awaiter(this, void 0, void 0, function* () {
+                    const { owner, repo, beforeSha, afterSha } = getPushMetadata();
+                    yield handlePush(octokit, indexedResults, ruleMetaData, owner, repo, beforeSha, afterSha);
+                }))();
+                break;
+            case 'workflow_run':
+                yield (() => src_awaiter(this, void 0, void 0, function* () {
+                    const workflowRun = github.context.payload;
+                    if (workflowRun.workflow_run.pull_requests.length > 0) {
+                        for (const pullRequest of workflowRun.workflow_run.pull_requests) {
+                            const { owner, repo, pullRequestNumber, baseSha, headSha } = yield getPullRequestMetadataByNumber(octokit, pullRequest.number);
+                            yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
+                        }
+                    }
+                    else {
+                        const workflowSourceEventName = workflowRun.workflow_run.event
+                            .split('_')
+                            .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
+                            .join(' ');
+                        handleCommit(`Workflow (${workflowSourceEventName})`, results, ruleMetaData);
+                    }
+                }))();
+                break;
+            default:
+                handleCommit(github.context.eventName.split('_')
+                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
+                    .join(' '), results, ruleMetaData);
+                break;
+        }
+    });
+}
+run().catch((error) => (0,core.setFailed)(error));
+
+})();
+
+var __webpack_exports__run = __webpack_exports__.K;
+export { __webpack_exports__run as run };
 
 //# sourceMappingURL=index.js.map
