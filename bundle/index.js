@@ -7536,34 +7536,7 @@ function removeHook(state, name, method) {
 
 /***/ }),
 
-/***/ 8932:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-class Deprecation extends Error {
-  constructor(message) {
-    super(message); // Maintains proper stack trace (only available on V8)
-
-    /* istanbul ignore next */
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
-
-    this.name = 'Deprecation';
-  }
-
-}
-
-exports.Deprecation = Deprecation;
-
-
-/***/ }),
-
-/***/ 1046:
+/***/ 3717:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 var balanced = __nccwpck_require__(9417);
@@ -7769,6 +7742,33 @@ function expand(str, isTop) {
   return expansions;
 }
 
+
+
+/***/ }),
+
+/***/ 8932:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+class Deprecation extends Error {
+  constructor(message) {
+    super(message); // Maintains proper stack trace (only available on V8)
+
+    /* istanbul ignore next */
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+
+    this.name = 'Deprecation';
+  }
+
+}
+
+exports.Deprecation = Deprecation;
 
 
 /***/ }),
@@ -32946,8 +32946,8 @@ function getESLint() {
     });
 }
 
-// EXTERNAL MODULE: ./node_modules/glob/node_modules/brace-expansion/index.js
-var brace_expansion = __nccwpck_require__(1046);
+// EXTERNAL MODULE: ./node_modules/brace-expansion/index.js
+var brace_expansion = __nccwpck_require__(3717);
 ;// CONCATENATED MODULE: ./node_modules/glob/node_modules/minimatch/dist/esm/assert-valid-pattern.js
 const MAX_PATTERN_LENGTH = 1024 * 64;
 const assertValidPattern = (pattern) => {
@@ -37590,6 +37590,8 @@ class PathBase {
     /**
      * Deprecated alias for Dirent['parentPath'] Somewhat counterintuitively,
      * this property refers to the *parent* path, not the path object itself.
+     *
+     * @deprecated
      */
     get path() {
         return this.parentPath;
