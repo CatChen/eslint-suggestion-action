@@ -9,6 +9,7 @@ on:
   workflow_call:
   workflow_run:
     workflows: ['Dependabot']
+    branches-ignore: ['workflows/tests/*']
     types:
       - completed
 

@@ -17,7 +17,6 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [main, '[0-9]+-[0-9]+-*']
-    branches-ignore: ['workflows/*']
   schedule:
     - cron: '0 0 * * *'
   workflow_call:
@@ -25,6 +24,7 @@ on:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
+    if: ${{ !startsWith(github.head_ref, 'workflows/tests/') }}
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
