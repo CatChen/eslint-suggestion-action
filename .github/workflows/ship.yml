@@ -21,7 +21,7 @@ on:
   check_suite:
     types: [completed]
   workflow_run:
-    branches: ['[0-9]+-[0-9]+-*']
+    branches-ignore: ['workflows/tests/*']
     workflows: ['Build', 'Test', 'ESLint', 'CodeQL']
     types: [completed]
 
@@ -42,7 +42,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Concurrency group
-        env:
+      if: ${{ !startsWith(github.head_ref, 'workflows/tests/') }}
+      env:
           CONCURRENCY_GROUP: |-
             ${{
               github.event.pull_request.number ||
