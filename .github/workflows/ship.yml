@@ -4,16 +4,14 @@ on:
   pull_request:
     branches: [main]
     types:
-      [
-        labeled,
-        unlabeled,
-        edited,
-        closed,
-        reopened,
-        synchronize,
-        review_requested,
-        review_request_removed,
-      ]
+      - labeled
+      - unlabeled
+      - edited
+      - closed
+      - reopened
+      - synchronize
+      - review_requested
+      - review_request_removed
   pull_request_review:
     types: [submitted, edited, dismissed]
   check_run:
@@ -21,8 +19,12 @@ on:
   check_suite:
     types: [completed]
   workflow_run:
+    workflows:
+      - Build
+      - Test
+      - ESLint
+      - CodeQL
     branches-ignore: ['workflows/tests/*']
-    workflows: ['Build', 'Test', 'ESLint', 'CodeQL']
     types: [completed]
 
 concurrency:
@@ -39,10 +41,10 @@ concurrency:
 jobs:
   concurrency-group:
     name: Concurrency group
+    if: ${{ !startsWith(github.head_ref, 'workflows/tests/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Concurrency group
-        if: ${{ !startsWith(github.head_ref, 'workflows/tests/') }}
         env:
           CONCURRENCY_GROUP: |-
             ${{
