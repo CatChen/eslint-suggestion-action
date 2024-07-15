@@ -67,7 +67,7 @@ jobs:
       - name: Randomly select test files
         id: select-files
         run: |
-          SELECTED_FILES=`((ls tests/javascript/fixes/*.js | shuf -n 1) && (ls tests/javascript/suggestions/*.js | grep -vE '\-correct(\-\d+)?\.js$' | shuf -n 1)) | paste -sd ',' -`
+          SELECTED_FILES=`((ls tests/javascript/fixes/*.js | grep -vE '\-correct(\-\d+)?\.js$' | shuf -n 1) && (ls tests/javascript/suggestions/*.js | grep -vE '\-correct(\-\d+)?\.js$' | shuf -n 1)) | paste -sd ',' -`
           echo "::notice::Selected files are $SELECTED_FILES"
           echo "selected-files=$SELECTED_FILES" >> $GITHUB_OUTPUT
 
