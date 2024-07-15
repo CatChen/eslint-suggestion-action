@@ -9,7 +9,7 @@ permissions: write-all
 jobs:
   test_with_flat_config_in_pull_request:
     name: Test with Flat Config in Pull Request
-    if: ${{ startsWith(github.head_ref, 'workflows/tests/') }}
+    if: ${{ startsWith(github.head_ref, 'workflows/tests/flat-config/') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,9 +30,9 @@ jobs:
         with:
           targets: src/__tests__/*.js
 
-  test_with_legacy_config:
+  test_with_legacy_config_in_pull_request:
     name: Test with Legacy Config in Pull Request
-    if: ${{ startsWith(github.head_ref, 'workflows/tests/') }}
+    if: ${{ startsWith(github.head_ref, 'workflows/tests/legacy-config/') }}
     needs: test_with_flat_config_in_pull_request
     runs-on: ubuntu-latest
     steps:
