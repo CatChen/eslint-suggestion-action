@@ -19,3 +19,10 @@ function correct() {
 
   var B, a, c;
 }
+
+/*eslint sort-vars: ["error", { "ignoreCase": true }]*/
+function correct() {
+  var a, A;
+
+  var a, B, c;
+}
