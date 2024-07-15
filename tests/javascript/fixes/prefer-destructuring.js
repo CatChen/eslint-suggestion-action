@@ -23,3 +23,29 @@ function correct() {
   let foo;
   ({ foo } = object);
 }
+
+/* eslint prefer-destructuring: ["error", {"VariableDeclarator": {"object": true}}] */
+function correct() {
+  var {bar: foo} = object;
+}
+
+/* eslint prefer-destructuring: ["error", {"AssignmentExpression": {"array": true}}] */
+function correct() {
+  [bar] = array;
+}
+
+/* eslint prefer-destructuring: ["error", {"object": true, "array": true}, {"enforceForRenamedProperties": true}] */
+function incorrect() {
+  var foo = object.bar;
+}
+
+function correct() {
+  var { bar: foo } = object;
+
+  class C {
+    #x;
+    foo() {
+      const bar = this.#x; // private identifiers are not allowed in destructuring
+    }
+  }
+}

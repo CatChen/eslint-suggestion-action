@@ -1,6 +1,6 @@
 /* eslint-disable */
 /* eslint-enable sort-imports */
-/*eslint sort-imports: ["error", { "ignoreCase": true }]*/
+/*eslint sort-imports: "error"*/
 // Incorrect Code
-import B from 'foo.js';
+import b from 'foo.js';
 import a from 'bar.js';

@@ -4,27 +4,27 @@
 function incorrect() {
   function foo() {
     if (x) {
-        return y;
+      return y;
     } else {
-        return z;
+      return z;
     }
   }
 
   function foo() {
     if (x) {
-        return y;
+      return y;
     } else if (z) {
-        return w;
+      return w;
     } else {
-        return t;
+      return t;
     }
   }
 
   function foo() {
     if (x) {
-        return y;
+      return y;
     } else {
-        var t = "foo";
+      var t = "foo";
     }
 
     return t;
@@ -32,24 +32,24 @@ function incorrect() {
 
   function foo() {
     if (error) {
-        return 'It failed';
+      return 'It failed';
     } else {
-        if (loading) {
-            return "It's still loading";
-        }
+      if (loading) {
+        return "It's still loading";
+      }
     }
   }
 
   // Two warnings for nested occurrences
   function foo() {
     if (x) {
-        if (y) {
-            return y;
-        } else {
-            return x;
-        }
+      if (y) {
+        return y;
+      } else {
+        return x;
+      }
     } else {
-        return z;
+      return z;
     }
   }
 }
@@ -57,7 +57,7 @@ function incorrect() {
 function correct() {
   function foo() {
     if (x) {
-        return y;
+      return y;
     }
 
     return z;
@@ -65,29 +65,52 @@ function correct() {
 
   function foo() {
     if (x) {
-        return y;
+      return y;
     } else if (z) {
-        var t = "foo";
+      var t = "foo";
     } else {
-        return w;
+      return w;
     }
   }
 
   function foo() {
     if (x) {
-        if (z) {
-            return y;
-        }
+      if (z) {
+        return y;
+      }
     } else {
-        return z;
+      return z;
     }
   }
 
   function foo() {
     if (error) {
-        return 'It failed';
+      return 'It failed';
     } else if (loading) {
-        return "It's still loading";
+      return "It's still loading";
+    }
+  }
+}
+
+/*eslint no-else-return: ["error", {allowElseIf: false}]*/
+function incorrect() {
+  function foo() {
+    if (error) {
+      return 'It failed';
+    } else if (loading) {
+      return "It's still loading";
+    }
+  }
+}
+
+function correct() {
+  function foo() {
+    if (error) {
+      return 'It failed';
+    }
+
+    if (loading) {
+      return "It's still loading";
     }
   }
 }
