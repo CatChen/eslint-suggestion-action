@@ -28,7 +28,7 @@ jobs:
         env:
           DEBUG: 'eslint:cli-engine'
         with:
-          targets: tests/**/*.js
+          targets: src/__tests__/*.js
 
   test_with_legacy_config:
     name: Test with Legacy Config in Pull Request
@@ -55,5 +55,5 @@ jobs:
         env:
           DEBUG: 'eslint:cli-engine'
         with:
-          targets: tests/**/*.js
+          targets: src/__tests__/*.js
           config-path: './.eslintrc.legacy.json'
