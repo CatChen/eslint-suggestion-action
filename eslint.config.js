@@ -30,6 +30,7 @@ export default ts.config(
     root: true,
     rules: {},
     ignorePatterns: [
+      'tests/**/*',
       'node_modules/**/*',
       'dist/**/*',
       'bundle/**/*',
