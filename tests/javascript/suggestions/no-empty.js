@@ -12,7 +12,7 @@ function incorrect() {
   }
   
   try {
-      doSomething();
+    doSomething();
   } catch(ex) {
   
   } finally {
@@ -26,18 +26,33 @@ function correct() {
   }
 
   while (foo) {
-      /* empty */
+    /* empty */
   }
 
   try {
-      doSomething();
+    doSomething();
   } catch (ex) {
-      // continue regardless of error
+    // continue regardless of error
   }
 
   try {
-      doSomething();
+    doSomething();
   } finally {
-      /* continue regardless of error */
+    /* continue regardless of error */
+  }
+}
+
+/* eslint no-empty: ["error", { "allowEmptyCatch": true }] */
+function correct() {
+  try {
+    doSomething();
+  } catch (ex) {}
+
+  try {
+    doSomething();
+  }
+  catch (ex) {}
+  finally {
+    /* continue regardless of error */
   }
 }

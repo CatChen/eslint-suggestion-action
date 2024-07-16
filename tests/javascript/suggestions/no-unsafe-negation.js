@@ -27,3 +27,33 @@ function correct() {
     // obj is not an instance of Ctor
   }
 }
+
+function incorrect() {
+  if (!(foo) in object) {
+    // this is not an allowed exception
+  }
+}
+
+function correct() {
+  if ((!foo) in object) {
+    // allowed, because the negation is explicitly wrapped in parentheses
+    // it is equivalent to (foo ? "false" : "true") in object
+    // this is allowed as an exception for rare situations when that is the intended meaning
+  }
+
+  if(("" + !foo) in object) {
+    // you can also make the intention more explicit, with type conversion
+  }
+}
+
+/*eslint no-unsafe-negation: ["error", { "enforceForOrderingRelations": true }]*/
+function incorrect() {
+  if (! a < b) {}
+
+  while (! a > b) {}
+
+  foo = ! a <= b;
+
+  foo = ! a >= b;
+}
+
