@@ -38,3 +38,18 @@ function correct() {
 
   new RegExp(String.raw`^\d\. ${suffix}`);
 }
+
+/*eslint prefer-regex-literals: ["error", {"disallowRedundantWrapping": true}]*/
+function incorrect() {
+  new RegExp(/abc/);
+
+  new RegExp(/abc/, 'u');
+}
+
+function correct() {
+  /abc/;
+
+  /abc/u;
+
+  new RegExp(/abc/, flags);
+}  
