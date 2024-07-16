@@ -18,3 +18,10 @@ function correct() {
 
   f(x ? x : 1); // default assignment - would be disallowed if defaultAssignment option set to false. See option details below.
 }
+
+/*eslint no-unneeded-ternary: ["error", { "defaultAssignment": false }]*/
+function incorrect() {
+  var a = x ? x : 1;
+
+  f(x ? x : 1);
+}
