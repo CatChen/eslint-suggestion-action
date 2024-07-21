@@ -17,3 +17,14 @@ function correct() {
   x[foo()] = x[foo()] % 2;
   x = y + x; // `+` is not always commutative (e.g. x = "abc")
 }
+
+/*eslint operator-assignment: ["error", "never"]*/
+function incorrect() {
+  x *= y;
+  x ^= (y + z) / foo();
+}
+
+function correct() {
+  x = x + y;
+  x.y = x.y / a.b;
+}
