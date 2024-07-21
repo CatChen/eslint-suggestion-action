@@ -6,6 +6,11 @@ on:
 
 permissions: write-all
 
+env:
+  REPO: ${{ github.repository }}
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   test_with_flat_config_in_pull_request:
     name: Test with Flat Config in Pull Request
@@ -29,6 +34,30 @@ jobs:
           DEBUG: 'eslint:cli-engine'
         with:
           targets: src/__tests__/*.js
+
+      - name: Verify
+        run: |
+          PULL_REQUEST_REVIEW_STATE=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$REPO/pulls/$PR_NUMBER/reviews" \
+            --jq '.[0].state')
+          if [[ $PULL_REQUEST_REVIEW_STATE != 'CHANGES_REQUESTED' ]]
+          then
+            echo '::error::The pull request review state should be "CHANGES_REQUESTED"'
+            exit 1
+          fi
+
+          PULL_REQUEST_REVIEW_COMMENT_COUNT=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$REPO/pulls/$PR_NUMBER/comments" \
+            --jq '. | length')
+          if [[ ! $PULL_REQUEST_REVIEW_COMMENT_COUNT > 0 ]]
+          then
+            echo '::error::The pull request should have review comments'
+            exit 1
+          fi
 
   test_with_legacy_config_in_pull_request:
     name: Test with Legacy Config in Pull Request
@@ -56,3 +85,27 @@ jobs:
         with:
           targets: src/__tests__/*.js
           config-path: './.eslintrc.legacy.json'
+
+      - name: Verify
+        run: |
+          PULL_REQUEST_REVIEW_STATE=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$REPO/pulls/$PR_NUMBER/reviews" \
+            --jq '.[0].state')
+          if [[ $PULL_REQUEST_REVIEW_STATE != 'CHANGES_REQUESTED' ]]
+          then
+            echo '::error::The pull request review state should be "CHANGES_REQUESTED"'
+            exit 1
+          fi
+
+          PULL_REQUEST_REVIEW_COMMENT_COUNT=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$REPO/pulls/$PR_NUMBER/comments" \
+            --jq '. | length')
+          if [[ ! $PULL_REQUEST_REVIEW_COMMENT_COUNT > 0 ]]
+          then
+            echo '::error::The pull request should have review comments'
+            exit 1
+          fi
