@@ -83,6 +83,13 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.get-github-app-token.outputs.token }}
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          check-latest: true
+          registry-url: https://registry.npmjs.org/
+          cache: yarn
+
       - id: release
         uses: CatChen/node-package-release-action@v2
         with:
