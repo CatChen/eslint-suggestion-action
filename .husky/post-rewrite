@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 if test "$1" = "rebase"; then
   yarn install
 fi

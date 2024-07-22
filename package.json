@@ -10,10 +10,10 @@
     "bundle": "rm -rf bundle && yarn ncc build src/index.ts --external eslint --source-map --license licenses.txt --out bundle",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint -c eslint.config.js",
-    "postinstall": "is-ci || husky install",
     "prepublishOnly": "pinst --disable && yarn build",
     "postpublish": "pinst --enable",
-    "preversion": "yarn && yarn build && yarn bundle"
+    "preversion": "yarn && yarn build && yarn bundle",
+    "prepare": "is-ci || husky"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.2",
@@ -31,6 +31,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "husky": "^9.0.5",
+    "is-ci": "^3.0.1",
     "lint-staged": "^15.0.2",
     "pinst": "^3.0.0",
     "prettier": "^3.0.2",
