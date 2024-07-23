@@ -21,7 +21,7 @@
     "@octokit/graphql-schema": "^15.3.0",
     "@octokit/webhooks-definitions": "^3.67.3",
     "@serverless-guru/prettier-plugin-import-order": "^0.4.1",
-    "@types/eslint": "^8.4.1",
+    "@types/eslint": "^9.6.0",
     "@types/glob": "^8.0.0",
     "@types/node": "^20.1.1",
     "@typescript-eslint/eslint-plugin": "^7.3.0",
