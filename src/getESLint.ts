@@ -39,7 +39,7 @@ export async function getESLint() {
 
   const eslintConfig = (await new ESLint().calculateConfigForFile(
     'package.json',
-  )) as ProjectESLint.Config | undefined;
+  )) as ProjectESLint.Options | undefined;
   if (!eslintConfig) {
     throw new Error(
       'Failed to find ESLint configuration. Please set the config-path input.',
