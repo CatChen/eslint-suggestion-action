@@ -13,61 +13,46 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
 });
 
-export default [
-  ...compat.config({
-    env: {
-      browser: true,
-      es2022: true,
-      node: true,
+const jsConfigs = compat.config({
+  env: {
+    browser: true,
+    es2022: true,
+    node: true,
+  },
+  extends: ['eslint:recommended', 'plugin:prettier/recommended'],
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+  },
+  root: true,
+  rules: {},
+  ignorePatterns: [
+    'tests/**/*',
+    'node_modules/**/*',
+    'dist/**/*',
+    'bundle/**/*',
+  ],
+  overrides: [
+    {
+      files: ['**/*.js'],
     },
-    extends: ['eslint:recommended', 'plugin:prettier/recommended'],
-    parserOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-    },
-    root: true,
-    rules: {},
-    ignorePatterns: [
-      'tests/**/*',
-      'node_modules/**/*',
-      'dist/**/*',
-      'bundle/**/*',
-    ],
-    overrides: [
-      {
-        files: ['*.js'],
-      },
-    ],
-  }),
-  ...ts.config(
-    ...compat.config({
-      env: {
-        browser: true,
-        es2022: true,
-        node: true,
-      },
-      extends: ['eslint:recommended', 'plugin:prettier/recommended'],
-      parser: '@typescript-eslint/parser',
+  ],
+});
+
+const tsConfigs = [
+  ...ts.configs.recommendedTypeChecked,
+  {
+    languageOptions: {
       parserOptions: {
         project: './tsconfig.json',
-        ecmaVersion: 'latest',
-        sourceType: 'module',
       },
-      root: true,
-      rules: {},
-      ignorePatterns: [
-        'tests/**/*',
-        'node_modules/**/*',
-        'dist/**/*',
-        'bundle/**/*',
-        'eslint.config.js',
-      ],
-      overrides: [
-        {
-          files: ['*.ts'],
-        },
-      ],
-    }),
-    ...ts.configs.recommendedTypeChecked,
-  ),
-];
+    },
+  },
+].map((config) => ({
+  ...config,
+  files: ['src/**/*.ts'],
+}));
+
+const configs = ts.config(...jsConfigs, ...tsConfigs);
+
+export default configs;
