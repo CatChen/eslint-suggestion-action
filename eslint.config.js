@@ -13,7 +13,7 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
 });
 
-export default ts.config(
+export default [
   ...compat.config({
     env: {
       browser: true,
@@ -21,9 +21,7 @@ export default ts.config(
       node: true,
     },
     extends: ['eslint:recommended', 'plugin:prettier/recommended'],
-    parser: '@typescript-eslint/parser',
     parserOptions: {
-      project: './tsconfig.json',
       ecmaVersion: 'latest',
       sourceType: 'module',
     },
@@ -34,13 +32,42 @@ export default ts.config(
       'node_modules/**/*',
       'dist/**/*',
       'bundle/**/*',
-      'eslint.config.js',
     ],
     overrides: [
       {
-        files: ['*.ts'],
+        files: ['*.js'],
       },
     ],
   }),
-  ...ts.configs.recommendedTypeChecked,
-);
+  ...ts.config(
+    ...compat.config({
+      env: {
+        browser: true,
+        es2022: true,
+        node: true,
+      },
+      extends: ['eslint:recommended', 'plugin:prettier/recommended'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        project: './tsconfig.json',
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+      root: true,
+      rules: {},
+      ignorePatterns: [
+        'tests/**/*',
+        'node_modules/**/*',
+        'dist/**/*',
+        'bundle/**/*',
+        'eslint.config.js',
+      ],
+      overrides: [
+        {
+          files: ['*.ts'],
+        },
+      ],
+    }),
+    ...ts.configs.recommendedTypeChecked,
+  ),
+];
