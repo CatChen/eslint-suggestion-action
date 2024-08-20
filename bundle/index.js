@@ -41446,7 +41446,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                     comments: reviewComments,
                 });
             }
-            catch (error) {
+            catch (_d) {
                 throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
             }
             if (commentsCounter - reviewComments.length > 0) {
