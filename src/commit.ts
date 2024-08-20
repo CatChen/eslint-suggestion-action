@@ -36,15 +36,6 @@ export function handleCommit(
       const rule = ruleMetaDatas[message.ruleId];
       info(`  ${relativePath}:${message.line}`);
       switch (message.severity) {
-        case 0:
-          notice(
-            `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
-            {
-              file: relativePath,
-              startLine: message.line,
-            },
-          );
-          break;
         case 1:
           warning(
             `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
