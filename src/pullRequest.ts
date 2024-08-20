@@ -449,7 +449,7 @@ export async function handlePullRequest(
         event: requestChanges ? 'REQUEST_CHANGES' : 'COMMENT',
         comments: reviewComments,
       });
-    } catch (error) {
+    } catch {
       throw new Error(
         `Failed to create review with ${reviewComments.length} comment(s).`,
       );
