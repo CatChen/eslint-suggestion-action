@@ -23,7 +23,6 @@ export default ts.config(
     extends: ['eslint:recommended', 'plugin:prettier/recommended'],
     parser: '@typescript-eslint/parser',
     parserOptions: {
-      project: './tsconfig.json',
       ecmaVersion: 'latest',
       sourceType: 'module',
     },
@@ -39,6 +38,9 @@ export default ts.config(
     overrides: [
       {
         files: ['*.ts'],
+        parserOptions: {
+          project: './tsconfig.json',
+        },
       },
     ],
   }),
