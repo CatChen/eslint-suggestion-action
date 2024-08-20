@@ -72,15 +72,6 @@ export async function handlePush(
         if (indexedModifiedLines[message.line]) {
           info(`  Matched line: ${message.line}`);
           switch (message.severity) {
-            case 0:
-              notice(
-                `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
-                {
-                  file: file.filename,
-                  startLine: message.line,
-                },
-              );
-              break;
             case 1:
               warning(
                 `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
