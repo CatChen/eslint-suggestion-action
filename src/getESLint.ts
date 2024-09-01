@@ -1,4 +1,4 @@
-import type { ESLint as ProjectESLint } from 'eslint';
+import type { ESLint as ProjectESLint, Linter as ProjectLinter } from 'eslint';
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
@@ -39,7 +39,7 @@ export async function getESLint() {
 
   const eslintConfig = (await new ESLint().calculateConfigForFile(
     'package.json',
-  )) as ProjectESLint.ConfigData | undefined;
+  )) as ProjectLinter.Config | undefined;
   if (!eslintConfig) {
     throw new Error(
       'Failed to find ESLint configuration. Please set the config-path input.',

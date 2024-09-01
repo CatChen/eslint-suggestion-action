@@ -32840,7 +32840,7 @@ function changeDirectory() {
 
 
 function handleCommit(eventName, results, ruleMetaDatas) {
-    var _a, _b, _c;
+    var _a, _b;
     const failCheck = (0,core.getBooleanInput)('fail-check');
     (0,core.startGroup)(`GitHub ${eventName}`);
     let warningCounter = 0;
@@ -32854,21 +32854,15 @@ function handleCommit(eventName, results, ruleMetaDatas) {
             const rule = ruleMetaDatas[message.ruleId];
             (0,core.info)(`  ${relativePath}:${message.line}`);
             switch (message.severity) {
-                case 0:
-                    (0,core.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
-                        file: relativePath,
-                        startLine: message.line,
-                    });
-                    break;
                 case 1:
-                    (0,core.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                    (0,core.warning)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
                         file: relativePath,
                         startLine: message.line,
                     });
                     warningCounter++;
                     break;
                 case 2:
-                    (0,core.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
+                    (0,core.error)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
                         file: relativePath,
                         startLine: message.line,
                     });
@@ -41452,7 +41446,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                     comments: reviewComments,
                 });
             }
-            catch (error) {
+            catch (_d) {
                 throw new Error(`Failed to create review with ${reviewComments.length} comment(s).`);
             }
             if (commentsCounter - reviewComments.length > 0) {
@@ -41499,7 +41493,7 @@ function getPushFiles(octokit, owner, repo, beforeSha, afterSha) {
 }
 function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
     return push_awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c;
+        var _a, _b;
         const failCheck = (0,core.getBooleanInput)('fail-check');
         (0,core.startGroup)('GitHub Push');
         const files = yield getPushFiles(octokit, owner, repo, beforeSha, afterSha);
@@ -41526,21 +41520,15 @@ function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeS
                     if (indexedModifiedLines[message.line]) {
                         (0,core.info)(`  Matched line: ${message.line}`);
                         switch (message.severity) {
-                            case 0:
-                                (0,core.notice)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
-                                    file: file.filename,
-                                    startLine: message.line,
-                                });
-                                break;
                             case 1:
-                                (0,core.warning)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                                (0,core.warning)(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
                                     file: file.filename,
                                     startLine: message.line,
                                 });
                                 warningCounter++;
                                 break;
                             case 2:
-                                (0,core.error)(`[${message.ruleId}]${message.message}: (${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`, {
+                                (0,core.error)(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
                                     file: file.filename,
                                     startLine: message.line,
                                 });
