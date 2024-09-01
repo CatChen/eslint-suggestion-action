@@ -31,7 +31,7 @@ on:
       diff-targets:
         description: 'Diff Targets'
         required: false
-        default: '{README.md,LICENSE,dist/**/*}'
+        default: '{README.md,LICENSE,bundle/**/*}'
         type: string
       dry-run:
         description: 'Dry run'
@@ -98,7 +98,7 @@ jobs:
           update-shorthand-release: true
           dry-run: ${{ inputs.dry-run || false }}
           skip-if-no-diff: ${{ inputs.skip-if-no-diff || github.event_name != 'workflow_dispatch' }}
-          diff-targets: ${{ inputs.diff-targets || '{README.md,LICENSE,dist/**/*}' }}
+          diff-targets: ${{ inputs.diff-targets || '{README.md,LICENSE,bundle/**/*}' }}
           github-token: ${{ steps.get-github-app-token.outputs.token }}
 
   publish:
