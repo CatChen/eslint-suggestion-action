@@ -30885,6 +30885,25 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 433:
+/***/ ((module) => {
+
+function webpackEmptyAsyncContext(req) {
+	// Here Promise.resolve().then() is used instead of new Promise() to prevent
+	// uncaught exception popping up in devtools
+	return Promise.resolve().then(() => {
+		var e = new Error("Cannot find module '" + req + "'");
+		e.code = 'MODULE_NOT_FOUND';
+		throw e;
+	});
+}
+webpackEmptyAsyncContext.keys = () => ([]);
+webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
+webpackEmptyAsyncContext.id = 433;
+module.exports = webpackEmptyAsyncContext;
+
+/***/ }),
+
 /***/ 2613:
 /***/ ((module) => {
 
@@ -32902,17 +32921,15 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-
 function getESLint() {
     return __awaiter(this, void 0, void 0, function* () {
         const absoluteDirectory = (0,external_node_path_namespaceObject.resolve)(DEFAULT_WORKING_DIRECTORY, (0,core.getInput)('directory'));
-        const require = /* createRequire() */ undefined;
         const eslintJsPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, (0,core.getInput)('eslint-lib-path'));
         if (!(0,external_node_fs_namespaceObject.existsSync)(eslintJsPath)) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
         (0,core.notice)(`Using ESLint from: ${eslintJsPath}`);
-        const { ESLint, loadESLint } = require(eslintJsPath);
+        const { ESLint, loadESLint } = (yield __nccwpck_require__(433)(eslintJsPath));
         (0,core.notice)(`ESLint version: ${ESLint.version}`);
         const configPath = (0,core.getInput)('config-path');
         if (configPath) {
