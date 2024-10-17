@@ -24,6 +24,7 @@ jobs:
     steps:
       - uses: actions/create-github-app-token@v1
         id: get-github-app-token
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         with:
           app-id: ${{ secrets.CHECK_GIT_STATUS_BOT_APP_ID }}
           private-key: ${{ secrets.CHECK_GIT_STATUS_BOT_APP_PRIVATE_KEY }}
@@ -32,7 +33,7 @@ jobs:
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.head_ref }}
-          token: ${{ steps.get-github-app-token.outputs.token }}
+          token: ${{ steps.get-github-app-token.outputs.token || github.token }}
 
       - uses: actions/setup-node@v4
         with:
@@ -60,4 +61,4 @@ jobs:
           fail-if-not-clean: ${{ github.actor != 'dependabot[bot]' || github.actor_id != 49699333 }}
           push-if-not-clean: true
           request-changes-if-not-clean: false
-          push-token: ${{ steps.get-github-app-token.outputs.token }}
+          push-token: ${{ steps.get-github-app-token.outputs.token || github.token }}
