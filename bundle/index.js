@@ -41416,8 +41416,8 @@ class RequestError extends Error {
 
 
 ;// CONCATENATED MODULE: ./node_modules/@octokit/plugin-retry/dist-bundle/index.js
-// pkg/dist-src/index.js
-
+// pkg/dist-src/version.js
+var VERSION = "0.0.0-development";
 
 // pkg/dist-src/error-request.js
 async function errorRequest(state, octokit, error, options) {
@@ -41452,7 +41452,7 @@ async function wrapRequest(state, octokit, request, options) {
 }
 async function requestWithGraphqlErrorHandling(state, octokit, request, options) {
   const response = await request(request, options);
-  if (response.data && response.data.errors && /Something went wrong while executing your query/.test(
+  if (response.data && response.data.errors && response.data.errors.length > 0 && /Something went wrong while executing your query/.test(
     response.data.errors[0].message
   )) {
     const error = new RequestError(response.data.errors[0].message, 500, {
@@ -41465,7 +41465,6 @@ async function requestWithGraphqlErrorHandling(state, octokit, request, options)
 }
 
 // pkg/dist-src/index.js
-var VERSION = "0.0.0-development";
 function retry(octokit, octokitOptions) {
   const state = Object.assign(
     {
