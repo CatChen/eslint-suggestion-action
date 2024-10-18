@@ -15,7 +15,7 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Test (${{ matrix.config.name }})
     if: |-
       ${{
         !startsWith(github.head_ref, 'workflows/tests/') && ((
