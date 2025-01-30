@@ -41407,11 +41407,11 @@ class RequestError extends Error {
   response;
   constructor(message, statusCode, options) {
     super(message);
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
     this.name = "HttpError";
-    this.status = statusCode;
+    this.status = Number.parseInt(statusCode);
+    if (Number.isNaN(this.status)) {
+      this.status = 0;
+    }
     if ("response" in options) {
       this.response = options.response;
     }
