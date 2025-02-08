@@ -19,7 +19,7 @@
     "@eslint/eslintrc": "^3.0.2",
     "@eslint/js": "^9.2.0",
     "@octokit/graphql-schema": "^15.3.0",
-    "@octokit/webhooks-definitions": "^3.67.3",
+    "@octokit/webhooks-types": "^7.6.1",
     "@serverless-guru/prettier-plugin-import-order": "^0.4.1",
     "@types/eslint": "^9.6.0",
     "@types/glob": "^8.0.0",
