@@ -14,18 +14,6 @@ on:
       - review_request_removed
   pull_request_review:
     types: [submitted, edited, dismissed]
-  check_run:
-    types: [created, rerequested, completed]
-  check_suite:
-    types: [completed]
-  workflow_run:
-    workflows:
-      - Build
-      - Test
-      - ESLint
-      - CodeQL
-    branches-ignore: ['workflows/tests/*']
-    types: [completed]
 
 concurrency:
   group: |-
@@ -41,7 +29,7 @@ concurrency:
 jobs:
   concurrency-group:
     name: Concurrency group
-    if: ${{ !startsWith(github.head_ref, 'workflows/tests/') }}
+    if: ${{ !startsWith(github.head_ref || github.event.workflow_run.head_branch, 'workflows/tests/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Concurrency group
@@ -91,6 +79,7 @@ jobs:
           github-token: ${{ steps.get-github-app-token.outputs.token }}
           merge-method: squash
           timeout: 0
+          use-auto-merge: true
 
   pass-to-ship:
     name: Pass to Ship
@@ -127,3 +116,4 @@ jobs:
           timeout: 0
           request-zero-accept-zero: true
           custom-hashtag: '#pass2ship'
+          use-auto-merge: true

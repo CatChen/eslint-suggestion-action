@@ -24,7 +24,7 @@ on:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    if: ${{ !startsWith(github.head_ref, 'workflows/tests/') }}
+    if: ${{ !startsWith(github.head_ref || github.event.workflow_run.head_branch, 'workflows/tests/') }}
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
