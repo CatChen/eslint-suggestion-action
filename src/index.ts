@@ -1,8 +1,8 @@
+import type { WorkflowRunEvent } from '@octokit/webhooks-types/schema.d.ts';
 import type { ESLint, Rule } from 'eslint';
 import path from 'node:path';
 import { endGroup, getInput, info, setFailed, startGroup } from '@actions/core';
 import { context } from '@actions/github';
-import { WorkflowRunEvent } from '@octokit/webhooks-definitions/schema.js';
 import {
   DEFAULT_WORKING_DIRECTORY,
   changeDirectory,
