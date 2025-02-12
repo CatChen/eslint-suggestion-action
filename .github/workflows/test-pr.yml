@@ -2,6 +2,7 @@ name: Test Pull Request
 
 on:
   pull_request:
+    branches: ['workflows/tests/**/*']
   workflow_dispatch:
 
 permissions: write-all
