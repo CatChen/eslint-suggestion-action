@@ -16,17 +16,7 @@ on:
 jobs:
   test:
     name: Test (${{ matrix.config.name }})
-    if: |-
-      ${{
-        !startsWith(github.head_ref, 'workflows/tests/') && ((
-          github.actor == 'dependabot[bot]' && 
-          github.event_name != 'push' &&
-          github.event_name != 'pull_request'
-        ) || (
-          github.actor != 'dependabot[bot]' &&
-          github.event_name != 'workflow_run'
-        ))
-      }}
+    if: ${{ !startsWith(github.head_ref || github.event.workflow_run.head_branch, 'workflows/tests/') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
