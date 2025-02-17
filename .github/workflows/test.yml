@@ -61,7 +61,11 @@ jobs:
       - name: Randomly select test files
         id: select-files
         run: |
-          SELECTED_FILES=`((ls tests/javascript/fixes/*.js | grep -vE '\-correct(\-\d+)?\.js$' | shuf -n 1) && (ls tests/javascript/suggestions/*.js | grep -vE '\-correct(\-\d+)?\.js$' | shuf -n 1)) | paste -sd ',' -`
+          SELECTED_FILES=$(((ls tests/javascript/fixes/*.js | grep -vE '\-correct(\-\d+)?\.js$' | shuf -n 1) &&
+            (ls tests/javascript/suggestions/*.js | grep -vE '\-correct(\-\d+)?\.js$' | shuf -n 1) &&
+            (ls tests/typescript/fixes/*.ts | grep -vE '\-correct(\-\d+)?\.ts$' | shuf -n 1) &&
+            (ls tests/typescript/suggestions/*.ts | grep -vE '\-correct(\-\d+)?\.ts$' | shuf -n 1)) |
+            paste -sd ',' -)
           echo "::notice::Selected files are $SELECTED_FILES"
           echo "selected-files=$SELECTED_FILES" >> $GITHUB_OUTPUT
 
@@ -75,9 +79,8 @@ jobs:
           echo "::notice::Base commit is `git rev-parse --verify HEAD`"
           echo "::notice::Test branch is $TEST_BRANCH_NAME"
           git checkout -b "$TEST_BRANCH_NAME"
-          mkdir -p src/__tests__
-          echo "$SELECTED_FILES" | tr ',' '\n' | xargs -I % cp % src/__tests__
-          git add src/__tests__
+          echo "$SELECTED_FILES" | tr ',' '\n' | xargs -n 1 -I @ bash -c 'mkdir -p "src/${1%/*}"; cp "$1" "src/${1%/*}"' -- '@'
+          git add -A
           BASE_NAME=$([[ -z $BASE_PR_NUMBER ]] && echo "$BASE_BRANCH_NAME" || echo "#$BASE_PR_NUMBER")
           COMMIT_MESSAGE="Test commit for $BASE_NAME ($SHA) by run $RUN_ID ($RUN_NUMBER-$RUN_ATTEMPT)"
           git commit -am "$COMMIT_MESSAGE"

@@ -33,7 +33,7 @@ jobs:
         env:
           DEBUG: 'eslint:cli-engine'
         with:
-          targets: src/__tests__/*.js
+          targets: src/tests/**/*.{js,ts}
 
       - name: Verify
         run: |
@@ -83,7 +83,7 @@ jobs:
         env:
           DEBUG: 'eslint:cli-engine'
         with:
-          targets: src/__tests__/*.js
+          targets: src/tests/**/*.{js,ts}
           config-path: './.eslintrc.legacy.json'
 
       - name: Verify
