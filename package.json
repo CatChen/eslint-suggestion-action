@@ -1,6 +1,6 @@
 {
   "name": "eslint-suggestion-action",
-  "version": "4.1.12",
+  "version": "4.1.13",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
