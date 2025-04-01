@@ -1,12 +1,10 @@
 import type { WorkflowRunEvent } from '@octokit/webhooks-types/schema.d.ts';
 import type { ESLint, Rule } from 'eslint';
 import path from 'node:path';
+import { cwd } from 'node:process';
 import { endGroup, getInput, info, setFailed, startGroup } from '@actions/core';
 import { context } from '@actions/github';
-import {
-  DEFAULT_WORKING_DIRECTORY,
-  changeDirectory,
-} from './changeDirectory.js';
+import { changeDirectory } from './changeDirectory.js';
 import { handleCommit } from './commit.js';
 import { getESLint } from './getESLint.js';
 import { getESLintResults } from './getESLintResults.js';
@@ -29,10 +27,7 @@ export async function run(): Promise<void> {
     [file: string]: ESLint.LintResult;
   } = {};
   for (const file of results) {
-    const relativePath = path.relative(
-      DEFAULT_WORKING_DIRECTORY,
-      file.filePath,
-    );
+    const relativePath = path.relative(cwd(), file.filePath);
     info(`File name: ${relativePath}`);
     indexedResults[relativePath] = file;
     for (const message of file.messages) {

@@ -1,5 +1,6 @@
 import type { ESLint, Rule } from 'eslint';
 import path from 'node:path';
+import { cwd } from 'node:process';
 import {
   endGroup,
   error,
@@ -9,7 +10,6 @@ import {
   startGroup,
   warning,
 } from '@actions/core';
-import { DEFAULT_WORKING_DIRECTORY } from './changeDirectory.js';
 
 export function handleCommit(
   eventName: string,
@@ -25,10 +25,7 @@ export function handleCommit(
   let errorCounter = 0;
 
   for (const result of results) {
-    const relativePath = path.relative(
-      DEFAULT_WORKING_DIRECTORY,
-      result.filePath,
-    );
+    const relativePath = path.relative(cwd(), result.filePath);
     for (const message of result.messages) {
       if (message.ruleId === null || result.source === undefined) {
         continue;
