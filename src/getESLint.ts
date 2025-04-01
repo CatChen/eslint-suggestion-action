@@ -2,14 +2,11 @@ import type { ESLint as ProjectESLint, Linter as ProjectLinter } from 'eslint';
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
+import { cwd } from 'node:process';
 import { getInput, notice } from '@actions/core';
-import { DEFAULT_WORKING_DIRECTORY } from './changeDirectory.js';
 
 export async function getESLint() {
-  const absoluteDirectory = resolve(
-    DEFAULT_WORKING_DIRECTORY,
-    getInput('directory'),
-  );
+  const absoluteDirectory = resolve(cwd(), getInput('directory'));
   const require = createRequire(absoluteDirectory);
   const eslintJsPath = resolve(absoluteDirectory, getInput('eslint-lib-path'));
   if (!existsSync(eslintJsPath)) {

@@ -33559,24 +33559,23 @@ __nccwpck_require__.d(__webpack_exports__, {
 ;// CONCATENATED MODULE: external "node:path"
 const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
 var external_node_path_default = /*#__PURE__*/__nccwpck_require__.n(external_node_path_namespaceObject);
+;// CONCATENATED MODULE: external "node:process"
+const external_node_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:process");
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5438);
-;// CONCATENATED MODULE: external "node:process"
-const external_node_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:process");
-var external_node_process_default = /*#__PURE__*/__nccwpck_require__.n(external_node_process_namespaceObject);
 ;// CONCATENATED MODULE: ./src/changeDirectory.ts
 
 
 
-const DEFAULT_WORKING_DIRECTORY = external_node_process_default().cwd();
+const DEFAULT_WORKING_DIRECTORY = (0,external_node_process_namespaceObject.cwd)();
 function changeDirectory() {
     (0,core.info)(`Working directory is: ${DEFAULT_WORKING_DIRECTORY}`);
     const absoluteDirectory = external_node_path_default().resolve(DEFAULT_WORKING_DIRECTORY, (0,core.getInput)('directory'));
     if (absoluteDirectory !== DEFAULT_WORKING_DIRECTORY) {
         (0,core.info)(`Working directory is changed to: ${absoluteDirectory}`);
-        external_node_process_default().chdir(absoluteDirectory);
+        (0,external_node_process_namespaceObject.chdir)(absoluteDirectory);
     }
 }
 
@@ -33591,7 +33590,7 @@ function handleCommit(eventName, results, ruleMetaDatas) {
     let warningCounter = 0;
     let errorCounter = 0;
     for (const result of results) {
-        const relativePath = external_node_path_default().relative(DEFAULT_WORKING_DIRECTORY, result.filePath);
+        const relativePath = external_node_path_default().relative((0,external_node_process_namespaceObject.cwd)(), result.filePath);
         for (const message of result.messages) {
             if (message.ruleId === null || result.source === undefined) {
                 continue;
@@ -33654,7 +33653,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 function getESLint() {
     return __awaiter(this, void 0, void 0, function* () {
-        const absoluteDirectory = (0,external_node_path_namespaceObject.resolve)(DEFAULT_WORKING_DIRECTORY, (0,core.getInput)('directory'));
+        const absoluteDirectory = (0,external_node_path_namespaceObject.resolve)((0,external_node_process_namespaceObject.cwd)(), (0,core.getInput)('directory'));
         const require = (0,external_node_module_namespaceObject.createRequire)(absoluteDirectory);
         const eslintJsPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, (0,core.getInput)('eslint-lib-path'));
         if (!(0,external_node_fs_namespaceObject.existsSync)(eslintJsPath)) {
@@ -42327,6 +42326,7 @@ var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argu
 
 
 
+
 function run() {
     return src_awaiter(this, void 0, void 0, function* () {
         (0,core.startGroup)('ESLint');
@@ -42335,7 +42335,7 @@ function run() {
         const results = yield getESLintResults(eslint);
         const indexedResults = {};
         for (const file of results) {
-            const relativePath = external_node_path_default().relative(DEFAULT_WORKING_DIRECTORY, file.filePath);
+            const relativePath = external_node_path_default().relative((0,external_node_process_namespaceObject.cwd)(), file.filePath);
             (0,core.info)(`File name: ${relativePath}`);
             indexedResults[relativePath] = file;
             for (const message of file.messages) {
