@@ -6,7 +6,7 @@ import { cwd } from 'node:process';
 import { getInput, notice } from '@actions/core';
 
 export async function getESLint() {
-  const absoluteDirectory = resolve(cwd(), getInput('directory'));
+  const absoluteDirectory = cwd();
   const require = createRequire(absoluteDirectory);
   const eslintJsPath = resolve(absoluteDirectory, getInput('eslint-lib-path'));
   if (!existsSync(eslintJsPath)) {

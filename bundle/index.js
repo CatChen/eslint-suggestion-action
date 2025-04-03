@@ -33653,7 +33653,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 function getESLint() {
     return __awaiter(this, void 0, void 0, function* () {
-        const absoluteDirectory = (0,external_node_path_namespaceObject.resolve)((0,external_node_process_namespaceObject.cwd)(), (0,core.getInput)('directory'));
+        const absoluteDirectory = (0,external_node_process_namespaceObject.cwd)();
         const require = (0,external_node_module_namespaceObject.createRequire)(absoluteDirectory);
         const eslintJsPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, (0,core.getInput)('eslint-lib-path'));
         if (!(0,external_node_fs_namespaceObject.existsSync)(eslintJsPath)) {
