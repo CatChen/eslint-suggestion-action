@@ -71,7 +71,7 @@ jobs:
       tag: ${{ steps.release.outputs.tag }}
       skipped: ${{ steps.release.outputs.skipped }}
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v2
         id: get-github-app-token
         with:
           app-id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
