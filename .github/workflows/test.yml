@@ -43,12 +43,12 @@ jobs:
       CONFIG_TYPE: ${{ matrix.config.name }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: ${{ github.event_name != 'workflow_run' }}
         with:
           fetch-depth: 0
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: ${{ github.event_name == 'workflow_run' }}
         with:
           ref: ${{ github.event.workflow_run.head_branch }}

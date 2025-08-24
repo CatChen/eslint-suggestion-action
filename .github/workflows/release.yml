@@ -77,7 +77,7 @@ jobs:
           app-id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
           private-key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: 'main'
           fetch-depth: 0
@@ -107,12 +107,12 @@ jobs:
     if: ${{ needs.release.outputs.skipped != 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: ${{ !inputs.dry-run }}
         with:
           ref: ${{ needs.release.outputs.tag }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: ${{ inputs.dry-run }}
         with:
           ref: ${{ github.ref_name || github.ref }}
