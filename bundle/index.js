@@ -41658,7 +41658,7 @@ function throttling(octokit, octokitOptions) {
     const retryCount = ~~request.retryCount;
     request.retryCount = retryCount;
     options.request.retryCount = retryCount;
-    const { wantRetry, retryAfter = 0 } = await async function() {
+    const { wantRetry, retryAfter = 0 } = await (async function() {
       if (/\bsecondary rate\b/i.test(error.message)) {
         const retryAfter2 = Number(error.response.headers["retry-after"]) || state2.fallbackSecondaryRateRetryAfter;
         const wantRetry2 = await emitter.trigger(
@@ -41692,7 +41692,7 @@ function throttling(octokit, octokitOptions) {
         return { wantRetry: wantRetry2, retryAfter: retryAfter2 };
       }
       return {};
-    }();
+    })();
     if (wantRetry) {
       request.retryCount++;
       return retryAfter * state2.retryAfterBaseValue;
