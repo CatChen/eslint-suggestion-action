@@ -35,7 +35,7 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ steps.get-github-app-token.outputs.token || github.token }}
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           check-latest: true
