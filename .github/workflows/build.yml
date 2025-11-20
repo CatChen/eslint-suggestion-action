@@ -29,7 +29,7 @@ jobs:
           app-id: ${{ secrets.CHECK_GIT_STATUS_BOT_APP_ID }}
           private-key: ${{ secrets.CHECK_GIT_STATUS_BOT_APP_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.head_ref }}
