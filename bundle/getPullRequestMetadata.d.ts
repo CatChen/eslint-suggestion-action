@@ -1,5 +1,5 @@
 import type { Octokit } from '@octokit/core';
-import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types.js';
+import type { Api } from '@octokit/plugin-rest-endpoint-methods';
 export declare function getPullRequestMetadata(): {
     owner: string;
     repo: string;
