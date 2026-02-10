@@ -1,5 +1,5 @@
 import type { Octokit } from '@octokit/core';
-import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types.js';
+import type { Api } from '@octokit/plugin-rest-endpoint-methods';
 import type { PullRequestEvent } from '@octokit/webhooks-types/schema.d.ts';
 import { info } from '@actions/core';
 import { context } from '@actions/github';
