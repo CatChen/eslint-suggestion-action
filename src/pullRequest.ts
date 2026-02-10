@@ -1,7 +1,7 @@
 import type { Octokit } from '@octokit/core';
 import type { PullRequestReviewThread, Query } from '@octokit/graphql-schema';
 import type { components } from '@octokit/openapi-types/types.js';
-import type { Api } from '@octokit/plugin-rest-endpoint-methods/dist-types/types.js';
+import type { Api } from '@octokit/plugin-rest-endpoint-methods';
 import type { ESLint, Rule } from 'eslint';
 import {
   endGroup,
