@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           check-latest: true
 
       - name: Install dependencies
