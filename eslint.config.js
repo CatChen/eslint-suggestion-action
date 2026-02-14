@@ -22,9 +22,7 @@ export default ts.config(
       node: true,
     },
     extends: ['eslint:recommended', 'plugin:prettier/recommended'],
-    parser: '@typescript-eslint/parser',
     parserOptions: {
-      project: './tsconfig.json',
       ecmaVersion: 'latest',
       sourceType: 'module',
     },
@@ -50,6 +48,14 @@ export default ts.config(
   ...ts.configs.recommendedTypeChecked.map((config) => ({
     ...config,
     files: ['src/**/*.ts'],
+    languageOptions: {
+      ...config.languageOptions,
+      parserOptions: {
+        ...config.languageOptions?.parserOptions,
+        project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
+      },
+    },
     processor: graphqlPlugin.processor,
   })),
   // Lint extracted GraphQL operations against the generated schema.
