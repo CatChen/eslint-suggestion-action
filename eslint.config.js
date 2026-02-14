@@ -2,7 +2,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
-import ts from 'typescript-eslint';
+import graphqlPlugin from '@graphql-eslint/eslint-plugin';
+import { defineConfig } from 'eslint/config';
+import tseslint from 'typescript-eslint';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,7 +15,7 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
 });
 
-const jsConfigs = compat.config({
+const sharedConfigs = compat.config({
   env: {
     browser: true,
     es2022: true,
@@ -31,28 +33,53 @@ const jsConfigs = compat.config({
     'node_modules/**/*',
     'dist/**/*',
     'bundle/**/*',
+    'eslint.config.js',
+    'codegen.ts',
+    'schema.graphql',
+    'src/__graphql__/**',
   ],
   overrides: [
     {
-      files: ['**/*.js'],
+      files: ['*.ts'],
     },
   ],
 });
 
-const tsConfigs = [
-  ...ts.configs.recommendedTypeChecked,
-  {
+const typeCheckedTypeScriptConfigs =
+  tseslint.configs.recommendedTypeChecked.map((config) => ({
+    ...config,
+    files: ['src/**/*.ts'],
     languageOptions: {
+      ...config.languageOptions,
       parserOptions: {
+        ...config.languageOptions?.parserOptions,
         project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
+      },
+    },
+    processor: graphqlPlugin.processor,
+  }));
+
+// Lint extracted GraphQL operations against the generated schema.
+const graphQlOperationConfigs = {
+  files: ['**/*.graphql'],
+  languageOptions: {
+    parser: graphqlPlugin.parser,
+    parserOptions: {
+      graphQLConfig: {
+        schema: './schema.graphql',
+        documents: ['src/**/*.ts', '!src/__graphql__/**', '!**/*.d.ts'],
       },
     },
   },
-].map((config) => ({
-  ...config,
-  files: ['src/**/*.ts'],
-}));
+  plugins: {
+    '@graphql-eslint': graphqlPlugin,
+  },
+  rules: graphqlPlugin.configs['flat/operations-recommended'].rules,
+};
 
-const configs = ts.config(...jsConfigs, ...tsConfigs);
-
-export default configs;
+export default defineConfig([
+  ...sharedConfigs,
+  ...typeCheckedTypeScriptConfigs,
+  graphQlOperationConfigs,
+]);
