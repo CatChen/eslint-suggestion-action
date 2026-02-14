@@ -44,6 +44,9 @@ jobs:
       - name: Install dependencies
         run: yarn
 
+      - name: Codegen
+        run: yarn codegen
+
       - name: Reformat
         run: |
           yarn prettier --write .
