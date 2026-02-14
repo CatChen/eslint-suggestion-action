@@ -1,2 +1,3 @@
 dist/**/* linguist-generated
 bundle/**/* linguist-generated
+src/__graphql__/**/* linguist-generated
