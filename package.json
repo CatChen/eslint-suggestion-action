@@ -6,6 +6,7 @@
   "types": "dist/index.d.js",
   "type": "module",
   "scripts": {
+    "codegen": "rm -rf src/__graphql__ && graphql-codegen-esm --config codegen.ts",
     "build": "rm -rf dist && yarn tsc",
     "bundle": "rm -rf bundle && yarn ncc build src/index.ts --external eslint --source-map --license licenses.txt --out bundle",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -16,9 +17,13 @@
     "prepare": "is-ci || husky"
   },
   "devDependencies": {
+    "@0no-co/graphqlsp": "^1.15.2",
     "@eslint/eslintrc": "^3.0.2",
     "@eslint/js": "^10.0.1",
-    "@octokit/graphql-schema": "^15.3.0",
+    "@graphql-codegen/cli": "^6.1.1",
+    "@graphql-codegen/typescript": "^5.0.7",
+    "@graphql-codegen/typescript-document-nodes": "^5.0.7",
+    "@graphql-eslint/eslint-plugin": "^4.4.0",
     "@octokit/webhooks-types": "^7.6.1",
     "@serverless-guru/prettier-plugin-import-order": "^0.4.1",
     "@types/eslint": "^9.6.0",
@@ -30,6 +35,7 @@
     "eslint": "^10.0.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.0.0",
+    "graphql": "^16.12.0",
     "husky": "^9.0.5",
     "is-ci": "^4.1.0",
     "lint-staged": "^16.0.0",
@@ -53,6 +59,7 @@
     "@actions/core": "^3.0.0",
     "@actions/exec": "^3.0.0",
     "@actions/github": "^9.0.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@octokit/plugin-retry": "^8.0.1",
     "@octokit/plugin-throttling": "^11.0.1",
     "glob": "^13.0.0"

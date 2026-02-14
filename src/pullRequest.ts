@@ -1,5 +1,5 @@
+import type { ResultOf, VariablesOf } from '@graphql-typed-document-node/core';
 import type { Octokit } from '@octokit/core';
-import type { PullRequestReviewThread, Query } from '@octokit/graphql-schema';
 import type { components } from '@octokit/openapi-types/types.js';
 import type { Api } from '@octokit/plugin-rest-endpoint-methods';
 import type { ESLint, Rule } from 'eslint';
@@ -11,6 +11,7 @@ import {
   notice,
   startGroup,
 } from '@actions/core';
+import { graphql } from './__graphql__/gql.js';
 import { getIndexedModifiedLines } from './getIndexedModifiedLines.js';
 
 type ReviewSuggestion = {
@@ -24,6 +25,64 @@ type ReviewSuggestion = {
 type ReviewComment = ReviewSuggestion & { path: string };
 
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
+
+const getReviewThreadsQuery = graphql(`
+  query GetReviewThreads(
+    $owner: String!
+    $repo: String!
+    $pullRequestNumber: Int!
+  ) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $pullRequestNumber) {
+        reviewThreads(last: 100) {
+          totalCount
+          nodes {
+            id
+            isResolved
+            comments(last: 100) {
+              totalCount
+              nodes {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`);
+
+const resolveReviewThreadMutation = graphql(`
+  mutation ResolveReviewThread($nodeId: ID!) {
+    resolveReviewThread(input: { threadId: $nodeId }) {
+      thread {
+        id
+      }
+    }
+  }
+`);
+
+const unresolveReviewThreadMutation = graphql(`
+  mutation UnresolveReviewThread($nodeId: ID!) {
+    unresolveReviewThread(input: { threadId: $nodeId }) {
+      thread {
+        id
+      }
+    }
+  }
+`);
+
+type GetReviewThreadsQueryResult = ResultOf<typeof getReviewThreadsQuery>;
+type PullRequestReviewThread = Exclude<
+  NonNullable<
+    NonNullable<
+      NonNullable<
+        NonNullable<GetReviewThreadsQueryResult['repository']>['pullRequest']
+      >['reviewThreads']
+    >['nodes']
+  >[number],
+  null
+>;
 
 async function getPullRequestFiles(
   octokit: Octokit & Api,
@@ -79,34 +138,13 @@ async function getReviewThreads(
   const commentNodeIdToReviewThreadMapping: {
     [id: string]: PullRequestReviewThread;
   } = {};
-  const queryData = await octokit.graphql<Query>(
-    `
-      query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
-        repository(owner: $owner, name: $repo) {
-          pullRequest(number: $pullRequestNumber) {
-            reviewThreads(last: 100) {
-              totalCount
-              nodes {
-                id
-                isResolved
-                comments(last: 100) {
-                  totalCount
-                  nodes {
-                    id
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `,
-    {
-      owner,
-      repo,
-      pullRequestNumber,
-    },
-  );
+  const queryData = await octokit.graphql<
+    ResultOf<typeof getReviewThreadsQuery>
+  >(getReviewThreadsQuery.toString(), {
+    owner,
+    repo,
+    pullRequestNumber,
+  } satisfies VariablesOf<typeof getReviewThreadsQuery>);
 
   const reviewThreadTotalCount =
     queryData?.repository?.pullRequest?.reviewThreads?.totalCount;
@@ -388,38 +426,22 @@ export async function handlePullRequest(
         matchedReviewCommentNodeIds[reviewComment.node_id] &&
         reviewThread.isResolved
       ) {
-        await octokit.graphql(
-          `
-            mutation ($nodeId: ID!) {
-              unresolveReviewThread(input: {threadId: $nodeId}) {
-                thread {
-                  id
-                }
-              }
-            }
-          `,
+        await octokit.graphql<ResultOf<typeof unresolveReviewThreadMutation>>(
+          unresolveReviewThreadMutation.toString(),
           {
             nodeId: reviewThread.id,
-          },
+          } satisfies VariablesOf<typeof unresolveReviewThreadMutation>,
         );
         info(`Review comment unresolved: ${reviewComment.url}`);
       } else if (
         !matchedReviewCommentNodeIds[reviewComment.node_id] &&
         !reviewThread.isResolved
       ) {
-        await octokit.graphql(
-          `
-            mutation ($nodeId: ID!) {
-              resolveReviewThread(input: {threadId: $nodeId}) {
-                thread {
-                  id
-                }
-              }
-            }
-          `,
+        await octokit.graphql<ResultOf<typeof resolveReviewThreadMutation>>(
+          resolveReviewThreadMutation.toString(),
           {
             nodeId: reviewThread.id,
-          },
+          } satisfies VariablesOf<typeof resolveReviewThreadMutation>,
         );
         info(`Review comment resolved: ${reviewComment.url}`);
       } else {
