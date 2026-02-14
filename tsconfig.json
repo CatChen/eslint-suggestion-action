@@ -101,5 +101,11 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "compileOnSave": true,
-  "include": ["src/**/*.ts"]
+  "include": ["src"],
+  "plugins": [
+    {
+      "name": "@0no-co/graphqlsp",
+      "schema": "./schema.graphql"
+    }
+  ]
 }
