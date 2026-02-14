@@ -36306,18 +36306,20 @@ export type WorkflowsParametersInput = {
   workflows: Array<WorkflowFileReferenceInput>;
 };
 
-export type GetReviewThreadsQueryVariables = Exact<{
+export type ReviewThreadsQueryVariables = Exact<{
   owner: Scalars['String']['input'];
   repo: Scalars['String']['input'];
   pullRequestNumber: Scalars['Int']['input'];
 }>;
 
-export type GetReviewThreadsQuery = {
+export type ReviewThreadsQuery = {
   __typename: 'Query';
   repository?: {
     __typename: 'Repository';
+    id: string;
     pullRequest?: {
       __typename: 'PullRequest';
+      id: string;
       reviewThreads: {
         __typename: 'PullRequestReviewThreadConnection';
         totalCount: number;
@@ -36384,10 +36386,12 @@ export class TypedDocumentString<TResult, TVariables>
   }
 }
 
-export const GetReviewThreadsDocument = new TypedDocumentString(`
-    query GetReviewThreads($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
+export const ReviewThreadsDocument = new TypedDocumentString(`
+    query ReviewThreads($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
   repository(owner: $owner, name: $repo) {
+    id
     pullRequest(number: $pullRequestNumber) {
+      id
       reviewThreads(last: 100) {
         totalCount
         nodes {
@@ -36405,8 +36409,8 @@ export const GetReviewThreadsDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<
-  GetReviewThreadsQuery,
-  GetReviewThreadsQueryVariables
+  ReviewThreadsQuery,
+  ReviewThreadsQueryVariables
 >;
 export const ResolveReviewThreadDocument = new TypedDocumentString(`
     mutation ResolveReviewThread($nodeId: ID!) {

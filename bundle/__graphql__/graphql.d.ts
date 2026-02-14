@@ -33306,17 +33306,19 @@ export type WorkflowsParametersInput = {
     /** Workflows that must pass for this rule to pass. */
     workflows: Array<WorkflowFileReferenceInput>;
 };
-export type GetReviewThreadsQueryVariables = Exact<{
+export type ReviewThreadsQueryVariables = Exact<{
     owner: Scalars['String']['input'];
     repo: Scalars['String']['input'];
     pullRequestNumber: Scalars['Int']['input'];
 }>;
-export type GetReviewThreadsQuery = {
+export type ReviewThreadsQuery = {
     __typename: 'Query';
     repository?: {
         __typename: 'Repository';
+        id: string;
         pullRequest?: {
             __typename: 'PullRequest';
+            id: string;
             reviewThreads: {
                 __typename: 'PullRequestReviewThreadConnection';
                 totalCount: number;
@@ -33370,6 +33372,6 @@ export declare class TypedDocumentString<TResult, TVariables> extends String imp
     constructor(value: string, __meta__?: Record<string, any> | undefined);
     toString(): string & DocumentTypeDecoration<TResult, TVariables>;
 }
-export declare const GetReviewThreadsDocument: TypedDocumentString<GetReviewThreadsQuery, GetReviewThreadsQueryVariables>;
+export declare const ReviewThreadsDocument: TypedDocumentString<ReviewThreadsQuery, ReviewThreadsQueryVariables>;
 export declare const ResolveReviewThreadDocument: TypedDocumentString<ResolveReviewThreadMutation, ResolveReviewThreadMutationVariables>;
 export declare const UnresolveReviewThreadDocument: TypedDocumentString<UnresolveReviewThreadMutation, UnresolveReviewThreadMutationVariables>;

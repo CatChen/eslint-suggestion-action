@@ -38078,10 +38078,12 @@ class TypedDocumentString extends String {
         return this.value;
     }
 }
-const GetReviewThreadsDocument = new TypedDocumentString(`
-    query GetReviewThreads($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
+const ReviewThreadsDocument = new TypedDocumentString(`
+    query ReviewThreads($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
   repository(owner: $owner, name: $repo) {
+    id
     pullRequest(number: $pullRequestNumber) {
+      id
       reviewThreads(last: 100) {
         totalCount
         nodes {
@@ -38122,7 +38124,7 @@ const UnresolveReviewThreadDocument = new TypedDocumentString(`
 /* eslint-disable */
 
 const documents = {
-    '\n  query GetReviewThreads(\n    $owner: String!\n    $repo: String!\n    $pullRequestNumber: Int!\n  ) {\n    repository(owner: $owner, name: $repo) {\n      pullRequest(number: $pullRequestNumber) {\n        reviewThreads(last: 100) {\n          totalCount\n          nodes {\n            id\n            isResolved\n            comments(last: 100) {\n              totalCount\n              nodes {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': GetReviewThreadsDocument,
+    '\n  query ReviewThreads(\n    $owner: String!\n    $repo: String!\n    $pullRequestNumber: Int!\n  ) {\n    repository(owner: $owner, name: $repo) {\n      id\n      pullRequest(number: $pullRequestNumber) {\n        id\n        reviewThreads(last: 100) {\n          totalCount\n          nodes {\n            id\n            isResolved\n            comments(last: 100) {\n              totalCount\n              nodes {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': ReviewThreadsDocument,
     '\n  mutation ResolveReviewThread($nodeId: ID!) {\n    resolveReviewThread(input: { threadId: $nodeId }) {\n      thread {\n        id\n      }\n    }\n  }\n': ResolveReviewThreadDocument,
     '\n  mutation UnresolveReviewThread($nodeId: ID!) {\n    unresolveReviewThread(input: { threadId: $nodeId }) {\n      thread {\n        id\n      }\n    }\n  }\n': UnresolveReviewThreadDocument,
 };
@@ -38189,13 +38191,15 @@ var pullRequest_awaiter = (undefined && undefined.__awaiter) || function (thisAr
 
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 const getReviewThreadsQuery = gql_graphql(`
-  query GetReviewThreads(
+  query ReviewThreads(
     $owner: String!
     $repo: String!
     $pullRequestNumber: Int!
   ) {
     repository(owner: $owner, name: $repo) {
+      id
       pullRequest(number: $pullRequestNumber) {
+        id
         reviewThreads(last: 100) {
           totalCount
           nodes {

@@ -27,13 +27,15 @@ type ReviewComment = ReviewSuggestion & { path: string };
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 
 const getReviewThreadsQuery = graphql(`
-  query GetReviewThreads(
+  query ReviewThreads(
     $owner: String!
     $repo: String!
     $pullRequestNumber: Int!
   ) {
     repository(owner: $owner, name: $repo) {
+      id
       pullRequest(number: $pullRequestNumber) {
+        id
         reviewThreads(last: 100) {
           totalCount
           nodes {

@@ -13,13 +13,13 @@ import * as types from './graphql.js';
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-  '\n  query GetReviewThreads(\n    $owner: String!\n    $repo: String!\n    $pullRequestNumber: Int!\n  ) {\n    repository(owner: $owner, name: $repo) {\n      pullRequest(number: $pullRequestNumber) {\n        reviewThreads(last: 100) {\n          totalCount\n          nodes {\n            id\n            isResolved\n            comments(last: 100) {\n              totalCount\n              nodes {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.GetReviewThreadsDocument;
+  '\n  query ReviewThreads(\n    $owner: String!\n    $repo: String!\n    $pullRequestNumber: Int!\n  ) {\n    repository(owner: $owner, name: $repo) {\n      id\n      pullRequest(number: $pullRequestNumber) {\n        id\n        reviewThreads(last: 100) {\n          totalCount\n          nodes {\n            id\n            isResolved\n            comments(last: 100) {\n              totalCount\n              nodes {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.ReviewThreadsDocument;
   '\n  mutation ResolveReviewThread($nodeId: ID!) {\n    resolveReviewThread(input: { threadId: $nodeId }) {\n      thread {\n        id\n      }\n    }\n  }\n': typeof types.ResolveReviewThreadDocument;
   '\n  mutation UnresolveReviewThread($nodeId: ID!) {\n    unresolveReviewThread(input: { threadId: $nodeId }) {\n      thread {\n        id\n      }\n    }\n  }\n': typeof types.UnresolveReviewThreadDocument;
 };
 const documents: Documents = {
-  '\n  query GetReviewThreads(\n    $owner: String!\n    $repo: String!\n    $pullRequestNumber: Int!\n  ) {\n    repository(owner: $owner, name: $repo) {\n      pullRequest(number: $pullRequestNumber) {\n        reviewThreads(last: 100) {\n          totalCount\n          nodes {\n            id\n            isResolved\n            comments(last: 100) {\n              totalCount\n              nodes {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n':
-    types.GetReviewThreadsDocument,
+  '\n  query ReviewThreads(\n    $owner: String!\n    $repo: String!\n    $pullRequestNumber: Int!\n  ) {\n    repository(owner: $owner, name: $repo) {\n      id\n      pullRequest(number: $pullRequestNumber) {\n        id\n        reviewThreads(last: 100) {\n          totalCount\n          nodes {\n            id\n            isResolved\n            comments(last: 100) {\n              totalCount\n              nodes {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n':
+    types.ReviewThreadsDocument,
   '\n  mutation ResolveReviewThread($nodeId: ID!) {\n    resolveReviewThread(input: { threadId: $nodeId }) {\n      thread {\n        id\n      }\n    }\n  }\n':
     types.ResolveReviewThreadDocument,
   '\n  mutation UnresolveReviewThread($nodeId: ID!) {\n    unresolveReviewThread(input: { threadId: $nodeId }) {\n      thread {\n        id\n      }\n    }\n  }\n':
@@ -30,8 +30,8 @@ const documents: Documents = {
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query GetReviewThreads(\n    $owner: String!\n    $repo: String!\n    $pullRequestNumber: Int!\n  ) {\n    repository(owner: $owner, name: $repo) {\n      pullRequest(number: $pullRequestNumber) {\n        reviewThreads(last: 100) {\n          totalCount\n          nodes {\n            id\n            isResolved\n            comments(last: 100) {\n              totalCount\n              nodes {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n',
-): typeof import('./graphql.js').GetReviewThreadsDocument;
+  source: '\n  query ReviewThreads(\n    $owner: String!\n    $repo: String!\n    $pullRequestNumber: Int!\n  ) {\n    repository(owner: $owner, name: $repo) {\n      id\n      pullRequest(number: $pullRequestNumber) {\n        id\n        reviewThreads(last: 100) {\n          totalCount\n          nodes {\n            id\n            isResolved\n            comments(last: 100) {\n              totalCount\n              nodes {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n',
+): typeof import('./graphql.js').ReviewThreadsDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
