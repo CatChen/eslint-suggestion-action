@@ -38067,6 +38067,72 @@ function getPushMetadata() {
     };
 }
 
+;// CONCATENATED MODULE: ./src/__graphql__/graphql.ts
+class TypedDocumentString extends String {
+    constructor(value, __meta__) {
+        super(value);
+        this.value = value;
+        this.__meta__ = __meta__;
+    }
+    toString() {
+        return this.value;
+    }
+}
+const ReviewThreadsDocument = new TypedDocumentString(`
+    query ReviewThreads($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
+  repository(owner: $owner, name: $repo) {
+    id
+    pullRequest(number: $pullRequestNumber) {
+      id
+      reviewThreads(last: 100) {
+        totalCount
+        nodes {
+          id
+          isResolved
+          comments(last: 100) {
+            totalCount
+            nodes {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `);
+const ResolveReviewThreadDocument = new TypedDocumentString(`
+    mutation ResolveReviewThread($nodeId: ID!) {
+  resolveReviewThread(input: {threadId: $nodeId}) {
+    thread {
+      id
+    }
+  }
+}
+    `);
+const UnresolveReviewThreadDocument = new TypedDocumentString(`
+    mutation UnresolveReviewThread($nodeId: ID!) {
+  unresolveReviewThread(input: {threadId: $nodeId}) {
+    thread {
+      id
+    }
+  }
+}
+    `);
+
+;// CONCATENATED MODULE: ./src/__graphql__/gql.ts
+/* eslint-disable */
+
+const documents = {
+    '\n  query ReviewThreads(\n    $owner: String!\n    $repo: String!\n    $pullRequestNumber: Int!\n  ) {\n    repository(owner: $owner, name: $repo) {\n      id\n      pullRequest(number: $pullRequestNumber) {\n        id\n        reviewThreads(last: 100) {\n          totalCount\n          nodes {\n            id\n            isResolved\n            comments(last: 100) {\n              totalCount\n              nodes {\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': ReviewThreadsDocument,
+    '\n  mutation ResolveReviewThread($nodeId: ID!) {\n    resolveReviewThread(input: { threadId: $nodeId }) {\n      thread {\n        id\n      }\n    }\n  }\n': ResolveReviewThreadDocument,
+    '\n  mutation UnresolveReviewThread($nodeId: ID!) {\n    unresolveReviewThread(input: { threadId: $nodeId }) {\n      thread {\n        id\n      }\n    }\n  }\n': UnresolveReviewThreadDocument,
+};
+function gql_graphql(source) {
+    var _a;
+    return (_a = documents[source]) !== null && _a !== void 0 ? _a : {};
+}
+
 ;// CONCATENATED MODULE: ./src/getIndexedModifiedLines.ts
 
 const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
@@ -38122,7 +38188,53 @@ var pullRequest_awaiter = (undefined && undefined.__awaiter) || function (thisAr
 };
 
 
+
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
+const getReviewThreadsQuery = gql_graphql(`
+  query ReviewThreads(
+    $owner: String!
+    $repo: String!
+    $pullRequestNumber: Int!
+  ) {
+    repository(owner: $owner, name: $repo) {
+      id
+      pullRequest(number: $pullRequestNumber) {
+        id
+        reviewThreads(last: 100) {
+          totalCount
+          nodes {
+            id
+            isResolved
+            comments(last: 100) {
+              totalCount
+              nodes {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`);
+const resolveReviewThreadMutation = gql_graphql(`
+  mutation ResolveReviewThread($nodeId: ID!) {
+    resolveReviewThread(input: { threadId: $nodeId }) {
+      thread {
+        id
+      }
+    }
+  }
+`);
+const unresolveReviewThreadMutation = gql_graphql(`
+  mutation UnresolveReviewThread($nodeId: ID!) {
+    unresolveReviewThread(input: { threadId: $nodeId }) {
+      thread {
+        id
+      }
+    }
+  }
+`);
 function getPullRequestFiles(octokit, owner, repo, pullRequestNumber) {
     return pullRequest_awaiter(this, void 0, void 0, function* () {
         const response = yield octokit.rest.pulls.listFiles({
@@ -38159,27 +38271,7 @@ function getReviewThreads(octokit, owner, repo, pullRequestNumber) {
     return pullRequest_awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c, _d, _e, _f, _g, _h;
         const commentNodeIdToReviewThreadMapping = {};
-        const queryData = yield octokit.graphql(`
-      query ($owner: String!, $repo: String!, $pullRequestNumber: Int!) {
-        repository(owner: $owner, name: $repo) {
-          pullRequest(number: $pullRequestNumber) {
-            reviewThreads(last: 100) {
-              totalCount
-              nodes {
-                id
-                isResolved
-                comments(last: 100) {
-                  totalCount
-                  nodes {
-                    id
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `, {
+        const queryData = yield octokit.graphql(getReviewThreadsQuery.toString(), {
             owner,
             repo,
             pullRequestNumber,
@@ -38366,30 +38458,14 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
             if (reviewThread !== undefined) {
                 if (matchedReviewCommentNodeIds[reviewComment.node_id] &&
                     reviewThread.isResolved) {
-                    yield octokit.graphql(`
-            mutation ($nodeId: ID!) {
-              unresolveReviewThread(input: {threadId: $nodeId}) {
-                thread {
-                  id
-                }
-              }
-            }
-          `, {
+                    yield octokit.graphql(unresolveReviewThreadMutation.toString(), {
                         nodeId: reviewThread.id,
                     });
                     info(`Review comment unresolved: ${reviewComment.url}`);
                 }
                 else if (!matchedReviewCommentNodeIds[reviewComment.node_id] &&
                     !reviewThread.isResolved) {
-                    yield octokit.graphql(`
-            mutation ($nodeId: ID!) {
-              resolveReviewThread(input: {threadId: $nodeId}) {
-                thread {
-                  id
-                }
-              }
-            }
-          `, {
+                    yield octokit.graphql(resolveReviewThreadMutation.toString(), {
                         nodeId: reviewThread.id,
                     });
                     info(`Review comment resolved: ${reviewComment.url}`);
