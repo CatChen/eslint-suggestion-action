@@ -1387,14 +1387,6 @@
     "@octokit/types" "^16.0.0"
     universal-user-agent "^7.0.2"
 
-"@octokit/graphql-schema@^15.3.0":
-  version "15.26.1"
-  resolved "https://registry.yarnpkg.com/@octokit/graphql-schema/-/graphql-schema-15.26.1.tgz#3de6552770dffd0fba0b3eaa0fbe57c47b45398a"
-  integrity sha512-RFDC2MpRBd4AxSRvUeBIVeBU7ojN/SxDfALUd7iVYOSeEK3gZaqR2MGOysj4Zh2xj2RY5fQAUT+Oqq7hWTraMA==
-  dependencies:
-    graphql "^16.0.0"
-    graphql-tag "^2.10.3"
-
 "@octokit/graphql@^9.0.3":
   version "9.0.3"
   resolved "https://registry.yarnpkg.com/@octokit/graphql/-/graphql-9.0.3.tgz#5b8341c225909e924b466705c13477face869456"
@@ -2512,7 +2504,7 @@ graphql-depth-limit@^1.1.0:
   dependencies:
     arrify "^1.0.1"
 
-graphql-tag@^2.10.3, graphql-tag@^2.11.0:
+graphql-tag@^2.11.0:
   version "2.12.6"
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.12.6.tgz#d441a569c1d2537ef10ca3d1633b48725329b5f1"
   integrity sha512-FdSNcu2QQcWnM2VNvSCCDCVS5PpPqpzgFT8+GXzqJuoDd0CBncxCY278u4mhRO7tMgo2JjgJA5aZ+nWSQ/Z+xg==
@@ -2528,11 +2520,6 @@ graphql-ws@^6.0.6:
   version "16.12.0"
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.12.0.tgz#28cc2462435b1ac3fdc6976d030cef83a0c13ac7"
   integrity sha512-DKKrynuQRne0PNpEbzuEdHlYOMksHSUI8Zc9Unei5gTsMNA2/vMpoMz/yKba50pejK56qj98qM0SjYxAKi13gQ==
-
-graphql@^16.0.0:
-  version "16.9.0"
-  resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.9.0.tgz#1c310e63f16a49ce1fbb230bd0a000e99f6f115f"
-  integrity sha512-GGTKBX4SD7Wdb8mqeDLni2oaRGYQWjWHGKPQ24ZMnUtKfcsVoiv4uX8+LJr1K6U5VW2Lu1BwJnj7uiori0YtRw==
 
 has-flag@^3.0.0:
   version "3.0.0"
