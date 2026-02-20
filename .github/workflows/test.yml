@@ -29,8 +29,10 @@ jobs:
         config:
           - name: Flat Config
             id: flat
+            expected-check-name: Test with Flat Config in Pull Request
           - name: Legacy Config
             id: legacy
+            expected-check-name: Test with Legacy Config in Pull Request
 
     env:
       SHA: ${{ github.sha }}
@@ -67,6 +69,7 @@ jobs:
           echo "selected-files=$SELECTED_FILES" >> $GITHUB_OUTPUT
 
       - name: Make commit
+        id: make-commit
         env:
           SELECTED_FILES: ${{ steps.select-files.outputs.selected-files }}
         run: |
@@ -82,7 +85,9 @@ jobs:
           BASE_NAME=$([[ -z $BASE_PR_NUMBER ]] && echo "$BASE_BRANCH_NAME" || echo "#$BASE_PR_NUMBER")
           COMMIT_MESSAGE="Test commit for $BASE_NAME ($SHA) by run $RUN_ID ($RUN_NUMBER-$RUN_ATTEMPT)"
           git commit -am "$COMMIT_MESSAGE"
-          echo "::notice::Test commit is `git rev-parse --verify HEAD`"
+          TEST_COMMIT=`git rev-parse --verify HEAD`
+          echo "test-commit=$TEST_COMMIT" >> $GITHUB_OUTPUT
+          echo "::notice::Test commit is $TEST_COMMIT"
 
       - name: Git push
         run: |
@@ -109,21 +114,36 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TEST_PR_NUMBER: ${{ steps.open-pr.outputs.test-pr-number }}
+          TEST_COMMIT: ${{ steps.make-commit.outputs.test-commit }}
+          EXPECTED_CHECK_NAME: ${{ matrix.config.expected-check-name }}
         run: |
           CHECKS_TEMP_FILE="$(mktemp)"
           echo "checks-temp-file=$CHECKS_TEMP_FILE" >> $GITHUB_OUTPUT;
 
+          EXPECTED_CHECK_COUNT=0
+          echo "::notice::Waiting for check '$EXPECTED_CHECK_NAME' for commit $TEST_COMMIT"
+
           sleep 10
           CHECKS=$(gh pr checks "$TEST_PR_NUMBER" | tee -a $CHECKS_TEMP_FILE)
+          CHECK_RUNS=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$GITHUB_REPOSITORY/commits/$TEST_COMMIT/check-runs")
+          EXPECTED_CHECK_COUNT=$(echo "$CHECK_RUNS" | jq --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | length')
           PENDING=$(echo "$CHECKS" | cut -f2 | grep pending | wc -l)
 
-          while [[ $PENDING -gt 0 && -n "$PENDING" ]]
+          while [[ ($PENDING -gt 0 && -n "$PENDING") || $EXPECTED_CHECK_COUNT -eq 0 ]]
           do
-            echo "::group::Pending checks: $PENDING"
+            echo "::group::Pending checks: $PENDING; expected check count: $EXPECTED_CHECK_COUNT"
             gh pr checks "$TEST_PR_NUMBER" --watch --fail-fast | tee -a $CHECKS_TEMP_FILE
 
             sleep 10
             CHECKS=$(gh pr checks "$TEST_PR_NUMBER" | tee -a $CHECKS_TEMP_FILE)
+            CHECK_RUNS=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "/repos/$GITHUB_REPOSITORY/commits/$TEST_COMMIT/check-runs")
+            EXPECTED_CHECK_COUNT=$(echo "$CHECK_RUNS" | jq --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | length')
             PENDING=$(echo "$CHECKS" | cut -f2 | grep pending | wc -l)
 
             echo "::endgroup::"
