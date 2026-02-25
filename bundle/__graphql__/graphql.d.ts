@@ -4269,6 +4269,8 @@ export type CreateRepositoryCustomPropertyInput = {
     propertyName: Scalars['String']['input'];
     /** The regex pattern that the value of the custom property must match, if the `value_type` is `string`. */
     regex?: InputMaybe<Scalars['String']['input']>;
+    /** Whether this repository custom property requires explicit values. */
+    requireExplicitValues?: InputMaybe<Scalars['Boolean']['input']>;
     /** Whether the custom property is required. */
     required?: InputMaybe<Scalars['Boolean']['input']>;
     /** The global relay id of the source in which a new custom property should be created in. */
@@ -25238,6 +25240,8 @@ export type RepositoryCustomProperty = Node & {
     propertyName: Scalars['String']['output'];
     /** The regex pattern that the value of the custom property must match, if the `value_type` is `string`. */
     regex?: Maybe<Scalars['String']['output']>;
+    /** Whether this repository custom property requires explicit values. */
+    requireExplicitValues?: Maybe<Scalars['Boolean']['output']>;
     /** Whether the custom property is required. */
     required?: Maybe<Scalars['Boolean']['output']>;
     /** The source type of the custom property. */
@@ -31917,6 +31921,8 @@ export type UpdateRepositoryCustomPropertyInput = {
     regex?: InputMaybe<Scalars['String']['input']>;
     /** The global relay id of the source of the custom property. */
     repositoryCustomPropertyId: Scalars['ID']['input'];
+    /** Whether this repository custom property requires explicit values. */
+    requireExplicitValues?: InputMaybe<Scalars['Boolean']['input']>;
     /** Whether the updated custom property is required. */
     required?: InputMaybe<Scalars['Boolean']['input']>;
     /** The updated actors who can edit the values of the custom property. */
