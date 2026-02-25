@@ -10489,6 +10489,10 @@ export type IssueTimelineItemsItemType =
   | 'DISCONNECTED_EVENT'
   /** Represents a comment on an Issue. */
   | 'ISSUE_COMMENT'
+  /** Represents a 'issue_comment_pinned' event on a given issue. */
+  | 'ISSUE_COMMENT_PINNED_EVENT'
+  /** Represents a 'issue_comment_unpinned' event on a given issue. */
+  | 'ISSUE_COMMENT_UNPINNED_EVENT'
   /** Represents a 'issue_field_added' event on a given issue. */
   | 'ISSUE_FIELD_ADDED_EVENT'
   /** Represents a 'issue_field_changed' event on a given issue. */
@@ -23058,6 +23062,10 @@ export type PullRequestTimelineItemsItemType =
   | 'HEAD_REF_RESTORED_EVENT'
   /** Represents a comment on an Issue. */
   | 'ISSUE_COMMENT'
+  /** Represents a 'issue_comment_pinned' event on a given issue. */
+  | 'ISSUE_COMMENT_PINNED_EVENT'
+  /** Represents a 'issue_comment_unpinned' event on a given issue. */
+  | 'ISSUE_COMMENT_UNPINNED_EVENT'
   /** Represents a 'issue_field_added' event on a given issue. */
   | 'ISSUE_FIELD_ADDED_EVENT'
   /** Represents a 'issue_field_changed' event on a given issue. */
