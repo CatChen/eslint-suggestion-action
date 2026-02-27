@@ -57,7 +57,6 @@
   "funding": "https://github.com/CatChen/eslint-suggestion-action?sponsor=1",
   "dependencies": {
     "@actions/core": "^3.0.0",
-    "@actions/exec": "^3.0.0",
     "@actions/github": "^9.0.0",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@octokit/plugin-retry": "^8.0.1",
