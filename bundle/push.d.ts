@@ -5,4 +5,4 @@ export declare function handlePush(octokit: Octokit & Api, indexedResults: {
     [file: string]: ESLint.LintResult;
 }, ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
-}, owner: string, repo: string, beforeSha: string, afterSha: string): Promise<void>;
+}, owner: string, repo: string, beforeSha: string, afterSha: string, failCheck: boolean): Promise<void>;
