@@ -31,7 +31,6 @@ export async function eslintFeedback({
   directory,
   targets,
   eslintLibPath,
-  eslintBinPath,
   configPath,
 }: {
   requestChanges: boolean;
@@ -40,10 +39,8 @@ export async function eslintFeedback({
   directory: string;
   targets: string;
   eslintLibPath: string;
-  eslintBinPath: string;
   configPath: string;
 }): Promise<void> {
-  void eslintBinPath;
   startGroup('ESLint');
   changeDirectory(directory);
   const eslint = await getESLint(eslintLibPath, configPath);
@@ -164,7 +161,6 @@ async function run(): Promise<void> {
     directory: getInput('directory'),
     targets: getInput('targets'),
     eslintLibPath: getInput('eslint-lib-path'),
-    eslintBinPath: getInput('eslint-bin-path'),
     configPath: getInput('config-path'),
   });
 }

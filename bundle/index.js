@@ -38624,8 +38624,7 @@ var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argu
 
 
 function eslintFeedback(_a) {
-    return src_awaiter(this, arguments, void 0, function* ({ requestChanges, failCheck, githubToken, directory, targets, eslintLibPath, eslintBinPath, configPath, }) {
-        void eslintBinPath;
+    return src_awaiter(this, arguments, void 0, function* ({ requestChanges, failCheck, githubToken, directory, targets, eslintLibPath, configPath, }) {
         startGroup('ESLint');
         changeDirectory(directory);
         const eslint = yield getESLint(eslintLibPath, configPath);
@@ -38698,7 +38697,6 @@ function run() {
             directory: getInput('directory'),
             targets: getInput('targets'),
             eslintLibPath: getInput('eslint-lib-path'),
-            eslintBinPath: getInput('eslint-bin-path'),
             configPath: getInput('config-path'),
         });
     });
