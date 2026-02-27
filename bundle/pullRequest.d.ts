@@ -18,5 +18,5 @@ export declare function handlePullRequest(octokit: Octokit & Api, indexedResults
     [file: string]: ESLint.LintResult;
 }, ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
-}, owner: string, repo: string, pullRequestNumber: number, baseSha: string, headSha: string): Promise<void>;
+}, owner: string, repo: string, pullRequestNumber: number, baseSha: string, headSha: string, failCheck: boolean, requestChanges: boolean): Promise<void>;
 export {};

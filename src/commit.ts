@@ -4,7 +4,6 @@ import { cwd } from 'node:process';
 import {
   endGroup,
   error,
-  getBooleanInput,
   info,
   notice,
   startGroup,
@@ -17,9 +16,8 @@ export function handleCommit(
   ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
   },
+  failCheck: boolean,
 ) {
-  const failCheck = getBooleanInput('fail-check');
-
   startGroup(`GitHub ${eventName}`);
   let warningCounter = 0;
   let errorCounter = 0;

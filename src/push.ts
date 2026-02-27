@@ -4,7 +4,6 @@ import type { ESLint, Rule } from 'eslint';
 import {
   endGroup,
   error,
-  getBooleanInput,
   info,
   notice,
   startGroup,
@@ -40,9 +39,8 @@ export async function handlePush(
   repo: string,
   beforeSha: string,
   afterSha: string,
+  failCheck: boolean,
 ) {
-  const failCheck = getBooleanInput('fail-check');
-
   startGroup('GitHub Push');
   const files = await getPushFiles(octokit, owner, repo, beforeSha, afterSha);
 

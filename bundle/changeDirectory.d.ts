@@ -1,1 +1,1 @@
-export declare function changeDirectory(): void;
+export declare function changeDirectory(directory: string): void;

@@ -3,14 +3,7 @@ import type { Octokit } from '@octokit/core';
 import type { components } from '@octokit/openapi-types/types.js';
 import type { Api } from '@octokit/plugin-rest-endpoint-methods';
 import type { ESLint, Rule } from 'eslint';
-import {
-  endGroup,
-  error,
-  getBooleanInput,
-  info,
-  notice,
-  startGroup,
-} from '@actions/core';
+import { endGroup, error, info, notice, startGroup } from '@actions/core';
 import { graphql } from './__graphql__/gql.js';
 import { getIndexedModifiedLines } from './getIndexedModifiedLines.js';
 
@@ -250,10 +243,9 @@ export async function handlePullRequest(
   pullRequestNumber: number,
   baseSha: string,
   headSha: string,
+  failCheck: boolean,
+  requestChanges: boolean,
 ) {
-  const failCheck = getBooleanInput('fail-check');
-  const requestChanges = getBooleanInput('request-changes');
-
   startGroup('GitHub Pull Request');
   const files = await getPullRequestFiles(
     octokit,
