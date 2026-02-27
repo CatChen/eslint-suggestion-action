@@ -3,12 +3,12 @@ import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
-import { getInput, notice } from '@actions/core';
+import { notice } from '@actions/core';
 
-export async function getESLint() {
+export async function getESLint(eslintLibPath: string, configPath: string) {
   const absoluteDirectory = cwd();
   const require = createRequire(absoluteDirectory);
-  const eslintJsPath = resolve(absoluteDirectory, getInput('eslint-lib-path'));
+  const eslintJsPath = resolve(absoluteDirectory, eslintLibPath);
   if (!existsSync(eslintJsPath)) {
     throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
   }
@@ -19,7 +19,6 @@ export async function getESLint() {
   };
   notice(`ESLint version: ${ESLint.version}`);
 
-  const configPath = getInput('config-path');
   if (configPath) {
     const absoluteConfigPath = resolve(absoluteDirectory, configPath);
     notice(`Using ESLint config from: ${absoluteConfigPath}`);
