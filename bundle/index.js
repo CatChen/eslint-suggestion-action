@@ -30451,7 +30451,7 @@ var __webpack_exports__ = {};
 
 // EXPORTS
 __nccwpck_require__.d(__webpack_exports__, {
-  "K": () => (/* binding */ run)
+  "N": () => (/* binding */ eslintFeedback)
 });
 
 ;// CONCATENATED MODULE: external "node:path"
@@ -37488,9 +37488,9 @@ function getOctokit(token, options, ...additionalPlugins) {
 
 
 const DEFAULT_WORKING_DIRECTORY = (0,external_node_process_namespaceObject.cwd)();
-function changeDirectory() {
+function changeDirectory(directory) {
     info(`Working directory is: ${DEFAULT_WORKING_DIRECTORY}`);
-    const absoluteDirectory = external_node_path_default().resolve(DEFAULT_WORKING_DIRECTORY, getInput('directory'));
+    const absoluteDirectory = external_node_path_default().resolve(DEFAULT_WORKING_DIRECTORY, directory);
     if (absoluteDirectory !== DEFAULT_WORKING_DIRECTORY) {
         info(`Working directory is changed to: ${absoluteDirectory}`);
         (0,external_node_process_namespaceObject.chdir)(absoluteDirectory);
@@ -37501,9 +37501,8 @@ function changeDirectory() {
 
 
 
-function handleCommit(eventName, results, ruleMetaDatas) {
+function handleCommit(eventName, results, ruleMetaDatas, failCheck) {
     var _a, _b;
-    const failCheck = getBooleanInput('fail-check');
     startGroup(`GitHub ${eventName}`);
     let warningCounter = 0;
     let errorCounter = 0;
@@ -37569,18 +37568,17 @@ var getESLint_awaiter = (undefined && undefined.__awaiter) || function (thisArg,
 
 
 
-function getESLint() {
+function getESLint(eslintLibPath, configPath) {
     return getESLint_awaiter(this, void 0, void 0, function* () {
         const absoluteDirectory = (0,external_node_process_namespaceObject.cwd)();
         const require = (0,external_node_module_namespaceObject.createRequire)(absoluteDirectory);
-        const eslintJsPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, getInput('eslint-lib-path'));
+        const eslintJsPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, eslintLibPath);
         if (!(0,external_node_fs_namespaceObject.existsSync)(eslintJsPath)) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
         notice(`Using ESLint from: ${eslintJsPath}`);
         const { ESLint, loadESLint } = require(eslintJsPath);
         notice(`ESLint version: ${ESLint.version}`);
-        const configPath = getInput('config-path');
         if (configPath) {
             const absoluteConfigPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, configPath);
             notice(`Using ESLint config from: ${absoluteConfigPath}`);
@@ -37629,10 +37627,8 @@ var getESLintResults_awaiter = (undefined && undefined.__awaiter) || function (t
     });
 };
 
-
-function getESLintResults(eslint) {
+function getESLintResults(eslint, targets) {
     return getESLintResults_awaiter(this, void 0, void 0, function* () {
-        const targets = getInput('targets');
         return eslint.lintFiles(targets ? Ui(targets) : []);
     });
 }
@@ -38350,11 +38346,9 @@ function matchReviewComments(reviewComments, reviewComment) {
     }
     return matchedNodeIds;
 }
-function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha) {
+function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha, failCheck, requestChanges) {
     return pullRequest_awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
-        const failCheck = getBooleanInput('fail-check');
-        const requestChanges = getBooleanInput('request-changes');
         startGroup('GitHub Pull Request');
         const files = yield getPullRequestFiles(octokit, owner, repo, pullRequestNumber);
         const existingReviewComments = yield getReviewComments(octokit, owner, repo, pullRequestNumber);
@@ -38542,10 +38536,9 @@ function getPushFiles(octokit, owner, repo, beforeSha, afterSha) {
         return response.data.files;
     });
 }
-function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha) {
+function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha, failCheck) {
     return push_awaiter(this, void 0, void 0, function* () {
         var _a, _b;
-        const failCheck = getBooleanInput('fail-check');
         startGroup('GitHub Push');
         const files = yield getPushFiles(octokit, owner, repo, beforeSha, afterSha);
         if (files === undefined || files.length === 0) {
@@ -38630,12 +38623,13 @@ var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argu
 
 
 
-function run() {
-    return src_awaiter(this, void 0, void 0, function* () {
+function eslintFeedback(_a) {
+    return src_awaiter(this, arguments, void 0, function* ({ requestChanges, failCheck, githubToken, directory, targets, eslintLibPath, eslintBinPath, configPath, }) {
+        void eslintBinPath;
         startGroup('ESLint');
-        changeDirectory();
-        const eslint = yield getESLint();
-        const results = yield getESLintResults(eslint);
+        changeDirectory(directory);
+        const eslint = yield getESLint(eslintLibPath, configPath);
+        const results = yield getESLintResults(eslint, targets);
         const indexedResults = {};
         for (const file of results) {
             const relativePath = external_node_path_default().relative((0,external_node_process_namespaceObject.cwd)(), file.filePath);
@@ -38653,7 +38647,6 @@ function run() {
         }
         const ruleMetaData = eslint.getRulesMetaForResults(results);
         endGroup();
-        const githubToken = getInput('github-token');
         const octokit = getOctokit_getOctokit(githubToken);
         info(`Event name: ${github_context.eventName}`);
         switch (github_context.eventName) {
@@ -38661,13 +38654,13 @@ function run() {
             case 'pull_request_target':
                 yield (() => src_awaiter(this, void 0, void 0, function* () {
                     const { owner, repo, pullRequestNumber, baseSha, headSha } = getPullRequestMetadata();
-                    yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
+                    yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha, failCheck, requestChanges);
                 }))();
                 break;
             case 'push':
                 yield (() => src_awaiter(this, void 0, void 0, function* () {
                     const { owner, repo, beforeSha, afterSha } = getPushMetadata();
-                    yield handlePush(octokit, indexedResults, ruleMetaData, owner, repo, beforeSha, afterSha);
+                    yield handlePush(octokit, indexedResults, ruleMetaData, owner, repo, beforeSha, afterSha, failCheck);
                 }))();
                 break;
             case 'workflow_run':
@@ -38676,7 +38669,7 @@ function run() {
                     if (workflowRun.workflow_run.pull_requests.length > 0) {
                         for (const pullRequest of workflowRun.workflow_run.pull_requests) {
                             const { owner, repo, pullRequestNumber, baseSha, headSha } = yield getPullRequestMetadataByNumber(octokit, pullRequest.number);
-                            yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha);
+                            yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha, failCheck, requestChanges);
                         }
                     }
                     else {
@@ -38684,23 +38677,37 @@ function run() {
                             .split('_')
                             .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
                             .join(' ');
-                        handleCommit(`Workflow (${workflowSourceEventName})`, results, ruleMetaData);
+                        handleCommit(`Workflow (${workflowSourceEventName})`, results, ruleMetaData, failCheck);
                     }
                 }))();
                 break;
             default:
                 handleCommit(github_context.eventName.split('_')
                     .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                    .join(' '), results, ruleMetaData);
+                    .join(' '), results, ruleMetaData, failCheck);
                 break;
         }
+    });
+}
+function run() {
+    return src_awaiter(this, void 0, void 0, function* () {
+        yield eslintFeedback({
+            requestChanges: getBooleanInput('request-changes'),
+            failCheck: getBooleanInput('fail-check'),
+            githubToken: getInput('github-token'),
+            directory: getInput('directory'),
+            targets: getInput('targets'),
+            eslintLibPath: getInput('eslint-lib-path'),
+            eslintBinPath: getInput('eslint-bin-path'),
+            configPath: getInput('config-path'),
+        });
     });
 }
 run().catch((error) => setFailed(error));
 
 })();
 
-var __webpack_exports__run = __webpack_exports__.K;
-export { __webpack_exports__run as run };
+var __webpack_exports__eslintFeedback = __webpack_exports__.N;
+export { __webpack_exports__eslintFeedback as eslintFeedback };
 
 //# sourceMappingURL=index.js.map

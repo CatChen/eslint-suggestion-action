@@ -2,7 +2,14 @@ import type { WorkflowRunEvent } from '@octokit/webhooks-types/schema.d.ts';
 import type { ESLint, Rule } from 'eslint';
 import path from 'node:path';
 import { cwd } from 'node:process';
-import { endGroup, getInput, info, setFailed, startGroup } from '@actions/core';
+import {
+  endGroup,
+  getBooleanInput,
+  getInput,
+  info,
+  setFailed,
+  startGroup,
+} from '@actions/core';
 import { context } from '@actions/github';
 import { changeDirectory } from './changeDirectory.js';
 import { handleCommit } from './commit.js';
@@ -17,11 +24,30 @@ import { getPushMetadata } from './getPushMetadata.js';
 import { handlePullRequest } from './pullRequest.js';
 import { handlePush } from './push.js';
 
-export async function run(): Promise<void> {
+export async function eslintFeedback({
+  requestChanges,
+  failCheck,
+  githubToken,
+  directory,
+  targets,
+  eslintLibPath,
+  eslintBinPath,
+  configPath,
+}: {
+  requestChanges: boolean;
+  failCheck: boolean;
+  githubToken: string;
+  directory: string;
+  targets: string;
+  eslintLibPath: string;
+  eslintBinPath: string;
+  configPath: string;
+}): Promise<void> {
+  void eslintBinPath;
   startGroup('ESLint');
-  changeDirectory();
-  const eslint = await getESLint();
-  const results = await getESLintResults(eslint);
+  changeDirectory(directory);
+  const eslint = await getESLint(eslintLibPath, configPath);
+  const results = await getESLintResults(eslint, targets);
 
   const indexedResults: {
     [file: string]: ESLint.LintResult;
@@ -45,7 +71,6 @@ export async function run(): Promise<void> {
   } = eslint.getRulesMetaForResults(results);
   endGroup();
 
-  const githubToken = getInput('github-token');
   const octokit = getOctokit(githubToken);
   info(`Event name: ${context.eventName}`);
   switch (context.eventName) {
@@ -63,6 +88,8 @@ export async function run(): Promise<void> {
           pullRequestNumber,
           baseSha,
           headSha,
+          failCheck,
+          requestChanges,
         );
       })();
       break;
@@ -77,6 +104,7 @@ export async function run(): Promise<void> {
           repo,
           beforeSha,
           afterSha,
+          failCheck,
         );
       })();
       break;
@@ -96,6 +124,8 @@ export async function run(): Promise<void> {
               pullRequestNumber,
               baseSha,
               headSha,
+              failCheck,
+              requestChanges,
             );
           }
         } else {
@@ -107,6 +137,7 @@ export async function run(): Promise<void> {
             `Workflow (${workflowSourceEventName})`,
             results,
             ruleMetaData,
+            failCheck,
           );
         }
       })();
@@ -119,9 +150,23 @@ export async function run(): Promise<void> {
           .join(' '),
         results,
         ruleMetaData,
+        failCheck,
       );
       break;
   }
+}
+
+async function run(): Promise<void> {
+  await eslintFeedback({
+    requestChanges: getBooleanInput('request-changes'),
+    failCheck: getBooleanInput('fail-check'),
+    githubToken: getInput('github-token'),
+    directory: getInput('directory'),
+    targets: getInput('targets'),
+    eslintLibPath: getInput('eslint-lib-path'),
+    eslintBinPath: getInput('eslint-bin-path'),
+    configPath: getInput('config-path'),
+  });
 }
 
 run().catch((error: Error) => setFailed(error));
