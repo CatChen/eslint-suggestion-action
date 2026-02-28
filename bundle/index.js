@@ -37629,7 +37629,7 @@ var getESLintResults_awaiter = (undefined && undefined.__awaiter) || function (t
 
 function getESLintResults(eslint, targets) {
     return getESLintResults_awaiter(this, void 0, void 0, function* () {
-        return eslint.lintFiles(targets ? Ui(targets) : []);
+        return eslint.lintFiles(targets ? ts(targets) : []);
     });
 }
 
