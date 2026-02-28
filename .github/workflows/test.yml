@@ -57,9 +57,9 @@ jobs:
           fetch-depth: 0
 
       - name: Config Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        uses: CatChen/config-git-with-token-action@v2
+        with:
+          github-token: ${{ secrets.CREATE_PULL_REQUEST_ACTION_TOKEN }}
 
       - name: Randomly select test files
         id: select-files
