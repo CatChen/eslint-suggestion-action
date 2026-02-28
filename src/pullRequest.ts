@@ -241,7 +241,6 @@ export async function handlePullRequest(
   owner: string,
   repo: string,
   pullRequestNumber: number,
-  baseSha: string,
   headSha: string,
   failCheck: boolean,
   requestChanges: boolean,
@@ -299,7 +298,7 @@ export async function handlePullRequest(
             const reviewComment = {
               ...reviewSuggestion,
               body:
-                `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nFix available:\n\n` +
+                `**${message.message}** [\`${message.ruleId}\`](${rule?.docs?.url})\n\nFix available:\n\n` +
                 reviewSuggestion.body,
               path: file.filename,
             };
@@ -355,7 +354,7 @@ export async function handlePullRequest(
               const reviewComment = {
                 ...reviewSuggestions,
                 body:
-                  `**${message.message}** [${message.ruleId}](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
+                  `**${message.message}** [\`${message.ruleId}\`](${rule?.docs?.url})\n\nSuggestion(s) available:\n\n` +
                   reviewSuggestions.body,
                 path: file.filename,
               };
@@ -379,7 +378,7 @@ export async function handlePullRequest(
             }
           } else {
             const reviewComment: ReviewComment = {
-              body: `**${message.message}** [${message.ruleId}](${rule?.docs?.url})`,
+              body: `**${message.message}** [\`${message.ruleId}\`](${rule?.docs?.url})`,
               path: file.filename,
               side: 'RIGHT',
               line: message.line,
