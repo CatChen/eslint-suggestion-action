@@ -1,6 +1,6 @@
 import type { ESLint } from 'eslint';
-import { sync } from 'glob';
+import { globSync } from 'glob';
 
 export async function getESLintResults(eslint: ESLint, targets: string) {
-  return eslint.lintFiles(targets ? sync(targets) : []);
+  return eslint.lintFiles(targets ? globSync(targets) : []);
 }
