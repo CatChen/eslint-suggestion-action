@@ -38346,7 +38346,7 @@ function matchReviewComments(reviewComments, reviewComment) {
     }
     return matchedNodeIds;
 }
-function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, baseSha, headSha, failCheck, requestChanges) {
+function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, pullRequestNumber, headSha, failCheck, requestChanges) {
     return pullRequest_awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c;
         startGroup('GitHub Pull Request');
@@ -38375,7 +38375,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                         info(`  Matched line: ${message.line}`);
                         if (message.fix) {
                             const reviewSuggestion = getCommentFromFix(result.source, message.line, message.fix);
-                            const reviewComment = Object.assign(Object.assign({}, reviewSuggestion), { body: `**${message.message}** [${message.ruleId}](${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})\n\nFix available:\n\n` +
+                            const reviewComment = Object.assign(Object.assign({}, reviewSuggestion), { body: `**${message.message}** [\`${message.ruleId}\`](${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})\n\nFix available:\n\n` +
                                     reviewSuggestion.body, path: file.filename });
                             const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
                             commentsCounter++;
@@ -38409,7 +38409,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                                 }
                             }
                             if (reviewSuggestions !== undefined) {
-                                const reviewComment = Object.assign(Object.assign({}, reviewSuggestions), { body: `**${message.message}** [${message.ruleId}](${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})\n\nSuggestion(s) available:\n\n` +
+                                const reviewComment = Object.assign(Object.assign({}, reviewSuggestions), { body: `**${message.message}** [\`${message.ruleId}\`](${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})\n\nSuggestion(s) available:\n\n` +
                                         reviewSuggestions.body, path: file.filename });
                                 const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
                                 commentsCounter++;
@@ -38425,7 +38425,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                         }
                         else {
                             const reviewComment = {
-                                body: `**${message.message}** [${message.ruleId}](${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`,
+                                body: `**${message.message}** [\`${message.ruleId}\`](${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`,
                                 path: file.filename,
                                 side: 'RIGHT',
                                 line: message.line,
@@ -38652,8 +38652,8 @@ function eslintFeedback(_a) {
             case 'pull_request':
             case 'pull_request_target':
                 yield (() => src_awaiter(this, void 0, void 0, function* () {
-                    const { owner, repo, pullRequestNumber, baseSha, headSha } = getPullRequestMetadata();
-                    yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha, failCheck, requestChanges);
+                    const { owner, repo, pullRequestNumber, headSha } = getPullRequestMetadata();
+                    yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, headSha, failCheck, requestChanges);
                 }))();
                 break;
             case 'push':
@@ -38667,8 +38667,8 @@ function eslintFeedback(_a) {
                     const workflowRun = github_context.payload;
                     if (workflowRun.workflow_run.pull_requests.length > 0) {
                         for (const pullRequest of workflowRun.workflow_run.pull_requests) {
-                            const { owner, repo, pullRequestNumber, baseSha, headSha } = yield getPullRequestMetadataByNumber(octokit, pullRequest.number);
-                            yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, baseSha, headSha, failCheck, requestChanges);
+                            const { owner, repo, pullRequestNumber, headSha } = yield getPullRequestMetadataByNumber(octokit, pullRequest.number);
+                            yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, headSha, failCheck, requestChanges);
                         }
                     }
                     else {

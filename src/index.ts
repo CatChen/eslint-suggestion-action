@@ -74,7 +74,7 @@ export async function eslintFeedback({
     case 'pull_request':
     case 'pull_request_target':
       await (async () => {
-        const { owner, repo, pullRequestNumber, baseSha, headSha } =
+        const { owner, repo, pullRequestNumber, headSha } =
           getPullRequestMetadata();
         await handlePullRequest(
           octokit,
@@ -83,7 +83,6 @@ export async function eslintFeedback({
           owner,
           repo,
           pullRequestNumber,
-          baseSha,
           headSha,
           failCheck,
           requestChanges,
@@ -110,7 +109,7 @@ export async function eslintFeedback({
         const workflowRun = context.payload as WorkflowRunEvent;
         if (workflowRun.workflow_run.pull_requests.length > 0) {
           for (const pullRequest of workflowRun.workflow_run.pull_requests) {
-            const { owner, repo, pullRequestNumber, baseSha, headSha } =
+            const { owner, repo, pullRequestNumber, headSha } =
               await getPullRequestMetadataByNumber(octokit, pullRequest.number);
             await handlePullRequest(
               octokit,
@@ -119,7 +118,6 @@ export async function eslintFeedback({
               owner,
               repo,
               pullRequestNumber,
-              baseSha,
               headSha,
               failCheck,
               requestChanges,
