@@ -10,5 +10,11 @@ assets/
 bundle/
 src/
 tests/
+.eslintrc.legacy.json
 eslint.config.js
 tsconfig.json
+schema.graphql
+codegen.ts
+.cursor/
+AGENTS.md
+CLAUDE.md
