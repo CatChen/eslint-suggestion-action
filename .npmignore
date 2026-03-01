@@ -12,3 +12,6 @@ src/
 tests/
 eslint.config.js
 tsconfig.json
+.cursor/
+AGENTS.md
+CLAUDE.md
