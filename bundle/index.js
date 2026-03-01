@@ -38356,7 +38356,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
         let commentsCounter = 0;
         let outOfScopeResultsCounter = 0;
         const reviewComments = [];
-        let matchedReviewCommentNodeIds = {};
+        const matchedReviewCommentNodeIds = {};
         for (const file of files) {
             info(`  File name: ${file.filename}`);
             info(`  File status: ${file.status}`);
@@ -38384,7 +38384,9 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                                 info(`    Comment queued`);
                             }
                             else {
-                                matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
+                                for (const nodeId of matchedComments) {
+                                    matchedReviewCommentNodeIds[nodeId] = true;
+                                }
                                 info(`    Comment skipped`);
                             }
                         }
@@ -38418,7 +38420,9 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                                     info(`    Comment queued`);
                                 }
                                 else {
-                                    matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
+                                    for (const nodeId of matchedComments) {
+                                        matchedReviewCommentNodeIds[nodeId] = true;
+                                    }
                                     info(`    Comment skipped`);
                                 }
                             }
@@ -38437,7 +38441,9 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                                 info(`    Comment queued`);
                             }
                             else {
-                                matchedReviewCommentNodeIds = Object.assign(Object.assign({}, matchedReviewCommentNodeIds), Object.fromEntries(matchedComments.map((nodeId) => [nodeId, true])));
+                                for (const nodeId of matchedComments) {
+                                    matchedReviewCommentNodeIds[nodeId] = true;
+                                }
                                 info(`    Comment skipped`);
                             }
                         }
