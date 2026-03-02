@@ -8,7 +8,7 @@
   "scripts": {
     "codegen": "rm -rf src/__graphql__ && graphql-codegen-esm --config codegen.ts",
     "build": "rm -rf dist && yarn tsc",
-    "bundle": "rm -rf bundle && yarn ncc build src/index.ts --external eslint --source-map --license licenses.txt --out bundle",
+    "bundle": "rm -rf bundle && yarn ncc build src/index.ts --source-map --license licenses.txt --out bundle",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint -c eslint.config.js",
     "prepublishOnly": "pinst --disable && yarn build",
