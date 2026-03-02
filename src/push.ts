@@ -9,6 +9,7 @@ import {
   startGroup,
   warning,
 } from '@actions/core';
+import { formatAnnotationMessage } from './formatLintMessage.js';
 import { getIndexedModifiedLines } from './getIndexedModifiedLines.js';
 
 async function getPushFiles(
@@ -72,7 +73,11 @@ export async function handlePush(
           switch (message.severity) {
             case 1:
               warning(
-                `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
+                formatAnnotationMessage(
+                  message.ruleId,
+                  message.message,
+                  rule?.docs?.url,
+                ),
                 {
                   file: file.filename,
                   startLine: message.line,
@@ -82,7 +87,11 @@ export async function handlePush(
               break;
             case 2:
               error(
-                `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
+                formatAnnotationMessage(
+                  message.ruleId,
+                  message.message,
+                  rule?.docs?.url,
+                ),
                 {
                   file: file.filename,
                   startLine: message.line,

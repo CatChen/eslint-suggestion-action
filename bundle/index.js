@@ -37497,7 +37497,20 @@ function changeDirectory(directory) {
     }
 }
 
+;// CONCATENATED MODULE: ./src/formatLintMessage.ts
+function formatAnnotationMessage(ruleId, message, ruleUrl) {
+    return ruleUrl === undefined
+        ? `[${ruleId}]${message}`
+        : `[${ruleId}]${message}: (${ruleUrl})`;
+}
+function formatReviewMessage(ruleId, message, ruleUrl) {
+    return ruleUrl === undefined
+        ? `**${message}** \`${ruleId}\``
+        : `**${message}** [\`${ruleId}\`](${ruleUrl})`;
+}
+
 ;// CONCATENATED MODULE: ./src/commit.ts
+
 
 
 
@@ -37516,14 +37529,14 @@ function handleCommit(eventName, results, ruleMetaDatas, failCheck) {
             info(`  ${relativePath}:${message.line}`);
             switch (message.severity) {
                 case 1:
-                    warning(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
+                    warning(formatAnnotationMessage(message.ruleId, message.message, (_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url), {
                         file: relativePath,
                         startLine: message.line,
                     });
                     warningCounter++;
                     break;
                 case 2:
-                    error(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                    error(formatAnnotationMessage(message.ruleId, message.message, (_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url), {
                         file: relativePath,
                         startLine: message.line,
                     });
@@ -38189,6 +38202,7 @@ var pullRequest_awaiter = (undefined && undefined.__awaiter) || function (thisAr
 
 
 
+
 const REVIEW_BODY = "ESLint doesn't pass. Please fix all ESLint issues.";
 const getReviewThreadsQuery = gql_graphql(`
   query ReviewThreads(
@@ -38375,7 +38389,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                         info(`  Matched line: ${message.line}`);
                         if (message.fix) {
                             const reviewSuggestion = getCommentFromFix(result.source, message.line, message.fix);
-                            const reviewComment = Object.assign(Object.assign({}, reviewSuggestion), { body: `**${message.message}** [\`${message.ruleId}\`](${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})\n\nFix available:\n\n` +
+                            const reviewComment = Object.assign(Object.assign({}, reviewSuggestion), { body: `${formatReviewMessage(message.ruleId, message.message, (_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url)}\n\nFix available:\n\n` +
                                     reviewSuggestion.body, path: file.filename });
                             const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
                             commentsCounter++;
@@ -38411,7 +38425,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                                 }
                             }
                             if (reviewSuggestions !== undefined) {
-                                const reviewComment = Object.assign(Object.assign({}, reviewSuggestions), { body: `**${message.message}** [\`${message.ruleId}\`](${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})\n\nSuggestion(s) available:\n\n` +
+                                const reviewComment = Object.assign(Object.assign({}, reviewSuggestions), { body: `${formatReviewMessage(message.ruleId, message.message, (_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url)}\n\nSuggestion(s) available:\n\n` +
                                         reviewSuggestions.body, path: file.filename });
                                 const matchedComments = matchReviewComments(existingReviewComments, reviewComment);
                                 commentsCounter++;
@@ -38429,7 +38443,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
                         }
                         else {
                             const reviewComment = {
-                                body: `**${message.message}** [\`${message.ruleId}\`](${(_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url})`,
+                                body: formatReviewMessage(message.ruleId, message.message, (_c = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _c === void 0 ? void 0 : _c.url),
                                 path: file.filename,
                                 side: 'RIGHT',
                                 line: message.line,
@@ -38530,6 +38544,7 @@ var push_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arg
 };
 
 
+
 function getPushFiles(octokit, owner, repo, beforeSha, afterSha) {
     return push_awaiter(this, void 0, void 0, function* () {
         var _a, _b;
@@ -38571,14 +38586,14 @@ function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeS
                         info(`  Matched line: ${message.line}`);
                         switch (message.severity) {
                             case 1:
-                                warning(`[${message.ruleId}]${message.message}: (${(_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url})`, {
+                                warning(formatAnnotationMessage(message.ruleId, message.message, (_a = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _a === void 0 ? void 0 : _a.url), {
                                     file: file.filename,
                                     startLine: message.line,
                                 });
                                 warningCounter++;
                                 break;
                             case 2:
-                                error(`[${message.ruleId}]${message.message}: (${(_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url})`, {
+                                error(formatAnnotationMessage(message.ruleId, message.message, (_b = rule === null || rule === void 0 ? void 0 : rule.docs) === null || _b === void 0 ? void 0 : _b.url), {
                                     file: file.filename,
                                     startLine: message.line,
                                 });

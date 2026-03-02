@@ -9,6 +9,7 @@ import {
   startGroup,
   warning,
 } from '@actions/core';
+import { formatAnnotationMessage } from './formatLintMessage.js';
 
 export function handleCommit(
   eventName: string,
@@ -33,7 +34,11 @@ export function handleCommit(
       switch (message.severity) {
         case 1:
           warning(
-            `[${message.ruleId}]${message.message}: (${rule?.docs?.url})`,
+            formatAnnotationMessage(
+              message.ruleId,
+              message.message,
+              rule?.docs?.url,
+            ),
             {
               file: relativePath,
               startLine: message.line,
@@ -42,10 +47,17 @@ export function handleCommit(
           warningCounter++;
           break;
         case 2:
-          error(`[${message.ruleId}]${message.message}: (${rule?.docs?.url})`, {
-            file: relativePath,
-            startLine: message.line,
-          });
+          error(
+            formatAnnotationMessage(
+              message.ruleId,
+              message.message,
+              rule?.docs?.url,
+            ),
+            {
+              file: relativePath,
+              startLine: message.line,
+            },
+          );
           errorCounter++;
           break;
       }
