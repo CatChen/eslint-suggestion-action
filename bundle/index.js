@@ -38644,6 +38644,12 @@ var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argu
 
 
 
+function formatEventName(eventName) {
+    return eventName
+        .split('_')
+        .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
+        .join(' ');
+}
 function eslintFeedback(_a) {
     return src_awaiter(this, arguments, void 0, function* ({ requestChanges, failCheck, githubToken, directory, targets, eslintLibPath, configPath, }) {
         startGroup('ESLint');
@@ -38686,25 +38692,20 @@ function eslintFeedback(_a) {
             case 'workflow_run':
                 yield (() => src_awaiter(this, void 0, void 0, function* () {
                     const workflowRun = github_context.payload;
+                    const headSha = workflowRun.workflow_run.head_sha;
                     if (workflowRun.workflow_run.pull_requests.length > 0) {
                         for (const pullRequest of workflowRun.workflow_run.pull_requests) {
-                            const { owner, repo, pullRequestNumber, headSha } = yield getPullRequestMetadataByNumber(octokit, pullRequest.number);
+                            const { owner, repo, pullRequestNumber } = yield getPullRequestMetadataByNumber(octokit, pullRequest.number);
                             yield handlePullRequest(octokit, indexedResults, ruleMetaData, owner, repo, pullRequestNumber, headSha, failCheck, requestChanges);
                         }
                     }
                     else {
-                        const workflowSourceEventName = workflowRun.workflow_run.event
-                            .split('_')
-                            .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                            .join(' ');
-                        handleCommit(`Workflow (${workflowSourceEventName})`, results, ruleMetaData, failCheck);
+                        handleCommit(`Workflow (${formatEventName(workflowRun.workflow_run.event)})`, results, ruleMetaData, failCheck);
                     }
                 }))();
                 break;
             default:
-                handleCommit(github_context.eventName.split('_')
-                    .map((word) => { var _a; return ((_a = word[0]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) + word.substring(1); })
-                    .join(' '), results, ruleMetaData, failCheck);
+                handleCommit(formatEventName(github_context.eventName), results, ruleMetaData, failCheck);
                 break;
         }
     });
