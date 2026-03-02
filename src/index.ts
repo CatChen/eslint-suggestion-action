@@ -24,6 +24,13 @@ import { getPushMetadata } from './getPushMetadata.js';
 import { handlePullRequest } from './pullRequest.js';
 import { handlePush } from './push.js';
 
+function formatEventName(eventName: string) {
+  return eventName
+    .split('_')
+    .map((word) => word[0]?.toUpperCase() + word.substring(1))
+    .join(' ');
+}
+
 export async function eslintFeedback({
   requestChanges,
   failCheck,
@@ -107,9 +114,10 @@ export async function eslintFeedback({
     case 'workflow_run':
       await (async () => {
         const workflowRun = context.payload as WorkflowRunEvent;
+        const headSha = workflowRun.workflow_run.head_sha;
         if (workflowRun.workflow_run.pull_requests.length > 0) {
           for (const pullRequest of workflowRun.workflow_run.pull_requests) {
-            const { owner, repo, pullRequestNumber, headSha } =
+            const { owner, repo, pullRequestNumber } =
               await getPullRequestMetadataByNumber(octokit, pullRequest.number);
             await handlePullRequest(
               octokit,
@@ -124,12 +132,8 @@ export async function eslintFeedback({
             );
           }
         } else {
-          const workflowSourceEventName = workflowRun.workflow_run.event
-            .split('_')
-            .map((word) => word[0]?.toUpperCase() + word.substring(1))
-            .join(' ');
           handleCommit(
-            `Workflow (${workflowSourceEventName})`,
+            `Workflow (${formatEventName(workflowRun.workflow_run.event)})`,
             results,
             ruleMetaData,
             failCheck,
@@ -139,10 +143,7 @@ export async function eslintFeedback({
       break;
     default:
       handleCommit(
-        context.eventName
-          .split('_')
-          .map((word) => word[0]?.toUpperCase() + word.substring(1))
-          .join(' '),
+        formatEventName(context.eventName),
         results,
         ruleMetaData,
         failCheck,
