@@ -53,6 +53,9 @@ jobs:
 
   test:
     uses: ./.github/workflows/test.yml
+    permissions:
+      pull-requests: write
+      contents: write
     secrets: inherit
 
   eslint:
