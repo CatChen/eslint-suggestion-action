@@ -1,6 +1,6 @@
 import type { Octokit } from '@octokit/core';
 import type { Api } from '@octokit/plugin-rest-endpoint-methods';
-import type { PullRequestEvent } from '@octokit/webhooks-types/schema.d.ts';
+import type { PullRequestEvent } from '@octokit/webhooks-types';
 import { info } from '@actions/core';
 import { context } from '@actions/github';
 
