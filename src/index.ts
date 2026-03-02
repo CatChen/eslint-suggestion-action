@@ -1,4 +1,4 @@
-import type { WorkflowRunEvent } from '@octokit/webhooks-types/schema.d.ts';
+import type { WorkflowRunEvent } from '@octokit/webhooks-types';
 import type { ESLint, Rule } from 'eslint';
 import path from 'node:path';
 import { cwd } from 'node:process';

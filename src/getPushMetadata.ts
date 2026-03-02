@@ -1,4 +1,4 @@
-import type { PushEvent } from '@octokit/webhooks-types/schema.d.ts';
+import type { PushEvent } from '@octokit/webhooks-types';
 import { info } from '@actions/core';
 import { context } from '@actions/github';
 
