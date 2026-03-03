@@ -1802,8 +1802,13 @@ export type CheckAnnotation = {
     annotationLevel?: Maybe<CheckAnnotationLevel>;
     /** The path to the file that this annotation was made on. */
     blobUrl: Scalars['URI']['output'];
-    /** Identifies the primary key from the database. */
+    /**
+     * Identifies the primary key from the database.
+     * @deprecated `databaseId` will be removed because it does not support 64-bit signed integer identifiers. Use `fullDatabaseId` instead. Removal on 2027-01-01 UTC.
+     */
     databaseId?: Maybe<Scalars['Int']['output']>;
+    /** Identifies the primary key from the database as a BigInt. */
+    fullDatabaseId?: Maybe<Scalars['BigInt']['output']>;
     /** The position of this annotation. */
     location: CheckAnnotationSpan;
     /** The annotation's message. */
