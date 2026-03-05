@@ -3,4 +3,6 @@ export declare function getPushMetadata(): {
     repo: string;
     beforeSha: string;
     afterSha: string;
+    created: boolean;
+    deleted: boolean;
 };

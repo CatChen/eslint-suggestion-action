@@ -8,16 +8,22 @@ export function getPushMetadata() {
   const repo = context.repo.repo;
   const beforeSha = push.before;
   const afterSha = push.after;
+  const created = push.created;
+  const deleted = push.deleted;
 
   info(`Owner: ${owner}`);
   info(`Repo: ${repo}`);
   info(`Before SHA: ${beforeSha}`);
   info(`After SHA: ${afterSha}`);
+  info(`Created: ${created}`);
+  info(`Deleted: ${deleted}`);
 
   return {
     owner,
     repo,
     beforeSha,
     afterSha,
+    created,
+    deleted,
   };
 }
