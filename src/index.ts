@@ -98,7 +98,8 @@ export async function eslintFeedback({
       break;
     case 'push':
       await (async () => {
-        const { owner, repo, beforeSha, afterSha } = getPushMetadata();
+        const { owner, repo, beforeSha, afterSha, created, deleted } =
+          getPushMetadata();
         await handlePush(
           octokit,
           indexedResults,
@@ -107,6 +108,8 @@ export async function eslintFeedback({
           repo,
           beforeSha,
           afterSha,
+          created,
+          deleted,
           failCheck,
         );
       })();
