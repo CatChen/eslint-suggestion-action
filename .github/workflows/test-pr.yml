@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
@@ -26,7 +29,7 @@ jobs:
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
 
       - name: Test
         uses: ./
@@ -66,6 +69,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
@@ -73,7 +79,7 @@ jobs:
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
 
       - name: Downgrade ESLint
         run: yarn add -D eslint@8.56.0
