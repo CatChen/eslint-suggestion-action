@@ -35,6 +35,9 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ steps.get-github-app-token.outputs.token || github.token }}
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
@@ -42,7 +45,7 @@ jobs:
           cache: yarn
 
       - name: Install dependencies
-        run: yarn
+        run: yarn install --immutable
 
       - name: Codegen
         run: yarn codegen
