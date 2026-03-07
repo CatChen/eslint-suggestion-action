@@ -1,0 +1,87 @@
+name: GraphQL Schema
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: graphql-schema
+  cancel-in-progress: false
+
+jobs:
+  graphql-schema:
+    name: GraphQL Schema
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: get-github-app-token
+        with:
+          app-id: ${{ secrets.CHECK_GIT_STATUS_BOT_APP_ID }}
+          private-key: ${{ secrets.CHECK_GIT_STATUS_BOT_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ steps.get-github-app-token.outputs.token }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          check-latest: true
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Generate GraphQL schema and types
+        run: yarn codegen
+
+      - uses: CatChen/check-git-status-action@v2
+        id: check-git-status
+        with:
+          fail-if-not-clean: false
+          push-if-not-clean: false
+          request-changes-if-not-clean: false
+          targets: .
+
+      - uses: CatChen/config-git-with-token-action@v2
+        if: ${{ steps.check-git-status.outputs.status == 'dirty' }}
+        with:
+          github-token: ${{ steps.get-github-app-token.outputs.token }}
+
+      - name: Commit and push schema
+        if: ${{ steps.check-git-status.outputs.status == 'dirty' }}
+        env:
+          BRANCH_NAME: workflows/graphql-schema
+        run: |
+          git checkout -B "$BRANCH_NAME"
+          git add schema.graphql src/__graphql__
+
+          git commit -m "Updated GitHub GraphQL schema"
+          git push --force-with-lease origin "HEAD:refs/heads/$BRANCH_NAME"
+
+      - name: Create PR
+        if: ${{ steps.check-git-status.outputs.status == 'dirty' }}
+        env:
+          GH_TOKEN: ${{ steps.get-github-app-token.outputs.token }}
+          BRANCH_NAME: workflows/graphql-schema
+        run: |
+          PR_NUMBER="$(gh pr list --base main --head "$BRANCH_NAME" --state open --json number --jq '.[0].number')"
+          if [ -z "$PR_NUMBER" ]
+          then
+            gh pr create \
+              --base main \
+              --head "$BRANCH_NAME" \
+              --title "Synchronized GitHub GraphQL schema" \
+              --assignee CatChen \
+              --reviewer CatChen \
+              --label pass2ship
+          fi
