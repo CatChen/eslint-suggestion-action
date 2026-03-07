@@ -1,5 +1,3 @@
-import type { Octokit } from '@octokit/core';
-import type { Api } from '@octokit/plugin-rest-endpoint-methods';
 import type { ESLint, Rule } from 'eslint';
 import {
   endGroup,
@@ -11,35 +9,17 @@ import {
 } from '@actions/core';
 import { formatAnnotationMessage } from './formatLintMessage.js';
 import { getIndexedModifiedLines } from './getIndexedModifiedLines.js';
+import { getPushFiles } from './getPushFiles.js';
 
 const ZERO_SHA = '0000000000000000000000000000000000000000';
 
-async function getPushFiles(
-  octokit: Octokit & Api,
-  owner: string,
-  repo: string,
-  beforeSha: string,
-  afterSha: string,
-) {
-  const response = await octokit.rest.repos.compareCommitsWithBasehead({
-    owner,
-    repo,
-    basehead: `${beforeSha}...${afterSha}`,
-  });
-  info(`Files: (${response.data.files?.length ?? 0})`);
-  return response.data.files;
-}
-
 export async function handlePush(
-  octokit: Octokit & Api,
   indexedResults: {
     [file: string]: ESLint.LintResult;
   },
   ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
   },
-  owner: string,
-  repo: string,
   beforeSha: string,
   afterSha: string,
   created: boolean,
@@ -57,10 +37,11 @@ export async function handlePush(
     return;
   }
 
-  const files = await getPushFiles(octokit, owner, repo, beforeSha, afterSha);
+  const files = await getPushFiles(beforeSha, afterSha);
 
-  if (files === undefined || files.length === 0) {
+  if (files.length === 0) {
     info(`Push contains no files`);
+    endGroup();
     return;
   }
 
@@ -73,7 +54,7 @@ export async function handlePush(
       continue;
     }
 
-    const indexedModifiedLines = getIndexedModifiedLines(file);
+    const indexedModifiedLines = getIndexedModifiedLines(file.patch);
 
     const result = indexedResults[file.filename];
     if (result) {

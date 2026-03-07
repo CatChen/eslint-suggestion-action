@@ -98,14 +98,10 @@ export async function eslintFeedback({
       break;
     case 'push':
       await (async () => {
-        const { owner, repo, beforeSha, afterSha, created, deleted } =
-          getPushMetadata();
+        const { beforeSha, afterSha, created, deleted } = getPushMetadata();
         await handlePush(
-          octokit,
           indexedResults,
           ruleMetaData,
-          owner,
-          repo,
           beforeSha,
           afterSha,
           created,
