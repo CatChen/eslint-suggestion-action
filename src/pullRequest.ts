@@ -279,7 +279,7 @@ export async function handlePullRequest(
       continue;
     }
 
-    const indexedModifiedLines = getIndexedModifiedLines(file);
+    const indexedModifiedLines = getIndexedModifiedLines(file.patch);
 
     const result = indexedResults[file.filename];
     if (result) {

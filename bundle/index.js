@@ -31996,7 +31996,7 @@ function tryGetExecutablePath(filePath, extensions) {
         if (stats && stats.isFile()) {
             if (IS_WINDOWS) {
                 // on Windows, test for valid extension
-                const upperExt = path.extname(filePath).toUpperCase();
+                const upperExt = external_path_namespaceObject.extname(filePath).toUpperCase();
                 if (extensions.some(validExt => validExt.toUpperCase() === upperExt)) {
                     return filePath;
                 }
@@ -32025,11 +32025,11 @@ function tryGetExecutablePath(filePath, extensions) {
                 if (IS_WINDOWS) {
                     // preserve the case of the actual file (since an extension was appended)
                     try {
-                        const directory = path.dirname(filePath);
-                        const upperName = path.basename(filePath).toUpperCase();
+                        const directory = external_path_namespaceObject.dirname(filePath);
+                        const upperName = external_path_namespaceObject.basename(filePath).toUpperCase();
                         for (const actualName of yield readdir(directory)) {
                             if (upperName === actualName.toUpperCase()) {
-                                filePath = path.join(directory, actualName);
+                                filePath = external_path_namespaceObject.join(directory, actualName);
                                 break;
                             }
                         }
@@ -32220,7 +32220,7 @@ function which(tool, check) {
         if (check) {
             const result = yield which(tool, false);
             if (!result) {
-                if (ioUtil.IS_WINDOWS) {
+                if (IS_WINDOWS) {
                     throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
                 }
                 else {
@@ -32248,23 +32248,23 @@ function findInPath(tool) {
         }
         // build the list of extensions to try
         const extensions = [];
-        if (ioUtil.IS_WINDOWS && process.env['PATHEXT']) {
-            for (const extension of process.env['PATHEXT'].split(path.delimiter)) {
+        if (IS_WINDOWS && process.env['PATHEXT']) {
+            for (const extension of process.env['PATHEXT'].split(external_path_namespaceObject.delimiter)) {
                 if (extension) {
                     extensions.push(extension);
                 }
             }
         }
         // if it's rooted, return it if exists. otherwise return empty.
-        if (ioUtil.isRooted(tool)) {
-            const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
+        if (isRooted(tool)) {
+            const filePath = yield tryGetExecutablePath(tool, extensions);
             if (filePath) {
                 return [filePath];
             }
             return [];
         }
         // if any path separators, return empty
-        if (tool.includes(path.sep)) {
+        if (tool.includes(external_path_namespaceObject.sep)) {
             return [];
         }
         // build the list of directories
@@ -32275,7 +32275,7 @@ function findInPath(tool) {
         // across platforms.
         const directories = [];
         if (process.env.PATH) {
-            for (const p of process.env.PATH.split(path.delimiter)) {
+            for (const p of process.env.PATH.split(external_path_namespaceObject.delimiter)) {
                 if (p) {
                     directories.push(p);
                 }
@@ -32284,7 +32284,7 @@ function findInPath(tool) {
         // find all matches
         const matches = [];
         for (const directory of directories) {
-            const filePath = yield ioUtil.tryGetExecutablePath(path.join(directory, tool), extensions);
+            const filePath = yield tryGetExecutablePath(external_path_namespaceObject.join(directory, tool), extensions);
             if (filePath) {
                 matches.push(filePath);
             }
@@ -32431,13 +32431,13 @@ class ToolRunner extends external_events_.EventEmitter {
     _processLineBuffer(data, strBuffer, onLine) {
         try {
             let s = strBuffer + data.toString();
-            let n = s.indexOf(os.EOL);
+            let n = s.indexOf(external_os_namespaceObject.EOL);
             while (n > -1) {
                 const line = s.substring(0, n);
                 onLine(line);
                 // the rest of the string ...
-                s = s.substring(n + os.EOL.length);
-                n = s.indexOf(os.EOL);
+                s = s.substring(n + external_os_namespaceObject.EOL.length);
+                n = s.indexOf(external_os_namespaceObject.EOL);
             }
             return s;
         }
@@ -32711,15 +32711,15 @@ class ToolRunner extends external_events_.EventEmitter {
     exec() {
         return toolrunner_awaiter(this, void 0, void 0, function* () {
             // root the tool path if it is unrooted and contains relative pathing
-            if (!ioUtil.isRooted(this.toolPath) &&
+            if (!isRooted(this.toolPath) &&
                 (this.toolPath.includes('/') ||
                     (toolrunner_IS_WINDOWS && this.toolPath.includes('\\')))) {
                 // prefer options.cwd if it is specified, however options.cwd may also need to be rooted
-                this.toolPath = path.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
+                this.toolPath = external_path_namespaceObject.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
             }
             // if the tool is only a file name, then resolve it from the PATH
             // otherwise verify it exists (add extension on Windows if necessary)
-            this.toolPath = yield io.which(this.toolPath, true);
+            this.toolPath = yield which(this.toolPath, true);
             return new Promise((resolve, reject) => toolrunner_awaiter(this, void 0, void 0, function* () {
                 this._debug(`exec tool: ${this.toolPath}`);
                 this._debug('arguments:');
@@ -32728,17 +32728,17 @@ class ToolRunner extends external_events_.EventEmitter {
                 }
                 const optionsNonNull = this._cloneExecOptions(this.options);
                 if (!optionsNonNull.silent && optionsNonNull.outStream) {
-                    optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os.EOL);
+                    optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + external_os_namespaceObject.EOL);
                 }
                 const state = new ExecState(optionsNonNull, this.toolPath);
                 state.on('debug', (message) => {
                     this._debug(message);
                 });
-                if (this.options.cwd && !(yield ioUtil.exists(this.options.cwd))) {
+                if (this.options.cwd && !(yield exists(this.options.cwd))) {
                     return reject(new Error(`The cwd: ${this.options.cwd} does not exist!`));
                 }
                 const fileName = this._getSpawnFileName();
-                const cp = child.spawn(fileName, this._getSpawnArgs(optionsNonNull), this._getSpawnOptions(this.options, fileName));
+                const cp = external_child_process_namespaceObject.spawn(fileName, this._getSpawnArgs(optionsNonNull), this._getSpawnOptions(this.options, fileName));
                 let stdbuffer = '';
                 if (cp.stdout) {
                     cp.stdout.on('data', (data) => {
@@ -32901,7 +32901,7 @@ class ExecState extends external_events_.EventEmitter {
             this._setResult();
         }
         else if (this.processExited) {
-            this.timeout = setTimeout(ExecState.HandleTimeout, this.delay, this);
+            this.timeout = (0,external_timers_namespaceObject.setTimeout)(ExecState.HandleTimeout, this.delay, this);
         }
     }
     _debug(message) {
@@ -32965,14 +32965,14 @@ var exec_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arg
  */
 function exec_exec(commandLine, args, options) {
     return exec_awaiter(this, void 0, void 0, function* () {
-        const commandArgs = tr.argStringToArray(commandLine);
+        const commandArgs = argStringToArray(commandLine);
         if (commandArgs.length === 0) {
             throw new Error(`Parameter 'commandLine' cannot be null or empty.`);
         }
         // Path to tool to execute should be first arg
         const toolPath = commandArgs[0];
         args = commandArgs.slice(1).concat(args || []);
-        const runner = new tr.ToolRunner(toolPath, args, options);
+        const runner = new ToolRunner(toolPath, args, options);
         return runner.exec();
     });
 }
@@ -32992,8 +32992,8 @@ function getExecOutput(commandLine, args, options) {
         let stdout = '';
         let stderr = '';
         //Using string decoder covers the case where a mult-byte character is split
-        const stdoutDecoder = new StringDecoder('utf8');
-        const stderrDecoder = new StringDecoder('utf8');
+        const stdoutDecoder = new external_string_decoder_.StringDecoder('utf8');
+        const stderrDecoder = new external_string_decoder_.StringDecoder('utf8');
         const originalStdoutListener = (_a = options === null || options === void 0 ? void 0 : options.listeners) === null || _a === void 0 ? void 0 : _a.stdout;
         const originalStdErrListener = (_b = options === null || options === void 0 ? void 0 : options.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
         const stdErrListener = (data) => {
@@ -38155,24 +38155,29 @@ function gql_graphql(source) {
 ;// CONCATENATED MODULE: ./src/getIndexedModifiedLines.ts
 
 const HUNK_HEADER_PATTERN = /^@@ -\d+(,\d+)? \+(\d+)(,(\d+))? @@/;
-function getIndexedModifiedLines(file) {
-    var _a;
+function getIndexedModifiedLines(patch) {
     const modifiedLines = [];
     const indexedModifiedLines = {};
     let currentLine = 0;
     let remainingLinesInHunk = 0;
-    const lines = (_a = file.patch) === null || _a === void 0 ? void 0 : _a.split('\n');
+    const lines = patch === null || patch === void 0 ? void 0 : patch.split('\n');
     if (lines) {
         for (const line of lines) {
             if (remainingLinesInHunk === 0) {
                 const matches = line.match(HUNK_HEADER_PATTERN);
-                currentLine = parseInt((matches === null || matches === void 0 ? void 0 : matches[2]) || '1');
-                remainingLinesInHunk = parseInt((matches === null || matches === void 0 ? void 0 : matches[4]) || '1');
-                if (!currentLine || !remainingLinesInHunk) {
-                    throw new Error(`Expecting hunk header in ${file.filename} but seeing ${line}.`);
+                if (!matches) {
+                    continue;
+                }
+                currentLine = parseInt(matches[2] || '1');
+                remainingLinesInHunk = parseInt(matches[4] || '1');
+                if (Number.isNaN(currentLine) || Number.isNaN(remainingLinesInHunk)) {
+                    throw new Error(`Unable to parse hunk header from line: ${line}.`);
                 }
             }
             else if (line[0] === '-') {
+                continue;
+            }
+            else if (line[0] === '\\') {
                 continue;
             }
             else {
@@ -38186,8 +38191,8 @@ function getIndexedModifiedLines(file) {
         }
     }
     info(`  File modified lines: ${modifiedLines.join()}`);
-    if (file.patch !== undefined) {
-        info(`  File patch: \n${file.patch
+    if (patch !== undefined) {
+        info(`  File patch: \n${patch
             .split('\n')
             .map((line) => '    ' + line)
             .join('\n')}\n`);
@@ -38383,7 +38388,7 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
             if (file.status === 'removed') {
                 continue;
             }
-            const indexedModifiedLines = getIndexedModifiedLines(file);
+            const indexedModifiedLines = getIndexedModifiedLines(file.patch);
             const result = indexedResults[file.filename];
             if (result) {
                 for (const message of result.messages) {
@@ -38538,6 +38543,163 @@ function handlePullRequest(octokit, indexedResults, ruleMetaDatas, owner, repo, 
     });
 }
 
+;// CONCATENATED MODULE: ./src/getPushFiles.ts
+var getPushFiles_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+function getStatus(statusToken) {
+    switch (statusToken[0]) {
+        case 'A':
+            return 'added';
+        case 'C':
+            return 'copied';
+        case 'D':
+            return 'removed';
+        case 'M':
+            return 'modified';
+        case 'R':
+            return 'renamed';
+        case 'T':
+            return 'changed';
+        default:
+            warning(`Unknown git diff file status "${statusToken}". Treating as modified.`);
+            return 'modified';
+    }
+}
+function parseFileStatus(nameStatusOutput) {
+    const files = [];
+    const lines = nameStatusOutput.split('\n');
+    for (const line of lines) {
+        if (!line) {
+            continue;
+        }
+        const fields = line.split('\t');
+        const statusToken = fields[0];
+        if (!statusToken) {
+            throw new Error(`Unable to parse status token from line: ${line}`);
+        }
+        const status = getStatus(statusToken);
+        if (statusToken[0] === 'R' || statusToken[0] === 'C') {
+            const previousFilename = fields[1];
+            const filename = fields[2];
+            if (!previousFilename || !filename) {
+                throw new Error(`Unable to parse renamed or copied filename from line: ${line}`);
+            }
+            files.push({ filename, status });
+        }
+        else {
+            const filename = fields[1];
+            if (!filename) {
+                throw new Error(`Unable to parse filename from line: ${line}`);
+            }
+            files.push({ filename, status });
+        }
+    }
+    return files;
+}
+function extractPatches(diffOutput, filenames) {
+    const patchesByFilename = {};
+    let patchLines = [];
+    let filenameIndex = -1;
+    let filename;
+    const lines = diffOutput.split('\n');
+    for (const line of lines) {
+        if (line.startsWith('diff --git ')) {
+            if (filename !== undefined && patchLines.length > 0) {
+                patchesByFilename[filename] = patchLines.join('\n');
+            }
+            filenameIndex++;
+            filename = filenames[filenameIndex];
+            if (filename === undefined) {
+                throw new Error(`Found more diff sections than expected files. Expected ${filenames.length}.`);
+            }
+            patchLines = [];
+            continue;
+        }
+        if (line.startsWith('@@ ')) {
+            patchLines.push(line);
+            continue;
+        }
+        if (patchLines.length > 0) {
+            patchLines.push(line);
+        }
+    }
+    if (filenameIndex + 1 !== filenames.length) {
+        throw new Error(`Found fewer diff sections than expected files. Expected ${filenames.length}, found ${filenameIndex + 1}.`);
+    }
+    if (filename !== undefined && patchLines.length > 0) {
+        patchesByFilename[filename] = patchLines.join('\n');
+    }
+    return patchesByFilename;
+}
+function ensureCommitExists(sha) {
+    return getPushFiles_awaiter(this, void 0, void 0, function* () {
+        try {
+            yield getExecOutput('git', ['cat-file', '-e', `${sha}^{commit}`]);
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    });
+}
+function getPushFiles(beforeSha, afterSha) {
+    return getPushFiles_awaiter(this, void 0, void 0, function* () {
+        const [beforeExists, afterExists] = yield Promise.all([
+            ensureCommitExists(beforeSha),
+            ensureCommitExists(afterSha),
+        ]);
+        if (!beforeExists || !afterExists) {
+            info(`Fetching commits for push range ${beforeSha}..${afterSha}`);
+            yield getExecOutput('git', [
+                'fetch',
+                '--no-tags',
+                '--depth=1',
+                'origin',
+                beforeSha,
+                afterSha,
+            ]);
+        }
+        const nameStatusResult = yield getExecOutput('git', [
+            '-c',
+            'core.quotepath=false',
+            'diff',
+            '--name-status',
+            '--find-renames',
+            `${beforeSha}..${afterSha}`,
+        ], {
+            silent: true,
+        });
+        const files = parseFileStatus(nameStatusResult.stdout);
+        info(`Files: (${files.length})`);
+        const patchResult = yield getExecOutput('git', [
+            '-c',
+            'core.quotepath=false',
+            'diff',
+            '--unified=0',
+            '--no-color',
+            '--no-ext-diff',
+            '--find-renames',
+            `${beforeSha}..${afterSha}`,
+        ], {
+            silent: true,
+        });
+        const patches = extractPatches(patchResult.stdout, files.map((file) => file.filename));
+        for (const file of files) {
+            file.patch = patches[file.filename];
+        }
+        return files;
+    });
+}
+
 ;// CONCATENATED MODULE: ./src/push.ts
 var push_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -38551,20 +38713,9 @@ var push_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arg
 
 
 
+
 const ZERO_SHA = '0000000000000000000000000000000000000000';
-function getPushFiles(octokit, owner, repo, beforeSha, afterSha) {
-    return push_awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
-        const response = yield octokit.rest.repos.compareCommitsWithBasehead({
-            owner,
-            repo,
-            basehead: `${beforeSha}...${afterSha}`,
-        });
-        info(`Files: (${(_b = (_a = response.data.files) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0})`);
-        return response.data.files;
-    });
-}
-function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeSha, afterSha, created, deleted, failCheck) {
+function handlePush(indexedResults, ruleMetaDatas, beforeSha, afterSha, created, deleted, failCheck) {
     return push_awaiter(this, void 0, void 0, function* () {
         var _a, _b;
         startGroup('GitHub Push');
@@ -38577,9 +38728,10 @@ function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeS
             endGroup();
             return;
         }
-        const files = yield getPushFiles(octokit, owner, repo, beforeSha, afterSha);
-        if (files === undefined || files.length === 0) {
+        const files = yield getPushFiles(beforeSha, afterSha);
+        if (files.length === 0) {
             info(`Push contains no files`);
+            endGroup();
             return;
         }
         let warningCounter = 0;
@@ -38590,7 +38742,7 @@ function handlePush(octokit, indexedResults, ruleMetaDatas, owner, repo, beforeS
             if (file.status === 'removed') {
                 continue;
             }
-            const indexedModifiedLines = getIndexedModifiedLines(file);
+            const indexedModifiedLines = getIndexedModifiedLines(file.patch);
             const result = indexedResults[file.filename];
             if (result) {
                 for (const message of result.messages) {
@@ -38701,8 +38853,8 @@ function eslintFeedback(_a) {
                 break;
             case 'push':
                 yield (() => src_awaiter(this, void 0, void 0, function* () {
-                    const { owner, repo, beforeSha, afterSha, created, deleted } = getPushMetadata();
-                    yield handlePush(octokit, indexedResults, ruleMetaData, owner, repo, beforeSha, afterSha, created, deleted, failCheck);
+                    const { beforeSha, afterSha, created, deleted } = getPushMetadata();
+                    yield handlePush(indexedResults, ruleMetaData, beforeSha, afterSha, created, deleted, failCheck);
                 }))();
                 break;
             case 'workflow_run':

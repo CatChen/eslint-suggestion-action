@@ -1,8 +1,6 @@
-import type { Octokit } from '@octokit/core';
-import type { Api } from '@octokit/plugin-rest-endpoint-methods';
 import type { ESLint, Rule } from 'eslint';
-export declare function handlePush(octokit: Octokit & Api, indexedResults: {
+export declare function handlePush(indexedResults: {
     [file: string]: ESLint.LintResult;
 }, ruleMetaDatas: {
     [name: string]: Rule.RuleMetaData;
-}, owner: string, repo: string, beforeSha: string, afterSha: string, created: boolean, deleted: boolean, failCheck: boolean): Promise<void>;
+}, beforeSha: string, afterSha: string, created: boolean, deleted: boolean, failCheck: boolean): Promise<void>;
