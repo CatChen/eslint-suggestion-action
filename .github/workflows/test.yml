@@ -49,12 +49,14 @@ jobs:
         if: ${{ github.event_name != 'workflow_run' }}
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: actions/checkout@v6
         if: ${{ github.event_name == 'workflow_run' }}
         with:
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Config Git
         uses: CatChen/config-git-with-token-action@v2
@@ -218,12 +220,14 @@ jobs:
         if: ${{ github.event_name != 'workflow_run' }}
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: actions/checkout@v6
         if: ${{ github.event_name == 'workflow_run' }}
         with:
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Config Git
         uses: CatChen/config-git-with-token-action@v2
