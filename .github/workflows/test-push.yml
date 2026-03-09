@@ -2,8 +2,6 @@ name: Test Push
 
 on:
   push:
-    branches:
-      - 'workflows/tests/push-over-300/**'
   workflow_dispatch:
 
 permissions: write-all
@@ -14,6 +12,7 @@ env:
 jobs:
   test_with_more_than_300_files_in_push:
     name: Test with >300 Files in Push
+    if: ${{ github.event_name != 'push' || startsWith(github.ref_name, 'workflows/tests/push-over-300/') }}
     runs-on: ubuntu-latest
 
     steps:
