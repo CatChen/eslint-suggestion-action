@@ -1,0 +1,64 @@
+name: Test Push
+
+on:
+  push:
+    branches:
+      - 'workflows/tests/push-over-300/**'
+  workflow_dispatch:
+
+permissions: write-all
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  test_with_more_than_300_files_in_push:
+    name: Test with >300 Files in Push
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          check-latest: true
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Test
+        uses: ./
+        env:
+          DEBUG: 'eslint:cli-engine'
+        with:
+          targets: src/__tests__/bulk/*.js
+
+      - name: Verify
+        env:
+          REPO: ${{ github.repository }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+          PUSH_CREATED: ${{ github.event.created }}
+        run: |
+          if [[ "$PUSH_CREATED" == "true" ]]
+          then
+            echo "::error::Push test branch run should not be a branch creation push"
+            exit 1
+          fi
+
+          COMPARE_FILE_COUNT=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$REPO/compare/$BEFORE_SHA...$AFTER_SHA" \
+            --jq '.files | length')
+          echo "::notice::Compare API file count in push run is $COMPARE_FILE_COUNT"
+          if [[ "$COMPARE_FILE_COUNT" -ne 300 ]]
+          then
+            echo "::error::Expected compare API file count to be 300 for this test"
+            exit 1
+          fi

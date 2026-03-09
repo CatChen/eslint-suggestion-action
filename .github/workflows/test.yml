@@ -198,3 +198,187 @@ jobs:
         continue-on-error: true
         run: |
           git push -d origin "$TEST_BRANCH_NAME"
+
+  test_push_with_more_than_300_files:
+    name: Push Test (>300 files)
+    if: ${{ !startsWith(github.head_ref || github.event.workflow_run.head_branch, 'workflows/tests/') }}
+    runs-on: ubuntu-latest
+
+    env:
+      SHA: ${{ github.sha }}
+      RUN_ID: ${{ github.run_id }}
+      RUN_NUMBER: ${{ github.run_number }}
+      RUN_ATTEMPT: ${{ github.run_attempt }}
+      BASE_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      TEST_BRANCH_NAME: ${{ format('workflows/tests/push-over-300/id-{0}/run-{1}/attempt-{2}/sha-{3}', github.run_id, github.run_number, github.run_attempt, github.sha) }}
+
+    steps:
+      - uses: actions/checkout@v6
+        if: ${{ github.event_name != 'workflow_run' }}
+        with:
+          fetch-depth: 0
+
+      - uses: actions/checkout@v6
+        if: ${{ github.event_name == 'workflow_run' }}
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+
+      - name: Config Git
+        uses: CatChen/config-git-with-token-action@v2
+        with:
+          github-token: ${{ secrets.CREATE_PULL_REQUEST_ACTION_TOKEN }}
+
+      - name: Select test files
+        id: select-files
+        run: |
+          FAILING_FILE=$(ls tests/javascript/suggestions/*.js | grep -vE '\-correct(\-\d+)?\.js$' | shuf -n 1)
+          CLEAN_FILE=$(ls tests/javascript/suggestions/*.js | grep -E '\-correct(\-\d+)?\.js$' | shuf -n 1)
+          echo "::notice::Failing file is $FAILING_FILE"
+          echo "::notice::Clean file is $CLEAN_FILE"
+          echo "failing-file=$FAILING_FILE" >> $GITHUB_OUTPUT
+          echo "clean-file=$CLEAN_FILE" >> $GITHUB_OUTPUT
+
+      - name: Make commits with more than 300 files
+        id: make-commit
+        env:
+          FAILING_FILE: ${{ steps.select-files.outputs.failing-file }}
+          CLEAN_FILE: ${{ steps.select-files.outputs.clean-file }}
+        run: |
+          echo "::notice::Run number is $RUN_NUMBER"
+          echo "::notice::Run attempt is $RUN_ATTEMPT"
+          echo "::notice::Base branch is $BASE_BRANCH_NAME"
+          echo "::notice::Base commit is `git rev-parse --verify HEAD`"
+          echo "::notice::Test branch is $TEST_BRANCH_NAME"
+
+          git checkout -b "$TEST_BRANCH_NAME"
+          mkdir -p src/__tests__/bulk
+
+          cp "$CLEAN_FILE" "src/__tests__/bulk/seed.js"
+          git add src/__tests__/bulk/seed.js
+          git commit -m "Initialize push test branch for $SHA by run $RUN_ID ($RUN_NUMBER-$RUN_ATTEMPT)"
+          PUSH_BEFORE_SHA=`git rev-parse --verify HEAD`
+          echo "push-before-sha=$PUSH_BEFORE_SHA" >> $GITHUB_OUTPUT
+          echo "::notice::Push before SHA is $PUSH_BEFORE_SHA"
+          git push -f --set-upstream origin "$TEST_BRANCH_NAME"
+
+          for i in $(seq -w 1 301)
+          do
+            cp "$CLEAN_FILE" "src/__tests__/bulk/file-$i.js"
+          done
+          FAILING_FILE_PATH="src/__tests__/bulk/zzzz-failing.js"
+          cp "$FAILING_FILE" "$FAILING_FILE_PATH"
+
+          FILE_COUNT=$(find src/__tests__/bulk -type f | wc -l | tr -d ' ')
+          if [[ "$FILE_COUNT" -le 300 ]]
+          then
+            echo "::error::Expected more than 300 files, found $FILE_COUNT"
+            exit 1
+          fi
+          echo "::notice::Created $FILE_COUNT test files"
+
+          git add src/__tests__/bulk
+          COMMIT_MESSAGE="Push test (>300 files) for $SHA by run $RUN_ID ($RUN_NUMBER-$RUN_ATTEMPT)"
+          git commit -m "$COMMIT_MESSAGE"
+          TEST_COMMIT=`git rev-parse --verify HEAD`
+          echo "test-commit=$TEST_COMMIT" >> $GITHUB_OUTPUT
+          echo "failing-file-path=$FAILING_FILE_PATH" >> $GITHUB_OUTPUT
+          echo "::notice::Test commit is $TEST_COMMIT"
+
+      - name: Git push
+        run: |
+          git push
+          echo "::notice::Remote test branch is origin/$TEST_BRANCH_NAME"
+
+      - name: Check push workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEST_COMMIT: ${{ steps.make-commit.outputs.test-commit }}
+          PUSH_BEFORE_SHA: ${{ steps.make-commit.outputs.push-before-sha }}
+          FAILING_FILE_PATH: ${{ steps.make-commit.outputs.failing-file-path }}
+          EXPECTED_CHECK_NAME: Test with >300 Files in Push
+        run: |
+          API="/repos/$GITHUB_REPOSITORY/commits/$TEST_COMMIT/check-runs"
+          EXPECTED_CHECK_COUNT=0
+          CHECK_STATUS=""
+
+          echo "::notice::Waiting for check '$EXPECTED_CHECK_NAME' for commit $TEST_COMMIT"
+          sleep 10
+
+          while [[ $EXPECTED_CHECK_COUNT -eq 0 || "$CHECK_STATUS" != "completed" ]]
+          do
+            CHECK_RUNS=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "$API")
+
+            EXPECTED_CHECK_COUNT=$(echo "$CHECK_RUNS" | jq --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | length')
+            CHECK_STATUS=$(echo "$CHECK_RUNS" | jq -r --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | sort_by(.started_at) | last | .status // empty')
+
+            if [[ $EXPECTED_CHECK_COUNT -eq 0 || "$CHECK_STATUS" != "completed" ]]
+            then
+              echo "::notice::Expected check count: $EXPECTED_CHECK_COUNT; status: ${CHECK_STATUS:-none}"
+              sleep 10
+            fi
+          done
+
+          CHECK_CONCLUSION=$(echo "$CHECK_RUNS" | jq -r --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | sort_by(.started_at) | last | .conclusion // empty')
+          ANNOTATIONS_COUNT=$(echo "$CHECK_RUNS" | jq -r --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | sort_by(.started_at) | last | .output.annotations_count // 0')
+
+          echo "::notice::Check conclusion: $CHECK_CONCLUSION"
+          echo "::notice::Annotation count: $ANNOTATIONS_COUNT"
+
+          if [[ "$CHECK_CONCLUSION" != "success" ]]
+          then
+            echo "::error::Expected '$EXPECTED_CHECK_NAME' to succeed"
+            exit 1
+          fi
+
+          COMPARE=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$GITHUB_REPOSITORY/compare/$PUSH_BEFORE_SHA...$TEST_COMMIT")
+          COMPARE_FILE_COUNT=$(echo "$COMPARE" | jq '.files | length')
+          FAILING_FILE_IN_COMPARE=$(echo "$COMPARE" | jq --arg failing_file_path "$FAILING_FILE_PATH" '.files | any(.filename == $failing_file_path)')
+
+          echo "::notice::Compare API file count: $COMPARE_FILE_COUNT"
+          if [[ "$COMPARE_FILE_COUNT" -ne 300 ]]
+          then
+            echo "::error::Expected compare API file count to be 300"
+            exit 1
+          fi
+          if [[ "$FAILING_FILE_IN_COMPARE" == "true" ]]
+          then
+            echo "::error::Test setup is invalid: failing file is still included in truncated compare API result"
+            exit 1
+          fi
+
+          CHECK_RUN_ID=$(echo "$CHECK_RUNS" | jq -r --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | sort_by(.started_at) | last | .id // empty')
+          if [[ -z "$CHECK_RUN_ID" ]]
+          then
+            echo "::error::Failed to locate check run ID for '$EXPECTED_CHECK_NAME'"
+            exit 1
+          fi
+          ANNOTATIONS=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/$GITHUB_REPOSITORY/check-runs/$CHECK_RUN_ID/annotations?per_page=100")
+          FAILING_FILE_ANNOTATED=$(echo "$ANNOTATIONS" | jq --arg failing_file_path "$FAILING_FILE_PATH" 'any(.path == $failing_file_path)')
+          if [[ "$FAILING_FILE_ANNOTATED" != "true" ]]
+          then
+            echo "::error::Expected failing file annotation on $FAILING_FILE_PATH"
+            exit 1
+          fi
+
+          if [[ "$ANNOTATIONS_COUNT" -le 0 ]]
+          then
+            echo "::error::Expected annotations from lint errors in files beyond the 300-file threshold"
+            exit 1
+          fi
+
+      - name: Delete remote branch
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          git checkout "$BASE_BRANCH_NAME"
+          git push -d origin "$TEST_BRANCH_NAME"
