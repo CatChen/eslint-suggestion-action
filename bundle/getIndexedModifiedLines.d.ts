@@ -1,4 +1,3 @@
-import type { components } from '@octokit/openapi-types/types.js';
-export declare function getIndexedModifiedLines(file: components['schemas']['diff-entry']): {
+export declare function getIndexedModifiedLines(patch: string | undefined): {
     [line: string]: true;
 };
