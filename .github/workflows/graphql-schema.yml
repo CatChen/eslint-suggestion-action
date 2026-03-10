@@ -81,6 +81,7 @@ jobs:
               --base main \
               --head "$BRANCH_NAME" \
               --title "Synchronized GitHub GraphQL schema" \
+              --body "Automated synchronization of the GitHub GraphQL schema and generated types." \
               --assignee CatChen \
               --reviewer CatChen \
               --label pass2ship
