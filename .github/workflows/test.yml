@@ -264,9 +264,7 @@ jobs:
           cp "$CLEAN_FILE" "src/__tests__/bulk/seed.js"
           git add src/__tests__/bulk/seed.js
           git commit -m "Initialize push test branch for $SHA by run $RUN_ID ($RUN_NUMBER-$RUN_ATTEMPT)"
-          PUSH_BEFORE_SHA=`git rev-parse --verify HEAD`
-          echo "push-before-sha=$PUSH_BEFORE_SHA" >> $GITHUB_OUTPUT
-          echo "::notice::Push before SHA is $PUSH_BEFORE_SHA"
+          echo "::notice::Push before SHA is $(git rev-parse --verify HEAD)"
           git push -f --set-upstream origin "$TEST_BRANCH_NAME"
 
           for i in $(seq -w 1 301)
@@ -289,7 +287,6 @@ jobs:
           git commit -m "$COMMIT_MESSAGE"
           TEST_COMMIT=`git rev-parse --verify HEAD`
           echo "test-commit=$TEST_COMMIT" >> $GITHUB_OUTPUT
-          echo "failing-file-path=$FAILING_FILE_PATH" >> $GITHUB_OUTPUT
           echo "::notice::Test commit is $TEST_COMMIT"
 
       - name: Git push
