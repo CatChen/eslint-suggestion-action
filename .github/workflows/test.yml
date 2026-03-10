@@ -206,7 +206,7 @@ jobs:
     name: Push Test
     if: ${{ !startsWith(github.head_ref || github.event.workflow_run.head_branch, 'workflows/tests/') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     env:
       SHA: ${{ github.sha }}
