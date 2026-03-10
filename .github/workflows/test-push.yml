@@ -1,0 +1,74 @@
+name: Test Push
+
+on:
+  push:
+    branches: ['workflows/tests/push/**']
+
+permissions:
+  contents: read
+  checks: read
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  test_with_more_than_300_files_in_push:
+    name: Test with >300 Files in Push
+    if: ${{ !github.event.created }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          check-latest: true
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Test
+        uses: ./
+        env:
+          DEBUG: 'eslint:cli-engine'
+        with:
+          targets: src/__tests__/bulk/*.js
+
+      - name: Verify
+        env:
+          REPO: ${{ github.repository }}
+          CHECK_RUN_ID: ${{ job.check_run_id }}
+          FAILING_FILE_PATH: src/__tests__/bulk/zzzz-failing.js
+        run: |
+          echo "::notice::Check run ID is $CHECK_RUN_ID"
+
+          HAS_FAILING_FILE_ANNOTATION=false
+          RETRY_COUNT=0
+          MAX_RETRIES=10
+          while [[ "$HAS_FAILING_FILE_ANNOTATION" != "true" && $RETRY_COUNT -lt $MAX_RETRIES ]]
+          do
+            ANNOTATIONS=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "/repos/$REPO/check-runs/$CHECK_RUN_ID/annotations?per_page=100")
+            HAS_FAILING_FILE_ANNOTATION=$(echo "$ANNOTATIONS" | jq --arg failing_file_path "$FAILING_FILE_PATH" 'any(.[]; .path == $failing_file_path)')
+            if [[ "$HAS_FAILING_FILE_ANNOTATION" == "true" ]]
+            then
+              break
+            fi
+
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "::notice::Annotation for $FAILING_FILE_PATH not found yet (attempt $RETRY_COUNT/$MAX_RETRIES)"
+            sleep 3
+          done
+
+          if [[ "$HAS_FAILING_FILE_ANNOTATION" != "true" ]]
+          then
+            echo "::error::Expected annotations on $FAILING_FILE_PATH"
+            exit 1
+          fi
