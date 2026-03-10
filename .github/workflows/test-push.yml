@@ -14,7 +14,7 @@ env:
 jobs:
   test_with_more_than_300_files_in_push:
     name: Test with >300 Files in Push
-    if: ${{ !github.event.created }}
+    if: ${{ !github.event.created && !github.event.deleted }}
     runs-on: ubuntu-latest
     outputs:
       check-run-id: ${{ steps.set-check-run-id.outputs.check-run-id }}
