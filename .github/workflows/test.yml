@@ -307,11 +307,10 @@ jobs:
           CHECKS_TEMP_FILE="$(mktemp)"
           echo "checks-temp-file=$CHECKS_TEMP_FILE" >> $GITHUB_OUTPUT;
 
-          API="/repos/$GITHUB_REPOSITORY/commits/$TEST_COMMIT/check-runs"
           EXPECTED_CHECK_COUNT=0
           CHECK_STATUS=""
-
           echo "::notice::Waiting for check '$EXPECTED_CHECK_NAME' for commit $TEST_COMMIT"
+
           sleep 10
 
           while [[ $EXPECTED_CHECK_COUNT -eq 0 || "$CHECK_STATUS" != "completed" ]]
@@ -319,7 +318,7 @@ jobs:
             CHECK_RUNS=$(gh api \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              "$API")
+              "/repos/$GITHUB_REPOSITORY/commits/$TEST_COMMIT/check-runs")
 
             EXPECTED_CHECK_COUNT=$(echo "$CHECK_RUNS" | jq --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | length')
             CHECK_STATUS=$(echo "$CHECK_RUNS" | jq -r --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | sort_by(.started_at) | last | .status // empty')

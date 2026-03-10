@@ -60,7 +60,7 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "$CHECK_RUN_URL/annotations?per_page=100")
-          HAS_FAILING_FILE_ANNOTATION=$(echo "$ANNOTATIONS" | jq --arg failing_file_path "$FAILING_FILE_PATH" 'any(.path == $failing_file_path)')
+          HAS_FAILING_FILE_ANNOTATION=$(echo "$ANNOTATIONS" | jq --arg failing_file_path "$FAILING_FILE_PATH" 'any(.[]; .path == $failing_file_path)')
           if [[ "$HAS_FAILING_FILE_ANNOTATION" != "true" ]]
           then
             echo "::error::Expected annotations on $FAILING_FILE_PATH"
