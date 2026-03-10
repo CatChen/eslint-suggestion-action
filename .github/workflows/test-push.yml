@@ -16,6 +16,8 @@ jobs:
     name: Test with >300 Files in Push
     if: ${{ !github.event.created }}
     runs-on: ubuntu-latest
+    outputs:
+      check-run-id: ${{ steps.set-check-run-id.outputs.check-run-id }}
 
     steps:
       - uses: actions/checkout@v6
@@ -39,28 +41,29 @@ jobs:
         with:
           targets: src/__tests__/bulk/*.js
 
+      - name: Set check run id
+        id: set-check-run-id
+        run: echo "check-run-id=${{ job.check_run_id }}" >> $GITHUB_OUTPUT
+
+  verify_test_with_more_than_300_files_in_push:
+    name: Verify >300 Files in Push
+    runs-on: ubuntu-latest
+    needs: test_with_more_than_300_files_in_push
+    steps:
       - name: Verify
         env:
           REPO: ${{ github.repository }}
-          RUN_ID: ${{ github.run_id }}
+          CHECK_RUN_ID: ${{ needs.test_with_more_than_300_files_in_push.outputs.check-run-id }}
           FAILING_FILE_PATH: src/__tests__/bulk/zzzz-failing.js
         run: |
-          JOBS=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100")
-          CHECK_RUN_URL=$(echo "$JOBS" | jq -r '.jobs[] | select(.name == "Test with >300 Files in Push") | .check_run_url')
-          if [[ -z "$CHECK_RUN_URL" || "$CHECK_RUN_URL" == "null" ]]
-          then
-            echo "::error::Failed to locate check run URL for this job"
-            exit 1
-          fi
+          echo "::notice::Check run ID is $CHECK_RUN_ID"
 
           ANNOTATIONS=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "$CHECK_RUN_URL/annotations?per_page=100")
-          HAS_FAILING_FILE_ANNOTATION=$(echo "$ANNOTATIONS" | jq --arg failing_file_path "$FAILING_FILE_PATH" 'any(.path == $failing_file_path)')
+            "/repos/$REPO/check-runs/$CHECK_RUN_ID/annotations")
+          HAS_FAILING_FILE_ANNOTATION=$(echo "$ANNOTATIONS" | jq --arg failing_file_path "$FAILING_FILE_PATH" 'any(.[]; .path == $failing_file_path)')
+
           if [[ "$HAS_FAILING_FILE_ANNOTATION" != "true" ]]
           then
             echo "::error::Expected annotations on $FAILING_FILE_PATH"
