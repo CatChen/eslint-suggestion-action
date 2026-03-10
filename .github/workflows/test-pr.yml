@@ -2,9 +2,10 @@ name: Test Pull Request
 
 on:
   pull_request:
-  workflow_dispatch:
 
-permissions: write-all
+permissions:
+  contents: read
+  pull-requests: write
 
 env:
   REPO: ${{ github.repository }}
