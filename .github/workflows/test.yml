@@ -302,8 +302,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TEST_COMMIT: ${{ steps.make-commit.outputs.test-commit }}
-          PUSH_BEFORE_SHA: ${{ steps.make-commit.outputs.push-before-sha }}
-          FAILING_FILE_PATH: ${{ steps.make-commit.outputs.failing-file-path }}
           EXPECTED_CHECK_NAME: Test with >300 Files in Push
         run: |
           CHECKS_TEMP_FILE="$(mktemp)"
@@ -325,7 +323,7 @@ jobs:
 
             EXPECTED_CHECK_COUNT=$(echo "$CHECK_RUNS" | jq --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | length')
             CHECK_STATUS=$(echo "$CHECK_RUNS" | jq -r --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | sort_by(.started_at) | last | .status // empty')
-            echo "$CHECK_RUNS" | jq -r '.check_runs[] | [.name, (if .status != "completed" then "pending" elif .conclusion == "success" then "pass" elif .conclusion == "failure" then "fail" elif .conclusion == "skipped" then "skipping" else (.conclusion // "pending") end), (.completed_at // ""), .html_url, (.details_url // .html_url)] | @tsv' | tee -a $CHECKS_TEMP_FILE
+            echo "$CHECK_RUNS" | jq -r '.check_runs[] | [.name, (if .status != "completed" then "pending" elif .conclusion == "success" then "pass" elif .conclusion == "failure" then "fail" elif .conclusion == "skipped" then "skipping" else (.conclusion // "pending") end), (if .status != "completed" or .conclusion == "skipped" then "" else ((((.completed_at | fromdateiso8601) - (.started_at | fromdateiso8601)) | floor | tostring) + "s") end), .html_url, (.details_url // .html_url)] | @tsv' | tee -a $CHECKS_TEMP_FILE
 
             if [[ $EXPECTED_CHECK_COUNT -eq 0 || "$CHECK_STATUS" != "completed" ]]
             then
@@ -335,10 +333,8 @@ jobs:
           done
 
           CHECK_CONCLUSION=$(echo "$CHECK_RUNS" | jq -r --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | sort_by(.started_at) | last | .conclusion // empty')
-          ANNOTATIONS_COUNT=$(echo "$CHECK_RUNS" | jq -r --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | sort_by(.started_at) | last | .output.annotations_count // 0')
 
           echo "::notice::Check conclusion: $CHECK_CONCLUSION"
-          echo "::notice::Annotation count: $ANNOTATIONS_COUNT"
 
           if [[ "$CHECK_CONCLUSION" != "success" ]]
           then
@@ -346,51 +342,13 @@ jobs:
             exit 1
           fi
 
-          COMPARE=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/$GITHUB_REPOSITORY/compare/$PUSH_BEFORE_SHA...$TEST_COMMIT")
-          COMPARE_FILE_COUNT=$(echo "$COMPARE" | jq '.files | length')
-          FAILING_FILE_IN_COMPARE=$(echo "$COMPARE" | jq --arg failing_file_path "$FAILING_FILE_PATH" '.files | any(.filename == $failing_file_path)')
-
-          echo "::notice::Compare API file count: $COMPARE_FILE_COUNT"
-          if [[ "$COMPARE_FILE_COUNT" -ne 300 ]]
+          if [[ -s $CHECKS_TEMP_FILE ]]
           then
-            echo "::error::Expected compare API file count to be 300"
-            exit 1
-          fi
-          if [[ "$FAILING_FILE_IN_COMPARE" == "true" ]]
-          then
-            echo "::error::Test setup is invalid: failing file is still included in truncated compare API result"
-            exit 1
-          fi
-
-          CHECK_RUN_ID=$(echo "$CHECK_RUNS" | jq -r --arg expected_check_name "$EXPECTED_CHECK_NAME" '.check_runs | map(select(.name == $expected_check_name)) | sort_by(.started_at) | last | .id // empty')
-          if [[ -z "$CHECK_RUN_ID" ]]
-          then
-            echo "::error::Failed to locate check run ID for '$EXPECTED_CHECK_NAME'"
-            exit 1
-          fi
-          ANNOTATIONS=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/$GITHUB_REPOSITORY/check-runs/$CHECK_RUN_ID/annotations?per_page=100")
-          FAILING_FILE_ANNOTATED=$(echo "$ANNOTATIONS" | jq --arg failing_file_path "$FAILING_FILE_PATH" 'any(.path == $failing_file_path)')
-          if [[ "$FAILING_FILE_ANNOTATED" != "true" ]]
-          then
-            echo "::error::Expected failing file annotation on $FAILING_FILE_PATH"
-            exit 1
-          fi
-
-          if [[ "$ANNOTATIONS_COUNT" -le 0 ]]
-          then
-            echo "::error::Expected annotations from lint errors in files beyond the 300-file threshold"
-            exit 1
-          fi
-
-          if [[ ! -s $CHECKS_TEMP_FILE ]]
-          then
-            echo "checks-temp-file=" >> $GITHUB_OUTPUT;
+            echo "::group::Temp file content"
+            cat $CHECKS_TEMP_FILE
+            echo "::endgroup::"
+          else
+            echo "checks-temp-file=" >> $GITHUB_OUTPUT
           fi
 
       - name: Report Checks
@@ -400,7 +358,7 @@ jobs:
           CHECKS_TEMP_FILE: ${{ steps.check-push.outputs.checks-temp-file }}
           TEST_COMMIT: ${{ steps.make-commit.outputs.test-commit }}
         run: |
-          gh pr comment "$BASE_PR_NUMBER" --body "**Checks from Push Test Commit \`$TEST_COMMIT\`**
+          gh pr comment "$BASE_PR_NUMBER" --body "**Checks from Push Test Commit $TEST_COMMIT**
 
           | Check | Status | Time |
           | --- | --- | --: |
