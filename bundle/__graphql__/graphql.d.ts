@@ -841,6 +841,8 @@ export type Agentic = {
     viewerCopilotAgentCreatesChannel?: Maybe<Scalars['String']['output']>;
     /** Channel value for subscribing to live updates for session log updates. */
     viewerCopilotAgentLogUpdatesChannel?: Maybe<Scalars['String']['output']>;
+    /** Channel value for subscribing to live updates for task updates. */
+    viewerCopilotAgentTaskUpdatesChannel?: Maybe<Scalars['String']['output']>;
     /** Channel value for subscribing to live updates for session updates. */
     viewerCopilotAgentUpdatesChannel?: Maybe<Scalars['String']['output']>;
 };
@@ -32401,6 +32403,8 @@ export type User = Actor & Agentic & Node & PackageOwner & ProfileOwner & Projec
     viewerCopilotAgentCreatesChannel?: Maybe<Scalars['String']['output']>;
     /** Channel value for subscribing to live updates for session log updates. */
     viewerCopilotAgentLogUpdatesChannel?: Maybe<Scalars['String']['output']>;
+    /** Channel value for subscribing to live updates for task updates. */
+    viewerCopilotAgentTaskUpdatesChannel?: Maybe<Scalars['String']['output']>;
     /** Channel value for subscribing to live updates for session updates. */
     viewerCopilotAgentUpdatesChannel?: Maybe<Scalars['String']['output']>;
     /** Whether or not this user is followed by the viewer. Inverse of isFollowingViewer. */
