@@ -52,6 +52,20 @@ jobs:
           request-changes-if-not-clean: false
           targets: .
 
+      - name: Reformat
+        if: ${{ steps.check-git-status.outputs.status == 'dirty' }}
+        run: |
+          yarn prettier --write .
+          yarn lint --fix || true
+
+      - name: Build
+        if: ${{ steps.check-git-status.outputs.status == 'dirty' }}
+        run: yarn build
+
+      - name: Bundle
+        if: ${{ steps.check-git-status.outputs.status == 'dirty' }}
+        run: yarn bundle
+
       - uses: CatChen/config-git-with-token-action@v2
         if: ${{ steps.check-git-status.outputs.status == 'dirty' }}
         with:
@@ -63,7 +77,7 @@ jobs:
           BRANCH_NAME: workflows/graphql-schema
         run: |
           git checkout -B "$BRANCH_NAME"
-          git add schema.graphql src/__graphql__
+          git add .
 
           git commit -m "Updated GitHub GraphQL schema"
           git push --force-with-lease origin "HEAD:refs/heads/$BRANCH_NAME"
@@ -83,6 +97,5 @@ jobs:
               --title "Synchronized GitHub GraphQL schema" \
               --body "Automated synchronization of the GitHub GraphQL schema and generated types." \
               --assignee CatChen \
-              --reviewer CatChen \
               --label pass2ship
           fi
