@@ -1,19 +1,20 @@
 import type { ESLint as ProjectESLint, Linter as ProjectLinter } from 'eslint';
 import { existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
+import { pathToFileURL } from 'node:url';
 import { notice } from '@actions/core';
 
 export async function getESLint(eslintLibPath: string, configPath: string) {
   const absoluteDirectory = cwd();
-  const require = createRequire(absoluteDirectory);
   const eslintJsPath = resolve(absoluteDirectory, eslintLibPath);
   if (!existsSync(eslintJsPath)) {
     throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
   }
   notice(`Using ESLint from: ${eslintJsPath}`);
-  const { ESLint, loadESLint } = require(eslintJsPath) as {
+  const { ESLint, loadESLint } = (await import(
+    pathToFileURL(eslintJsPath).href
+  )) as {
     ESLint: typeof ProjectESLint;
     loadESLint: (() => Promise<typeof ProjectESLint>) | undefined;
   };
