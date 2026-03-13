@@ -34731,7 +34731,7 @@ An item within a Project.
 """
 type ProjectV2Item implements Node {
   """
-  The content of the referenced draft issue, issue, or pull request
+  The content of the referenced draft issue, issue, pull request
   """
   content: ProjectV2ItemContent
   """
