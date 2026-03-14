@@ -37683,8 +37683,8 @@ function handleCommit(eventName, results, ruleMetaDatas, failCheck) {
 ;// CONCATENATED MODULE: external "node:fs"
 const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
 var external_node_fs_namespaceObject_0 = /*#__PURE__*/__nccwpck_require__.t(external_node_fs_namespaceObject, 2);
-;// CONCATENATED MODULE: external "node:module"
-const external_node_module_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:module");
+// EXTERNAL MODULE: external "node:url"
+var external_node_url_ = __nccwpck_require__(1041);
 ;// CONCATENATED MODULE: ./src/getESLint.ts
 var getESLint_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -37703,13 +37703,16 @@ var getESLint_awaiter = (undefined && undefined.__awaiter) || function (thisArg,
 function getESLint(eslintLibPath, configPath) {
     return getESLint_awaiter(this, void 0, void 0, function* () {
         const absoluteDirectory = (0,external_node_process_namespaceObject.cwd)();
-        const require = (0,external_node_module_namespaceObject.createRequire)(absoluteDirectory);
         const eslintJsPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, eslintLibPath);
         if (!(0,external_node_fs_namespaceObject.existsSync)(eslintJsPath)) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
         notice(`Using ESLint from: ${eslintJsPath}`);
-        const { ESLint, loadESLint } = require(eslintJsPath);
+        // Use `new Function` to bypass ncc/webpack static analysis, which would
+        // otherwise replace a dynamic `import()` with a stub that always throws.
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        const dynamicImport = new Function('url', 'return import(url)');
+        const { ESLint, loadESLint } = (yield dynamicImport((0,external_node_url_.pathToFileURL)(eslintJsPath).href));
         notice(`ESLint version: ${ESLint.version}`);
         if (configPath) {
             const absoluteConfigPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, configPath);
@@ -37732,8 +37735,6 @@ function getESLint(eslintLibPath, configPath) {
     });
 }
 
-// EXTERNAL MODULE: external "node:url"
-var external_node_url_ = __nccwpck_require__(1041);
 ;// CONCATENATED MODULE: external "node:fs/promises"
 const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs/promises");
 // EXTERNAL MODULE: external "node:events"
