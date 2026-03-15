@@ -7,17 +7,10 @@
   "tabWidth": 2,
   "trailingComma": "all",
   "importOrder": [
-    "^@action/core/(.*)$",
-    "^@action/github/(.*)$",
-    "^@action/exec/(.*)$",
-    "^@action/glob/(.*)$",
-    "^@action/(.*)$",
+    "<TYPES>",
+    "<BUILTIN_MODULES>",
     "<THIRD_PARTY_MODULES>",
     "^[./]"
   ],
-  "importOrderSortIndividualImports": true,
-  "importOrderMergeDuplicateImports": true,
-  "importOrderBuiltinModulesToTop": true,
-  "importOrderTypeImportsToTop": true,
-  "plugins": ["@serverless-guru/prettier-plugin-import-order"]
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-package"]
 }
