@@ -2,21 +2,38 @@
   "name": "eslint-suggestion-action",
   "version": "4.1.26",
   "description": "",
-  "packageManager": "yarn@4.13.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CatChen/eslint-suggestion-action.git"
+  },
+  "author": "Cat Chen",
+  "homepage": "https://github.com/CatChen/eslint-suggestion-action#readme",
+  "bugs": {
+    "url": "https://github.com/CatChen/eslint-suggestion-action/issues"
+  },
   "main": "dist/index.js",
-  "types": "dist/index.d.js",
   "type": "module",
   "scripts": {
-    "codegen": "rm -rf src/__graphql__ && graphql-codegen-esm --config codegen.ts",
     "build": "rm -rf dist && tsc",
     "bundle": "rm -rf bundle && ncc build src/index.ts --source-map --license licenses.txt --out bundle",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "codegen": "rm -rf src/__graphql__ && graphql-codegen-esm --config codegen.ts",
     "format": "prettier --write .",
     "lint": "eslint -c eslint.config.js",
-    "prepublishOnly": "pinst --disable && yarn build",
     "postpublish": "pinst --enable",
+    "prepare": "is-ci || husky",
+    "prepublishOnly": "pinst --disable && yarn build",
     "preversion": "yarn && yarn build && yarn bundle",
-    "prepare": "is-ci || husky"
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@octokit/core": "^7.0.0",
+    "@octokit/plugin-retry": "^8.0.1",
+    "@octokit/plugin-throttling": "^11.0.1",
+    "glob": "^13.0.0"
   },
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.15.2",
@@ -26,8 +43,8 @@
     "@graphql-codegen/typescript": "^5.0.7",
     "@graphql-codegen/typescript-document-nodes": "^5.0.7",
     "@graphql-eslint/eslint-plugin": "^4.4.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@octokit/webhooks-types": "^7.6.1",
-    "@serverless-guru/prettier-plugin-import-order": "^0.4.1",
     "@types/eslint": "^9.6.0",
     "@types/glob": "^9.0.0",
     "@types/node": "^25.0.0",
@@ -43,35 +60,21 @@
     "lint-staged": "^16.0.0",
     "pinst": "^3.0.0",
     "prettier": "^3.0.2",
+    "prettier-plugin-package": "^2.0.0",
     "typescript": "^5.0.2",
     "typescript-eslint": "^8.0.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CatChen/eslint-suggestion-action.git"
-  },
-  "author": "Cat Chen",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/CatChen/eslint-suggestion-action/issues"
-  },
-  "homepage": "https://github.com/CatChen/eslint-suggestion-action#readme",
-  "funding": "https://github.com/CatChen/eslint-suggestion-action?sponsor=1",
-  "dependencies": {
-    "@actions/core": "^3.0.0",
-    "@actions/github": "^9.0.0",
-    "@graphql-typed-document-node/core": "^3.2.0",
-    "@octokit/plugin-retry": "^8.0.1",
-    "@octokit/plugin-throttling": "^11.0.1",
-    "glob": "^13.0.0"
   },
   "resolutions": {
     "strip-ansi": "6.0.1"
   },
+  "types": "dist/index.d.js",
+  "funding": "https://github.com/CatChen/eslint-suggestion-action?sponsor=1",
   "lint-staged": {
-    "*.(ts,js)": "yarn lint --fix",
-    "*.json": "yarn prettier -w",
-    "*.(yml,yaml)": "yarn prettier -w",
-    "*.(md,markdown)": "yarn prettier -w"
-  }
+    "*.{ts,js}": [
+      "yarn format",
+      "yarn lint --fix"
+    ],
+    "*.{json,yml,yaml,md,markdown}": "yarn format"
+  },
+  "packageManager": "yarn@4.13.0"
 }
