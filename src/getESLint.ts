@@ -12,14 +12,8 @@ export async function getESLint(eslintLibPath: string, configPath: string) {
     throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
   }
   notice(`Using ESLint from: ${eslintJsPath}`);
-  // Use `new Function` to bypass ncc/webpack static analysis, which would
-  // otherwise replace a dynamic `import()` with a stub that always throws.
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
-  const dynamicImport = new Function('url', 'return import(url)') as (
-    url: string,
-  ) => Promise<unknown>;
-  const { ESLint, loadESLint } = (await dynamicImport(
-    pathToFileURL(eslintJsPath).href,
+  const { ESLint, loadESLint } = (await import(
+    pathToFileURL(eslintJsPath).href
   )) as {
     ESLint: typeof ProjectESLint;
     loadESLint: (() => Promise<typeof ProjectESLint>) | undefined;
