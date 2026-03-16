@@ -17,7 +17,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/create-github-app-token@v2
+      - uses: actions/create-github-app-token@v3
         id: get-github-app-token
         with:
           app-id: ${{ secrets.CHECK_GIT_STATUS_BOT_APP_ID }}
