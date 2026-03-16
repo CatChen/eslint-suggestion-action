@@ -30083,6 +30083,25 @@ module.exports = {
 
 /***/ }),
 
+/***/ 433:
+/***/ ((module) => {
+
+function webpackEmptyAsyncContext(req) {
+	// Here Promise.resolve().then() is used instead of new Promise() to prevent
+	// uncaught exception popping up in devtools
+	return Promise.resolve().then(() => {
+		var e = new Error("Cannot find module '" + req + "'");
+		e.code = 'MODULE_NOT_FOUND';
+		throw e;
+	});
+}
+webpackEmptyAsyncContext.keys = () => ([]);
+webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
+webpackEmptyAsyncContext.id = 433;
+module.exports = webpackEmptyAsyncContext;
+
+/***/ }),
+
 /***/ 2613:
 /***/ ((module) => {
 
@@ -37706,11 +37725,7 @@ function getESLint(eslintLibPath, configPath) {
             throw new Error(`ESLint JavaScript cannot be found at ${eslintJsPath}`);
         }
         notice(`Using ESLint from: ${eslintJsPath}`);
-        // Use `new Function` to bypass ncc/webpack static analysis, which would
-        // otherwise replace a dynamic `import()` with a stub that always throws.
-        // eslint-disable-next-line @typescript-eslint/no-implied-eval
-        const dynamicImport = new Function('url', 'return import(url)');
-        const { ESLint, loadESLint } = (yield dynamicImport((0,external_node_url_.pathToFileURL)(eslintJsPath).href));
+        const { ESLint, loadESLint } = (yield __nccwpck_require__(433)((0,external_node_url_.pathToFileURL)(eslintJsPath).href));
         notice(`ESLint version: ${ESLint.version}`);
         if (configPath) {
             const absoluteConfigPath = (0,external_node_path_namespaceObject.resolve)(absoluteDirectory, configPath);
