@@ -1609,7 +1609,7 @@ export type BulkSponsorship = {
     sponsorableLogin?: InputMaybe<Scalars['String']['input']>;
 };
 /** Types that can represent a repository ruleset bypass actor. */
-export type BypassActor = App | Team;
+export type BypassActor = App | Team | User;
 /** A user, team, or app who has the ability to bypass a force push requirement on a protected branch. */
 export type BypassForcePushAllowance = Node & {
     __typename: 'BypassForcePushAllowance';
