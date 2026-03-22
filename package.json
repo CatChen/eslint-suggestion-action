@@ -1,6 +1,6 @@
 {
   "name": "eslint-suggestion-action",
-  "version": "4.1.26",
+  "version": "4.1.27",
   "description": "This GitHub Action runs ESLint and provides inline feedback to the changes in a Pull Request.",
   "license": "MIT",
   "repository": {
