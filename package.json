@@ -61,7 +61,7 @@
     "pinst": "^3.0.0",
     "prettier": "^3.0.2",
     "prettier-plugin-package": "^2.0.0",
-    "typescript": "^5.0.2",
+    "typescript": "^6.0.2",
     "typescript-eslint": "^8.0.1"
   },
   "resolutions": {
