@@ -10386,44 +10386,6 @@ export type IssueEdge = {
   node?: Maybe<Issue>;
 };
 
-/** Represents a 'issue_field_added' event on a given issue. */
-export type IssueFieldAddedEvent = Node & {
-  __typename: 'IssueFieldAddedEvent';
-  /** Identifies the actor who performed the event. */
-  actor?: Maybe<Actor>;
-  /** The color if it is a single-select field. */
-  color?: Maybe<Scalars['String']['output']>;
-  /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime']['output'];
-  /** The Node ID of the IssueFieldAddedEvent object */
-  id: Scalars['ID']['output'];
-  /** The issue field added. */
-  issueField?: Maybe<IssueFields>;
-  /** The value of the added field. */
-  value?: Maybe<Scalars['String']['output']>;
-};
-
-/** Represents a 'issue_field_changed' event on a given issue. */
-export type IssueFieldChangedEvent = Node & {
-  __typename: 'IssueFieldChangedEvent';
-  /** Identifies the actor who performed the event. */
-  actor?: Maybe<Actor>;
-  /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime']['output'];
-  /** The Node ID of the IssueFieldChangedEvent object */
-  id: Scalars['ID']['output'];
-  /** The issue field changed. */
-  issueField?: Maybe<IssueFields>;
-  /** The new color if it is a single-select field. */
-  newColor?: Maybe<Scalars['String']['output']>;
-  /** The new value of the field. */
-  newValue?: Maybe<Scalars['String']['output']>;
-  /** The previous color if it was a single-select field. */
-  previousColor?: Maybe<Scalars['String']['output']>;
-  /** The previous value of the field. */
-  previousValue?: Maybe<Scalars['String']['output']>;
-};
-
 /** Common fields across different issue field types */
 export type IssueFieldCommon = {
   /** The issue field's creation timestamp. */
@@ -10539,19 +10501,6 @@ export type IssueFieldOrderField =
   | 'CREATED_AT'
   /** Order issue fields by name */
   | 'NAME';
-
-/** Represents a 'issue_field_removed' event on a given issue. */
-export type IssueFieldRemovedEvent = Node & {
-  __typename: 'IssueFieldRemovedEvent';
-  /** Identifies the actor who performed the event. */
-  actor?: Maybe<Actor>;
-  /** Identifies the date and time when the object was created. */
-  createdAt: Scalars['DateTime']['output'];
-  /** The Node ID of the IssueFieldRemovedEvent object */
-  id: Scalars['ID']['output'];
-  /** The issue field removed. */
-  issueField?: Maybe<IssueFields>;
-};
 
 /** Represents a single select issue field. */
 export type IssueFieldSingleSelect = IssueFieldCommon &
@@ -10793,15 +10742,6 @@ export type IssueOrderField =
   /** Order issues by update time */
   | 'UPDATED_AT';
 
-/** Type of issue search performed */
-export type IssueSearchType =
-  /** Hybrid search combining lexical and semantic approaches */
-  | 'HYBRID'
-  /** Lexical (keyword-based) search */
-  | 'LEXICAL'
-  /** Semantic (meaning-based) search using embeddings */
-  | 'SEMANTIC';
-
 /** The possible states of an issue. */
 export type IssueState =
   /** An issue that has been closed */
@@ -10923,9 +10863,6 @@ export type IssueTimelineItems =
   | IssueComment
   | IssueCommentPinnedEvent
   | IssueCommentUnpinnedEvent
-  | IssueFieldAddedEvent
-  | IssueFieldChangedEvent
-  | IssueFieldRemovedEvent
   | IssueTypeAddedEvent
   | IssueTypeChangedEvent
   | IssueTypeRemovedEvent
@@ -11414,23 +11351,6 @@ export type LanguageOrder = {
 export type LanguageOrderField =
   /** Order languages by the size of all files containing the language */
   'SIZE';
-
-/** Reason why a semantic or hybrid issue search fell back to lexical search */
-export type LexicalFallbackReason =
-  /** Query targets non-issue types (e.g., pull requests) */
-  | 'NON_ISSUE_TARGET'
-  /** Scoped query resolved to zero accessible repositories */
-  | 'NO_ACCESSIBLE_REPOS'
-  /** Query has only qualifiers and no free text terms */
-  | 'NO_TEXT_TERMS'
-  /** Query uses an in: qualifier targeting non-semantic fields */
-  | 'ONLY_NON_SEMANTIC_FIELDS_REQUESTED'
-  /** Query contains OR operators (nested boolean qualifiers) */
-  | 'OR_BOOLEAN_NOT_SUPPORTED'
-  /** Query contains quoted text requiring exact matches */
-  | 'QUOTED_TEXT'
-  /** Embedding generation failed or timed out */
-  | 'SERVER_ERROR';
 
 /** A repository's open source license */
 export type License = Node & {
@@ -23625,9 +23545,6 @@ export type PullRequestTimelineItems =
   | IssueComment
   | IssueCommentPinnedEvent
   | IssueCommentUnpinnedEvent
-  | IssueFieldAddedEvent
-  | IssueFieldChangedEvent
-  | IssueFieldRemovedEvent
   | IssueTypeAddedEvent
   | IssueTypeChangedEvent
   | IssueTypeRemovedEvent
@@ -30183,10 +30100,6 @@ export type SearchResultItemConnection = {
    * total number of matches, a maximum of 1,000 results will be available across all types.
    */
   issueCount: Scalars['Int']['output'];
-  /** The type of search that was performed for issues (lexical, semantic, or hybrid) */
-  issueSearchType?: Maybe<IssueSearchType>;
-  /** When a semantic or hybrid search falls back to lexical, the reasons why the fallback occurred. */
-  lexicalFallbackReason?: Maybe<Array<LexicalFallbackReason>>;
   /** A list of nodes. */
   nodes?: Maybe<Array<Maybe<SearchResultItem>>>;
   /** Information to aid in pagination. */
@@ -30229,10 +30142,6 @@ export type SearchType =
   | 'ISSUE'
   /** Returns results matching issues in repositories. */
   | 'ISSUE_ADVANCED'
-  /** Returns results matching issues using hybrid (lexical + semantic) search. */
-  | 'ISSUE_HYBRID'
-  /** Returns results matching issues using semantic search. */
-  | 'ISSUE_SEMANTIC'
   /** Returns results matching repositories. */
   | 'REPOSITORY'
   /** Returns results matching users and organizations on GitHub. */
