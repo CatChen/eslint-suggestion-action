@@ -10635,6 +10635,8 @@ export type IssueFieldSingleSelectValue = IssueFieldValueCommon &
     name: Scalars['String']['output'];
     /** The selected option's global relay ID. */
     optionId?: Maybe<Scalars['String']['output']>;
+    /** The option's name text (alias for `name`, for consistency with other field value types). */
+    value: Scalars['String']['output'];
   };
 
 /** Represents a text issue field. */
