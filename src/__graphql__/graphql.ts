@@ -3022,8 +3022,9 @@ export type CommitComment = Comment &
     lastEditedAt?: Maybe<Scalars['DateTime']['output']>;
     /**
      * Returns why the comment was minimized. One of `abuse`, `off-topic`,
-     * `outdated`, `resolved`, `duplicate` and `spam`. Note that the case and
-     * formatting of these values differs from the inputs to the `MinimizeComment` mutation.
+     * `outdated`, `resolved`, `duplicate`, `spam`, and `low-quality`. Note that the
+     * case and formatting of these values differs from the inputs to the
+     * `MinimizeComment` mutation.
      */
     minimizedReason?: Maybe<Scalars['String']['output']>;
     /** Identifies the file path associated with the comment. */
@@ -6695,8 +6696,9 @@ export type DiscussionComment = Comment &
     lastEditedAt?: Maybe<Scalars['DateTime']['output']>;
     /**
      * Returns why the comment was minimized. One of `abuse`, `off-topic`,
-     * `outdated`, `resolved`, `duplicate` and `spam`. Note that the case and
-     * formatting of these values differs from the inputs to the `MinimizeComment` mutation.
+     * `outdated`, `resolved`, `duplicate`, `spam`, and `low-quality`. Note that the
+     * case and formatting of these values differs from the inputs to the
+     * `MinimizeComment` mutation.
      */
     minimizedReason?: Maybe<Scalars['String']['output']>;
     /** Identifies when the comment was published at. */
@@ -9187,8 +9189,9 @@ export type GistComment = Comment &
     lastEditedAt?: Maybe<Scalars['DateTime']['output']>;
     /**
      * Returns why the comment was minimized. One of `abuse`, `off-topic`,
-     * `outdated`, `resolved`, `duplicate` and `spam`. Note that the case and
-     * formatting of these values differs from the inputs to the `MinimizeComment` mutation.
+     * `outdated`, `resolved`, `duplicate`, `spam`, and `low-quality`. Note that the
+     * case and formatting of these values differs from the inputs to the
+     * `MinimizeComment` mutation.
      */
     minimizedReason?: Maybe<Scalars['String']['output']>;
     /** Identifies when the comment was published at. */
@@ -10190,8 +10193,9 @@ export type IssueComment = Comment &
     lastEditedAt?: Maybe<Scalars['DateTime']['output']>;
     /**
      * Returns why the comment was minimized. One of `abuse`, `off-topic`,
-     * `outdated`, `resolved`, `duplicate` and `spam`. Note that the case and
-     * formatting of these values differs from the inputs to the `MinimizeComment` mutation.
+     * `outdated`, `resolved`, `duplicate`, `spam`, and `low-quality`. Note that the
+     * case and formatting of these values differs from the inputs to the
+     * `MinimizeComment` mutation.
      */
     minimizedReason?: Maybe<Scalars['String']['output']>;
     /** Identifies the date and time when this entity was pinned. */
@@ -12883,8 +12887,9 @@ export type Minimizable = {
   isMinimized: Scalars['Boolean']['output'];
   /**
    * Returns why the comment was minimized. One of `abuse`, `off-topic`,
-   * `outdated`, `resolved`, `duplicate` and `spam`. Note that the case and
-   * formatting of these values differs from the inputs to the `MinimizeComment` mutation.
+   * `outdated`, `resolved`, `duplicate`, `spam`, and `low-quality`. Note that the
+   * case and formatting of these values differs from the inputs to the
+   * `MinimizeComment` mutation.
    */
   minimizedReason?: Maybe<Scalars['String']['output']>;
   /** Check if the current viewer can minimize this object. */
@@ -23055,8 +23060,9 @@ export type PullRequestReview = Comment &
     lastEditedAt?: Maybe<Scalars['DateTime']['output']>;
     /**
      * Returns why the comment was minimized. One of `abuse`, `off-topic`,
-     * `outdated`, `resolved`, `duplicate` and `spam`. Note that the case and
-     * formatting of these values differs from the inputs to the `MinimizeComment` mutation.
+     * `outdated`, `resolved`, `duplicate`, `spam`, and `low-quality`. Note that the
+     * case and formatting of these values differs from the inputs to the
+     * `MinimizeComment` mutation.
      */
     minimizedReason?: Maybe<Scalars['String']['output']>;
     /** A list of teams that this review was made on behalf of. */
@@ -23184,8 +23190,9 @@ export type PullRequestReviewComment = Comment &
     line?: Maybe<Scalars['Int']['output']>;
     /**
      * Returns why the comment was minimized. One of `abuse`, `off-topic`,
-     * `outdated`, `resolved`, `duplicate` and `spam`. Note that the case and
-     * formatting of these values differs from the inputs to the `MinimizeComment` mutation.
+     * `outdated`, `resolved`, `duplicate`, `spam`, and `low-quality`. Note that the
+     * case and formatting of these values differs from the inputs to the
+     * `MinimizeComment` mutation.
      */
     minimizedReason?: Maybe<Scalars['String']['output']>;
     /** Identifies the original commit associated with the comment. */
@@ -28095,6 +28102,7 @@ export type RepositoryVulnerabilityAlertArgs = {
 export type RepositoryVulnerabilityAlertsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
+  classifications?: InputMaybe<Array<SecurityAdvisoryClassification>>;
   dependencyScopes?: InputMaybe<
     Array<RepositoryVulnerabilityAlertDependencyScope>
   >;
