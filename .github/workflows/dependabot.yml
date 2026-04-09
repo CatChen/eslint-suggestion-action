@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Dependabot metadata
         id: dependabot-metadata
-        uses: dependabot/fetch-metadata@v2
+        uses: dependabot/fetch-metadata@v3
 
       - name: Add label for types group
         if: ${{ steps.dependabot-metadata.outputs.dependency-group == 'types' }}
