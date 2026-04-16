@@ -18,15 +18,15 @@ __metadata:
   linkType: hard
 
 "@0no-co/graphqlsp@npm:^1.15.2":
-  version: 1.15.3
-  resolution: "@0no-co/graphqlsp@npm:1.15.3"
+  version: 1.15.4
+  resolution: "@0no-co/graphqlsp@npm:1.15.4"
   dependencies:
     "@gql.tada/internal": "npm:^1.0.0"
     graphql: "npm:^15.5.0 || ^16.0.0 || ^17.0.0"
   peerDependencies:
     graphql: ^15.5.0 || ^16.0.0 || ^17.0.0
     typescript: ^5.0.0 || ^6.0.0
-  checksum: 10c0/35962955d76ee707c34656f0d87c06070058cc80d125928a75989b5eb05c0798b0c62b2e78bba0c556429bf7255c2f5d07aa1d0875bdbff2fb012a1f19affb31
+  checksum: 10c0/3cf8c26a08782c28b232c3b0425dcc6fea2cf60c8dce98e40501078d60a2cdd26fd6f84786d93e3298dffec32ffccc436180338e1002fac4d800d69cf44ca2ed
   languageName: node
   linkType: hard
 
@@ -4358,11 +4358,11 @@ __metadata:
   linkType: hard
 
 "prettier@npm:^3.0.2":
-  version: 3.8.2
-  resolution: "prettier@npm:3.8.2"
+  version: 3.8.3
+  resolution: "prettier@npm:3.8.3"
   bin:
     prettier: bin/prettier.cjs
-  checksum: 10c0/2d64bd01d269c8dd6d8c423a2a2e1fb88230a53aac523204b327de40059ccf8bd8e6fe70b8ce6154b97ed4442e9fd878504ff8a5330f3a4f64bd13d1576f7652
+  checksum: 10c0/754816fd7593eb80f6376d7476d463e832c38a12f32775a82683adb6e35b772b1f484d65f19401507b983a8c8a7cd5a4a9f12006bd56491e8f35503473f77473
   languageName: node
   linkType: hard
 
