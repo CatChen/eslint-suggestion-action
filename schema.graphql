@@ -49337,7 +49337,11 @@ input RequestReviewsInput {
   """
   The Node IDs of the team to request.
   """
-  teamIds: [ID!] @possibleTypes(concreteTypes: ["Team"])
+  teamIds: [ID!]
+    @possibleTypes(
+      concreteTypes: ["Team"]
+      abstractType: "TeamReviewRequestable"
+    )
   """
   Add users to the set rather than replace.
   """
@@ -54760,7 +54764,7 @@ input TagNamePatternParametersInput {
 """
 A team of users in an organization.
 """
-type Team implements MemberStatusable & Node & Subscribable {
+type Team implements MemberStatusable & Node & Subscribable & TeamReviewRequestable {
   """
   A list of teams that are ancestors of this team.
   """
@@ -56270,6 +56274,24 @@ enum TeamReviewAssignmentAlgorithm {
   Alternate reviews between each team member
   """
   ROUND_ROBIN
+}
+
+"""
+Represents a team that can be requested to review a pull request.
+"""
+interface TeamReviewRequestable {
+  """
+  The Node ID of the TeamReviewRequestable object
+  """
+  id: ID!
+  """
+  The name of the team.
+  """
+  name: String!
+  """
+  A unique, human-readable identifier for the team.
+  """
+  slug: String!
 }
 
 """
