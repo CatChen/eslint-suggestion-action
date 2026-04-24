@@ -21841,6 +21841,11 @@ export type ProjectV2SingleSelectFieldOptionInput = {
   color: ProjectV2SingleSelectFieldOptionColor;
   /** The description text of the option */
   description: Scalars['String']['input'];
+  /**
+   * The ID of an existing single select option. Include this to preserve the
+   * option's identity during updates, preventing item field values from being cleared.
+   */
+  id?: InputMaybe<Scalars['String']['input']>;
   /** The name of the option */
   name: Scalars['String']['input'];
 };
