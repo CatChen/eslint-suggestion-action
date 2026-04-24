@@ -29929,7 +29929,7 @@ export type TagNamePatternParametersInput = {
     pattern: Scalars['String']['input'];
 };
 /** A team of users in an organization. */
-export type Team = MemberStatusable & Node & Subscribable & {
+export type Team = MemberStatusable & Node & Subscribable & TeamReviewRequestable & {
     __typename: 'Team';
     /** A list of teams that are ancestors of this team. */
     ancestors: TeamConnection;
@@ -30819,6 +30819,15 @@ export type TeamReviewAssignmentAlgorithm =
 'LOAD_BALANCE'
 /** Alternate reviews between each team member */
  | 'ROUND_ROBIN';
+/** Represents a team that can be requested to review a pull request. */
+export type TeamReviewRequestable = {
+    /** The Node ID of the TeamReviewRequestable object */
+    id: Scalars['ID']['output'];
+    /** The name of the team. */
+    name: Scalars['String']['output'];
+    /** A unique, human-readable identifier for the team. */
+    slug: Scalars['String']['output'];
+};
 /** The role of a user on a team. */
 export type TeamRole = 
 /** User has admin rights on the team. */
