@@ -29072,6 +29072,8 @@ export type RepositoryRulesetBypassActor = Node & {
   deployKey: Scalars['Boolean']['output'];
   /** This actor represents the ability for an enterprise owner to bypass */
   enterpriseOwner: Scalars['Boolean']['output'];
+  /** This actor represents the ability for an enterprise role to bypass */
+  enterpriseRole: Scalars['Boolean']['output'];
   /** The Node ID of the RepositoryRulesetBypassActor object */
   id: Scalars['ID']['output'];
   /** This actor represents the ability for an organization owner to bypass */
@@ -29129,6 +29131,8 @@ export type RepositoryRulesetBypassActorInput = {
   deployKey?: InputMaybe<Scalars['Boolean']['input']>;
   /** For enterprise owner bypasses, true */
   enterpriseOwner?: InputMaybe<Scalars['Boolean']['input']>;
+  /** For enterprise role bypasses, true. NOTE: This bypass actor is in beta. */
+  enterpriseRole?: InputMaybe<Scalars['Boolean']['input']>;
   /** For organization owner bypasses, true */
   organizationAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   /** For role bypasses, the role database ID */
