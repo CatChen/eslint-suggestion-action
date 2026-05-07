@@ -2000,11 +2000,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*, @types/node@npm:^25.0.0":
-  version: 25.6.0
-  resolution: "@types/node@npm:25.6.0"
+  version: 25.6.1
+  resolution: "@types/node@npm:25.6.1"
   dependencies:
     undici-types: "npm:~7.19.0"
-  checksum: 10c0/d2d2015630ff098a201407f55f5077a20270ae4f465c739b40865cd9933b91b9c5d2b85568eadaf3db0801b91e267333ca7eb39f007428b173d1cdab4b339ac5
+  checksum: 10c0/4aea21cf3dd98eed57ea2666aa89e2665a2478bdc46f76791d15bd0c3cf8ed812401f4906cfb0e47ee591fc7461179caf8da790b77c19307423e5268de9eb6f9
   languageName: node
   linkType: hard
 
