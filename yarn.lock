@@ -3656,8 +3656,8 @@ __metadata:
   linkType: hard
 
 "lint-staged@npm:^17.0.2":
-  version: 17.0.2
-  resolution: "lint-staged@npm:17.0.2"
+  version: 17.0.3
+  resolution: "lint-staged@npm:17.0.3"
   dependencies:
     listr2: "npm:^10.2.1"
     picomatch: "npm:^4.0.4"
@@ -3669,7 +3669,7 @@ __metadata:
       optional: true
   bin:
     lint-staged: bin/lint-staged.js
-  checksum: 10c0/c1ecf8478988bb586de7023d424d01f8a2a1b0114c1782b7d1da2e0706ebfdf7c9f48cc67407c5e7f7e93b7efe97b8dbb75e264b8ae72f63711a31607b82b1a4
+  checksum: 10c0/fed226f7596b65e543660dd7d460c96066d3cba8048f040c0f18089f280fed68c8504f95eaafa509d6cc0028d86dc834524a618660e480fc9733ce358dd696e8
   languageName: node
   linkType: hard
 
