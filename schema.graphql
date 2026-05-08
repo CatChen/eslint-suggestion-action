@@ -12653,7 +12653,9 @@ enum EnterpriseAllowPrivateRepositoryForkingPolicyValue {
   """
   ENTERPRISE_ORGANIZATIONS_USER_ACCOUNTS
   """
-  Members can fork a repository to their user account or an organization, either inside or outside of this enterprise.
+  Members can fork a repository to their user account or an organization, either
+  inside or outside of this enterprise. Internal repositories can only be forked
+  inside of this enterprise.
   """
   EVERYWHERE
   """
@@ -48493,7 +48495,7 @@ type RepositoryRuleset implements Node {
 }
 
 """
-A team or app that has the ability to bypass a rules defined on a ruleset
+A team, app or user that has the ability to bypass rules defined on a ruleset
 """
 type RepositoryRulesetBypassActor implements Node {
   """
@@ -48599,7 +48601,7 @@ should be specified.
 """
 input RepositoryRulesetBypassActorInput {
   """
-  For Team and Integration bypasses, the Team or Integration ID
+  For Team, Integration and User bypasses, the Team, Integration, or User ID
   """
   actorId: ID
   """
@@ -50869,6 +50871,10 @@ enum SecurityAdvisorySeverity {
   Moderate.
   """
   MODERATE
+  """
+  Unknown.
+  """
+  UNKNOWN
 }
 
 """
