@@ -4,6 +4,16 @@ schema {
 }
 
 """
+Assigns a documentation category for docs.github.com, aligned with REST API reference sections.
+"""
+directive @docsCategory(
+  """
+  The category slug (e.g. "issues", "pulls", "repos").
+  """
+  name: String!
+) on ENUM | INPUT_OBJECT | INTERFACE | OBJECT | UNION
+
+"""
 Defines what type of global IDs are accepted for a mutation argument of type ID.
 """
 directive @possibleTypes(
