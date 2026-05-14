@@ -1271,7 +1271,8 @@ type AddedToMergeQueueEvent implements Node {
 """
 Represents a 'added_to_project' event on a given issue or pull request.
 """
-type AddedToProjectEvent implements Node {
+type AddedToProjectEvent implements Node
+  @docsCategory(name: "projects-classic") {
   """
   Identifies the actor who performed the event.
   """
@@ -1343,7 +1344,7 @@ type AddedToProjectV2Event implements Node & ProjectV2Event {
 """
 Represents configuration for assigning Copilot to an issue (public variant)
 """
-input AgentAssignmentInput {
+input AgentAssignmentInput @docsCategory(name: "users") {
   """
   The base ref/branch for the repository. Defaults to the default branch if not provided.
   """
@@ -1409,7 +1410,7 @@ type AnnouncementBanner {
 """
 A GitHub App.
 """
-type App implements Node {
+type App implements Node @docsCategory(name: "apps") {
   """
   The client ID of the app.
   """
@@ -1641,7 +1642,7 @@ type ArchiveRepositoryPayload {
 """
 An object that can have users assigned to it.
 """
-interface Assignable {
+interface Assignable @docsCategory(name: "issues") {
   """
   A list of actors assigned to this object.
   """
@@ -1747,7 +1748,11 @@ type AssignedEvent implements Node {
 """
 Types that can be assigned to issues.
 """
-union Assignee = Bot | Mannequin | Organization | User
+union Assignee @docsCategory(name: "issues") =
+  | Bot
+  | Mannequin
+  | Organization
+  | User
 
 """
 The connection type for Assignee.
@@ -2309,7 +2314,7 @@ type Blob implements GitObject & Node {
 """
 Represents a 'blocked_by_added' event on a given issue.
 """
-type BlockedByAddedEvent implements Node {
+type BlockedByAddedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -2331,7 +2336,7 @@ type BlockedByAddedEvent implements Node {
 """
 Represents a 'blocked_by_removed' event on a given issue.
 """
-type BlockedByRemovedEvent implements Node {
+type BlockedByRemovedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -2353,7 +2358,7 @@ type BlockedByRemovedEvent implements Node {
 """
 Represents a 'blocking_added' event on a given issue.
 """
-type BlockingAddedEvent implements Node {
+type BlockingAddedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -2375,7 +2380,7 @@ type BlockingAddedEvent implements Node {
 """
 Represents a 'blocking_removed' event on a given issue.
 """
-type BlockingRemovedEvent implements Node {
+type BlockingRemovedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -2397,7 +2402,8 @@ type BlockingRemovedEvent implements Node {
 """
 A special type of user which takes actions on behalf of GitHub Apps.
 """
-type Bot implements Actor & Node & UniformResourceLocatable {
+type Bot implements Actor & Node & UniformResourceLocatable
+  @docsCategory(name: "apps") {
   """
   A URL pointing to the GitHub App's public avatar.
   """
@@ -4263,7 +4269,7 @@ type CloneTemplateRepositoryPayload {
 """
 An object that can be closed
 """
-interface Closable {
+interface Closable @docsCategory(name: "issues") {
   """
   Indicates if the object is closed (definition of closed may depend on type)
   """
@@ -4542,7 +4548,7 @@ enum CollaboratorAffiliation {
 """
 Represents a comment.
 """
-interface Comment {
+interface Comment @docsCategory(name: "issues") {
   """
   The actor who authored the comment.
   """
@@ -4625,7 +4631,7 @@ interface Comment {
 """
 A comment author association with repository.
 """
-enum CommentAuthorAssociation {
+enum CommentAuthorAssociation @docsCategory(name: "issues") {
   """
   Author has been invited to collaborate on the repository.
   """
@@ -4663,7 +4669,7 @@ enum CommentAuthorAssociation {
 """
 The possible errors that will prevent a user from updating a comment.
 """
-enum CommentCannotUpdateReason {
+enum CommentCannotUpdateReason @docsCategory(name: "issues") {
   """
   Unable to create comment because repository is archived.
   """
@@ -5793,7 +5799,7 @@ enum ComparisonStatus {
 """
 Represents a 'connected' event on a given issue or pull request.
 """
-type ConnectedEvent implements Node {
+type ConnectedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -6484,7 +6490,8 @@ type ConvertToDraftEvent implements Node & UniformResourceLocatable {
 """
 Represents a 'converted_from_draft' event on a given issue or pull request.
 """
-type ConvertedFromDraftEvent implements Node & ProjectV2Event {
+type ConvertedFromDraftEvent implements Node & ProjectV2Event
+  @docsCategory(name: "pulls") {
   """
   Identifies the actor who performed the event.
   """
@@ -9849,7 +9856,7 @@ type DeleteVerifiableDomainPayload {
 """
 Represents a 'demilestoned' event on a given issue or pull request.
 """
-type DemilestonedEvent implements Node {
+type DemilestonedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -10972,7 +10979,7 @@ type DisablePullRequestAutoMergePayload {
 """
 Represents a 'disconnected' event on a given issue or pull request.
 """
-type DisconnectedEvent implements Node {
+type DisconnectedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -16922,7 +16929,8 @@ enum IpAllowListUserLevelEnforcementEnabledSettingValue {
 """
 An Issue is a place to discuss ideas, enhancements, tasks, and bugs for a project.
 """
-type Issue implements Assignable & Closable & Comment & Deletable & Labelable & Lockable & Node & ProjectV2Owner & Reactable & RepositoryNode & Subscribable & SubscribableThread & UniformResourceLocatable & Updatable & UpdatableComment {
+type Issue implements Assignable & Closable & Comment & Deletable & Labelable & Lockable & Node & ProjectV2Owner & Reactable & RepositoryNode & Subscribable & SubscribableThread & UniformResourceLocatable & Updatable & UpdatableComment
+  @docsCategory(name: "issues") {
   """
   Reason that the conversation was locked.
   """
@@ -17701,7 +17709,7 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
 """
 The possible state reasons of a closed issue.
 """
-enum IssueClosedStateReason {
+enum IssueClosedStateReason @docsCategory(name: "issues") {
   """
   An issue that has been closed as completed
   """
@@ -17719,7 +17727,8 @@ enum IssueClosedStateReason {
 """
 Represents a comment on an Issue.
 """
-type IssueComment implements Comment & Deletable & Minimizable & Node & Pinnable & Reactable & RepositoryNode & Updatable & UpdatableComment {
+type IssueComment implements Comment & Deletable & Minimizable & Node & Pinnable & Reactable & RepositoryNode & Updatable & UpdatableComment
+  @docsCategory(name: "issues") {
   """
   The actor who authored the comment.
   """
@@ -17955,7 +17964,7 @@ type IssueCommentEdge {
 """
 Ways in which lists of issue comments can be ordered upon return.
 """
-input IssueCommentOrder {
+input IssueCommentOrder @docsCategory(name: "issues") {
   """
   The direction in which to order issue comments by the specified field.
   """
@@ -17969,7 +17978,7 @@ input IssueCommentOrder {
 """
 Properties by which issue comment connections can be ordered.
 """
-enum IssueCommentOrderField {
+enum IssueCommentOrderField @docsCategory(name: "issues") {
   """
   Order issue comments by update time
   """
@@ -17979,7 +17988,7 @@ enum IssueCommentOrderField {
 """
 Represents a 'issue_comment_pinned' event on a given issue.
 """
-type IssueCommentPinnedEvent implements Node {
+type IssueCommentPinnedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -18001,7 +18010,7 @@ type IssueCommentPinnedEvent implements Node {
 """
 Represents a 'issue_comment_unpinned' event on a given issue.
 """
-type IssueCommentUnpinnedEvent implements Node {
+type IssueCommentUnpinnedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -18045,7 +18054,7 @@ type IssueConnection {
 """
 This aggregates issues opened by a user within one repository.
 """
-type IssueContributionsByRepository {
+type IssueContributionsByRepository @docsCategory(name: "issues") {
   """
   The issue contributions.
   """
@@ -18080,7 +18089,7 @@ type IssueContributionsByRepository {
 """
 Summary of the state of an issue's dependencies
 """
-type IssueDependenciesSummary {
+type IssueDependenciesSummary @docsCategory(name: "issues") {
   """
   Count of issues this issue is blocked by
   """
@@ -18102,7 +18111,7 @@ type IssueDependenciesSummary {
 """
 Ordering options issue dependencies
 """
-input IssueDependencyOrder {
+input IssueDependencyOrder @docsCategory(name: "issues") {
   """
   The ordering direction.
   """
@@ -18116,7 +18125,7 @@ input IssueDependencyOrder {
 """
 Properties by which issue dependencies can be ordered.
 """
-enum IssueDependencyOrderField {
+enum IssueDependencyOrderField @docsCategory(name: "issues") {
   """
   Order issue dependencies by the creation time of the dependent issue
   """
@@ -18144,7 +18153,7 @@ type IssueEdge {
 """
 Represents a 'issue_field_added' event on a given issue.
 """
-type IssueFieldAddedEvent implements Node {
+type IssueFieldAddedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -18174,7 +18183,7 @@ type IssueFieldAddedEvent implements Node {
 """
 Represents a 'issue_field_changed' event on a given issue.
 """
-type IssueFieldChangedEvent implements Node {
+type IssueFieldChangedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -18212,7 +18221,7 @@ type IssueFieldChangedEvent implements Node {
 """
 Common fields across different issue field types
 """
-interface IssueFieldCommon {
+interface IssueFieldCommon @docsCategory(name: "issues") {
   """
   The issue field's creation timestamp.
   """
@@ -18238,7 +18247,7 @@ interface IssueFieldCommon {
 """
 Represents an issue field value that must be set on an issue during issue creation
 """
-input IssueFieldCreateOrUpdateInput {
+input IssueFieldCreateOrUpdateInput @docsCategory(name: "issues") {
   """
   The date value, for a date field
   """
@@ -18268,7 +18277,7 @@ input IssueFieldCreateOrUpdateInput {
 """
 The type of an issue field.
 """
-enum IssueFieldDataType {
+enum IssueFieldDataType @docsCategory(name: "issues") {
   """
   Date
   """
@@ -18290,7 +18299,8 @@ enum IssueFieldDataType {
 """
 Represents a date issue field.
 """
-type IssueFieldDate implements IssueFieldCommon & Node {
+type IssueFieldDate implements IssueFieldCommon & Node
+  @docsCategory(name: "issues") {
   """
   The issue field's creation timestamp.
   """
@@ -18320,7 +18330,8 @@ type IssueFieldDate implements IssueFieldCommon & Node {
 """
 The value of a date field in an Issue item.
 """
-type IssueFieldDateValue implements IssueFieldValueCommon & Node {
+type IssueFieldDateValue implements IssueFieldValueCommon & Node
+  @docsCategory(name: "issues") {
   """
   The issue field that contains this value.
   """
@@ -18338,7 +18349,8 @@ type IssueFieldDateValue implements IssueFieldValueCommon & Node {
 """
 Represents a number issue field.
 """
-type IssueFieldNumber implements IssueFieldCommon & Node {
+type IssueFieldNumber implements IssueFieldCommon & Node
+  @docsCategory(name: "issues") {
   """
   The issue field's creation timestamp.
   """
@@ -18368,7 +18380,8 @@ type IssueFieldNumber implements IssueFieldCommon & Node {
 """
 The value of a number field in an Issue item.
 """
-type IssueFieldNumberValue implements IssueFieldValueCommon & Node {
+type IssueFieldNumberValue implements IssueFieldValueCommon & Node
+  @docsCategory(name: "issues") {
   """
   The issue field that contains this value.
   """
@@ -18386,7 +18399,7 @@ type IssueFieldNumberValue implements IssueFieldValueCommon & Node {
 """
 Ordering options for issue field connections
 """
-input IssueFieldOrder {
+input IssueFieldOrder @docsCategory(name: "issues") {
   """
   The ordering direction.
   """
@@ -18400,7 +18413,7 @@ input IssueFieldOrder {
 """
 Properties by which issue field connections can be ordered.
 """
-enum IssueFieldOrderField {
+enum IssueFieldOrderField @docsCategory(name: "issues") {
   """
   Order issue fields by creation time
   """
@@ -18414,7 +18427,7 @@ enum IssueFieldOrderField {
 """
 Represents a 'issue_field_removed' event on a given issue.
 """
-type IssueFieldRemovedEvent implements Node {
+type IssueFieldRemovedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -18436,7 +18449,8 @@ type IssueFieldRemovedEvent implements Node {
 """
 Represents a single select issue field.
 """
-type IssueFieldSingleSelect implements IssueFieldCommon & Node {
+type IssueFieldSingleSelect implements IssueFieldCommon & Node
+  @docsCategory(name: "issues") {
   """
   The issue field's creation timestamp.
   """
@@ -18470,7 +18484,8 @@ type IssueFieldSingleSelect implements IssueFieldCommon & Node {
 """
 Represents an option in a single-select issue field.
 """
-type IssueFieldSingleSelectOption implements Node {
+type IssueFieldSingleSelectOption implements Node
+  @docsCategory(name: "issues") {
   """
   The option's display color.
   """
@@ -18496,7 +18511,7 @@ type IssueFieldSingleSelectOption implements Node {
 """
 The display color of a single-select field option.
 """
-enum IssueFieldSingleSelectOptionColor {
+enum IssueFieldSingleSelectOptionColor @docsCategory(name: "issues") {
   """
   blue
   """
@@ -18534,7 +18549,7 @@ enum IssueFieldSingleSelectOptionColor {
 """
 A single selection option for an issue field.
 """
-input IssueFieldSingleSelectOptionInput {
+input IssueFieldSingleSelectOptionInput @docsCategory(name: "issues") {
   """
   The color associated with the option.
   """
@@ -18556,7 +18571,8 @@ input IssueFieldSingleSelectOptionInput {
 """
 The value of a single select field in an Issue item.
 """
-type IssueFieldSingleSelectValue implements IssueFieldValueCommon & Node {
+type IssueFieldSingleSelectValue implements IssueFieldValueCommon & Node
+  @docsCategory(name: "issues") {
   """
   The option's display color.
   """
@@ -18590,7 +18606,8 @@ type IssueFieldSingleSelectValue implements IssueFieldValueCommon & Node {
 """
 Represents a text issue field.
 """
-type IssueFieldText implements IssueFieldCommon & Node {
+type IssueFieldText implements IssueFieldCommon & Node
+  @docsCategory(name: "issues") {
   """
   The issue field's creation timestamp.
   """
@@ -18620,7 +18637,8 @@ type IssueFieldText implements IssueFieldCommon & Node {
 """
 The value of a text field in an Issue item.
 """
-type IssueFieldTextValue implements IssueFieldValueCommon & Node {
+type IssueFieldTextValue implements IssueFieldValueCommon & Node
+  @docsCategory(name: "issues") {
   """
   The issue field that contains this value.
   """
@@ -18638,7 +18656,7 @@ type IssueFieldTextValue implements IssueFieldValueCommon & Node {
 """
 Issue field values
 """
-union IssueFieldValue =
+union IssueFieldValue @docsCategory(name: "issues") =
   | IssueFieldDateValue
   | IssueFieldNumberValue
   | IssueFieldSingleSelectValue
@@ -18647,7 +18665,7 @@ union IssueFieldValue =
 """
 Common fields across different issue field value types
 """
-interface IssueFieldValueCommon {
+interface IssueFieldValueCommon @docsCategory(name: "issues") {
   """
   The issue field that contains this value.
   """
@@ -18693,7 +18711,7 @@ type IssueFieldValueEdge {
 """
 The visibility of an issue field.
 """
-enum IssueFieldVisibility {
+enum IssueFieldVisibility @docsCategory(name: "issues") {
   """
   All
   """
@@ -18707,7 +18725,7 @@ enum IssueFieldVisibility {
 """
 Possible issue fields.
 """
-union IssueFields =
+union IssueFields @docsCategory(name: "issues") =
   | IssueFieldDate
   | IssueFieldNumber
   | IssueFieldSingleSelect
@@ -18752,7 +18770,7 @@ type IssueFieldsEdge {
 """
 Ways in which to filter lists of issues.
 """
-input IssueFilters {
+input IssueFilters @docsCategory(name: "issues") {
   """
   List issues assigned to given name. Pass in `null` for issues with no assigned
   user, and `*` for issues assigned to any user.
@@ -18803,12 +18821,12 @@ input IssueFilters {
 """
 Used for return value of Repository.issueOrPullRequest.
 """
-union IssueOrPullRequest = Issue | PullRequest
+union IssueOrPullRequest @docsCategory(name: "issues") = Issue | PullRequest
 
 """
 Ways in which lists of issues can be ordered upon return.
 """
-input IssueOrder {
+input IssueOrder @docsCategory(name: "issues") {
   """
   The direction in which to order issues by the specified field.
   """
@@ -18822,7 +18840,7 @@ input IssueOrder {
 """
 Properties by which issue connections can be ordered.
 """
-enum IssueOrderField {
+enum IssueOrderField @docsCategory(name: "issues") {
   """
   Order issues by comment count
   """
@@ -18840,7 +18858,7 @@ enum IssueOrderField {
 """
 Type of issue search performed
 """
-enum IssueSearchType {
+enum IssueSearchType @docsCategory(name: "issues") {
   """
   Hybrid search combining lexical and semantic approaches
   """
@@ -18858,7 +18876,7 @@ enum IssueSearchType {
 """
 The possible states of an issue.
 """
-enum IssueState {
+enum IssueState @docsCategory(name: "issues") {
   """
   An issue that has been closed
   """
@@ -18872,7 +18890,7 @@ enum IssueState {
 """
 The possible state reasons of an issue.
 """
-enum IssueStateReason {
+enum IssueStateReason @docsCategory(name: "issues") {
   """
   An issue that has been closed as completed
   """
@@ -18894,7 +18912,7 @@ enum IssueStateReason {
 """
 A repository issue template.
 """
-type IssueTemplate {
+type IssueTemplate @docsCategory(name: "issues") {
   """
   The template purpose.
   """
@@ -18992,7 +19010,7 @@ type IssueTimelineConnection {
 """
 An item in an issue timeline
 """
-union IssueTimelineItem =
+union IssueTimelineItem @docsCategory(name: "issues") =
   | AssignedEvent
   | ClosedEvent
   | Commit
@@ -19030,7 +19048,7 @@ type IssueTimelineItemEdge {
 """
 An item in an issue timeline
 """
-union IssueTimelineItems =
+union IssueTimelineItems @docsCategory(name: "issues") =
   | AddedToProjectEvent
   | AddedToProjectV2Event
   | AssignedEvent
@@ -19344,7 +19362,7 @@ enum IssueTimelineItemsItemType {
 """
 Represents the type of Issue.
 """
-type IssueType implements Node {
+type IssueType implements Node @docsCategory(name: "issues") {
   """
   The issue type's color.
   """
@@ -19422,7 +19440,7 @@ type IssueType implements Node {
 """
 Represents a 'issue_type_added' event on a given issue.
 """
-type IssueTypeAddedEvent implements Node {
+type IssueTypeAddedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -19444,7 +19462,7 @@ type IssueTypeAddedEvent implements Node {
 """
 Represents a 'issue_type_changed' event on a given issue.
 """
-type IssueTypeChangedEvent implements Node {
+type IssueTypeChangedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -19470,7 +19488,7 @@ type IssueTypeChangedEvent implements Node {
 """
 The possible color for an issue type
 """
-enum IssueTypeColor {
+enum IssueTypeColor @docsCategory(name: "issues") {
   """
   blue
   """
@@ -19544,7 +19562,7 @@ type IssueTypeEdge {
 """
 Ordering options for issue types connections
 """
-input IssueTypeOrder {
+input IssueTypeOrder @docsCategory(name: "issues") {
   """
   The ordering direction.
   """
@@ -19558,7 +19576,7 @@ input IssueTypeOrder {
 """
 Properties by which issue type connections can be ordered.
 """
-enum IssueTypeOrderField {
+enum IssueTypeOrderField @docsCategory(name: "issues") {
   """
   Order issue types by creation time
   """
@@ -19572,7 +19590,7 @@ enum IssueTypeOrderField {
 """
 Represents a 'issue_type_removed' event on a given issue.
 """
-type IssueTypeRemovedEvent implements Node {
+type IssueTypeRemovedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -19622,7 +19640,7 @@ type JoinedGitHubContribution implements Contribution {
 """
 A label for categorizing Issues, Pull Requests, Milestones, or Discussions with a given Repository.
 """
-type Label implements Node {
+type Label implements Node @docsCategory(name: "issues") {
   """
   Identifies the label color.
   """
@@ -19782,7 +19800,7 @@ type LabelEdge {
 """
 Ways in which lists of labels can be ordered upon return.
 """
-input LabelOrder {
+input LabelOrder @docsCategory(name: "issues") {
   """
   The direction in which to order labels by the specified field.
   """
@@ -19796,7 +19814,7 @@ input LabelOrder {
 """
 Properties by which label connections can be ordered.
 """
-enum LabelOrderField {
+enum LabelOrderField @docsCategory(name: "issues") {
   """
   Order labels by creation time
   """
@@ -19814,7 +19832,7 @@ enum LabelOrderField {
 """
 An object that can have labels assigned to it.
 """
-interface Labelable {
+interface Labelable @docsCategory(name: "issues") {
   """
   A list of labels associated with the object.
   """
@@ -19849,7 +19867,7 @@ interface Labelable {
 """
 Represents a 'labeled' event on a given issue or pull request.
 """
-type LabeledEvent implements Node {
+type LabeledEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -20173,7 +20191,7 @@ type LinkRepositoryToProjectPayload {
 """
 A branch linked to an issue.
 """
-type LinkedBranch implements Node {
+type LinkedBranch implements Node @docsCategory(name: "issues") {
   """
   The Node ID of the LinkedBranch object
   """
@@ -20263,7 +20281,7 @@ type LockLockablePayload {
 """
 The possible reasons that an issue or pull request was locked.
 """
-enum LockReason {
+enum LockReason @docsCategory(name: "issues") {
   """
   The issue or pull request was locked because the conversation was off-topic.
   """
@@ -20285,7 +20303,7 @@ enum LockReason {
 """
 An object that can be locked.
 """
-interface Lockable {
+interface Lockable @docsCategory(name: "issues") {
   """
   Reason that the conversation was locked.
   """
@@ -22135,7 +22153,8 @@ enum MigrationState {
 """
 Represents a Milestone object on a given repository.
 """
-type Milestone implements Closable & Node & UniformResourceLocatable {
+type Milestone implements Closable & Node & UniformResourceLocatable
+  @docsCategory(name: "issues") {
   """
   Indicates if the object is closed (definition of closed may depend on type)
   """
@@ -22335,12 +22354,12 @@ type MilestoneEdge {
 """
 Types that can be inside a Milestone.
 """
-union MilestoneItem = Issue | PullRequest
+union MilestoneItem @docsCategory(name: "issues") = Issue | PullRequest
 
 """
 Ordering options for milestone connections.
 """
-input MilestoneOrder {
+input MilestoneOrder @docsCategory(name: "issues") {
   """
   The ordering direction.
   """
@@ -22354,7 +22373,7 @@ input MilestoneOrder {
 """
 Properties by which milestone connections can be ordered.
 """
-enum MilestoneOrderField {
+enum MilestoneOrderField @docsCategory(name: "issues") {
   """
   Order milestones by when they were created.
   """
@@ -22376,7 +22395,7 @@ enum MilestoneOrderField {
 """
 The possible states of a milestone.
 """
-enum MilestoneState {
+enum MilestoneState @docsCategory(name: "issues") {
   """
   A milestone that has been closed.
   """
@@ -22390,7 +22409,7 @@ enum MilestoneState {
 """
 Represents a 'milestoned' event on a given issue or pull request.
 """
-type MilestonedEvent implements Node {
+type MilestonedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -22552,7 +22571,8 @@ type MoveProjectColumnPayload {
 """
 Represents a 'moved_columns_in_project' event on a given issue or pull request.
 """
-type MovedColumnsInProjectEvent implements Node {
+type MovedColumnsInProjectEvent implements Node
+  @docsCategory(name: "projects-classic") {
   """
   Identifies the actor who performed the event.
   """
@@ -22668,7 +22688,7 @@ type Mutation {
     Parameters for AddAssigneesToAssignable
     """
     input: AddAssigneesToAssignableInput!
-  ): AddAssigneesToAssignablePayload
+  ): AddAssigneesToAssignablePayload @docsCategory(name: "issues")
   """
   Adds a 'blocked by' relationship to an issue.
   """
@@ -22677,7 +22697,7 @@ type Mutation {
     Parameters for AddBlockedBy
     """
     input: AddBlockedByInput!
-  ): AddBlockedByPayload
+  ): AddBlockedByPayload @docsCategory(name: "issues")
   """
   Adds a comment to an Issue or Pull Request.
   """
@@ -22731,7 +22751,7 @@ type Mutation {
     Parameters for AddLabelsToLabelable
     """
     input: AddLabelsToLabelableInput!
-  ): AddLabelsToLabelablePayload
+  ): AddLabelsToLabelablePayload @docsCategory(name: "issues")
   """
   Adds a card to a ProjectColumn. Either `contentId` or `note` must be provided but **not** both.
   """
@@ -22741,6 +22761,7 @@ type Mutation {
     """
     input: AddProjectCardInput!
   ): AddProjectCardPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -22753,6 +22774,7 @@ type Mutation {
     """
     input: AddProjectColumnInput!
   ): AddProjectColumnPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -22818,7 +22840,7 @@ type Mutation {
     Parameters for AddReaction
     """
     input: AddReactionInput!
-  ): AddReactionPayload
+  ): AddReactionPayload @docsCategory(name: "reactions")
   """
   Adds a star to a Starrable.
   """
@@ -22945,7 +22967,7 @@ type Mutation {
     Parameters for ClearLabelsFromLabelable
     """
     input: ClearLabelsFromLabelableInput!
-  ): ClearLabelsFromLabelablePayload
+  ): ClearLabelsFromLabelablePayload @docsCategory(name: "issues")
   """
   This mutation clears the value of a field for an item in a Project. Currently
   only text, number, date, assignees, labels, single-select, iteration and
@@ -22966,6 +22988,7 @@ type Mutation {
     """
     input: CloneProjectInput!
   ): CloneProjectPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -22995,7 +23018,7 @@ type Mutation {
     Parameters for CloseIssue
     """
     input: CloseIssueInput!
-  ): CloseIssuePayload
+  ): CloseIssuePayload @docsCategory(name: "issues")
   """
   Close a pull request.
   """
@@ -23014,6 +23037,7 @@ type Mutation {
     """
     input: ConvertProjectCardNoteToIssueInput!
   ): ConvertProjectCardNoteToIssuePayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -23197,7 +23221,7 @@ type Mutation {
     Parameters for CreateIssue
     """
     input: CreateIssueInput!
-  ): CreateIssuePayload
+  ): CreateIssuePayload @docsCategory(name: "issues")
   """
   Creates a new issue field.
   """
@@ -23206,7 +23230,7 @@ type Mutation {
     Parameters for CreateIssueField
     """
     input: CreateIssueFieldInput!
-  ): CreateIssueFieldPayload
+  ): CreateIssueFieldPayload @docsCategory(name: "issues")
   """
   Creates a new issue field value for an issue.
   """
@@ -23215,7 +23239,7 @@ type Mutation {
     Parameters for CreateIssueFieldValue
     """
     input: CreateIssueFieldValueInput!
-  ): CreateIssueFieldValuePayload
+  ): CreateIssueFieldValuePayload @docsCategory(name: "issues")
   """
   Creates a new issue type
   """
@@ -23224,7 +23248,7 @@ type Mutation {
     Parameters for CreateIssueType
     """
     input: CreateIssueTypeInput!
-  ): CreateIssueTypePayload
+  ): CreateIssueTypePayload @docsCategory(name: "issues")
   """
   Creates a new label.
   """
@@ -23233,7 +23257,7 @@ type Mutation {
     Parameters for CreateLabel
     """
     input: CreateLabelInput!
-  ): CreateLabelPayload
+  ): CreateLabelPayload @docsCategory(name: "issues")
   """
   Create a branch linked to an issue.
   """
@@ -23242,7 +23266,7 @@ type Mutation {
     Parameters for CreateLinkedBranch
     """
     input: CreateLinkedBranchInput!
-  ): CreateLinkedBranchPayload
+  ): CreateLinkedBranchPayload @docsCategory(name: "issues")
   """
   Creates a GitHub Enterprise Importer (GEI) migration source.
   """
@@ -23261,6 +23285,7 @@ type Mutation {
     """
     input: CreateProjectInput!
   ): CreateProjectPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -23462,7 +23487,7 @@ type Mutation {
     Parameters for DeleteIssue
     """
     input: DeleteIssueInput!
-  ): DeleteIssuePayload
+  ): DeleteIssuePayload @docsCategory(name: "issues")
   """
   Deletes an IssueComment object.
   """
@@ -23471,7 +23496,7 @@ type Mutation {
     Parameters for DeleteIssueComment
     """
     input: DeleteIssueCommentInput!
-  ): DeleteIssueCommentPayload
+  ): DeleteIssueCommentPayload @docsCategory(name: "issues")
   """
   Deletes an issue field.
   """
@@ -23480,7 +23505,7 @@ type Mutation {
     Parameters for DeleteIssueField
     """
     input: DeleteIssueFieldInput!
-  ): DeleteIssueFieldPayload
+  ): DeleteIssueFieldPayload @docsCategory(name: "issues")
   """
   Deletes an issue field value from an issue.
   """
@@ -23489,7 +23514,7 @@ type Mutation {
     Parameters for DeleteIssueFieldValue
     """
     input: DeleteIssueFieldValueInput!
-  ): DeleteIssueFieldValuePayload
+  ): DeleteIssueFieldValuePayload @docsCategory(name: "issues")
   """
   Delete an issue type
   """
@@ -23498,7 +23523,7 @@ type Mutation {
     Parameters for DeleteIssueType
     """
     input: DeleteIssueTypeInput!
-  ): DeleteIssueTypePayload
+  ): DeleteIssueTypePayload @docsCategory(name: "issues")
   """
   Deletes a label.
   """
@@ -23507,7 +23532,7 @@ type Mutation {
     Parameters for DeleteLabel
     """
     input: DeleteLabelInput!
-  ): DeleteLabelPayload
+  ): DeleteLabelPayload @docsCategory(name: "issues")
   """
   Unlink a branch from an issue.
   """
@@ -23516,7 +23541,7 @@ type Mutation {
     Parameters for DeleteLinkedBranch
     """
     input: DeleteLinkedBranchInput!
-  ): DeleteLinkedBranchPayload
+  ): DeleteLinkedBranchPayload @docsCategory(name: "issues")
   """
   Delete a package version.
   """
@@ -23535,6 +23560,7 @@ type Mutation {
     """
     input: DeleteProjectInput!
   ): DeleteProjectPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -23547,6 +23573,7 @@ type Mutation {
     """
     input: DeleteProjectCardInput!
   ): DeleteProjectCardPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -23559,6 +23586,7 @@ type Mutation {
     """
     input: DeleteProjectColumnInput!
   ): DeleteProjectColumnPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -23769,6 +23797,7 @@ type Mutation {
     """
     input: ImportProjectInput!
   ): ImportProjectPayload
+    @docsCategory(name: "migrations")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -23817,6 +23846,7 @@ type Mutation {
     """
     input: LinkRepositoryToProjectInput!
   ): LinkRepositoryToProjectPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -23828,7 +23858,7 @@ type Mutation {
     Parameters for LockLockable
     """
     input: LockLockableInput!
-  ): LockLockablePayload
+  ): LockLockablePayload @docsCategory(name: "issues")
   """
   Mark a discussion comment as the chosen answer for discussions in an answerable category.
   """
@@ -23901,6 +23931,7 @@ type Mutation {
     """
     input: MoveProjectCardInput!
   ): MoveProjectCardPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -23913,6 +23944,7 @@ type Mutation {
     """
     input: MoveProjectColumnInput!
   ): MoveProjectColumnPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -23933,7 +23965,7 @@ type Mutation {
     Parameters for PinIssue
     """
     input: PinIssueInput!
-  ): PinIssuePayload
+  ): PinIssuePayload @docsCategory(name: "issues")
   """
   Pins an Issue Comment.
   """
@@ -23942,7 +23974,7 @@ type Mutation {
     Parameters for PinIssueComment
     """
     input: PinIssueCommentInput!
-  ): PinIssueCommentPayload
+  ): PinIssueCommentPayload @docsCategory(name: "issues")
   """
   Promote a repository custom property to the enterprise level.
   """
@@ -23996,7 +24028,7 @@ type Mutation {
     Parameters for RemoveAssigneesFromAssignable
     """
     input: RemoveAssigneesFromAssignableInput!
-  ): RemoveAssigneesFromAssignablePayload
+  ): RemoveAssigneesFromAssignablePayload @docsCategory(name: "issues")
   """
   Removes a 'blocked by' relationship from an issue.
   """
@@ -24005,7 +24037,7 @@ type Mutation {
     Parameters for RemoveBlockedBy
     """
     input: RemoveBlockedByInput!
-  ): RemoveBlockedByPayload
+  ): RemoveBlockedByPayload @docsCategory(name: "issues")
   """
   Removes an administrator from the enterprise.
   """
@@ -24060,7 +24092,7 @@ type Mutation {
     Parameters for RemoveLabelsFromLabelable
     """
     input: RemoveLabelsFromLabelableInput!
-  ): RemoveLabelsFromLabelablePayload
+  ): RemoveLabelsFromLabelablePayload @docsCategory(name: "issues")
   """
   Removes outside collaborator from all repositories in an organization.
   """
@@ -24078,7 +24110,7 @@ type Mutation {
     Parameters for RemoveReaction
     """
     input: RemoveReactionInput!
-  ): RemoveReactionPayload
+  ): RemoveReactionPayload @docsCategory(name: "reactions")
   """
   Removes a star from a Starrable.
   """
@@ -24123,7 +24155,7 @@ type Mutation {
     Parameters for ReopenIssue
     """
     input: ReopenIssueInput!
-  ): ReopenIssuePayload
+  ): ReopenIssuePayload @docsCategory(name: "issues")
   """
   Reopen a pull request.
   """
@@ -24132,7 +24164,7 @@ type Mutation {
     Parameters for ReopenPullRequest
     """
     input: ReopenPullRequestInput!
-  ): ReopenPullRequestPayload
+  ): ReopenPullRequestPayload @docsCategory(name: "pulls")
   """
   Reorder a pinned repository environment
   """
@@ -24150,7 +24182,7 @@ type Mutation {
     Parameters for ReplaceActorsForAssignable
     """
     input: ReplaceActorsForAssignableInput!
-  ): ReplaceActorsForAssignablePayload
+  ): ReplaceActorsForAssignablePayload @docsCategory(name: "issues")
   """
   Reprioritizes a sub-issue to a different position in the parent list.
   """
@@ -24249,7 +24281,7 @@ type Mutation {
     Parameters for SetIssueFieldValue
     """
     input: SetIssueFieldValueInput!
-  ): SetIssueFieldValuePayload
+  ): SetIssueFieldValuePayload @docsCategory(name: "issues")
   """
   Set an organization level interaction limit for an organization's public repositories.
   """
@@ -24330,7 +24362,7 @@ type Mutation {
     Parameters for TransferIssue
     """
     input: TransferIssueInput!
-  ): TransferIssuePayload
+  ): TransferIssuePayload @docsCategory(name: "issues")
   """
   Unarchives a ProjectV2Item
   """
@@ -24405,6 +24437,7 @@ type Mutation {
     """
     input: UnlinkRepositoryFromProjectInput!
   ): UnlinkRepositoryFromProjectPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -24416,7 +24449,7 @@ type Mutation {
     Parameters for UnlockLockable
     """
     input: UnlockLockableInput!
-  ): UnlockLockablePayload
+  ): UnlockLockablePayload @docsCategory(name: "issues")
   """
   Unmark a discussion comment as the chosen answer for discussions in an answerable category.
   """
@@ -24443,7 +24476,7 @@ type Mutation {
     Parameters for UnmarkIssueAsDuplicate
     """
     input: UnmarkIssueAsDuplicateInput!
-  ): UnmarkIssueAsDuplicatePayload
+  ): UnmarkIssueAsDuplicatePayload @docsCategory(name: "issues")
   """
   Unmark a project as a template.
   """
@@ -24470,7 +24503,7 @@ type Mutation {
     Parameters for UnpinIssue
     """
     input: UnpinIssueInput!
-  ): UnpinIssuePayload
+  ): UnpinIssuePayload @docsCategory(name: "issues")
   """
   Unpins an Issue Comment.
   """
@@ -24479,7 +24512,7 @@ type Mutation {
     Parameters for UnpinIssueComment
     """
     input: UnpinIssueCommentInput!
-  ): UnpinIssueCommentPayload
+  ): UnpinIssueCommentPayload @docsCategory(name: "issues")
   """
   Marks a review thread as unresolved.
   """
@@ -24597,6 +24630,7 @@ type Mutation {
     """
     input: UpdateEnterpriseMembersCanDeleteIssuesSettingInput!
   ): UpdateEnterpriseMembersCanDeleteIssuesSettingPayload
+    @docsCategory(name: "enterprise-admin")
   """
   Sets the members can delete repositories setting for an enterprise.
   """
@@ -24749,7 +24783,7 @@ type Mutation {
     Parameters for UpdateIssue
     """
     input: UpdateIssueInput!
-  ): UpdateIssuePayload
+  ): UpdateIssuePayload @docsCategory(name: "issues")
   """
   Updates an IssueComment object.
   """
@@ -24758,7 +24792,7 @@ type Mutation {
     Parameters for UpdateIssueComment
     """
     input: UpdateIssueCommentInput!
-  ): UpdateIssueCommentPayload
+  ): UpdateIssueCommentPayload @docsCategory(name: "issues")
   """
   Updates an issue field.
   """
@@ -24767,7 +24801,7 @@ type Mutation {
     Parameters for UpdateIssueField
     """
     input: UpdateIssueFieldInput!
-  ): UpdateIssueFieldPayload
+  ): UpdateIssueFieldPayload @docsCategory(name: "issues")
   """
   Updates an existing issue field value for an issue.
   """
@@ -24776,7 +24810,7 @@ type Mutation {
     Parameters for UpdateIssueFieldValue
     """
     input: UpdateIssueFieldValueInput!
-  ): UpdateIssueFieldValuePayload
+  ): UpdateIssueFieldValuePayload @docsCategory(name: "issues")
   """
   Updates the issue type on an issue
   """
@@ -24785,7 +24819,7 @@ type Mutation {
     Parameters for UpdateIssueIssueType
     """
     input: UpdateIssueIssueTypeInput!
-  ): UpdateIssueIssueTypePayload
+  ): UpdateIssueIssueTypePayload @docsCategory(name: "issues")
   """
   Update an issue type
   """
@@ -24794,7 +24828,7 @@ type Mutation {
     Parameters for UpdateIssueType
     """
     input: UpdateIssueTypeInput!
-  ): UpdateIssueTypePayload
+  ): UpdateIssueTypePayload @docsCategory(name: "issues")
   """
   Updates an existing label.
   """
@@ -24803,7 +24837,7 @@ type Mutation {
     Parameters for UpdateLabel
     """
     input: UpdateLabelInput!
-  ): UpdateLabelPayload
+  ): UpdateLabelPayload @docsCategory(name: "issues")
   """
   Update the setting to restrict notifications to only verified or approved domains available to an owner.
   """
@@ -24852,6 +24886,7 @@ type Mutation {
     """
     input: UpdateProjectInput!
   ): UpdateProjectPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -24864,6 +24899,7 @@ type Mutation {
     """
     input: UpdateProjectCardInput!
   ): UpdateProjectCardPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -24876,6 +24912,7 @@ type Mutation {
     """
     input: UpdateProjectColumnInput!
   ): UpdateProjectColumnPayload
+    @docsCategory(name: "projects-classic")
     @deprecated(
       reason: "Projects (classic) is being deprecated in favor of the new Projects experience, see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. Removal on 2025-04-01 UTC."
     )
@@ -32530,7 +32567,7 @@ type PinIssuePayload {
 """
 Entities that can be pinned.
 """
-interface Pinnable {
+interface Pinnable @docsCategory(name: "users") {
   """
   Indicates whether or not this entity is currently pinned.
   """
@@ -32885,7 +32922,7 @@ type PinnedEvent implements Node {
 """
 A Pinned Issue is a issue pinned to a repository's index page.
 """
-type PinnedIssue implements Node {
+type PinnedIssue implements Node @docsCategory(name: "issues") {
   """
   Identifies the primary key from the database.
   """
@@ -32915,7 +32952,7 @@ type PinnedIssue implements Node {
 """
 A comment pinned to an Issue.
 """
-type PinnedIssueComment implements Node {
+type PinnedIssueComment implements Node @docsCategory(name: "issues") {
   """
   Identifies the primary key from the database.
   """
@@ -33440,7 +33477,8 @@ interface ProfileOwner {
 """
 Projects manage issues, pull requests and notes within a project owner.
 """
-type Project implements Closable & Node & Updatable {
+type Project implements Closable & Node & Updatable
+  @docsCategory(name: "projects-classic") {
   """
   The project's description body.
   """
@@ -33616,7 +33654,7 @@ type Project implements Closable & Node & Updatable {
 """
 A card in a project.
 """
-type ProjectCard implements Node {
+type ProjectCard implements Node @docsCategory(name: "projects-classic") {
   """
   The project column this card is associated under. A card may only belong to one
   project column at a time. The column field will be null if the card is created
@@ -33716,7 +33754,7 @@ type ProjectCard implements Node {
 """
 The possible archived states of a project card.
 """
-enum ProjectCardArchivedState {
+enum ProjectCardArchivedState @docsCategory(name: "projects-classic") {
   """
   A project card that is archived
   """
@@ -33772,7 +33810,7 @@ type ProjectCardEdge {
 """
 An issue or PR and its owning repository to be used in a project card.
 """
-input ProjectCardImport {
+input ProjectCardImport @docsCategory(name: "projects-classic") {
   """
   The issue or pull request number.
   """
@@ -33786,12 +33824,14 @@ input ProjectCardImport {
 """
 Types that can be inside Project Cards.
 """
-union ProjectCardItem = Issue | PullRequest
+union ProjectCardItem @docsCategory(name: "projects-classic") =
+  | Issue
+  | PullRequest
 
 """
 Various content states of a ProjectCard
 """
-enum ProjectCardState {
+enum ProjectCardState @docsCategory(name: "projects-classic") {
   """
   The card has content only.
   """
@@ -33809,7 +33849,7 @@ enum ProjectCardState {
 """
 A column inside a project.
 """
-type ProjectColumn implements Node {
+type ProjectColumn implements Node @docsCategory(name: "projects-classic") {
   """
   List of cards in the column
   """
@@ -33942,7 +33982,7 @@ type ProjectColumnEdge {
 """
 A project column and a list of its issues and PRs.
 """
-input ProjectColumnImport {
+input ProjectColumnImport @docsCategory(name: "projects-classic") {
   """
   The name of the column.
   """
@@ -33960,7 +34000,7 @@ input ProjectColumnImport {
 """
 The semantic purpose of the column - todo, in progress, or done.
 """
-enum ProjectColumnPurpose {
+enum ProjectColumnPurpose @docsCategory(name: "projects-classic") {
   """
   The column contains cards which are complete
   """
@@ -34014,7 +34054,7 @@ type ProjectEdge {
 """
 Ways in which lists of projects can be ordered upon return.
 """
-input ProjectOrder {
+input ProjectOrder @docsCategory(name: "projects-classic") {
   """
   The direction in which to order projects by the specified field.
   """
@@ -34028,7 +34068,7 @@ input ProjectOrder {
 """
 Properties by which project connections can be ordered.
 """
-enum ProjectOrderField {
+enum ProjectOrderField @docsCategory(name: "projects-classic") {
   """
   Order projects by creation time
   """
@@ -34046,7 +34086,7 @@ enum ProjectOrderField {
 """
 Represents an owner of a Project.
 """
-interface ProjectOwner {
+interface ProjectOwner @docsCategory(name: "projects-classic") {
   """
   The Node ID of the ProjectOwner object
   """
@@ -34128,7 +34168,7 @@ interface ProjectOwner {
 """
 Project progress stats.
 """
-type ProjectProgress {
+type ProjectProgress @docsCategory(name: "projects-classic") {
   """
   The number of done cards.
   """
@@ -34183,7 +34223,7 @@ type ProjectProgress {
 """
 State of the project; either 'open' or 'closed'
 """
-enum ProjectState {
+enum ProjectState @docsCategory(name: "projects-classic") {
   """
   The project is closed.
   """
@@ -34197,7 +34237,7 @@ enum ProjectState {
 """
 GitHub-provided templates for Projects
 """
-enum ProjectTemplate {
+enum ProjectTemplate @docsCategory(name: "projects-classic") {
   """
   Create a board with v2 triggers to automatically move cards across To do, In progress and Done columns.
   """
@@ -40407,7 +40447,7 @@ type RateLimit {
 """
 Represents a subject that can be reacted on.
 """
-interface Reactable {
+interface Reactable @docsCategory(name: "reactions") {
   """
   Identifies the primary key from the database.
   """
@@ -40495,7 +40535,7 @@ type ReactingUserEdge {
 """
 An emoji reaction to a particular piece of content.
 """
-type Reaction implements Node {
+type Reaction implements Node @docsCategory(name: "reactions") {
   """
   Identifies the emoji reaction.
   """
@@ -40551,7 +40591,7 @@ type ReactionConnection {
 """
 Emojis that can be attached to Issues, Pull Requests and Comments.
 """
-enum ReactionContent {
+enum ReactionContent @docsCategory(name: "reactions") {
   """
   Represents the `:confused:` emoji.
   """
@@ -40603,7 +40643,7 @@ type ReactionEdge {
 """
 A group of emoji reactions to a particular piece of content.
 """
-type ReactionGroup {
+type ReactionGroup @docsCategory(name: "reactions") {
   """
   Identifies the emoji reaction.
   """
@@ -40670,7 +40710,7 @@ type ReactionGroup {
 """
 Ways in which lists of reactions can be ordered upon return.
 """
-input ReactionOrder {
+input ReactionOrder @docsCategory(name: "reactions") {
   """
   The direction in which to order reactions by the specified field.
   """
@@ -40684,7 +40724,7 @@ input ReactionOrder {
 """
 A list of fields that reactions can be ordered by.
 """
-enum ReactionOrderField {
+enum ReactionOrderField @docsCategory(name: "reactions") {
   """
   Allows ordering a list of reactions by when they were created.
   """
@@ -40694,7 +40734,11 @@ enum ReactionOrderField {
 """
 Types that can be assigned to reactions.
 """
-union Reactor = Bot | Mannequin | Organization | User
+union Reactor @docsCategory(name: "reactions") =
+  | Bot
+  | Mannequin
+  | Organization
+  | User
 
 """
 The connection type for Reactor.
@@ -41185,7 +41229,8 @@ type RejectDeploymentsPayload {
 """
 A release contains the content for a release.
 """
-type Release implements Node & Reactable & UniformResourceLocatable {
+type Release implements Node & Reactable & UniformResourceLocatable
+  @docsCategory(name: "releases") {
   """
   The author of the release
   """
@@ -41359,7 +41404,7 @@ type Release implements Node & Reactable & UniformResourceLocatable {
 """
 A release asset contains the content for a release asset.
 """
-type ReleaseAsset implements Node {
+type ReleaseAsset implements Node @docsCategory(name: "releases") {
   """
   The asset's content-type
   """
@@ -41485,7 +41530,7 @@ type ReleaseEdge {
 """
 Ways in which lists of releases can be ordered upon return.
 """
-input ReleaseOrder {
+input ReleaseOrder @docsCategory(name: "releases") {
   """
   The direction in which to order releases by the specified field.
   """
@@ -41499,7 +41544,7 @@ input ReleaseOrder {
 """
 Properties by which release connections can be ordered.
 """
-enum ReleaseOrderField {
+enum ReleaseOrderField @docsCategory(name: "releases") {
   """
   Order releases by creation time
   """
@@ -42039,7 +42084,8 @@ type RemovedFromMergeQueueEvent implements Node {
 """
 Represents a 'removed_from_project' event on a given issue or pull request.
 """
-type RemovedFromProjectEvent implements Node {
+type RemovedFromProjectEvent implements Node
+  @docsCategory(name: "projects-classic") {
   """
   Identifies the actor who performed the event.
   """
@@ -47043,7 +47089,7 @@ type RepositoryConnection {
 """
 A repository contact link.
 """
-type RepositoryContactLink {
+type RepositoryContactLink @docsCategory(name: "repos") {
   """
   The contact link purpose.
   """
@@ -48701,7 +48747,7 @@ enum RepositoryRulesetTarget {
 """
 The possible filters for suggested actors in a repository
 """
-enum RepositorySuggestedActorFilter {
+enum RepositorySuggestedActorFilter @docsCategory(name: "repos") {
   """
   Actors that can be assigned to issues and pull requests
   """
@@ -56596,7 +56642,7 @@ enum TopicSuggestionDeclineReason {
 """
 The possible states of a tracked issue.
 """
-enum TrackedIssueStates {
+enum TrackedIssueStates @docsCategory(name: "issues") {
   """
   The tracked issue is closed
   """
@@ -56678,7 +56724,7 @@ type TransferIssuePayload {
 """
 Represents a 'transferred' event on a given issue or pull request.
 """
-type TransferredEvent implements Node {
+type TransferredEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -57057,7 +57103,7 @@ type UnknownSignature implements GitSignature {
 """
 Represents an 'unlabeled' event on a given issue or pull request.
 """
-type UnlabeledEvent implements Node {
+type UnlabeledEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -57498,7 +57544,7 @@ type UnpinIssuePayload {
 """
 Represents an 'unpinned' event on a given issue or pull request.
 """
-type UnpinnedEvent implements Node {
+type UnpinnedEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -57580,7 +57626,7 @@ interface Updatable {
 """
 Comments that can be updated.
 """
-interface UpdatableComment {
+interface UpdatableComment @docsCategory(name: "issues") {
   """
   Reasons why the current viewer can not update this comment.
   """
