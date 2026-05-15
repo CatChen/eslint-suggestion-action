@@ -304,7 +304,7 @@ type ActorEdge {
 """
 Location information for an actor
 """
-type ActorLocation {
+type ActorLocation @docsCategory(name: "users") {
   """
   City
   """
@@ -1318,7 +1318,8 @@ type AddedToProjectEvent implements Node
 """
 Represents a 'added_to_project_v2' event on a given issue or pull request.
 """
-type AddedToProjectV2Event implements Node & ProjectV2Event {
+type AddedToProjectV2Event implements Node & ProjectV2Event
+  @docsCategory(name: "projects") {
   """
   Identifies the actor who performed the event.
   """
@@ -1388,7 +1389,7 @@ interface Agentic {
 """
 An announcement banner for an enterprise or organization.
 """
-type AnnouncementBanner {
+type AnnouncementBanner @docsCategory(name: "enterprise-admin") {
   """
   The date the announcement was created
   """
@@ -1793,7 +1794,7 @@ type AssigneeEdge {
 """
 An entry in the audit log.
 """
-interface AuditEntry {
+interface AuditEntry @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -1890,12 +1891,15 @@ interface AuditEntry {
 """
 Types that can initiate an audit log event.
 """
-union AuditEntryActor = Bot | Organization | User
+union AuditEntryActor @docsCategory(name: "enterprise-admin") =
+  | Bot
+  | Organization
+  | User
 
 """
 Ordering options for Audit Log connections.
 """
-input AuditLogOrder {
+input AuditLogOrder @docsCategory(name: "enterprise-admin") {
   """
   The ordering direction.
   """
@@ -1909,7 +1913,7 @@ input AuditLogOrder {
 """
 Properties by which Audit Log connections can be ordered.
 """
-enum AuditLogOrderField {
+enum AuditLogOrderField @docsCategory(name: "enterprise-admin") {
   """
   Order audit log entries by timestamp
   """
@@ -2233,7 +2237,7 @@ scalar BigInt
 """
 Represents a Git blame.
 """
-type Blame {
+type Blame @docsCategory(name: "git") {
   """
   The list of ranges from a Git blame.
   """
@@ -2243,7 +2247,7 @@ type Blame {
 """
 Represents a range of information from a Git blame.
 """
-type BlameRange {
+type BlameRange @docsCategory(name: "git") {
   """
   Identifies the recency of the change, from 1 (new) to 10 (old). This is
   calculated as a 2-quantile and determines the length of distance between the
@@ -2268,7 +2272,7 @@ type BlameRange {
 """
 Represents a Git blob.
 """
-type Blob implements GitObject & Node {
+type Blob implements GitObject & Node @docsCategory(name: "git") {
   """
   An abbreviated version of the Git object ID
   """
@@ -4729,7 +4733,8 @@ type CommentDeletedEvent implements Node {
 """
 Represents a Git commit.
 """
-type Commit implements GitObject & Node & Subscribable & UniformResourceLocatable {
+type Commit implements GitObject & Node & Subscribable & UniformResourceLocatable
+  @docsCategory(name: "commits") {
   """
   An abbreviated version of the Git object ID
   """
@@ -5110,7 +5115,7 @@ type Commit implements GitObject & Node & Subscribable & UniformResourceLocatabl
 """
 Specifies an author for filtering Git commits.
 """
-input CommitAuthor {
+input CommitAuthor @docsCategory(name: "commits") {
   """
   Email addresses to filter by. Commits authored by any of the specified email addresses will be returned.
   """
@@ -5560,7 +5565,7 @@ type CommitHistoryConnection {
 """
 A message to include with a new commit
 """
-input CommitMessage {
+input CommitMessage @docsCategory(name: "commits") {
   """
   The body of the message.
   """
@@ -5638,7 +5643,7 @@ Specify a branch using `repositoryNameWithOwner` and `branchName`:
       "branchName": "main"
     }
 """
-input CommittableBranch {
+input CommittableBranch @docsCategory(name: "git") {
   """
   The unqualified name of the branch to append the commit to.
   """
@@ -8862,7 +8867,9 @@ type CrossReferencedEvent implements Node & UniformResourceLocatable {
 """
 Sources which can have custom properties defined.
 """
-union CustomPropertySource = Enterprise | Organization
+union CustomPropertySource @docsCategory(name: "repos") =
+  | Enterprise
+  | Organization
 
 """
 A custom property value can be either a string or an array of strings. All
@@ -8874,7 +8881,7 @@ scalar CustomPropertyValue
 """
 The custom property name and value to be set.
 """
-input CustomPropertyValueInput {
+input CustomPropertyValueInput @docsCategory(name: "repos") {
   """
   The name of the custom property.
   """
@@ -8889,7 +8896,7 @@ input CustomPropertyValueInput {
 """
 The allowed value types for a custom property definition.
 """
-enum CustomPropertyValueType {
+enum CustomPropertyValueType @docsCategory(name: "repos") {
   """
   A multi-select value.
   """
@@ -11978,7 +11985,7 @@ type DismissRepositoryVulnerabilityAlertPayload {
 """
 A draft issue within a project.
 """
-type DraftIssue implements Node {
+type DraftIssue implements Node @docsCategory(name: "projects") {
   """
   A list of users to assigned to this draft issue.
   """
@@ -12692,7 +12699,7 @@ enum EnterpriseAllowPrivateRepositoryForkingPolicyValue {
 """
 Metadata for an audit entry containing enterprise account information.
 """
-interface EnterpriseAuditEntryData {
+interface EnterpriseAuditEntryData @docsCategory(name: "enterprise-admin") {
   """
   The HTTP path for this enterprise.
   """
@@ -15310,7 +15317,7 @@ type ExternalIdentityScimAttributes {
 A command to add a file at the given path with the given contents as part of a
 commit.  Any existing file at that that path will be replaced.
 """
-input FileAddition {
+input FileAddition @docsCategory(name: "git") {
   """
   The base64 encoded contents of the file
   """
@@ -15436,7 +15443,7 @@ git commit can be described using the `FileChanges` type as follows:
          ]
        }
 """
-input FileChanges {
+input FileChanges @docsCategory(name: "git") {
   """
   File to add or change.
   """
@@ -15450,7 +15457,7 @@ input FileChanges {
 """
 A command to delete the file at the given path as part of a commit.
 """
-input FileDeletion {
+input FileDeletion @docsCategory(name: "git") {
   """
   The path to delete
   """
@@ -15706,7 +15713,8 @@ type GenericHovercardContext implements HovercardContext {
 """
 A Gist.
 """
-type Gist implements Node & Starrable & UniformResourceLocatable {
+type Gist implements Node & Starrable & UniformResourceLocatable
+  @docsCategory(name: "gists") {
   """
   A list of comments associated with the gist
   """
@@ -15848,7 +15856,8 @@ type Gist implements Node & Starrable & UniformResourceLocatable {
 """
 Represents a comment on an Gist.
 """
-type GistComment implements Comment & Deletable & Minimizable & Node & Updatable & UpdatableComment {
+type GistComment implements Comment & Deletable & Minimizable & Node & Updatable & UpdatableComment
+  @docsCategory(name: "gists") {
   """
   The actor who authored the comment.
   """
@@ -16042,7 +16051,7 @@ type GistEdge {
 """
 A file in a gist.
 """
-type GistFile {
+type GistFile @docsCategory(name: "gists") {
   """
   The file name encoded to remove characters that are invalid in URL paths.
   """
@@ -16089,7 +16098,7 @@ type GistFile {
 """
 Ordering options for gist connections
 """
-input GistOrder {
+input GistOrder @docsCategory(name: "gists") {
   """
   The ordering direction.
   """
@@ -16103,7 +16112,7 @@ input GistOrder {
 """
 Properties by which gist connections can be ordered.
 """
-enum GistOrderField {
+enum GistOrderField @docsCategory(name: "gists") {
   """
   Order gists by creation time
   """
@@ -16121,7 +16130,7 @@ enum GistOrderField {
 """
 The privacy of a Gist
 """
-enum GistPrivacy {
+enum GistPrivacy @docsCategory(name: "gists") {
   """
   Gists that are public and secret
   """
@@ -16139,7 +16148,7 @@ enum GistPrivacy {
 """
 Represents an actor in a Git commit (ie. an author or committer).
 """
-type GitActor {
+type GitActor @docsCategory(name: "git") {
   """
   A URL pointing to the author's public avatar.
   """
@@ -16240,7 +16249,7 @@ type GitHubMetadata {
 """
 Represents a Git object.
 """
-interface GitObject {
+interface GitObject @docsCategory(name: "git") {
   """
   An abbreviated version of the Git object ID
   """
@@ -16324,7 +16333,7 @@ interface GitSignature {
 """
 The state of a Git signature.
 """
-enum GitSignatureState {
+enum GitSignatureState @docsCategory(name: "git") {
   """
   The signing certificate or its chain could not be verified
   """
@@ -19893,7 +19902,7 @@ type LabeledEvent implements Node @docsCategory(name: "issues") {
 """
 Represents a given language found in repositories.
 """
-type Language implements Node {
+type Language implements Node @docsCategory(name: "repos") {
   """
   The color defined for the current language.
   """
@@ -19949,7 +19958,7 @@ type LanguageEdge {
 """
 Ordering options for language connections.
 """
-input LanguageOrder {
+input LanguageOrder @docsCategory(name: "repos") {
   """
   The ordering direction.
   """
@@ -19963,7 +19972,7 @@ input LanguageOrder {
 """
 Properties by which language connections can be ordered.
 """
-enum LanguageOrderField {
+enum LanguageOrderField @docsCategory(name: "repos") {
   """
   Order languages by the size of all files containing the language
   """
@@ -21162,7 +21171,8 @@ type MembersCanDeleteReposClearAuditEntry implements AuditEntry & EnterpriseAudi
 """
 Audit log entry for a members_can_delete_repos.disable event.
 """
-type MembersCanDeleteReposDisableAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData {
+type MembersCanDeleteReposDisableAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -21303,7 +21313,8 @@ type MembersCanDeleteReposDisableAuditEntry implements AuditEntry & EnterpriseAu
 """
 Audit log entry for a members_can_delete_repos.enable event.
 """
-type MembersCanDeleteReposEnableAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData {
+type MembersCanDeleteReposEnableAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -22670,7 +22681,7 @@ type Mutation {
     Parameters for AcceptTopicSuggestion
     """
     input: AcceptTopicSuggestionInput!
-  ): AcceptTopicSuggestionPayload
+  ): AcceptTopicSuggestionPayload @docsCategory(name: "repos")
   """
   Access user namespace repository for a temporary duration.
   """
@@ -22786,7 +22797,7 @@ type Mutation {
     Parameters for AddProjectV2DraftIssue
     """
     input: AddProjectV2DraftIssueInput!
-  ): AddProjectV2DraftIssuePayload
+  ): AddProjectV2DraftIssuePayload @docsCategory(name: "projects")
   """
   Links an existing content instance to a Project.
   """
@@ -22795,7 +22806,7 @@ type Mutation {
     Parameters for AddProjectV2ItemById
     """
     input: AddProjectV2ItemByIdInput!
-  ): AddProjectV2ItemByIdPayload
+  ): AddProjectV2ItemByIdPayload @docsCategory(name: "projects")
   """
   Adds a review to a Pull Request.
   """
@@ -22903,7 +22914,7 @@ type Mutation {
     Parameters for ArchiveProjectV2Item
     """
     input: ArchiveProjectV2ItemInput!
-  ): ArchiveProjectV2ItemPayload
+  ): ArchiveProjectV2ItemPayload @docsCategory(name: "projects")
   """
   Archive a pull request. Closes, locks, and marks the pull request as archived.
   Only repository admins can archive pull requests.
@@ -22922,7 +22933,7 @@ type Mutation {
     Parameters for ArchiveRepository
     """
     input: ArchiveRepositoryInput!
-  ): ArchiveRepositoryPayload
+  ): ArchiveRepositoryPayload @docsCategory(name: "repos")
   """
   Cancels a pending invitation for an administrator to join an enterprise.
   """
@@ -22978,7 +22989,7 @@ type Mutation {
     Parameters for ClearProjectV2ItemFieldValue
     """
     input: ClearProjectV2ItemFieldValueInput!
-  ): ClearProjectV2ItemFieldValuePayload
+  ): ClearProjectV2ItemFieldValuePayload @docsCategory(name: "projects")
   """
   Creates a new project by cloning configuration from an existing project.
   """
@@ -23000,7 +23011,7 @@ type Mutation {
     Parameters for CloneTemplateRepository
     """
     input: CloneTemplateRepositoryInput!
-  ): CloneTemplateRepositoryPayload
+  ): CloneTemplateRepositoryPayload @docsCategory(name: "repos")
   """
   Close a discussion.
   """
@@ -23050,6 +23061,7 @@ type Mutation {
     """
     input: ConvertProjectV2DraftIssueItemToIssueInput!
   ): ConvertProjectV2DraftIssueItemToIssuePayload
+    @docsCategory(name: "projects")
   """
   Converts a pull request to draft
   """
@@ -23067,7 +23079,7 @@ type Mutation {
     Parameters for CopyProjectV2
     """
     input: CopyProjectV2Input!
-  ): CopyProjectV2Payload
+  ): CopyProjectV2Payload @docsCategory(name: "projects")
   """
   Invites a user to claim reattributable data
   """
@@ -23153,7 +23165,7 @@ type Mutation {
     Parameters for CreateCommitOnBranch
     """
     input: CreateCommitOnBranchInput!
-  ): CreateCommitOnBranchPayload
+  ): CreateCommitOnBranchPayload @docsCategory(name: "commits")
   """
   Creates a new deployment event.
   """
@@ -23297,7 +23309,7 @@ type Mutation {
     Parameters for CreateProjectV2
     """
     input: CreateProjectV2Input!
-  ): CreateProjectV2Payload
+  ): CreateProjectV2Payload @docsCategory(name: "projects")
   """
   Create a new project field.
   """
@@ -23306,7 +23318,7 @@ type Mutation {
     Parameters for CreateProjectV2Field
     """
     input: CreateProjectV2FieldInput!
-  ): CreateProjectV2FieldPayload
+  ): CreateProjectV2FieldPayload @docsCategory(name: "projects")
   """
   Create a new project issue field.
   """
@@ -23315,7 +23327,7 @@ type Mutation {
     Parameters for CreateProjectV2IssueField
     """
     input: CreateProjectV2IssueFieldInput!
-  ): CreateProjectV2IssueFieldPayload
+  ): CreateProjectV2IssueFieldPayload @docsCategory(name: "projects")
   """
   Creates a status update within a Project.
   """
@@ -23324,7 +23336,7 @@ type Mutation {
     Parameters for CreateProjectV2StatusUpdate
     """
     input: CreateProjectV2StatusUpdateInput!
-  ): CreateProjectV2StatusUpdatePayload
+  ): CreateProjectV2StatusUpdatePayload @docsCategory(name: "projects")
   """
   Create a new pull request
   """
@@ -23351,7 +23363,7 @@ type Mutation {
     Parameters for CreateRepository
     """
     input: CreateRepositoryInput!
-  ): CreateRepositoryPayload
+  ): CreateRepositoryPayload @docsCategory(name: "repos")
   """
   Create a repository custom property.
   """
@@ -23360,7 +23372,7 @@ type Mutation {
     Parameters for CreateRepositoryCustomProperty
     """
     input: CreateRepositoryCustomPropertyInput!
-  ): CreateRepositoryCustomPropertyPayload
+  ): CreateRepositoryCustomPropertyPayload @docsCategory(name: "repos")
   """
   Create a repository ruleset
   """
@@ -23424,7 +23436,7 @@ type Mutation {
     Parameters for DeclineTopicSuggestion
     """
     input: DeclineTopicSuggestionInput!
-  ): DeclineTopicSuggestionPayload
+  ): DeclineTopicSuggestionPayload @docsCategory(name: "repos")
   """
   Delete a branch protection rule
   """
@@ -23598,7 +23610,7 @@ type Mutation {
     Parameters for DeleteProjectV2
     """
     input: DeleteProjectV2Input!
-  ): DeleteProjectV2Payload
+  ): DeleteProjectV2Payload @docsCategory(name: "projects")
   """
   Delete a project field.
   """
@@ -23607,7 +23619,7 @@ type Mutation {
     Parameters for DeleteProjectV2Field
     """
     input: DeleteProjectV2FieldInput!
-  ): DeleteProjectV2FieldPayload
+  ): DeleteProjectV2FieldPayload @docsCategory(name: "projects")
   """
   Deletes an item from a Project.
   """
@@ -23616,7 +23628,7 @@ type Mutation {
     Parameters for DeleteProjectV2Item
     """
     input: DeleteProjectV2ItemInput!
-  ): DeleteProjectV2ItemPayload
+  ): DeleteProjectV2ItemPayload @docsCategory(name: "projects")
   """
   Deletes a project status update.
   """
@@ -23625,7 +23637,7 @@ type Mutation {
     Parameters for DeleteProjectV2StatusUpdate
     """
     input: DeleteProjectV2StatusUpdateInput!
-  ): DeleteProjectV2StatusUpdatePayload
+  ): DeleteProjectV2StatusUpdatePayload @docsCategory(name: "projects")
   """
   Deletes a project workflow.
   """
@@ -23634,7 +23646,7 @@ type Mutation {
     Parameters for DeleteProjectV2Workflow
     """
     input: DeleteProjectV2WorkflowInput!
-  ): DeleteProjectV2WorkflowPayload
+  ): DeleteProjectV2WorkflowPayload @docsCategory(name: "projects")
   """
   Deletes a pull request review.
   """
@@ -23670,7 +23682,7 @@ type Mutation {
     Parameters for DeleteRepositoryCustomProperty
     """
     input: DeleteRepositoryCustomPropertyInput!
-  ): DeleteRepositoryCustomPropertyPayload
+  ): DeleteRepositoryCustomPropertyPayload @docsCategory(name: "repos")
   """
   Delete a repository ruleset
   """
@@ -23827,7 +23839,7 @@ type Mutation {
     Parameters for LinkProjectV2ToRepository
     """
     input: LinkProjectV2ToRepositoryInput!
-  ): LinkProjectV2ToRepositoryPayload
+  ): LinkProjectV2ToRepositoryPayload @docsCategory(name: "projects")
   """
   Links a project to a team.
   """
@@ -23885,7 +23897,7 @@ type Mutation {
     Parameters for MarkProjectV2AsTemplate
     """
     input: MarkProjectV2AsTemplateInput!
-  ): MarkProjectV2AsTemplatePayload
+  ): MarkProjectV2AsTemplatePayload @docsCategory(name: "projects")
   """
   Marks a pull request ready for review.
   """
@@ -23903,7 +23915,7 @@ type Mutation {
     Parameters for MergeBranch
     """
     input: MergeBranchInput!
-  ): MergeBranchPayload
+  ): MergeBranchPayload @docsCategory(name: "branches")
   """
   Merge a pull request.
   """
@@ -23983,7 +23995,7 @@ type Mutation {
     Parameters for PromoteRepositoryCustomProperty
     """
     input: PromoteRepositoryCustomPropertyInput!
-  ): PromoteRepositoryCustomPropertyPayload
+  ): PromoteRepositoryCustomPropertyPayload @docsCategory(name: "repos")
   """
   Publish an existing sponsorship tier that is currently still a draft to a GitHub Sponsors profile.
   """
@@ -24299,7 +24311,7 @@ type Mutation {
     Parameters for SetRepositoryCustomPropertyValues
     """
     input: SetRepositoryCustomPropertyValuesInput!
-  ): SetRepositoryCustomPropertyValuesPayload
+  ): SetRepositoryCustomPropertyValuesPayload @docsCategory(name: "repos")
   """
   Sets an interaction limit setting for a repository.
   """
@@ -24371,7 +24383,7 @@ type Mutation {
     Parameters for UnarchiveProjectV2Item
     """
     input: UnarchiveProjectV2ItemInput!
-  ): UnarchiveProjectV2ItemPayload
+  ): UnarchiveProjectV2ItemPayload @docsCategory(name: "projects")
   """
   Unarchive a pull request. Removes the archived flag from the pull request.
   Does not automatically reopen or unlock the pull request. Only repository
@@ -24391,7 +24403,7 @@ type Mutation {
     Parameters for UnarchiveRepository
     """
     input: UnarchiveRepositoryInput!
-  ): UnarchiveRepositoryPayload
+  ): UnarchiveRepositoryPayload @docsCategory(name: "repos")
   """
   Unfollow an organization.
   """
@@ -24418,7 +24430,7 @@ type Mutation {
     Parameters for UnlinkProjectV2FromRepository
     """
     input: UnlinkProjectV2FromRepositoryInput!
-  ): UnlinkProjectV2FromRepositoryPayload
+  ): UnlinkProjectV2FromRepositoryPayload @docsCategory(name: "projects")
   """
   Unlinks a project to a team.
   """
@@ -24485,7 +24497,7 @@ type Mutation {
     Parameters for UnmarkProjectV2AsTemplate
     """
     input: UnmarkProjectV2AsTemplateInput!
-  ): UnmarkProjectV2AsTemplatePayload
+  ): UnmarkProjectV2AsTemplatePayload @docsCategory(name: "projects")
   """
   Unminimizes a comment on an Issue, Commit, Pull Request, or Gist
   """
@@ -24865,6 +24877,7 @@ type Mutation {
     """
     input: UpdateOrganizationWebCommitSignoffSettingInput!
   ): UpdateOrganizationWebCommitSignoffSettingPayload
+    @docsCategory(name: "orgs")
   """
   Toggle the setting for your GitHub Sponsors profile that allows other GitHub
   accounts to sponsor you on GitHub while paying for the sponsorship on Patreon.
@@ -24924,7 +24937,7 @@ type Mutation {
     Parameters for UpdateProjectV2
     """
     input: UpdateProjectV2Input!
-  ): UpdateProjectV2Payload
+  ): UpdateProjectV2Payload @docsCategory(name: "projects")
   """
   Update the collaborators on a team or a project
   """
@@ -24933,7 +24946,7 @@ type Mutation {
     Parameters for UpdateProjectV2Collaborators
     """
     input: UpdateProjectV2CollaboratorsInput!
-  ): UpdateProjectV2CollaboratorsPayload
+  ): UpdateProjectV2CollaboratorsPayload @docsCategory(name: "projects")
   """
   Updates a draft issue within a Project.
   """
@@ -24942,7 +24955,7 @@ type Mutation {
     Parameters for UpdateProjectV2DraftIssue
     """
     input: UpdateProjectV2DraftIssueInput!
-  ): UpdateProjectV2DraftIssuePayload
+  ): UpdateProjectV2DraftIssuePayload @docsCategory(name: "projects")
   """
   Update a project field.
   """
@@ -24951,7 +24964,7 @@ type Mutation {
     Parameters for UpdateProjectV2Field
     """
     input: UpdateProjectV2FieldInput!
-  ): UpdateProjectV2FieldPayload
+  ): UpdateProjectV2FieldPayload @docsCategory(name: "projects")
   """
   This mutation updates the value of a field for an item in a Project. Currently
   only single-select, text, number, date, and iteration fields are supported.
@@ -24961,7 +24974,7 @@ type Mutation {
     Parameters for UpdateProjectV2ItemFieldValue
     """
     input: UpdateProjectV2ItemFieldValueInput!
-  ): UpdateProjectV2ItemFieldValuePayload
+  ): UpdateProjectV2ItemFieldValuePayload @docsCategory(name: "projects")
   """
   This mutation updates the position of the item in the project, where the position represents the priority of an item.
   """
@@ -24970,7 +24983,7 @@ type Mutation {
     Parameters for UpdateProjectV2ItemPosition
     """
     input: UpdateProjectV2ItemPositionInput!
-  ): UpdateProjectV2ItemPositionPayload
+  ): UpdateProjectV2ItemPositionPayload @docsCategory(name: "projects")
   """
   Updates a status update within a Project.
   """
@@ -24979,7 +24992,7 @@ type Mutation {
     Parameters for UpdateProjectV2StatusUpdate
     """
     input: UpdateProjectV2StatusUpdateInput!
-  ): UpdateProjectV2StatusUpdatePayload
+  ): UpdateProjectV2StatusUpdatePayload @docsCategory(name: "projects")
   """
   Update a pull request
   """
@@ -25059,7 +25072,7 @@ type Mutation {
     Parameters for UpdateRepository
     """
     input: UpdateRepositoryInput!
-  ): UpdateRepositoryPayload
+  ): UpdateRepositoryPayload @docsCategory(name: "repos")
   """
   Update a repository custom property.
   """
@@ -25068,7 +25081,7 @@ type Mutation {
     Parameters for UpdateRepositoryCustomProperty
     """
     input: UpdateRepositoryCustomPropertyInput!
-  ): UpdateRepositoryCustomPropertyPayload
+  ): UpdateRepositoryCustomPropertyPayload @docsCategory(name: "repos")
   """
   Update a repository ruleset
   """
@@ -25086,7 +25099,7 @@ type Mutation {
     Parameters for UpdateRepositoryWebCommitSignoffSetting
     """
     input: UpdateRepositoryWebCommitSignoffSettingInput!
-  ): UpdateRepositoryWebCommitSignoffSettingPayload
+  ): UpdateRepositoryWebCommitSignoffSettingPayload @docsCategory(name: "repos")
   """
   Change visibility of your sponsorship and opt in or out of email updates from the maintainer.
   """
@@ -25131,7 +25144,7 @@ type Mutation {
     Parameters for UpdateTopics
     """
     input: UpdateTopicsInput!
-  ): UpdateTopicsPayload
+  ): UpdateTopicsPayload @docsCategory(name: "repos")
   """
   Updates an existing user list.
   """
@@ -25255,7 +25268,7 @@ enum OIDCProviderType {
 """
 Metadata for an audit entry with action oauth_application.*
 """
-interface OauthApplicationAuditEntryData {
+interface OauthApplicationAuditEntryData @docsCategory(name: "apps") {
   """
   The name of the OAuth application.
   """
@@ -25273,7 +25286,8 @@ interface OauthApplicationAuditEntryData {
 """
 Audit log entry for a oauth_application.create event.
 """
-type OauthApplicationCreateAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData {
+type OauthApplicationCreateAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -25442,7 +25456,7 @@ type OauthApplicationCreateAuditEntry implements AuditEntry & Node & OauthApplic
 """
 The state of an OAuth application when it was created.
 """
-enum OauthApplicationCreateAuditEntryState {
+enum OauthApplicationCreateAuditEntryState @docsCategory(name: "apps") {
   """
   The OAuth application was active and allowed to have OAuth Accesses.
   """
@@ -25460,7 +25474,7 @@ enum OauthApplicationCreateAuditEntryState {
 """
 The corresponding operation type for the action
 """
-enum OperationType {
+enum OperationType @docsCategory(name: "meta") {
   """
   An existing resource was accessed
   """
@@ -25508,7 +25522,8 @@ enum OrderDirection {
 """
 Audit log entry for a org.add_billing_manager
 """
-type OrgAddBillingManagerAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgAddBillingManagerAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -25644,7 +25659,8 @@ type OrgAddBillingManagerAuditEntry implements AuditEntry & Node & OrganizationA
 """
 Audit log entry for a org.add_member
 """
-type OrgAddMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgAddMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -25780,7 +25796,7 @@ type OrgAddMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntr
 """
 The permissions available to members on an Organization.
 """
-enum OrgAddMemberAuditEntryPermission {
+enum OrgAddMemberAuditEntryPermission @docsCategory(name: "orgs") {
   """
   Can read, clone, push, and add collaborators to repositories.
   """
@@ -25794,7 +25810,8 @@ enum OrgAddMemberAuditEntryPermission {
 """
 Audit log entry for a org.block_user
 """
-type OrgBlockUserAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgBlockUserAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -25951,7 +25968,8 @@ type OrgBlockUserAuditEntry implements AuditEntry & Node & OrganizationAuditEntr
 """
 Audit log entry for a org.config.disable_collaborators_only event.
 """
-type OrgConfigDisableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgConfigDisableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -26080,7 +26098,8 @@ type OrgConfigDisableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & 
 """
 Audit log entry for a org.config.enable_collaborators_only event.
 """
-type OrgConfigEnableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgConfigEnableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -26209,7 +26228,8 @@ type OrgConfigEnableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & O
 """
 Audit log entry for a org.create event.
 """
-type OrgCreateAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgCreateAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -26345,7 +26365,7 @@ type OrgCreateAuditEntry implements AuditEntry & Node & OrganizationAuditEntryDa
 """
 The billing plans available for organizations.
 """
-enum OrgCreateAuditEntryBillingPlan {
+enum OrgCreateAuditEntryBillingPlan @docsCategory(name: "orgs") {
   """
   Team Plan
   """
@@ -26371,7 +26391,8 @@ enum OrgCreateAuditEntryBillingPlan {
 """
 Audit log entry for a org.disable_oauth_app_restrictions event.
 """
-type OrgDisableOauthAppRestrictionsAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgDisableOauthAppRestrictionsAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -26786,7 +26807,8 @@ type OrgDisableTwoFactorRequirementAuditEntry implements AuditEntry & Node & Org
 """
 Audit log entry for a org.enable_oauth_app_restrictions event.
 """
-type OrgEnableOauthAppRestrictionsAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgEnableOauthAppRestrictionsAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -27225,7 +27247,8 @@ enum OrgEnterpriseOwnerOrderField {
 """
 Audit log entry for a org.invite_member event.
 """
-type OrgInviteMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgInviteMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -27368,7 +27391,8 @@ type OrgInviteMemberAuditEntry implements AuditEntry & Node & OrganizationAuditE
 """
 Audit log entry for a org.invite_to_business event.
 """
-type OrgInviteToBusinessAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData {
+type OrgInviteToBusinessAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -27509,7 +27533,8 @@ type OrgInviteToBusinessAuditEntry implements AuditEntry & EnterpriseAuditEntryD
 """
 Audit log entry for a org.oauth_app_access_approved event.
 """
-type OrgOauthAppAccessApprovedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData {
+type OrgOauthAppAccessApprovedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -27650,7 +27675,8 @@ type OrgOauthAppAccessApprovedAuditEntry implements AuditEntry & Node & OauthApp
 """
 Audit log entry for a org.oauth_app_access_blocked event.
 """
-type OrgOauthAppAccessBlockedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData {
+type OrgOauthAppAccessBlockedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -27791,7 +27817,8 @@ type OrgOauthAppAccessBlockedAuditEntry implements AuditEntry & Node & OauthAppl
 """
 Audit log entry for a org.oauth_app_access_denied event.
 """
-type OrgOauthAppAccessDeniedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData {
+type OrgOauthAppAccessDeniedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -27932,7 +27959,8 @@ type OrgOauthAppAccessDeniedAuditEntry implements AuditEntry & Node & OauthAppli
 """
 Audit log entry for a org.oauth_app_access_requested event.
 """
-type OrgOauthAppAccessRequestedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData {
+type OrgOauthAppAccessRequestedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -28073,7 +28101,8 @@ type OrgOauthAppAccessRequestedAuditEntry implements AuditEntry & Node & OauthAp
 """
 Audit log entry for a org.oauth_app_access_unblocked event.
 """
-type OrgOauthAppAccessUnblockedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData {
+type OrgOauthAppAccessUnblockedAuditEntry implements AuditEntry & Node & OauthApplicationAuditEntryData & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -28214,7 +28243,8 @@ type OrgOauthAppAccessUnblockedAuditEntry implements AuditEntry & Node & OauthAp
 """
 Audit log entry for a org.remove_billing_manager event.
 """
-type OrgRemoveBillingManagerAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgRemoveBillingManagerAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -28350,7 +28380,7 @@ type OrgRemoveBillingManagerAuditEntry implements AuditEntry & Node & Organizati
 """
 The reason a billing manager was removed from an Organization.
 """
-enum OrgRemoveBillingManagerAuditEntryReason {
+enum OrgRemoveBillingManagerAuditEntryReason @docsCategory(name: "orgs") {
   """
   SAML external identity missing
   """
@@ -28368,7 +28398,8 @@ enum OrgRemoveBillingManagerAuditEntryReason {
 """
 Audit log entry for a org.remove_member event.
 """
-type OrgRemoveMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgRemoveMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -28511,7 +28542,7 @@ type OrgRemoveMemberAuditEntry implements AuditEntry & Node & OrganizationAuditE
 """
 The type of membership a user has with an Organization.
 """
-enum OrgRemoveMemberAuditEntryMembershipType {
+enum OrgRemoveMemberAuditEntryMembershipType @docsCategory(name: "orgs") {
   """
   Organization owners have full access and can change several settings,
   including the names of repositories that belong to the Organization and Owners
@@ -28547,7 +28578,7 @@ enum OrgRemoveMemberAuditEntryMembershipType {
 """
 The reason a member was removed from an Organization.
 """
-enum OrgRemoveMemberAuditEntryReason {
+enum OrgRemoveMemberAuditEntryReason @docsCategory(name: "orgs") {
   """
   SAML external identity missing
   """
@@ -28573,7 +28604,8 @@ enum OrgRemoveMemberAuditEntryReason {
 """
 Audit log entry for a org.remove_outside_collaborator event.
 """
-type OrgRemoveOutsideCollaboratorAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgRemoveOutsideCollaboratorAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -28716,7 +28748,8 @@ type OrgRemoveOutsideCollaboratorAuditEntry implements AuditEntry & Node & Organ
 """
 The type of membership a user has with an Organization.
 """
-enum OrgRemoveOutsideCollaboratorAuditEntryMembershipType {
+enum OrgRemoveOutsideCollaboratorAuditEntryMembershipType
+  @docsCategory(name: "orgs") {
   """
   A billing manager is a user who manages the billing settings for the Organization, such as updating payment information.
   """
@@ -28737,7 +28770,7 @@ enum OrgRemoveOutsideCollaboratorAuditEntryMembershipType {
 """
 The reason an outside collaborator was removed from an Organization.
 """
-enum OrgRemoveOutsideCollaboratorAuditEntryReason {
+enum OrgRemoveOutsideCollaboratorAuditEntryReason @docsCategory(name: "orgs") {
   """
   SAML external identity missing
   """
@@ -28751,7 +28784,8 @@ enum OrgRemoveOutsideCollaboratorAuditEntryReason {
 """
 Audit log entry for a org.restore_member event.
 """
-type OrgRestoreMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgRestoreMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -28929,7 +28963,7 @@ type OrgRestoreMemberAuditEntry implements AuditEntry & Node & OrganizationAudit
 """
 Types of memberships that can be restored for an Organization member.
 """
-union OrgRestoreMemberAuditEntryMembership =
+union OrgRestoreMemberAuditEntryMembership @docsCategory(name: "orgs") =
   | OrgRestoreMemberMembershipOrganizationAuditEntryData
   | OrgRestoreMemberMembershipRepositoryAuditEntryData
   | OrgRestoreMemberMembershipTeamAuditEntryData
@@ -28937,7 +28971,8 @@ union OrgRestoreMemberAuditEntryMembership =
 """
 Metadata for an organization membership for org.restore_member actions
 """
-type OrgRestoreMemberMembershipOrganizationAuditEntryData implements OrganizationAuditEntryData {
+type OrgRestoreMemberMembershipOrganizationAuditEntryData implements OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The Organization associated with the Audit Entry.
   """
@@ -28971,7 +29006,8 @@ type OrgRestoreMemberMembershipOrganizationAuditEntryData implements Organizatio
 """
 Metadata for a repository membership for org.restore_member actions
 """
-type OrgRestoreMemberMembershipRepositoryAuditEntryData implements RepositoryAuditEntryData {
+type OrgRestoreMemberMembershipRepositoryAuditEntryData implements RepositoryAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The repository associated with the action
   """
@@ -28993,7 +29029,8 @@ type OrgRestoreMemberMembershipRepositoryAuditEntryData implements RepositoryAud
 """
 Metadata for a team membership for org.restore_member actions
 """
-type OrgRestoreMemberMembershipTeamAuditEntryData implements TeamAuditEntryData {
+type OrgRestoreMemberMembershipTeamAuditEntryData implements TeamAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The team associated with the action
   """
@@ -29015,7 +29052,8 @@ type OrgRestoreMemberMembershipTeamAuditEntryData implements TeamAuditEntryData 
 """
 Audit log entry for a org.unblock_user
 """
-type OrgUnblockUserAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgUnblockUserAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -29172,7 +29210,8 @@ type OrgUnblockUserAuditEntry implements AuditEntry & Node & OrganizationAuditEn
 """
 Audit log entry for a org.update_default_repository_permission
 """
-type OrgUpdateDefaultRepositoryPermissionAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgUpdateDefaultRepositoryPermissionAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -29315,7 +29354,8 @@ type OrgUpdateDefaultRepositoryPermissionAuditEntry implements AuditEntry & Node
 """
 The default permission a repository can have in an Organization.
 """
-enum OrgUpdateDefaultRepositoryPermissionAuditEntryPermission {
+enum OrgUpdateDefaultRepositoryPermissionAuditEntryPermission
+  @docsCategory(name: "orgs") {
   """
   Can read, clone, push, and add collaborators to repositories.
   """
@@ -29337,7 +29377,8 @@ enum OrgUpdateDefaultRepositoryPermissionAuditEntryPermission {
 """
 Audit log entry for a org.update_member event.
 """
-type OrgUpdateMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgUpdateMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -29480,7 +29521,7 @@ type OrgUpdateMemberAuditEntry implements AuditEntry & Node & OrganizationAuditE
 """
 The permissions available to members on an Organization.
 """
-enum OrgUpdateMemberAuditEntryPermission {
+enum OrgUpdateMemberAuditEntryPermission @docsCategory(name: "orgs") {
   """
   Can read, clone, push, and add collaborators to repositories.
   """
@@ -29494,7 +29535,8 @@ enum OrgUpdateMemberAuditEntryPermission {
 """
 Audit log entry for a org.update_member_repository_creation_permission event.
 """
-type OrgUpdateMemberRepositoryCreationPermissionAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgUpdateMemberRepositoryCreationPermissionAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -29637,7 +29679,8 @@ type OrgUpdateMemberRepositoryCreationPermissionAuditEntry implements AuditEntry
 """
 The permissions available for repository creation on an Organization.
 """
-enum OrgUpdateMemberRepositoryCreationPermissionAuditEntryVisibility {
+enum OrgUpdateMemberRepositoryCreationPermissionAuditEntryVisibility
+  @docsCategory(name: "orgs") {
   """
   All organization members are restricted from creating any repositories.
   """
@@ -29675,7 +29718,8 @@ enum OrgUpdateMemberRepositoryCreationPermissionAuditEntryVisibility {
 """
 Audit log entry for a org.update_member_repository_invitation_permission event.
 """
-type OrgUpdateMemberRepositoryInvitationPermissionAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData {
+type OrgUpdateMemberRepositoryInvitationPermissionAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData
+  @docsCategory(name: "orgs") {
   """
   The action name
   """
@@ -31094,7 +31138,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
 """
 An audit entry in an organization audit log.
 """
-union OrganizationAuditEntry =
+union OrganizationAuditEntry @docsCategory(name: "orgs") =
   | MembersCanDeleteReposClearAuditEntry
   | MembersCanDeleteReposDisableAuditEntry
   | MembersCanDeleteReposEnableAuditEntry
@@ -31181,7 +31225,7 @@ type OrganizationAuditEntryConnection {
 """
 Metadata for an audit entry with action org.*
 """
-interface OrganizationAuditEntryData {
+interface OrganizationAuditEntryData @docsCategory(name: "orgs") {
   """
   The Organization associated with the Audit Entry.
   """
@@ -31686,7 +31730,7 @@ enum OrganizationMigrationState {
 """
 Used for argument of CreateProjectV2 mutation.
 """
-union OrganizationOrUser = Organization | User
+union OrganizationOrUser @docsCategory(name: "projects") = Organization | User
 
 """
 Ordering options for organization connections.
@@ -33027,7 +33071,8 @@ scalar PreciseDateTime
 """
 Audit log entry for a private_repository_forking.disable event.
 """
-type PrivateRepositoryForkingDisableAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type PrivateRepositoryForkingDisableAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -33184,7 +33229,8 @@ type PrivateRepositoryForkingDisableAuditEntry implements AuditEntry & Enterpris
 """
 Audit log entry for a private_repository_forking.enable event.
 """
-type PrivateRepositoryForkingEnableAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type PrivateRepositoryForkingEnableAuditEntry implements AuditEntry & EnterpriseAuditEntryData & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -34259,7 +34305,8 @@ enum ProjectTemplate @docsCategory(name: "projects-classic") {
 """
 New projects that manage issues, pull requests and drafts using tables and boards.
 """
-type ProjectV2 implements Closable & Node & Updatable {
+type ProjectV2 implements Closable & Node & Updatable
+  @docsCategory(name: "projects") {
   """
   Returns true if the project is closed.
   """
@@ -34554,7 +34601,7 @@ type ProjectV2 implements Closable & Node & Updatable {
 """
 Possible collaborators for a project.
 """
-union ProjectV2Actor = Team | User
+union ProjectV2Actor @docsCategory(name: "projects") = Team | User
 
 """
 The connection type for ProjectV2Actor.
@@ -34595,7 +34642,7 @@ type ProjectV2ActorEdge {
 """
 A collaborator to update on a project. Only one of the userId or teamId should be provided.
 """
-input ProjectV2Collaborator {
+input ProjectV2Collaborator @docsCategory(name: "projects") {
   """
   The role to grant the collaborator
   """
@@ -34635,7 +34682,7 @@ type ProjectV2Connection {
 """
 The type of a project field.
 """
-enum ProjectV2CustomFieldType {
+enum ProjectV2CustomFieldType @docsCategory(name: "projects") {
   """
   Date
   """
@@ -34675,7 +34722,7 @@ type ProjectV2Edge {
 """
 Represents an event related to a project on the timeline of an issue or pull request.
 """
-interface ProjectV2Event {
+interface ProjectV2Event @docsCategory(name: "projects") {
   """
   Project referenced by event.
   """
@@ -34689,7 +34736,8 @@ interface ProjectV2Event {
 """
 A field inside a project.
 """
-type ProjectV2Field implements Node & ProjectV2FieldCommon {
+type ProjectV2Field implements Node & ProjectV2FieldCommon
+  @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -34723,7 +34771,7 @@ type ProjectV2Field implements Node & ProjectV2FieldCommon {
 """
 Common fields across different project field types
 """
-interface ProjectV2FieldCommon {
+interface ProjectV2FieldCommon @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -34757,7 +34805,7 @@ interface ProjectV2FieldCommon {
 """
 Configurations for project fields.
 """
-union ProjectV2FieldConfiguration =
+union ProjectV2FieldConfiguration @docsCategory(name: "projects") =
   | ProjectV2Field
   | ProjectV2IterationField
   | ProjectV2SingleSelectField
@@ -34837,7 +34885,7 @@ type ProjectV2FieldEdge {
 """
 Ordering options for project v2 field connections
 """
-input ProjectV2FieldOrder {
+input ProjectV2FieldOrder @docsCategory(name: "projects") {
   """
   The ordering direction.
   """
@@ -34851,7 +34899,7 @@ input ProjectV2FieldOrder {
 """
 Properties by which project v2 field connections can be ordered.
 """
-enum ProjectV2FieldOrderField {
+enum ProjectV2FieldOrderField @docsCategory(name: "projects") {
   """
   Order project v2 fields by creation time
   """
@@ -34869,11 +34917,19 @@ enum ProjectV2FieldOrderField {
 """
 The type of a project field.
 """
-enum ProjectV2FieldType {
+enum ProjectV2FieldType @docsCategory(name: "projects") {
   """
   Assignees
   """
   ASSIGNEES
+  """
+  Closed
+  """
+  CLOSED
+  """
+  Created
+  """
+  CREATED
   """
   Date
   """
@@ -34938,12 +34994,16 @@ enum ProjectV2FieldType {
   Tracks
   """
   TRACKS
+  """
+  Updated
+  """
+  UPDATED
 }
 
 """
 The values that can be used to update a field of an item inside a Project. Only 1 value can be updated at a time.
 """
-input ProjectV2FieldValue {
+input ProjectV2FieldValue @docsCategory(name: "projects") {
   """
   The ISO 8601 date to set on the field.
   """
@@ -34969,7 +35029,7 @@ input ProjectV2FieldValue {
 """
 Ways in which to filter lists of projects.
 """
-input ProjectV2Filters {
+input ProjectV2Filters @docsCategory(name: "projects") {
   """
   List project v2 filtered by the state given.
   """
@@ -34979,7 +35039,7 @@ input ProjectV2Filters {
 """
 Possible issue field values for a Project item.
 """
-union ProjectV2IssueFieldValues =
+union ProjectV2IssueFieldValues @docsCategory(name: "projects") =
   | IssueFieldDateValue
   | IssueFieldNumberValue
   | IssueFieldSingleSelectValue
@@ -34988,7 +35048,7 @@ union ProjectV2IssueFieldValues =
 """
 An item within a Project.
 """
-type ProjectV2Item implements Node {
+type ProjectV2Item implements Node @docsCategory(name: "projects") {
   """
   The content of the referenced draft issue, issue, pull request
   """
@@ -35093,7 +35153,10 @@ type ProjectV2ItemConnection {
 """
 Types that can be inside Project Items.
 """
-union ProjectV2ItemContent = DraftIssue | Issue | PullRequest
+union ProjectV2ItemContent @docsCategory(name: "projects") =
+  | DraftIssue
+  | Issue
+  | PullRequest
 
 """
 An edge in a connection.
@@ -35112,7 +35175,8 @@ type ProjectV2ItemEdge {
 """
 The value of a date field in a Project item.
 """
-type ProjectV2ItemFieldDateValue implements Node & ProjectV2ItemFieldValueCommon {
+type ProjectV2ItemFieldDateValue implements Node & ProjectV2ItemFieldValueCommon
+  @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -35150,7 +35214,8 @@ type ProjectV2ItemFieldDateValue implements Node & ProjectV2ItemFieldValueCommon
 """
 The value of an iteration field in a Project item.
 """
-type ProjectV2ItemFieldIterationValue implements Node & ProjectV2ItemFieldValueCommon {
+type ProjectV2ItemFieldIterationValue implements Node & ProjectV2ItemFieldValueCommon
+  @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -35204,7 +35269,7 @@ type ProjectV2ItemFieldIterationValue implements Node & ProjectV2ItemFieldValueC
 """
 The value of the labels field in a Project item.
 """
-type ProjectV2ItemFieldLabelValue {
+type ProjectV2ItemFieldLabelValue @docsCategory(name: "projects") {
   """
   The field that contains this value.
   """
@@ -35235,7 +35300,7 @@ type ProjectV2ItemFieldLabelValue {
 """
 The value of a milestone field in a Project item.
 """
-type ProjectV2ItemFieldMilestoneValue {
+type ProjectV2ItemFieldMilestoneValue @docsCategory(name: "projects") {
   """
   The field that contains this value.
   """
@@ -35249,7 +35314,8 @@ type ProjectV2ItemFieldMilestoneValue {
 """
 The value of a number field in a Project item.
 """
-type ProjectV2ItemFieldNumberValue implements Node & ProjectV2ItemFieldValueCommon {
+type ProjectV2ItemFieldNumberValue implements Node & ProjectV2ItemFieldValueCommon
+  @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -35287,7 +35353,7 @@ type ProjectV2ItemFieldNumberValue implements Node & ProjectV2ItemFieldValueComm
 """
 The value of a pull request field in a Project item.
 """
-type ProjectV2ItemFieldPullRequestValue {
+type ProjectV2ItemFieldPullRequestValue @docsCategory(name: "projects") {
   """
   The field that contains this value.
   """
@@ -35322,7 +35388,7 @@ type ProjectV2ItemFieldPullRequestValue {
 """
 The value of a repository field in a Project item.
 """
-type ProjectV2ItemFieldRepositoryValue {
+type ProjectV2ItemFieldRepositoryValue @docsCategory(name: "projects") {
   """
   The field that contains this value.
   """
@@ -35336,7 +35402,7 @@ type ProjectV2ItemFieldRepositoryValue {
 """
 The value of a reviewers field in a Project item.
 """
-type ProjectV2ItemFieldReviewerValue {
+type ProjectV2ItemFieldReviewerValue @docsCategory(name: "projects") {
   """
   The field that contains this value.
   """
@@ -35367,7 +35433,8 @@ type ProjectV2ItemFieldReviewerValue {
 """
 The value of a single select field in a Project item.
 """
-type ProjectV2ItemFieldSingleSelectValue implements Node & ProjectV2ItemFieldValueCommon {
+type ProjectV2ItemFieldSingleSelectValue implements Node & ProjectV2ItemFieldValueCommon
+  @docsCategory(name: "projects") {
   """
   The color applied to the selected single-select option.
   """
@@ -35425,7 +35492,8 @@ type ProjectV2ItemFieldSingleSelectValue implements Node & ProjectV2ItemFieldVal
 """
 The value of a text field in a Project item.
 """
-type ProjectV2ItemFieldTextValue implements Node & ProjectV2ItemFieldValueCommon {
+type ProjectV2ItemFieldTextValue implements Node & ProjectV2ItemFieldValueCommon
+  @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -35463,7 +35531,7 @@ type ProjectV2ItemFieldTextValue implements Node & ProjectV2ItemFieldValueCommon
 """
 The value of a user field in a Project item.
 """
-type ProjectV2ItemFieldUserValue {
+type ProjectV2ItemFieldUserValue @docsCategory(name: "projects") {
   """
   The field that contains this value.
   """
@@ -35494,7 +35562,7 @@ type ProjectV2ItemFieldUserValue {
 """
 Project field values
 """
-union ProjectV2ItemFieldValue =
+union ProjectV2ItemFieldValue @docsCategory(name: "projects") =
   | ProjectV2ItemFieldDateValue
   | ProjectV2ItemFieldIterationValue
   | ProjectV2ItemFieldLabelValue
@@ -35511,7 +35579,7 @@ union ProjectV2ItemFieldValue =
 """
 Common fields across different project field value types
 """
-interface ProjectV2ItemFieldValueCommon {
+interface ProjectV2ItemFieldValueCommon @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -35581,7 +35649,7 @@ type ProjectV2ItemFieldValueEdge {
 """
 Ordering options for project v2 item field value connections
 """
-input ProjectV2ItemFieldValueOrder {
+input ProjectV2ItemFieldValueOrder @docsCategory(name: "projects") {
   """
   The ordering direction.
   """
@@ -35595,7 +35663,7 @@ input ProjectV2ItemFieldValueOrder {
 """
 Properties by which project v2 item field value connections can be ordered.
 """
-enum ProjectV2ItemFieldValueOrderField {
+enum ProjectV2ItemFieldValueOrderField @docsCategory(name: "projects") {
   """
   Order project v2 item field values by the their position in the project
   """
@@ -35605,7 +35673,7 @@ enum ProjectV2ItemFieldValueOrderField {
 """
 The value of an issue field in a Project item.
 """
-type ProjectV2ItemIssueFieldValue {
+type ProjectV2ItemIssueFieldValue @docsCategory(name: "projects") {
   """
   Field that contains this value.
   """
@@ -35619,7 +35687,7 @@ type ProjectV2ItemIssueFieldValue {
 """
 Ordering options for project v2 item connections
 """
-input ProjectV2ItemOrder {
+input ProjectV2ItemOrder @docsCategory(name: "projects") {
   """
   The ordering direction.
   """
@@ -35633,7 +35701,7 @@ input ProjectV2ItemOrder {
 """
 Properties by which project v2 item connections can be ordered.
 """
-enum ProjectV2ItemOrderField {
+enum ProjectV2ItemOrderField @docsCategory(name: "projects") {
   """
   Order project v2 items by the their position in the project
   """
@@ -35643,7 +35711,8 @@ enum ProjectV2ItemOrderField {
 """
 Represents a 'project_v2_item_status_changed' event on a given issue or pull request.
 """
-type ProjectV2ItemStatusChangedEvent implements Node & ProjectV2Event {
+type ProjectV2ItemStatusChangedEvent implements Node & ProjectV2Event
+  @docsCategory(name: "projects") {
   """
   Identifies the actor who performed the event.
   """
@@ -35677,7 +35746,7 @@ type ProjectV2ItemStatusChangedEvent implements Node & ProjectV2Event {
 """
 The type of a project item.
 """
-enum ProjectV2ItemType {
+enum ProjectV2ItemType @docsCategory(name: "projects") {
   """
   Draft Issue
   """
@@ -35699,7 +35768,7 @@ enum ProjectV2ItemType {
 """
 Represents an iteration
 """
-input ProjectV2Iteration {
+input ProjectV2Iteration @docsCategory(name: "projects") {
   """
   The duration of the iteration, in days.
   """
@@ -35717,7 +35786,8 @@ input ProjectV2Iteration {
 """
 An iteration field inside a project.
 """
-type ProjectV2IterationField implements Node & ProjectV2FieldCommon {
+type ProjectV2IterationField implements Node & ProjectV2FieldCommon
+  @docsCategory(name: "projects") {
   """
   Iteration configuration settings
   """
@@ -35755,7 +35825,7 @@ type ProjectV2IterationField implements Node & ProjectV2FieldCommon {
 """
 Iteration field configuration for a project.
 """
-type ProjectV2IterationFieldConfiguration {
+type ProjectV2IterationFieldConfiguration @docsCategory(name: "projects") {
   """
   The iteration's completed iterations
   """
@@ -35777,7 +35847,8 @@ type ProjectV2IterationFieldConfiguration {
 """
 Represents an iteration field configuration.
 """
-input ProjectV2IterationFieldConfigurationInput {
+input ProjectV2IterationFieldConfigurationInput
+  @docsCategory(name: "projects") {
   """
   The duration of each iteration, in days.
   """
@@ -35795,7 +35866,7 @@ input ProjectV2IterationFieldConfigurationInput {
 """
 Iteration field iteration settings for a project.
 """
-type ProjectV2IterationFieldIteration {
+type ProjectV2IterationFieldIteration @docsCategory(name: "projects") {
   """
   The iteration's duration in days
   """
@@ -35821,7 +35892,7 @@ type ProjectV2IterationFieldIteration {
 """
 Ways in which lists of projects can be ordered upon return.
 """
-input ProjectV2Order {
+input ProjectV2Order @docsCategory(name: "projects") {
   """
   The direction in which to order projects by the specified field.
   """
@@ -35835,7 +35906,7 @@ input ProjectV2Order {
 """
 Properties by which projects can be ordered.
 """
-enum ProjectV2OrderField {
+enum ProjectV2OrderField @docsCategory(name: "projects") {
   """
   The project's date and time of creation
   """
@@ -35857,7 +35928,7 @@ enum ProjectV2OrderField {
 """
 Represents an owner of a project.
 """
-interface ProjectV2Owner {
+interface ProjectV2Owner @docsCategory(name: "projects") {
   """
   The Node ID of the ProjectV2Owner object
   """
@@ -35909,7 +35980,7 @@ interface ProjectV2Owner {
 """
 The possible roles of a collaborator on a project.
 """
-enum ProjectV2PermissionLevel {
+enum ProjectV2PermissionLevel @docsCategory(name: "projects") {
   """
   The collaborator can view, edit, and maange the settings of the project
   """
@@ -35927,7 +35998,7 @@ enum ProjectV2PermissionLevel {
 """
 Recent projects for the owner.
 """
-interface ProjectV2Recent {
+interface ProjectV2Recent @docsCategory(name: "projects") {
   """
   Recent projects that this user has modified in the context of the owner.
   """
@@ -35954,7 +36025,7 @@ interface ProjectV2Recent {
 """
 The possible roles of a collaborator on a project.
 """
-enum ProjectV2Roles {
+enum ProjectV2Roles @docsCategory(name: "projects") {
   """
   The collaborator can view, edit, and maange the settings of the project
   """
@@ -35976,7 +36047,8 @@ enum ProjectV2Roles {
 """
 A single select field inside a project.
 """
-type ProjectV2SingleSelectField implements Node & ProjectV2FieldCommon {
+type ProjectV2SingleSelectField implements Node & ProjectV2FieldCommon
+  @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -36019,7 +36091,7 @@ type ProjectV2SingleSelectField implements Node & ProjectV2FieldCommon {
 """
 Single select field option for a configuration for a project.
 """
-type ProjectV2SingleSelectFieldOption {
+type ProjectV2SingleSelectFieldOption @docsCategory(name: "projects") {
   """
   The option's display color.
   """
@@ -36049,7 +36121,7 @@ type ProjectV2SingleSelectFieldOption {
 """
 The display color of a single-select field option.
 """
-enum ProjectV2SingleSelectFieldOptionColor {
+enum ProjectV2SingleSelectFieldOptionColor @docsCategory(name: "projects") {
   """
   BLUE
   """
@@ -36087,7 +36159,7 @@ enum ProjectV2SingleSelectFieldOptionColor {
 """
 Represents a single select field option
 """
-input ProjectV2SingleSelectFieldOptionInput {
+input ProjectV2SingleSelectFieldOptionInput @docsCategory(name: "projects") {
   """
   The display color of the option
   """
@@ -36110,7 +36182,7 @@ input ProjectV2SingleSelectFieldOptionInput {
 """
 Represents a sort by field and direction.
 """
-type ProjectV2SortBy {
+type ProjectV2SortBy @docsCategory(name: "projects") {
   """
   The direction of the sorting. Possible values are ASC and DESC.
   """
@@ -36160,7 +36232,7 @@ type ProjectV2SortByEdge {
 """
 Represents a sort by field and direction.
 """
-type ProjectV2SortByField {
+type ProjectV2SortByField @docsCategory(name: "projects") {
   """
   The direction of the sorting. Possible values are ASC and DESC.
   """
@@ -36210,7 +36282,7 @@ type ProjectV2SortByFieldEdge {
 """
 The possible states of a project v2.
 """
-enum ProjectV2State {
+enum ProjectV2State @docsCategory(name: "projects") {
   """
   A project v2 that has been closed
   """
@@ -36224,7 +36296,7 @@ enum ProjectV2State {
 """
 Ways in which project v2 status updates can be ordered.
 """
-input ProjectV2StatusOrder {
+input ProjectV2StatusOrder @docsCategory(name: "projects") {
   """
   The direction in which to order nodes.
   """
@@ -36238,7 +36310,7 @@ input ProjectV2StatusOrder {
 """
 A status update within a project.
 """
-type ProjectV2StatusUpdate implements Node {
+type ProjectV2StatusUpdate implements Node @docsCategory(name: "projects") {
   """
   The body of the status update.
   """
@@ -36331,7 +36403,7 @@ type ProjectV2StatusUpdateEdge {
 """
 Properties by which project v2 status updates can be ordered.
 """
-enum ProjectV2StatusUpdateOrderField {
+enum ProjectV2StatusUpdateOrderField @docsCategory(name: "projects") {
   """
   Allows chronological ordering of project v2 status updates.
   """
@@ -36341,7 +36413,7 @@ enum ProjectV2StatusUpdateOrderField {
 """
 The possible statuses of a project v2.
 """
-enum ProjectV2StatusUpdateStatus {
+enum ProjectV2StatusUpdateStatus @docsCategory(name: "projects") {
   """
   A project v2 that is at risk and encountering some challenges.
   """
@@ -36367,7 +36439,7 @@ enum ProjectV2StatusUpdateStatus {
 """
 A view within a ProjectV2.
 """
-type ProjectV2View implements Node {
+type ProjectV2View implements Node @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -36656,7 +36728,7 @@ type ProjectV2ViewEdge {
 """
 The layout of a project v2 view.
 """
-enum ProjectV2ViewLayout {
+enum ProjectV2ViewLayout @docsCategory(name: "projects") {
   """
   Board layout
   """
@@ -36674,7 +36746,7 @@ enum ProjectV2ViewLayout {
 """
 Ordering options for project v2 view connections
 """
-input ProjectV2ViewOrder {
+input ProjectV2ViewOrder @docsCategory(name: "projects") {
   """
   The ordering direction.
   """
@@ -36688,7 +36760,7 @@ input ProjectV2ViewOrder {
 """
 Properties by which project v2 view connections can be ordered.
 """
-enum ProjectV2ViewOrderField {
+enum ProjectV2ViewOrderField @docsCategory(name: "projects") {
   """
   Order project v2 views by creation time
   """
@@ -36706,7 +36778,7 @@ enum ProjectV2ViewOrderField {
 """
 A workflow inside a project.
 """
-type ProjectV2Workflow implements Node {
+type ProjectV2Workflow implements Node @docsCategory(name: "projects") {
   """
   Identifies the date and time when the object was created.
   """
@@ -36787,7 +36859,7 @@ type ProjectV2WorkflowEdge {
 """
 Ordering options for project v2 workflows connections
 """
-input ProjectV2WorkflowOrder {
+input ProjectV2WorkflowOrder @docsCategory(name: "projects") {
   """
   The ordering direction.
   """
@@ -36801,7 +36873,7 @@ input ProjectV2WorkflowOrder {
 """
 Properties by which project workflows can be ordered.
 """
-enum ProjectV2WorkflowsOrderField {
+enum ProjectV2WorkflowsOrderField @docsCategory(name: "projects") {
   """
   The date and time of the workflow creation
   """
@@ -39844,7 +39916,7 @@ enum PullRequestUpdateState {
 """
 A Git push.
 """
-type Push implements Node {
+type Push implements Node @docsCategory(name: "git") {
   """
   The Node ID of the Push object
   """
@@ -41018,7 +41090,7 @@ enum RefOrderField {
 """
 A ref update
 """
-input RefUpdate {
+input RefUpdate @docsCategory(name: "git") {
   """
   The value this ref should be updated to.
   """
@@ -41040,7 +41112,7 @@ input RefUpdate {
 """
 Branch protection rules that are enforced on the viewer.
 """
-type RefUpdateRule {
+type RefUpdateRule @docsCategory(name: "git") {
   """
   Can this branch be deleted.
   """
@@ -42124,7 +42196,8 @@ type RemovedFromProjectEvent implements Node
 """
 Represents a 'removed_from_project_v2' event on a given issue or pull request.
 """
-type RemovedFromProjectV2Event implements Node & ProjectV2Event {
+type RemovedFromProjectV2Event implements Node & ProjectV2Event
+  @docsCategory(name: "projects") {
   """
   Identifies the actor who performed the event.
   """
@@ -42384,7 +42457,8 @@ type ReplaceActorsForAssignablePayload {
 """
 Audit log entry for a repo.access event.
 """
-type RepoAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "repos") {
   """
   The action name
   """
@@ -42536,7 +42610,7 @@ type RepoAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryD
 """
 The privacy of a repository
 """
-enum RepoAccessAuditEntryVisibility {
+enum RepoAccessAuditEntryVisibility @docsCategory(name: "repos") {
   """
   The repository is visible only to users in the same enterprise.
   """
@@ -42554,7 +42628,8 @@ enum RepoAccessAuditEntryVisibility {
 """
 Audit log entry for a repo.add_member event.
 """
-type RepoAddMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoAddMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "repos") {
   """
   The action name
   """
@@ -42706,7 +42781,7 @@ type RepoAddMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEnt
 """
 The privacy of a repository
 """
-enum RepoAddMemberAuditEntryVisibility {
+enum RepoAddMemberAuditEntryVisibility @docsCategory(name: "repos") {
   """
   The repository is visible only to users in the same enterprise.
   """
@@ -42724,7 +42799,8 @@ enum RepoAddMemberAuditEntryVisibility {
 """
 Audit log entry for a repo.add_topic event.
 """
-type RepoAddTopicAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData & TopicAuditEntryData {
+type RepoAddTopicAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData & TopicAuditEntryData
+  @docsCategory(name: "repos") {
   """
   The action name
   """
@@ -42877,7 +42953,8 @@ type RepoAddTopicAuditEntry implements AuditEntry & Node & OrganizationAuditEntr
 """
 Audit log entry for a repo.archived event.
 """
-type RepoArchivedAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoArchivedAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "repos") {
   """
   The action name
   """
@@ -43029,7 +43106,7 @@ type RepoArchivedAuditEntry implements AuditEntry & Node & OrganizationAuditEntr
 """
 The privacy of a repository
 """
-enum RepoArchivedAuditEntryVisibility {
+enum RepoArchivedAuditEntryVisibility @docsCategory(name: "repos") {
   """
   The repository is visible only to users in the same enterprise.
   """
@@ -43047,7 +43124,8 @@ enum RepoArchivedAuditEntryVisibility {
 """
 Audit log entry for a repo.change_merge_setting event.
 """
-type RepoChangeMergeSettingAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoChangeMergeSettingAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "repos") {
   """
   The action name
   """
@@ -43206,7 +43284,7 @@ type RepoChangeMergeSettingAuditEntry implements AuditEntry & Node & Organizatio
 """
 The merge options available for pull requests to this repository.
 """
-enum RepoChangeMergeSettingAuditEntryMergeType {
+enum RepoChangeMergeSettingAuditEntryMergeType @docsCategory(name: "repos") {
   """
   The pull request is added to the base branch in a merge commit.
   """
@@ -43224,7 +43302,8 @@ enum RepoChangeMergeSettingAuditEntryMergeType {
 """
 Audit log entry for a repo.config.disable_anonymous_git_access event.
 """
-type RepoConfigDisableAnonymousGitAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigDisableAnonymousGitAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -43369,7 +43448,8 @@ type RepoConfigDisableAnonymousGitAccessAuditEntry implements AuditEntry & Node 
 """
 Audit log entry for a repo.config.disable_collaborators_only event.
 """
-type RepoConfigDisableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigDisableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -43514,7 +43594,8 @@ type RepoConfigDisableCollaboratorsOnlyAuditEntry implements AuditEntry & Node &
 """
 Audit log entry for a repo.config.disable_contributors_only event.
 """
-type RepoConfigDisableContributorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigDisableContributorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -43659,7 +43740,8 @@ type RepoConfigDisableContributorsOnlyAuditEntry implements AuditEntry & Node & 
 """
 Audit log entry for a repo.config.disable_sockpuppet_disallowed event.
 """
-type RepoConfigDisableSockpuppetDisallowedAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigDisableSockpuppetDisallowedAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -43804,7 +43886,8 @@ type RepoConfigDisableSockpuppetDisallowedAuditEntry implements AuditEntry & Nod
 """
 Audit log entry for a repo.config.enable_anonymous_git_access event.
 """
-type RepoConfigEnableAnonymousGitAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigEnableAnonymousGitAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -43949,7 +44032,8 @@ type RepoConfigEnableAnonymousGitAccessAuditEntry implements AuditEntry & Node &
 """
 Audit log entry for a repo.config.enable_collaborators_only event.
 """
-type RepoConfigEnableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigEnableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -44094,7 +44178,8 @@ type RepoConfigEnableCollaboratorsOnlyAuditEntry implements AuditEntry & Node & 
 """
 Audit log entry for a repo.config.enable_contributors_only event.
 """
-type RepoConfigEnableContributorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigEnableContributorsOnlyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -44239,7 +44324,8 @@ type RepoConfigEnableContributorsOnlyAuditEntry implements AuditEntry & Node & O
 """
 Audit log entry for a repo.config.enable_sockpuppet_disallowed event.
 """
-type RepoConfigEnableSockpuppetDisallowedAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigEnableSockpuppetDisallowedAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -44384,7 +44470,8 @@ type RepoConfigEnableSockpuppetDisallowedAuditEntry implements AuditEntry & Node
 """
 Audit log entry for a repo.config.lock_anonymous_git_access event.
 """
-type RepoConfigLockAnonymousGitAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigLockAnonymousGitAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -44529,7 +44616,8 @@ type RepoConfigLockAnonymousGitAccessAuditEntry implements AuditEntry & Node & O
 """
 Audit log entry for a repo.config.unlock_anonymous_git_access event.
 """
-type RepoConfigUnlockAnonymousGitAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoConfigUnlockAnonymousGitAccessAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "enterprise-admin") {
   """
   The action name
   """
@@ -44674,7 +44762,8 @@ type RepoConfigUnlockAnonymousGitAccessAuditEntry implements AuditEntry & Node &
 """
 Audit log entry for a repo.create event.
 """
-type RepoCreateAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoCreateAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "repos") {
   """
   The action name
   """
@@ -44840,7 +44929,7 @@ type RepoCreateAuditEntry implements AuditEntry & Node & OrganizationAuditEntryD
 """
 The privacy of a repository
 """
-enum RepoCreateAuditEntryVisibility {
+enum RepoCreateAuditEntryVisibility @docsCategory(name: "repos") {
   """
   The repository is visible only to users in the same enterprise.
   """
@@ -44858,7 +44947,8 @@ enum RepoCreateAuditEntryVisibility {
 """
 Audit log entry for a repo.destroy event.
 """
-type RepoDestroyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoDestroyAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "repos") {
   """
   The action name
   """
@@ -45010,7 +45100,7 @@ type RepoDestroyAuditEntry implements AuditEntry & Node & OrganizationAuditEntry
 """
 The privacy of a repository
 """
-enum RepoDestroyAuditEntryVisibility {
+enum RepoDestroyAuditEntryVisibility @docsCategory(name: "repos") {
   """
   The repository is visible only to users in the same enterprise.
   """
@@ -45028,7 +45118,8 @@ enum RepoDestroyAuditEntryVisibility {
 """
 Audit log entry for a repo.remove_member event.
 """
-type RepoRemoveMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData {
+type RepoRemoveMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData
+  @docsCategory(name: "repos") {
   """
   The action name
   """
@@ -45180,7 +45271,7 @@ type RepoRemoveMemberAuditEntry implements AuditEntry & Node & OrganizationAudit
 """
 The privacy of a repository
 """
-enum RepoRemoveMemberAuditEntryVisibility {
+enum RepoRemoveMemberAuditEntryVisibility @docsCategory(name: "repos") {
   """
   The repository is visible only to users in the same enterprise.
   """
@@ -45198,7 +45289,8 @@ enum RepoRemoveMemberAuditEntryVisibility {
 """
 Audit log entry for a repo.remove_topic event.
 """
-type RepoRemoveTopicAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData & TopicAuditEntryData {
+type RepoRemoveTopicAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData & TopicAuditEntryData
+  @docsCategory(name: "repos") {
   """
   The action name
   """
@@ -45381,7 +45473,8 @@ enum ReportedContentClassifiers {
 """
 A repository contains the content for a project.
 """
-type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent & RepositoryInfo & Starrable & Subscribable & UniformResourceLocatable {
+type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent & RepositoryInfo & Starrable & Subscribable & UniformResourceLocatable
+  @docsCategory(name: "repos") {
   """
   Whether or not a pull request head branch that is behind its base branch can
   always be updated even if it is not required to be up to date before merging.
@@ -46936,7 +47029,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
 """
 The affiliation of a user to a repository
 """
-enum RepositoryAffiliation {
+enum RepositoryAffiliation @docsCategory(name: "repos") {
   """
   Repositories that the user has been added to as a collaborator.
   """
@@ -46955,7 +47048,7 @@ enum RepositoryAffiliation {
 """
 Metadata for an audit entry with action repo.*
 """
-interface RepositoryAuditEntryData {
+interface RepositoryAuditEntryData @docsCategory(name: "repos") {
   """
   The repository associated with the action
   """
@@ -47107,7 +47200,7 @@ type RepositoryContactLink @docsCategory(name: "repos") {
 """
 The reason a repository is listed as 'contributed'.
 """
-enum RepositoryContributionType {
+enum RepositoryContributionType @docsCategory(name: "repos") {
   """
   Created a commit
   """
@@ -47133,7 +47226,7 @@ enum RepositoryContributionType {
 """
 A repository custom property.
 """
-type RepositoryCustomProperty implements Node {
+type RepositoryCustomProperty implements Node @docsCategory(name: "repos") {
   """
   The allowed values for the custom property. Required if `value_type` is `single_select` or `multi_select`.
   """
@@ -47219,7 +47312,7 @@ type RepositoryCustomPropertyEdge {
 """
 A value associated with a repository custom property.
 """
-type RepositoryCustomPropertyValue {
+type RepositoryCustomPropertyValue @docsCategory(name: "repos") {
   """
   The name of the custom property.
   """
@@ -47269,7 +47362,7 @@ type RepositoryCustomPropertyValueEdge {
 """
 The allowed actors who can edit the values of a custom property.
 """
-enum RepositoryCustomPropertyValuesEditableBy {
+enum RepositoryCustomPropertyValuesEditableBy @docsCategory(name: "repos") {
   """
   The organization actors.
   """
@@ -47396,7 +47489,7 @@ input RepositoryIdConditionTargetInput {
 """
 A subset of repository info.
 """
-interface RepositoryInfo {
+interface RepositoryInfo @docsCategory(name: "repos") {
   """
   Identifies the date and time when the repository was archived.
   """
@@ -47627,7 +47720,7 @@ enum RepositoryInteractionLimitOrigin {
 """
 An invitation for a user to be added to a repository.
 """
-type RepositoryInvitation implements Node {
+type RepositoryInvitation implements Node @docsCategory(name: "repos") {
   """
   The email address that received the invitation.
   """
@@ -47697,7 +47790,7 @@ type RepositoryInvitationEdge {
 """
 Ordering options for repository invitation connections.
 """
-input RepositoryInvitationOrder {
+input RepositoryInvitationOrder @docsCategory(name: "repos") {
   """
   The ordering direction.
   """
@@ -47711,7 +47804,7 @@ input RepositoryInvitationOrder {
 """
 Properties by which repository invitation connections can be ordered.
 """
-enum RepositoryInvitationOrderField {
+enum RepositoryInvitationOrderField @docsCategory(name: "repos") {
   """
   Order repository invitations by creation time
   """
@@ -47721,7 +47814,7 @@ enum RepositoryInvitationOrderField {
 """
 The possible reasons a given repository could be in a locked state.
 """
-enum RepositoryLockReason {
+enum RepositoryLockReason @docsCategory(name: "repos") {
   """
   The repository is locked due to a billing related reason.
   """
@@ -47914,7 +48007,7 @@ input RepositoryNameConditionTargetInput {
 """
 Represents a object that belongs to a repository.
 """
-interface RepositoryNode {
+interface RepositoryNode @docsCategory(name: "repos") {
   """
   The repository associated with this node.
   """
@@ -47924,7 +48017,7 @@ interface RepositoryNode {
 """
 Ordering options for repository connections
 """
-input RepositoryOrder {
+input RepositoryOrder @docsCategory(name: "repos") {
   """
   The ordering direction.
   """
@@ -47938,7 +48031,7 @@ input RepositoryOrder {
 """
 Properties by which repository connections can be ordered.
 """
-enum RepositoryOrderField {
+enum RepositoryOrderField @docsCategory(name: "repos") {
   """
   Order repositories by creation time
   """
@@ -47964,7 +48057,7 @@ enum RepositoryOrderField {
 """
 Represents an owner of a Repository.
 """
-interface RepositoryOwner {
+interface RepositoryOwner @docsCategory(name: "repos") {
   """
   A URL pointing to the owner's public avatar.
   """
@@ -48072,7 +48165,7 @@ interface RepositoryOwner {
 """
 The access level to a repository
 """
-enum RepositoryPermission {
+enum RepositoryPermission @docsCategory(name: "repos") {
   """
   Can read, clone, and push to this repository. Can also manage issues, pull
   requests, and repository settings, including adding collaborators
@@ -48125,7 +48218,7 @@ type RepositoryPlanFeatures {
 """
 The privacy of a repository
 """
-enum RepositoryPrivacy {
+enum RepositoryPrivacy @docsCategory(name: "repos") {
   """
   Private
   """
@@ -48761,7 +48854,8 @@ enum RepositorySuggestedActorFilter @docsCategory(name: "repos") {
 """
 A repository-topic connects a repository to a topic.
 """
-type RepositoryTopic implements Node & UniformResourceLocatable {
+type RepositoryTopic implements Node & UniformResourceLocatable
+  @docsCategory(name: "repos") {
   """
   The Node ID of the RepositoryTopic object
   """
@@ -48819,7 +48913,7 @@ type RepositoryTopicEdge {
 """
 The repository's visibility level.
 """
-enum RepositoryVisibility {
+enum RepositoryVisibility @docsCategory(name: "repos") {
   """
   The repository is visible only to users in the same enterprise.
   """
@@ -54113,7 +54207,7 @@ type StartRepositoryMigrationPayload {
 """
 Represents a commit status.
 """
-type Status implements Node {
+type Status implements Node @docsCategory(name: "commits") {
   """
   A list of status contexts and check runs for this commit.
   """
@@ -54289,7 +54383,8 @@ type StatusCheckRollupContextEdge {
 """
 Represents an individual commit status context
 """
-type StatusContext implements Node & RequirableByPullRequest {
+type StatusContext implements Node & RequirableByPullRequest
+  @docsCategory(name: "commits") {
   """
   The avatar of the OAuth application or the user that created the status
   """
@@ -54363,7 +54458,7 @@ type StatusContextStateCount {
 """
 The possible commit status states.
 """
-enum StatusState {
+enum StatusState @docsCategory(name: "commits") {
   """
   Status is errored.
   """
@@ -54526,7 +54621,7 @@ type SubmitPullRequestReviewPayload {
 """
 A pointer to a repository at a specific revision embedded inside another repository.
 """
-type Submodule {
+type Submodule @docsCategory(name: "git") {
   """
   The branch of the upstream submodule for tracking updates
   """
@@ -55191,7 +55286,8 @@ type Team implements MemberStatusable & Node & Subscribable & TeamReviewRequesta
 """
 Audit log entry for a team.add_member event.
 """
-type TeamAddMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & TeamAuditEntryData {
+type TeamAddMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & TeamAuditEntryData
+  @docsCategory(name: "teams") {
   """
   The action name
   """
@@ -55343,7 +55439,8 @@ type TeamAddMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEnt
 """
 Audit log entry for a team.add_repository event.
 """
-type TeamAddRepositoryAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData & TeamAuditEntryData {
+type TeamAddRepositoryAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData & TeamAuditEntryData
+  @docsCategory(name: "teams") {
   """
   The action name
   """
@@ -55511,7 +55608,7 @@ type TeamAddRepositoryAuditEntry implements AuditEntry & Node & OrganizationAudi
 """
 Metadata for an audit entry with action team.*
 """
-interface TeamAuditEntryData {
+interface TeamAuditEntryData @docsCategory(name: "teams") {
   """
   The team associated with the action
   """
@@ -55533,7 +55630,8 @@ interface TeamAuditEntryData {
 """
 Audit log entry for a team.change_parent_team event.
 """
-type TeamChangeParentTeamAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & TeamAuditEntryData {
+type TeamChangeParentTeamAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & TeamAuditEntryData
+  @docsCategory(name: "teams") {
   """
   The action name
   """
@@ -55934,7 +56032,8 @@ enum TeamPrivacy {
 """
 Audit log entry for a team.remove_member event.
 """
-type TeamRemoveMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & TeamAuditEntryData {
+type TeamRemoveMemberAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & TeamAuditEntryData
+  @docsCategory(name: "teams") {
   """
   The action name
   """
@@ -56086,7 +56185,8 @@ type TeamRemoveMemberAuditEntry implements AuditEntry & Node & OrganizationAudit
 """
 Audit log entry for a team.remove_repository event.
 """
-type TeamRemoveRepositoryAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData & TeamAuditEntryData {
+type TeamRemoveRepositoryAuditEntry implements AuditEntry & Node & OrganizationAuditEntryData & RepositoryAuditEntryData & TeamAuditEntryData
+  @docsCategory(name: "teams") {
   """
   The action name
   """
@@ -56477,7 +56577,7 @@ enum ThreadSubscriptionState {
 """
 A topic aggregates entities that are related to a subject.
 """
-type Topic implements Node & Starrable {
+type Topic implements Node & Starrable @docsCategory(name: "repos") {
   """
   The Node ID of the Topic object
   """
@@ -56594,7 +56694,7 @@ type Topic implements Node & Starrable {
 """
 Metadata for an audit entry with a topic.
 """
-interface TopicAuditEntryData {
+interface TopicAuditEntryData @docsCategory(name: "enterprise-admin") {
   """
   The name of the topic added to the repository
   """
@@ -56608,7 +56708,7 @@ interface TopicAuditEntryData {
 """
 Reason that the suggested topic is declined.
 """
-enum TopicSuggestionDeclineReason {
+enum TopicSuggestionDeclineReason @docsCategory(name: "repos") {
   """
   The suggested topic is not relevant to the repository.
   """
@@ -56750,7 +56850,7 @@ type TransferredEvent implements Node @docsCategory(name: "issues") {
 """
 Represents a Git tree.
 """
-type Tree implements GitObject & Node {
+type Tree implements GitObject & Node @docsCategory(name: "git") {
   """
   An abbreviated version of the Git object ID
   """
@@ -56784,7 +56884,7 @@ type Tree implements GitObject & Node {
 """
 Represents a Git tree entry.
 """
-type TreeEntry {
+type TreeEntry @docsCategory(name: "git") {
   """
   The extension of the file
   """
