@@ -241,7 +241,7 @@ type AccessUserNamespaceRepositoryPayload {
 """
 Represents an object which can take actions on GitHub. Typically a User or Bot.
 """
-interface Actor {
+interface Actor @docsCategory(name: "users") {
   """
   A URL pointing to the actor's public avatar.
   """
@@ -2835,7 +2835,7 @@ type BranchProtectionRuleEdge {
 Information about a sponsorship to make for a user or organization with a GitHub
 Sponsors profile, as part of sponsoring many users or organizations at once.
 """
-input BulkSponsorship {
+input BulkSponsorship @docsCategory(name: "sponsors") {
   """
   The amount to pay to the sponsorable in US dollars. Valid values: 1-12000.
   """
@@ -4438,7 +4438,7 @@ union Closer = Commit | ProjectV2 | PullRequest
 """
 The Code of Conduct for a repository
 """
-type CodeOfConduct implements Node {
+type CodeOfConduct implements Node @docsCategory(name: "meta") {
   """
   The body of the Code of Conduct
   """
@@ -4534,7 +4534,7 @@ input CodeScanningToolInput {
 """
 Collaborators affiliation level with a subject.
 """
-enum CollaboratorAffiliation {
+enum CollaboratorAffiliation @docsCategory(name: "repos") {
   """
   All collaborators the authenticated user can see.
   """
@@ -5458,7 +5458,7 @@ type CommitConnection {
 """
 Ordering options for commit contribution connections.
 """
-input CommitContributionOrder {
+input CommitContributionOrder @docsCategory(name: "commits") {
   """
   The ordering direction.
   """
@@ -5472,7 +5472,7 @@ input CommitContributionOrder {
 """
 Properties by which commit contribution connections can be ordered.
 """
-enum CommitContributionOrderField {
+enum CommitContributionOrderField @docsCategory(name: "commits") {
   """
   Order commit contributions by how many commits they represent.
   """
@@ -5486,7 +5486,7 @@ enum CommitContributionOrderField {
 """
 This aggregates commits made by a user within one repository.
 """
-type CommitContributionsByRepository {
+type CommitContributionsByRepository @docsCategory(name: "commits") {
   """
   The commit contributions, each representing a day.
   """
@@ -5832,9 +5832,39 @@ type ConnectedEvent implements Node @docsCategory(name: "issues") {
 }
 
 """
+The content warning for a repository
+"""
+type ContentWarning {
+  """
+  The content warning' category. E.g. 'mis_dis_information'
+  """
+  category: String!
+  """
+  The content warning's custom sub category text. E.g. 'dangerous stuff.'
+  """
+  customSubCategory: String
+  """
+  The content warning's sub category. E.g. 'medical_scientific'
+  """
+  subCategory: String
+  """
+  The content warning's sub title. E.g. 'The information contained in this page has not been verified.'
+  """
+  subTitle: String
+  """
+  The content warning's title. E.g. 'This page may contain false or misleading information.'
+  """
+  title: String!
+  """
+  The type of content warning. E.g. 'interstitial'
+  """
+  type: String!
+}
+
+"""
 The Contributing Guidelines for a repository.
 """
-type ContributingGuidelines {
+type ContributingGuidelines @docsCategory(name: "repos") {
   """
   The body of the Contributing Guidelines.
   """
@@ -5880,7 +5910,7 @@ interface Contribution {
 """
 A calendar of contributions made on GitHub by a user.
 """
-type ContributionCalendar {
+type ContributionCalendar @docsCategory(name: "users") {
   """
   A list of hex color codes used in this calendar. The darker the color, the more contributions it represents.
   """
@@ -5906,7 +5936,7 @@ type ContributionCalendar {
 """
 Represents a single day of contributions on GitHub by a user.
 """
-type ContributionCalendarDay {
+type ContributionCalendarDay @docsCategory(name: "users") {
   """
   The hex color code that represents how many contributions were made on this day compared to others in the calendar.
   """
@@ -5933,7 +5963,7 @@ type ContributionCalendarDay {
 """
 A month of contributions in a user's contribution graph.
 """
-type ContributionCalendarMonth {
+type ContributionCalendarMonth @docsCategory(name: "users") {
   """
   The date of the first day of this month.
   """
@@ -5955,7 +5985,7 @@ type ContributionCalendarMonth {
 """
 A week of contributions in a user's contribution graph.
 """
-type ContributionCalendarWeek {
+type ContributionCalendarWeek @docsCategory(name: "users") {
   """
   The days of contributions in this week.
   """
@@ -5969,7 +5999,7 @@ type ContributionCalendarWeek {
 """
 Varying levels of contributions from none to many.
 """
-enum ContributionLevel {
+enum ContributionLevel @docsCategory(name: "users") {
   """
   Lowest 25% of days of contributions.
   """
@@ -5995,7 +6025,7 @@ enum ContributionLevel {
 """
 Ordering options for contribution connections.
 """
-input ContributionOrder {
+input ContributionOrder @docsCategory(name: "users") {
   """
   The ordering direction.
   """
@@ -6006,7 +6036,7 @@ input ContributionOrder {
 A collection of contributions made by a user, including opened issues, commits, and pull requests.
 Contributions in private and internal repositories are only included with the optional read:user scope.
 """
-type ContributionsCollection {
+type ContributionsCollection @docsCategory(name: "users") {
   """
   Commit contributions made by the user, grouped by repository.
   """
@@ -6562,7 +6592,7 @@ type ConvertedNoteToIssueEvent implements Node {
 """
 Represents a 'converted_to_discussion' event on a given issue.
 """
-type ConvertedToDiscussionEvent implements Node {
+type ConvertedToDiscussionEvent implements Node @docsCategory(name: "issues") {
   """
   Identifies the actor who performed the event.
   """
@@ -8448,7 +8478,8 @@ type CreateUserListPayload {
 """
 Represents the contribution a user made by committing to a repository.
 """
-type CreatedCommitContribution implements Contribution {
+type CreatedCommitContribution implements Contribution
+  @docsCategory(name: "users") {
   """
   How many commits were made on this day to this repository by the user.
   """
@@ -8520,7 +8551,8 @@ type CreatedCommitContributionEdge {
 """
 Represents the contribution a user made on GitHub by opening an issue.
 """
-type CreatedIssueContribution implements Contribution {
+type CreatedIssueContribution implements Contribution
+  @docsCategory(name: "users") {
   """
   Whether this contribution is associated with a record you do not have access to. For
   example, your own 'first issue' contribution may have been made on a repository you can no
@@ -8588,14 +8620,15 @@ type CreatedIssueContributionEdge {
 """
 Represents either a issue the viewer can access or a restricted contribution.
 """
-union CreatedIssueOrRestrictedContribution =
+union CreatedIssueOrRestrictedContribution @docsCategory(name: "users") =
   | CreatedIssueContribution
   | RestrictedContribution
 
 """
 Represents the contribution a user made on GitHub by opening a pull request.
 """
-type CreatedPullRequestContribution implements Contribution {
+type CreatedPullRequestContribution implements Contribution
+  @docsCategory(name: "users") {
   """
   Whether this contribution is associated with a record you do not have access to. For
   example, your own 'first issue' contribution may have been made on a repository you can no
@@ -8663,14 +8696,15 @@ type CreatedPullRequestContributionEdge {
 """
 Represents either a pull request the viewer can access or a restricted contribution.
 """
-union CreatedPullRequestOrRestrictedContribution =
+union CreatedPullRequestOrRestrictedContribution @docsCategory(name: "users") =
   | CreatedPullRequestContribution
   | RestrictedContribution
 
 """
 Represents the contribution a user made by leaving a review on a pull request.
 """
-type CreatedPullRequestReviewContribution implements Contribution {
+type CreatedPullRequestReviewContribution implements Contribution
+  @docsCategory(name: "users") {
   """
   Whether this contribution is associated with a record you do not have access to. For
   example, your own 'first issue' contribution may have been made on a repository you can no
@@ -8746,7 +8780,8 @@ type CreatedPullRequestReviewContributionEdge {
 """
 Represents the contribution a user made on GitHub by creating a repository.
 """
-type CreatedRepositoryContribution implements Contribution {
+type CreatedRepositoryContribution implements Contribution
+  @docsCategory(name: "users") {
   """
   Whether this contribution is associated with a record you do not have access to. For
   example, your own 'first issue' contribution may have been made on a repository you can no
@@ -8814,7 +8849,7 @@ type CreatedRepositoryContributionEdge {
 """
 Represents either a repository the viewer can access or a restricted contribution.
 """
-union CreatedRepositoryOrRestrictedContribution =
+union CreatedRepositoryOrRestrictedContribution @docsCategory(name: "users") =
   | CreatedRepositoryContribution
   | RestrictedContribution
 
@@ -9019,7 +9054,7 @@ enum DefaultRepositoryPermissionField {
 """
 Entities that can be deleted.
 """
-interface Deletable {
+interface Deletable @docsCategory(name: "issues") {
   """
   Check if the current viewer can delete this object.
   """
@@ -11016,7 +11051,8 @@ type DisconnectedEvent implements Node @docsCategory(name: "issues") {
 """
 A discussion in a repository.
 """
-type Discussion implements Closable & Comment & Deletable & Labelable & Lockable & Node & Reactable & RepositoryNode & Subscribable & Updatable & Votable {
+type Discussion implements Closable & Comment & Deletable & Labelable & Lockable & Node & Reactable & RepositoryNode & Subscribable & Updatable & Votable
+  @docsCategory(name: "discussions") {
   """
   Reason that the conversation was locked.
   """
@@ -11290,7 +11326,8 @@ type Discussion implements Closable & Comment & Deletable & Labelable & Lockable
 """
 A category for discussions in a repository.
 """
-type DiscussionCategory implements Node & RepositoryNode {
+type DiscussionCategory implements Node & RepositoryNode
+  @docsCategory(name: "discussions") {
   """
   Identifies the date and time when the object was created.
   """
@@ -11372,7 +11409,7 @@ type DiscussionCategoryEdge {
 """
 The possible reasons for closing a discussion.
 """
-enum DiscussionCloseReason {
+enum DiscussionCloseReason @docsCategory(name: "discussions") {
   """
   The discussion is a duplicate of another
   """
@@ -11390,7 +11427,8 @@ enum DiscussionCloseReason {
 """
 A comment on a discussion.
 """
-type DiscussionComment implements Comment & Deletable & Minimizable & Node & Reactable & Updatable & UpdatableComment & Votable {
+type DiscussionComment implements Comment & Deletable & Minimizable & Node & Reactable & Updatable & UpdatableComment & Votable
+  @docsCategory(name: "discussions") {
   """
   The actor who authored the comment.
   """
@@ -11682,7 +11720,7 @@ type DiscussionEdge {
 """
 Ways in which lists of discussions can be ordered upon return.
 """
-input DiscussionOrder {
+input DiscussionOrder @docsCategory(name: "discussions") {
   """
   The direction in which to order discussions by the specified field.
   """
@@ -11696,7 +11734,7 @@ input DiscussionOrder {
 """
 Properties by which discussion connections can be ordered.
 """
-enum DiscussionOrderField {
+enum DiscussionOrderField @docsCategory(name: "discussions") {
   """
   Order discussions by creation time.
   """
@@ -11710,7 +11748,7 @@ enum DiscussionOrderField {
 """
 A poll for a discussion.
 """
-type DiscussionPoll implements Node {
+type DiscussionPoll implements Node @docsCategory(name: "discussions") {
   """
   The discussion that this poll belongs to.
   """
@@ -11768,7 +11806,7 @@ type DiscussionPoll implements Node {
 """
 An option for a discussion poll.
 """
-type DiscussionPollOption implements Node {
+type DiscussionPollOption implements Node @docsCategory(name: "discussions") {
   """
   The Node ID of the DiscussionPollOption object
   """
@@ -11830,7 +11868,7 @@ type DiscussionPollOptionEdge {
 """
 Ordering options for discussion poll option connections.
 """
-input DiscussionPollOptionOrder {
+input DiscussionPollOptionOrder @docsCategory(name: "discussions") {
   """
   The ordering direction.
   """
@@ -11844,7 +11882,7 @@ input DiscussionPollOptionOrder {
 """
 Properties by which discussion poll option connections can be ordered.
 """
-enum DiscussionPollOptionOrderField {
+enum DiscussionPollOptionOrderField @docsCategory(name: "discussions") {
   """
   Order poll options by the order that the poll author specified when creating the poll.
   """
@@ -11858,7 +11896,7 @@ enum DiscussionPollOptionOrderField {
 """
 The possible states of a discussion.
 """
-enum DiscussionState {
+enum DiscussionState @docsCategory(name: "discussions") {
   """
   A discussion that has been closed
   """
@@ -11872,7 +11910,7 @@ enum DiscussionState {
 """
 The possible state reasons of a discussion.
 """
-enum DiscussionStateReason {
+enum DiscussionStateReason @docsCategory(name: "discussions") {
   """
   The discussion is a duplicate of another
   """
@@ -12723,9 +12761,10 @@ type EnterpriseBillingInfo {
   """
   allLicensableUsersCount: Int!
   """
-  The number of data packs used by all organizations owned by the enterprise.
+  The number of data packs used by all organizations owned by the enterprise. Data packs are deprecated, always returns 0.
   """
   assetPacks: Int!
+    @deprecated(reason: "LFS data packs have been removed. Always returns 0.")
   """
   The bandwidth quota in GB for all organizations owned by the enterprise.
   """
@@ -15627,7 +15666,7 @@ type FollowingConnection {
 """
 A funding platform link for a repository.
 """
-type FundingLink {
+type FundingLink @docsCategory(name: "repos") {
   """
   The funding platform this link is for.
   """
@@ -15641,7 +15680,7 @@ type FundingLink {
 """
 The possible funding platforms for repository funding links.
 """
-enum FundingPlatform {
+enum FundingPlatform @docsCategory(name: "repos") {
   """
   Buy Me a Coffee funding platform.
   """
@@ -15699,7 +15738,8 @@ enum FundingPlatform {
 """
 A generic hovercard context with a message and icon
 """
-type GenericHovercardContext implements HovercardContext {
+type GenericHovercardContext implements HovercardContext
+  @docsCategory(name: "users") {
   """
   A string describing this context
   """
@@ -16631,7 +16671,7 @@ type HeadRefRestoredEvent implements Node {
 """
 Detail needed to display a hovercard for a user
 """
-type Hovercard {
+type Hovercard @docsCategory(name: "users") {
   """
   Each of the contexts for this hovercard
   """
@@ -16641,7 +16681,7 @@ type Hovercard {
 """
 An individual line of a hovercard
 """
-interface HovercardContext {
+interface HovercardContext @docsCategory(name: "users") {
   """
   A string describing this context
   """
@@ -18292,6 +18332,10 @@ enum IssueFieldDataType @docsCategory(name: "issues") {
   """
   DATE
   """
+  Multi Select
+  """
+  MULTI_SELECT
+  """
   Number
   """
   NUMBER
@@ -19621,7 +19665,8 @@ type IssueTypeRemovedEvent implements Node @docsCategory(name: "issues") {
 """
 Represents a user signing up for a GitHub account.
 """
-type JoinedGitHubContribution implements Contribution {
+type JoinedGitHubContribution implements Contribution
+  @docsCategory(name: "users") {
   """
   Whether this contribution is associated with a record you do not have access to. For
   example, your own 'first issue' contribution may have been made on a repository you can no
@@ -20016,7 +20061,7 @@ enum LexicalFallbackReason {
 """
 A repository's open source license
 """
-type License implements Node {
+type License implements Node @docsCategory(name: "licenses") {
   """
   The full text of the license
   """
@@ -20082,7 +20127,7 @@ type License implements Node {
 """
 Describes a License's conditions, permissions, and limitations
 """
-type LicenseRule {
+type LicenseRule @docsCategory(name: "licenses") {
   """
   A description of the rule
   """
@@ -20999,7 +21044,7 @@ type MemberFeatureRequestNotification implements Node {
 """
 Entities that have members who can set status messages.
 """
-interface MemberStatusable {
+interface MemberStatusable @docsCategory(name: "users") {
   """
   Get the status messages members of this entity have set that are either public or visible only to the organization.
   """
@@ -22446,7 +22491,7 @@ type MilestonedEvent implements Node @docsCategory(name: "issues") {
 """
 Entities that can be minimized.
 """
-interface Minimizable {
+interface Minimizable @docsCategory(name: "issues") {
   """
   Returns whether or not a comment has been minimized.
   """
@@ -22726,7 +22771,7 @@ type Mutation {
     Parameters for AddDiscussionComment
     """
     input: AddDiscussionCommentInput!
-  ): AddDiscussionCommentPayload
+  ): AddDiscussionCommentPayload @docsCategory(name: "discussions")
   """
   Vote for an option in a discussion poll.
   """
@@ -22735,7 +22780,7 @@ type Mutation {
     Parameters for AddDiscussionPollVote
     """
     input: AddDiscussionPollVoteInput!
-  ): AddDiscussionPollVotePayload
+  ): AddDiscussionPollVotePayload @docsCategory(name: "discussions")
   """
   Adds enterprise members to an organization within the enterprise.
   """
@@ -22860,7 +22905,7 @@ type Mutation {
     Parameters for AddStar
     """
     input: AddStarInput!
-  ): AddStarPayload
+  ): AddStarPayload @docsCategory(name: "activity")
   """
   Adds a sub-issue to a given issue
   """
@@ -22878,7 +22923,7 @@ type Mutation {
     Parameters for AddUpvote
     """
     input: AddUpvoteInput!
-  ): AddUpvotePayload
+  ): AddUpvotePayload @docsCategory(name: "discussions")
   """
   Adds a verifiable domain to an owning account.
   """
@@ -22960,7 +23005,7 @@ type Mutation {
     Parameters for CancelSponsorship
     """
     input: CancelSponsorshipInput!
-  ): CancelSponsorshipPayload
+  ): CancelSponsorshipPayload @docsCategory(name: "sponsors")
   """
   Update your status on GitHub.
   """
@@ -22969,7 +23014,7 @@ type Mutation {
     Parameters for ChangeUserStatus
     """
     input: ChangeUserStatusInput!
-  ): ChangeUserStatusPayload
+  ): ChangeUserStatusPayload @docsCategory(name: "users")
   """
   Clears all labels from a labelable object.
   """
@@ -23020,7 +23065,7 @@ type Mutation {
     Parameters for CloseDiscussion
     """
     input: CloseDiscussionInput!
-  ): CloseDiscussionPayload
+  ): CloseDiscussionPayload @docsCategory(name: "discussions")
   """
   Close an issue.
   """
@@ -23192,7 +23237,7 @@ type Mutation {
     Parameters for CreateDiscussion
     """
     input: CreateDiscussionInput!
-  ): CreateDiscussionPayload
+  ): CreateDiscussionPayload @docsCategory(name: "discussions")
   """
   Creates an organization as part of an enterprise account. A personal access
   token used to create an organization is implicitly permitted to update the
@@ -23390,7 +23435,7 @@ type Mutation {
     Parameters for CreateSponsorsListing
     """
     input: CreateSponsorsListingInput!
-  ): CreateSponsorsListingPayload
+  ): CreateSponsorsListingPayload @docsCategory(name: "sponsors")
   """
   Create a new payment tier for your GitHub Sponsors profile.
   """
@@ -23399,7 +23444,7 @@ type Mutation {
     Parameters for CreateSponsorsTier
     """
     input: CreateSponsorsTierInput!
-  ): CreateSponsorsTierPayload
+  ): CreateSponsorsTierPayload @docsCategory(name: "sponsors")
   """
   Start a new sponsorship of a maintainer in GitHub Sponsors, or reactivate a past sponsorship.
   """
@@ -23408,7 +23453,7 @@ type Mutation {
     Parameters for CreateSponsorship
     """
     input: CreateSponsorshipInput!
-  ): CreateSponsorshipPayload
+  ): CreateSponsorshipPayload @docsCategory(name: "sponsors")
   """
   Make many sponsorships for different sponsorable users or organizations at
   once. Can only sponsor those who have a public GitHub Sponsors profile.
@@ -23418,7 +23463,7 @@ type Mutation {
     Parameters for CreateSponsorships
     """
     input: CreateSponsorshipsInput!
-  ): CreateSponsorshipsPayload
+  ): CreateSponsorshipsPayload @docsCategory(name: "sponsors")
   """
   Creates a new user list.
   """
@@ -23427,7 +23472,7 @@ type Mutation {
     Parameters for CreateUserList
     """
     input: CreateUserListInput!
-  ): CreateUserListPayload
+  ): CreateUserListPayload @docsCategory(name: "users")
   """
   Rejects a suggested topic for the repository.
   """
@@ -23463,7 +23508,7 @@ type Mutation {
     Parameters for DeleteDiscussion
     """
     input: DeleteDiscussionInput!
-  ): DeleteDiscussionPayload
+  ): DeleteDiscussionPayload @docsCategory(name: "discussions")
   """
   Delete a discussion comment. If it has replies, wipe it instead.
   """
@@ -23472,7 +23517,7 @@ type Mutation {
     Parameters for DeleteDiscussionComment
     """
     input: DeleteDiscussionCommentInput!
-  ): DeleteDiscussionCommentPayload
+  ): DeleteDiscussionCommentPayload @docsCategory(name: "discussions")
   """
   Deletes an environment
   """
@@ -23700,7 +23745,7 @@ type Mutation {
     Parameters for DeleteUserList
     """
     input: DeleteUserListInput!
-  ): DeleteUserListPayload
+  ): DeleteUserListPayload @docsCategory(name: "users")
   """
   Deletes a verifiable domain.
   """
@@ -23772,7 +23817,7 @@ type Mutation {
     Parameters for FollowOrganization
     """
     input: FollowOrganizationInput!
-  ): FollowOrganizationPayload
+  ): FollowOrganizationPayload @docsCategory(name: "orgs")
   """
   Follow a user.
   """
@@ -23781,7 +23826,7 @@ type Mutation {
     Parameters for FollowUser
     """
     input: FollowUserInput!
-  ): FollowUserPayload
+  ): FollowUserPayload @docsCategory(name: "users")
   """
   Grant the migrator role to a user for all organizations under an enterprise account.
   """
@@ -23879,7 +23924,7 @@ type Mutation {
     Parameters for MarkDiscussionCommentAsAnswer
     """
     input: MarkDiscussionCommentAsAnswerInput!
-  ): MarkDiscussionCommentAsAnswerPayload
+  ): MarkDiscussionCommentAsAnswerPayload @docsCategory(name: "discussions")
   """
   Mark a pull request file as viewed
   """
@@ -23933,7 +23978,7 @@ type Mutation {
     Parameters for MinimizeComment
     """
     input: MinimizeCommentInput!
-  ): MinimizeCommentPayload
+  ): MinimizeCommentPayload @docsCategory(name: "issues")
   """
   Moves a project card to another place.
   """
@@ -24004,7 +24049,7 @@ type Mutation {
     Parameters for PublishSponsorsTier
     """
     input: PublishSponsorsTierInput!
-  ): PublishSponsorsTierPayload
+  ): PublishSponsorsTierPayload @docsCategory(name: "sponsors")
   """
   Regenerates the identity provider recovery codes for an enterprise
   """
@@ -24131,7 +24176,7 @@ type Mutation {
     Parameters for RemoveStar
     """
     input: RemoveStarInput!
-  ): RemoveStarPayload
+  ): RemoveStarPayload @docsCategory(name: "activity")
   """
   Removes a sub-issue from a given issue
   """
@@ -24149,7 +24194,7 @@ type Mutation {
     Parameters for RemoveUpvote
     """
     input: RemoveUpvoteInput!
-  ): RemoveUpvotePayload
+  ): RemoveUpvotePayload @docsCategory(name: "discussions")
   """
   Reopen a discussion.
   """
@@ -24158,7 +24203,7 @@ type Mutation {
     Parameters for ReopenDiscussion
     """
     input: ReopenDiscussionInput!
-  ): ReopenDiscussionPayload
+  ): ReopenDiscussionPayload @docsCategory(name: "discussions")
   """
   Reopen a issue.
   """
@@ -24248,7 +24293,7 @@ type Mutation {
     Parameters for RetireSponsorsTier
     """
     input: RetireSponsorsTierInput!
-  ): RetireSponsorsTierPayload
+  ): RetireSponsorsTierPayload @docsCategory(name: "sponsors")
   """
   Create a pull request that reverts the changes from a merged pull request.
   """
@@ -24302,7 +24347,7 @@ type Mutation {
     Parameters for SetOrganizationInteractionLimit
     """
     input: SetOrganizationInteractionLimitInput!
-  ): SetOrganizationInteractionLimitPayload
+  ): SetOrganizationInteractionLimitPayload @docsCategory(name: "orgs")
   """
   Set repository custom property values for a repository.
   """
@@ -24320,7 +24365,7 @@ type Mutation {
     Parameters for SetRepositoryInteractionLimit
     """
     input: SetRepositoryInteractionLimitInput!
-  ): SetRepositoryInteractionLimitPayload
+  ): SetRepositoryInteractionLimitPayload @docsCategory(name: "repos")
   """
   Set a user level interaction limit for an user's public repositories.
   """
@@ -24329,7 +24374,7 @@ type Mutation {
     Parameters for SetUserInteractionLimit
     """
     input: SetUserInteractionLimitInput!
-  ): SetUserInteractionLimitPayload
+  ): SetUserInteractionLimitPayload @docsCategory(name: "users")
   """
   Starts a GitHub Enterprise Importer organization migration.
   """
@@ -24412,7 +24457,7 @@ type Mutation {
     Parameters for UnfollowOrganization
     """
     input: UnfollowOrganizationInput!
-  ): UnfollowOrganizationPayload
+  ): UnfollowOrganizationPayload @docsCategory(name: "orgs")
   """
   Unfollow a user.
   """
@@ -24421,7 +24466,7 @@ type Mutation {
     Parameters for UnfollowUser
     """
     input: UnfollowUserInput!
-  ): UnfollowUserPayload
+  ): UnfollowUserPayload @docsCategory(name: "users")
   """
   Unlinks a project from a repository.
   """
@@ -24470,7 +24515,7 @@ type Mutation {
     Parameters for UnmarkDiscussionCommentAsAnswer
     """
     input: UnmarkDiscussionCommentAsAnswerInput!
-  ): UnmarkDiscussionCommentAsAnswerPayload
+  ): UnmarkDiscussionCommentAsAnswerPayload @docsCategory(name: "discussions")
   """
   Unmark a pull request file as viewed
   """
@@ -24506,7 +24551,7 @@ type Mutation {
     Parameters for UnminimizeComment
     """
     input: UnminimizeCommentInput!
-  ): UnminimizeCommentPayload
+  ): UnminimizeCommentPayload @docsCategory(name: "issues")
   """
   Unpin a pinned issue from a repository
   """
@@ -24569,7 +24614,7 @@ type Mutation {
     Parameters for UpdateDiscussion
     """
     input: UpdateDiscussionInput!
-  ): UpdateDiscussionPayload
+  ): UpdateDiscussionPayload @docsCategory(name: "discussions")
   """
   Update the contents of a comment on a Discussion
   """
@@ -24578,7 +24623,7 @@ type Mutation {
     Parameters for UpdateDiscussionComment
     """
     input: UpdateDiscussionCommentInput!
-  ): UpdateDiscussionCommentPayload
+  ): UpdateDiscussionCommentPayload @docsCategory(name: "discussions")
   """
   Updates the role of an enterprise administrator.
   """
@@ -24714,7 +24759,7 @@ type Mutation {
     Parameters for UpdateEnterpriseProfile
     """
     input: UpdateEnterpriseProfileInput!
-  ): UpdateEnterpriseProfilePayload
+  ): UpdateEnterpriseProfilePayload @docsCategory(name: "enterprise-admin")
   """
   Sets whether repository projects are enabled for a enterprise.
   """
@@ -24889,7 +24934,7 @@ type Mutation {
     Parameters for UpdatePatreonSponsorability
     """
     input: UpdatePatreonSponsorabilityInput!
-  ): UpdatePatreonSponsorabilityPayload
+  ): UpdatePatreonSponsorabilityPayload @docsCategory(name: "sponsors")
   """
   Updates an existing project.
   """
@@ -25108,7 +25153,7 @@ type Mutation {
     Parameters for UpdateSponsorshipPreferences
     """
     input: UpdateSponsorshipPreferencesInput!
-  ): UpdateSponsorshipPreferencesPayload
+  ): UpdateSponsorshipPreferencesPayload @docsCategory(name: "sponsors")
   """
   Updates the state for subscribable subjects.
   """
@@ -25153,7 +25198,7 @@ type Mutation {
     Parameters for UpdateUserList
     """
     input: UpdateUserListInput!
-  ): UpdateUserListPayload
+  ): UpdateUserListPayload @docsCategory(name: "users")
   """
   Updates which of the viewer's lists an item belongs to
   """
@@ -25162,7 +25207,7 @@ type Mutation {
     Parameters for UpdateUserListsForItem
     """
     input: UpdateUserListsForItemInput!
-  ): UpdateUserListsForItemPayload
+  ): UpdateUserListsForItemPayload @docsCategory(name: "users")
   """
   Verify that a verifiable domain has the expected DNS record.
   """
@@ -32492,12 +32537,15 @@ enum PatchStatus {
 """
 Types that can grant permissions on a repository to a user
 """
-union PermissionGranter = Organization | Repository | Team
+union PermissionGranter @docsCategory(name: "orgs") =
+  | Organization
+  | Repository
+  | Team
 
 """
 A level of permission and source for a user's access to a repository.
 """
-type PermissionSource {
+type PermissionSource @docsCategory(name: "repos") {
   """
   The organization the repository belongs to.
   """
@@ -32637,7 +32685,7 @@ interface Pinnable @docsCategory(name: "users") {
 """
 Types that can be pinned to a profile page.
 """
-union PinnableItem = Gist | Repository
+union PinnableItem @docsCategory(name: "users") = Gist | Repository
 
 """
 The connection type for PinnableItem.
@@ -32678,7 +32726,7 @@ type PinnableItemEdge {
 """
 Represents items that can be pinned to a profile page or dashboard.
 """
-enum PinnableItemType {
+enum PinnableItemType @docsCategory(name: "users") {
   """
   A gist.
   """
@@ -32716,7 +32764,8 @@ enum PinnableItemType {
 """
 A Pinned Discussion is a discussion pinned to a repository's index page.
 """
-type PinnedDiscussion implements Node & RepositoryNode {
+type PinnedDiscussion implements Node & RepositoryNode
+  @docsCategory(name: "discussions") {
   """
   Identifies the date and time when the object was created.
   """
@@ -32798,7 +32847,7 @@ type PinnedDiscussionEdge {
 """
 Preconfigured gradients that may be used to style discussions pinned within a repository.
 """
-enum PinnedDiscussionGradient {
+enum PinnedDiscussionGradient @docsCategory(name: "discussions") {
   """
   A gradient of blue to mint
   """
@@ -32824,7 +32873,7 @@ enum PinnedDiscussionGradient {
 """
 Preconfigured background patterns that may be used to style discussions pinned within a repository.
 """
-enum PinnedDiscussionPattern {
+enum PinnedDiscussionPattern @docsCategory(name: "discussions") {
   """
   An upward-facing chevron pattern
   """
@@ -33388,7 +33437,7 @@ type PrivateRepositoryForkingEnableAuditEntry implements AuditEntry & Enterprise
 A curatable list of repositories relating to a repository owner, which defaults
 to showing the most popular repositories they own.
 """
-type ProfileItemShowcase {
+type ProfileItemShowcase @docsCategory(name: "users") {
   """
   Whether or not the owner has pinned any repositories or gists.
   """
@@ -33421,7 +33470,7 @@ type ProfileItemShowcase {
 """
 Represents any entity on GitHub that has a profile page.
 """
-interface ProfileOwner {
+interface ProfileOwner @docsCategory(name: "users") {
   """
   Determine if this repository owner has any items that can be pinned to their profile.
   """
@@ -45443,7 +45492,7 @@ type RepoRemoveTopicAuditEntry implements AuditEntry & Node & OrganizationAuditE
 """
 The reasons a piece of content can be reported or minimized.
 """
-enum ReportedContentClassifiers {
+enum ReportedContentClassifiers @docsCategory(name: "meta") {
   """
   An abusive or harassing piece of content
   """
@@ -46930,6 +46979,10 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
   """
   viewerCanUpdateTopics: Boolean!
   """
+  The content warning for this repository for the viewer.
+  """
+  viewerContentWarning: ContentWarning
+  """
   The last commit email for the viewer.
   """
   viewerDefaultCommitEmail: String
@@ -47376,7 +47429,7 @@ enum RepositoryCustomPropertyValuesEditableBy @docsCategory(name: "repos") {
 """
 Represents an author of discussions in repositories.
 """
-interface RepositoryDiscussionAuthor {
+interface RepositoryDiscussionAuthor @docsCategory(name: "discussions") {
   """
   Discussions this user has started.
   """
@@ -47420,7 +47473,7 @@ interface RepositoryDiscussionAuthor {
 """
 Represents an author of discussion comments in repositories.
 """
-interface RepositoryDiscussionCommentAuthor {
+interface RepositoryDiscussionCommentAuthor @docsCategory(name: "discussions") {
   """
   Discussion comments this user has authored.
   """
@@ -47636,7 +47689,7 @@ interface RepositoryInfo @docsCategory(name: "repos") {
 """
 Repository interaction limit that applies to this object.
 """
-type RepositoryInteractionAbility {
+type RepositoryInteractionAbility @docsCategory(name: "repos") {
   """
   The time the currently active limit expires.
   """
@@ -47654,7 +47707,7 @@ type RepositoryInteractionAbility {
 """
 A repository interaction limit.
 """
-enum RepositoryInteractionLimit {
+enum RepositoryInteractionLimit @docsCategory(name: "repos") {
   """
   Users that are not collaborators will not be able to interact with the repository.
   """
@@ -47676,7 +47729,7 @@ enum RepositoryInteractionLimit {
 """
 The length for a repository interaction limit to be enabled for.
 """
-enum RepositoryInteractionLimitExpiry {
+enum RepositoryInteractionLimitExpiry @docsCategory(name: "repos") {
   """
   The interaction limit will expire after 1 day.
   """
@@ -47702,7 +47755,7 @@ enum RepositoryInteractionLimitExpiry {
 """
 Indicates where an interaction limit is configured.
 """
-enum RepositoryInteractionLimitOrigin {
+enum RepositoryInteractionLimitOrigin @docsCategory(name: "repos") {
   """
   A limit that is configured at the organization level.
   """
@@ -49815,7 +49868,8 @@ type ResolveReviewThreadPayload {
 """
 Represents a private contribution a user made on GitHub.
 """
-type RestrictedContribution implements Contribution {
+type RestrictedContribution implements Contribution
+  @docsCategory(name: "users") {
   """
   Whether this contribution is associated with a record you do not have access to. For
   example, your own 'first issue' contribution may have been made on a repository you can no
@@ -50428,7 +50482,7 @@ enum SamlSignatureAlgorithm {
 """
 A Saved Reply is text a user can use to reply quickly.
 """
-type SavedReply implements Node {
+type SavedReply implements Node @docsCategory(name: "users") {
   """
   The body of the saved reply.
   """
@@ -50494,7 +50548,7 @@ type SavedReplyEdge {
 """
 Ordering options for saved reply connections.
 """
-input SavedReplyOrder {
+input SavedReplyOrder @docsCategory(name: "users") {
   """
   The ordering direction.
   """
@@ -50508,7 +50562,7 @@ input SavedReplyOrder {
 """
 Properties by which saved reply connections can be ordered.
 """
-enum SavedReplyOrderField {
+enum SavedReplyOrderField @docsCategory(name: "users") {
   """
   Order saved reply by when they were updated.
   """
@@ -51389,7 +51443,7 @@ type SmimeSignature implements GitSignature {
 """
 Social media profile associated with a user.
 """
-type SocialAccount {
+type SocialAccount @docsCategory(name: "users") {
   """
   Name of the social media account as it appears on the profile.
   """
@@ -51443,7 +51497,7 @@ type SocialAccountEdge {
 """
 Software or company that hosts social media accounts.
 """
-enum SocialAccountProvider {
+enum SocialAccountProvider @docsCategory(name: "users") {
   """
   Decentralized microblogging social platform.
   """
@@ -51497,13 +51551,13 @@ enum SocialAccountProvider {
 """
 Entities that can sponsor others via GitHub Sponsors
 """
-union Sponsor = Organization | User
+union Sponsor @docsCategory(name: "sponsors") = Organization | User
 
 """
 A GitHub account and the total amount in USD they've paid for sponsorships to a
 particular maintainer. Does not include payments made via Patreon.
 """
-type SponsorAndLifetimeValue {
+type SponsorAndLifetimeValue @docsCategory(name: "sponsors") {
   """
   The amount in cents.
   """
@@ -51561,7 +51615,7 @@ type SponsorAndLifetimeValueEdge {
 """
 Ordering options for connections to get sponsor entities and associated USD amounts for GitHub Sponsors.
 """
-input SponsorAndLifetimeValueOrder {
+input SponsorAndLifetimeValueOrder @docsCategory(name: "sponsors") {
   """
   The ordering direction.
   """
@@ -51575,7 +51629,7 @@ input SponsorAndLifetimeValueOrder {
 """
 Properties by which sponsor and lifetime value connections can be ordered.
 """
-enum SponsorAndLifetimeValueOrderField {
+enum SponsorAndLifetimeValueOrderField @docsCategory(name: "sponsors") {
   """
   Order results by how much money the sponsor has paid in total.
   """
@@ -51629,7 +51683,7 @@ type SponsorEdge {
 """
 Ordering options for connections to get sponsor entities for GitHub Sponsors.
 """
-input SponsorOrder {
+input SponsorOrder @docsCategory(name: "sponsors") {
   """
   The ordering direction.
   """
@@ -51643,7 +51697,7 @@ input SponsorOrder {
 """
 Properties by which sponsor connections can be ordered.
 """
-enum SponsorOrderField {
+enum SponsorOrderField @docsCategory(name: "sponsors") {
   """
   Order sponsorable entities by login (username).
   """
@@ -51657,7 +51711,7 @@ enum SponsorOrderField {
 """
 Entities that can sponsor or be sponsored through GitHub Sponsors.
 """
-interface Sponsorable {
+interface Sponsorable @docsCategory(name: "sponsors") {
   """
   The estimated next GitHub Sponsors payout for this user/organization in cents (USD).
   """
@@ -51972,7 +52026,7 @@ interface Sponsorable {
 """
 Entities that can be sponsored via GitHub Sponsors
 """
-union SponsorableItem = Organization | User
+union SponsorableItem @docsCategory(name: "sponsors") = Organization | User
 
 """
 The connection type for SponsorableItem.
@@ -52013,7 +52067,7 @@ type SponsorableItemEdge {
 """
 Ordering options for connections to get sponsorable entities for GitHub Sponsors.
 """
-input SponsorableOrder {
+input SponsorableOrder @docsCategory(name: "sponsors") {
   """
   The ordering direction.
   """
@@ -52027,7 +52081,7 @@ input SponsorableOrder {
 """
 Properties by which sponsorable connections can be ordered.
 """
-enum SponsorableOrderField {
+enum SponsorableOrderField @docsCategory(name: "sponsors") {
   """
   Order sponsorable entities by login (username).
   """
@@ -52037,7 +52091,7 @@ enum SponsorableOrderField {
 """
 An event related to sponsorship activity.
 """
-type SponsorsActivity implements Node {
+type SponsorsActivity implements Node @docsCategory(name: "sponsors") {
   """
   What action this activity indicates took place.
   """
@@ -52083,7 +52137,7 @@ type SponsorsActivity implements Node {
 """
 The possible actions that GitHub Sponsors activities can represent.
 """
-enum SponsorsActivityAction {
+enum SponsorsActivityAction @docsCategory(name: "sponsors") {
   """
   The activity was cancelling a sponsorship.
   """
@@ -52149,7 +52203,7 @@ type SponsorsActivityEdge {
 """
 Ordering options for GitHub Sponsors activity connections.
 """
-input SponsorsActivityOrder {
+input SponsorsActivityOrder @docsCategory(name: "sponsors") {
   """
   The ordering direction.
   """
@@ -52163,7 +52217,7 @@ input SponsorsActivityOrder {
 """
 Properties by which GitHub Sponsors activity connections can be ordered.
 """
-enum SponsorsActivityOrderField {
+enum SponsorsActivityOrderField @docsCategory(name: "sponsors") {
   """
   Order activities by when they happened.
   """
@@ -52173,7 +52227,7 @@ enum SponsorsActivityOrderField {
 """
 The possible time periods for which Sponsors activities can be requested.
 """
-enum SponsorsActivityPeriod {
+enum SponsorsActivityPeriod @docsCategory(name: "sponsors") {
   """
   Don't restrict the activity to any date range, include all activity.
   """
@@ -52195,7 +52249,7 @@ enum SponsorsActivityPeriod {
 """
 Represents countries or regions for billing and residence for a GitHub Sponsors profile.
 """
-enum SponsorsCountryOrRegionCode {
+enum SponsorsCountryOrRegionCode @docsCategory(name: "sponsors") {
   """
   Andorra
   """
@@ -53189,7 +53243,7 @@ enum SponsorsCountryOrRegionCode {
 """
 A goal associated with a GitHub Sponsors listing, representing a target the sponsored maintainer would like to attain.
 """
-type SponsorsGoal {
+type SponsorsGoal @docsCategory(name: "sponsors") {
   """
   A description of the goal from the maintainer.
   """
@@ -53216,7 +53270,7 @@ type SponsorsGoal {
 """
 The different kinds of goals a GitHub Sponsors member can have.
 """
-enum SponsorsGoalKind {
+enum SponsorsGoalKind @docsCategory(name: "sponsors") {
   """
   The goal is about getting a certain amount in USD from sponsorships each month.
   """
@@ -53230,7 +53284,7 @@ enum SponsorsGoalKind {
 """
 A GitHub Sponsors listing.
 """
-type SponsorsListing implements Node {
+type SponsorsListing implements Node @docsCategory(name: "sponsors") {
   """
   The current goal the maintainer is trying to reach with GitHub Sponsors, if any.
   """
@@ -53373,12 +53427,15 @@ type SponsorsListing implements Node {
 """
 A record that can be featured on a GitHub Sponsors profile.
 """
-union SponsorsListingFeatureableItem = Repository | User
+union SponsorsListingFeatureableItem @docsCategory(name: "sponsors") =
+  | Repository
+  | User
 
 """
 A record that is promoted on a GitHub Sponsors profile.
 """
-type SponsorsListingFeaturedItem implements Node {
+type SponsorsListingFeaturedItem implements Node
+  @docsCategory(name: "sponsors") {
   """
   Identifies the date and time when the object was created.
   """
@@ -53415,7 +53472,8 @@ type SponsorsListingFeaturedItem implements Node {
 """
 The different kinds of records that can be featured on a GitHub Sponsors profile page.
 """
-enum SponsorsListingFeaturedItemFeatureableType {
+enum SponsorsListingFeaturedItemFeatureableType
+  @docsCategory(name: "sponsors") {
   """
   A repository owned by the user or organization with the GitHub Sponsors profile.
   """
@@ -53429,7 +53487,7 @@ enum SponsorsListingFeaturedItemFeatureableType {
 """
 A GitHub Sponsors tier associated with a GitHub Sponsors listing.
 """
-type SponsorsTier implements Node {
+type SponsorsTier implements Node @docsCategory(name: "sponsors") {
   """
   SponsorsTier information only visible to users that can administer the associated Sponsors listing.
   """
@@ -53490,7 +53548,7 @@ type SponsorsTier implements Node {
 """
 SponsorsTier information only visible to users that can administer the associated Sponsors listing.
 """
-type SponsorsTierAdminInfo {
+type SponsorsTierAdminInfo @docsCategory(name: "sponsors") {
   """
   Indicates whether this tier is still a work in progress by the sponsorable and
   not yet published to the associated GitHub Sponsors profile. Draft tiers
@@ -53585,7 +53643,7 @@ type SponsorsTierEdge {
 """
 Ordering options for Sponsors tiers connections.
 """
-input SponsorsTierOrder {
+input SponsorsTierOrder @docsCategory(name: "sponsors") {
   """
   The ordering direction.
   """
@@ -53599,7 +53657,7 @@ input SponsorsTierOrder {
 """
 Properties by which Sponsors tiers connections can be ordered.
 """
-enum SponsorsTierOrderField {
+enum SponsorsTierOrderField @docsCategory(name: "sponsors") {
   """
   Order tiers by creation time.
   """
@@ -53613,7 +53671,7 @@ enum SponsorsTierOrderField {
 """
 A sponsorship relationship between a sponsor and a maintainer
 """
-type Sponsorship implements Node {
+type Sponsorship implements Node @docsCategory(name: "sponsors") {
   """
   Identifies the date and time when the object was created.
   """
@@ -53725,7 +53783,7 @@ type SponsorshipEdge {
 """
 An update sent to sponsors of a user or organization on GitHub Sponsors.
 """
-type SponsorshipNewsletter implements Node {
+type SponsorshipNewsletter implements Node @docsCategory(name: "sponsors") {
   """
   The author of the newsletter.
   """
@@ -53799,7 +53857,7 @@ type SponsorshipNewsletterEdge {
 """
 Ordering options for sponsorship newsletter connections.
 """
-input SponsorshipNewsletterOrder {
+input SponsorshipNewsletterOrder @docsCategory(name: "sponsors") {
   """
   The ordering direction.
   """
@@ -53813,7 +53871,7 @@ input SponsorshipNewsletterOrder {
 """
 Properties by which sponsorship update connections can be ordered.
 """
-enum SponsorshipNewsletterOrderField {
+enum SponsorshipNewsletterOrderField @docsCategory(name: "sponsors") {
   """
   Order sponsorship newsletters by when they were created.
   """
@@ -53823,7 +53881,7 @@ enum SponsorshipNewsletterOrderField {
 """
 Ordering options for sponsorship connections.
 """
-input SponsorshipOrder {
+input SponsorshipOrder @docsCategory(name: "sponsors") {
   """
   The ordering direction.
   """
@@ -53837,7 +53895,7 @@ input SponsorshipOrder {
 """
 Properties by which sponsorship connections can be ordered.
 """
-enum SponsorshipOrderField {
+enum SponsorshipOrderField @docsCategory(name: "sponsors") {
   """
   Order sponsorship by creation time.
   """
@@ -53847,7 +53905,7 @@ enum SponsorshipOrderField {
 """
 How payment was made for funding a GitHub Sponsors sponsorship.
 """
-enum SponsorshipPaymentSource {
+enum SponsorshipPaymentSource @docsCategory(name: "sponsors") {
   """
   Payment was made through GitHub.
   """
@@ -53861,7 +53919,7 @@ enum SponsorshipPaymentSource {
 """
 The privacy of a sponsorship
 """
-enum SponsorshipPrivacy {
+enum SponsorshipPrivacy @docsCategory(name: "sponsors") {
   """
   Private
   """
@@ -53950,7 +54008,7 @@ type SshSignature implements GitSignature {
 """
 Ways in which star connections can be ordered.
 """
-input StarOrder {
+input StarOrder @docsCategory(name: "activity") {
   """
   The direction in which to order nodes.
   """
@@ -53964,7 +54022,7 @@ input StarOrder {
 """
 Properties by which star connections can be ordered.
 """
-enum StarOrderField {
+enum StarOrderField @docsCategory(name: "activity") {
   """
   Allows ordering a list of stars by when they were created.
   """
@@ -54011,7 +54069,7 @@ type StargazerEdge {
 """
 Things that can be starred.
 """
-interface Starrable {
+interface Starrable @docsCategory(name: "activity") {
   """
   The Node ID of the Starrable object
   """
@@ -54484,7 +54542,7 @@ enum StatusState @docsCategory(name: "commits") {
 """
 A Stripe Connect account for receiving sponsorship funds from GitHub Sponsors.
 """
-type StripeConnectAccount {
+type StripeConnectAccount @docsCategory(name: "sponsors") {
   """
   The account number used to identify this Stripe Connect account.
   """
@@ -60613,7 +60671,8 @@ type UpdateUserListsForItemPayload {
 """
 A user is an individual's account on GitHub that owns repositories and can make new content.
 """
-type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & ProjectOwner & ProjectV2Owner & ProjectV2Recent & RepositoryDiscussionAuthor & RepositoryDiscussionCommentAuthor & RepositoryOwner & Sponsorable & UniformResourceLocatable {
+type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & ProjectOwner & ProjectV2Owner & ProjectV2Recent & RepositoryDiscussionAuthor & RepositoryDiscussionCommentAuthor & RepositoryOwner & Sponsorable & UniformResourceLocatable
+  @docsCategory(name: "users") {
   """
   Determine if this repository owner has any items that can be pinned to their profile.
   """
@@ -62046,7 +62105,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
 """
 The possible durations that a user can be blocked for.
 """
-enum UserBlockDuration {
+enum UserBlockDuration @docsCategory(name: "users") {
   """
   The user was blocked for 1 day
   """
@@ -62120,7 +62179,7 @@ type UserConnection {
 """
 An edit on user content
 """
-type UserContentEdit implements Node {
+type UserContentEdit implements Node @docsCategory(name: "users") {
   """
   Identifies the date and time when the object was created.
   """
@@ -62226,7 +62285,7 @@ type UserEmailMetadata {
 """
 A user-curated list of repositories
 """
-type UserList implements Node {
+type UserList implements Node @docsCategory(name: "users") {
   """
   Identifies the date and time when the object was created.
   """
@@ -62325,7 +62384,7 @@ type UserListEdge {
 """
 Types that can be added to a user list.
 """
-union UserListItems = Repository
+union UserListItems @docsCategory(name: "users") = Repository
 
 """
 The connection type for UserListItems.
@@ -62366,7 +62425,7 @@ type UserListItemsEdge {
 """
 Represents a suggested user list.
 """
-type UserListSuggestion {
+type UserListSuggestion @docsCategory(name: "users") {
   """
   The ID of the suggested user list
   """
@@ -62438,7 +62497,7 @@ type UserNamespaceRepositoryEdge {
 """
 The user's description of what they're currently doing.
 """
-type UserStatus implements Node {
+type UserStatus implements Node @docsCategory(name: "users") {
   """
   Identifies the date and time when the object was created.
   """
@@ -62520,7 +62579,7 @@ type UserStatusEdge {
 """
 Ordering options for user status connections.
 """
-input UserStatusOrder {
+input UserStatusOrder @docsCategory(name: "users") {
   """
   The ordering direction.
   """
@@ -62534,7 +62593,7 @@ input UserStatusOrder {
 """
 Properties by which user status connections can be ordered.
 """
-enum UserStatusOrderField {
+enum UserStatusOrderField @docsCategory(name: "users") {
   """
   Order user statuses by when they were updated.
   """
@@ -62544,7 +62603,7 @@ enum UserStatusOrderField {
 """
 Whether a user being viewed contains public or private information.
 """
-enum UserViewType {
+enum UserViewType @docsCategory(name: "users") {
   """
   A user containing information only visible to the authenticated user.
   """
@@ -62721,7 +62780,8 @@ type VerifyVerifiableDomainPayload {
 """
 A hovercard context with a message describing how the viewer is related.
 """
-type ViewerHovercardContext implements HovercardContext {
+type ViewerHovercardContext implements HovercardContext
+  @docsCategory(name: "users") {
   """
   A string describing this context
   """
@@ -62739,7 +62799,7 @@ type ViewerHovercardContext implements HovercardContext {
 """
 A subject that may be upvoted.
 """
-interface Votable {
+interface Votable @docsCategory(name: "discussions") {
   """
   Number of upvotes that this subject has received.
   """
