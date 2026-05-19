@@ -20662,7 +20662,7 @@ type MarkedAsDuplicateEvent implements Node {
 """
 A public description of a Marketplace category.
 """
-type MarketplaceCategory implements Node {
+type MarketplaceCategory implements Node @docsCategory(name: "apps") {
   """
   The category's description.
   """
@@ -20704,7 +20704,7 @@ type MarketplaceCategory implements Node {
 """
 A listing in the GitHub integration marketplace.
 """
-type MarketplaceListing implements Node {
+type MarketplaceListing implements Node @docsCategory(name: "apps") {
   """
   The GitHub App this listing represents.
   """
@@ -24903,7 +24903,7 @@ type Mutation {
     Parameters for UpdateNotificationRestrictionSetting
     """
     input: UpdateNotificationRestrictionSettingInput!
-  ): UpdateNotificationRestrictionSettingPayload
+  ): UpdateNotificationRestrictionSettingPayload @docsCategory(name: "activity")
   """
   Sets whether private repository forks are enabled for an organization.
   """
@@ -25162,7 +25162,7 @@ type Mutation {
     Parameters for UpdateSubscription
     """
     input: UpdateSubscriptionInput!
-  ): UpdateSubscriptionPayload
+  ): UpdateSubscriptionPayload @docsCategory(name: "activity")
   """
   Updates team review assignment.
   """
@@ -25232,7 +25232,7 @@ interface Node {
 """
 The possible values for the notification restriction setting.
 """
-enum NotificationRestrictionSettingValue {
+enum NotificationRestrictionSettingValue @docsCategory(name: "activity") {
   """
   The setting is disabled for the owner.
   """
@@ -38353,7 +38353,7 @@ enum PullRequestMergeMethod {
 """
 Ways in which lists of issues can be ordered upon return.
 """
-input PullRequestOrder {
+input PullRequestOrder @docsCategory(name: "pulls") {
   """
   The direction in which to order pull requests by the specified field.
   """
@@ -38367,7 +38367,7 @@ input PullRequestOrder {
 """
 Properties by which pull_requests connections can be ordered.
 """
-enum PullRequestOrderField {
+enum PullRequestOrderField @docsCategory(name: "pulls") {
   """
   Order pull_requests by creation time
   """
@@ -54749,7 +54749,7 @@ type SubmoduleEdge {
 """
 Entities that can be subscribed to for web and email notifications.
 """
-interface Subscribable {
+interface Subscribable @docsCategory(name: "activity") {
   """
   The Node ID of the Subscribable object
   """
@@ -54767,7 +54767,7 @@ interface Subscribable {
 """
 Entities that can be subscribed to for web and email notifications.
 """
-interface SubscribableThread {
+interface SubscribableThread @docsCategory(name: "activity") {
   """
   The Node ID of the SubscribableThread object
   """
@@ -54807,7 +54807,7 @@ type SubscribedEvent implements Node {
 """
 The possible states of a subscription.
 """
-enum SubscriptionState {
+enum SubscriptionState @docsCategory(name: "activity") {
   """
   The User is never notified.
   """
@@ -56575,7 +56575,7 @@ type TextMatchHighlight {
 """
 The possible states of a thread subscription form action
 """
-enum ThreadSubscriptionFormAction {
+enum ThreadSubscriptionFormAction @docsCategory(name: "activity") {
   """
   The User cannot subscribe or unsubscribe to the thread
   """
@@ -56593,7 +56593,7 @@ enum ThreadSubscriptionFormAction {
 """
 The possible states of a subscription.
 """
-enum ThreadSubscriptionState {
+enum ThreadSubscriptionState @docsCategory(name: "activity") {
   """
   The subscription status is currently disabled.
   """
