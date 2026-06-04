@@ -7817,6 +7817,7 @@ input CreateProjectV2IssueFieldInput {
     @possibleTypes(
       concreteTypes: [
         "IssueFieldDate"
+        "IssueFieldMultiSelect"
         "IssueFieldNumber"
         "IssueFieldSingleSelect"
         "IssueFieldText"
@@ -9273,6 +9274,7 @@ input DeleteIssueFieldInput {
     @possibleTypes(
       concreteTypes: [
         "IssueFieldDate"
+        "IssueFieldMultiSelect"
         "IssueFieldNumber"
         "IssueFieldSingleSelect"
         "IssueFieldText"
@@ -18741,6 +18743,10 @@ input IssueFieldCreateOrUpdateInput @docsCategory(name: "issues") {
   """
   fieldId: ID!
   """
+  The IDs of the selected options, for a multi select field
+  """
+  multiSelectOptionIds: [ID!]
+  """
   The numeric value, for a number field
   """
   numberValue: Float
@@ -18832,6 +18838,68 @@ type IssueFieldDateValue implements IssueFieldValueCommon & Node
   Value of the field.
   """
   value: String!
+}
+
+"""
+Represents a multi select issue field.
+"""
+type IssueFieldMultiSelect implements IssueFieldCommon & Node
+  @docsCategory(name: "issues") {
+  """
+  The issue field's creation timestamp.
+  """
+  createdAt: DateTime!
+  """
+  The issue field's data type.
+  """
+  dataType: IssueFieldDataType!
+  """
+  The issue field's description.
+  """
+  description: String
+  """
+  Identifies the primary key from the database as a BigInt.
+  """
+  fullDatabaseId: BigInt
+  """
+  The Node ID of the IssueFieldMultiSelect object
+  """
+  id: ID!
+  """
+  The issue field's name.
+  """
+  name: String!
+  """
+  Options for the multi select field
+  """
+  options: [IssueFieldSingleSelectOption!]!
+  """
+  The issue field's visibility.
+  """
+  visibility: IssueFieldVisibility!
+}
+
+"""
+The value of a multi select field in an Issue item.
+"""
+type IssueFieldMultiSelectValue implements IssueFieldValueCommon & Node
+  @docsCategory(name: "issues") {
+  """
+  The issue field that contains this value.
+  """
+  field: IssueFields
+  """
+  The Node ID of the IssueFieldMultiSelectValue object
+  """
+  id: ID!
+  """
+  The selected options.
+  """
+  options: [IssueFieldSingleSelectOption!]!
+  """
+  Comma-separated names of the selected options.
+  """
+  value: String
 }
 
 """
@@ -19166,6 +19234,7 @@ Issue field values
 """
 union IssueFieldValue @docsCategory(name: "issues") =
   | IssueFieldDateValue
+  | IssueFieldMultiSelectValue
   | IssueFieldNumberValue
   | IssueFieldSingleSelectValue
   | IssueFieldTextValue
@@ -19235,6 +19304,7 @@ Possible issue fields.
 """
 union IssueFields @docsCategory(name: "issues") =
   | IssueFieldDate
+  | IssueFieldMultiSelect
   | IssueFieldNumber
   | IssueFieldSingleSelect
   | IssueFieldText
@@ -35593,6 +35663,7 @@ Possible issue field values for a Project item.
 """
 union ProjectV2IssueFieldValues @docsCategory(name: "projects") =
   | IssueFieldDateValue
+  | IssueFieldMultiSelectValue
   | IssueFieldNumberValue
   | IssueFieldSingleSelectValue
   | IssueFieldTextValue
@@ -59584,6 +59655,7 @@ input UpdateIssueFieldInput {
     @possibleTypes(
       concreteTypes: [
         "IssueFieldDate"
+        "IssueFieldMultiSelect"
         "IssueFieldNumber"
         "IssueFieldSingleSelect"
         "IssueFieldText"
