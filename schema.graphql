@@ -618,7 +618,7 @@ input AddLabelsToLabelableInput {
   """
   The ids of the labels to add.
   """
-  labelIds: [ID!]! @possibleTypes(concreteTypes: ["Label"])
+  labelIds: [ID!] @possibleTypes(concreteTypes: ["Label"])
   """
   The id of the labelable object to add labels to.
   """
@@ -51865,7 +51865,7 @@ input SetIssueFieldValueInput {
   """
   clientMutationId: String
   """
-  The issue fields to set on the issue
+  The issue fields to set on the issue.
   """
   issueFields: [IssueFieldCreateOrUpdateInput!]!
   """
@@ -59699,7 +59699,9 @@ input UpdateIssueFieldValueInput {
   """
   clientMutationId: String
   """
-  The field value to update.
+  The field value to update. May include an optional `rationale` or be flagged
+  with `suggest: true` to be stored as a pending suggestion instead of being
+  applied directly.
   """
   issueField: IssueFieldCreateOrUpdateInput!
   """
@@ -63599,6 +63601,10 @@ type WorkflowRun implements Node & UniformResourceLocatable
     last: Int
   ): DeploymentReviewConnection!
   """
+  The human-readable title of the workflow run.
+  """
+  displayTitle: String
+  """
   The event that triggered the workflow run
   """
   event: String!
@@ -63635,6 +63641,10 @@ type WorkflowRun implements Node & UniformResourceLocatable
   The HTTP path for this workflow run
   """
   resourcePath: URI!
+  """
+  The attempt number of this workflow run.
+  """
+  runAttempt: Int!
   """
   A number that uniquely identifies this workflow run in its parent workflow.
   """
