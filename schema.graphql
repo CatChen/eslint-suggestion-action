@@ -52184,6 +52184,10 @@ enum SocialAccountProvider @docsCategory(name: "users") {
   """
   REDDIT
   """
+  Microblogging social platform.
+  """
+  THREADS
+  """
   Live-streaming service.
   """
   TWITCH
