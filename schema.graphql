@@ -18565,6 +18565,20 @@ type IssueContributionsByRepository @docsCategory(name: "issues") {
 }
 
 """
+The policy controlling who can create issues in a repository.
+"""
+enum IssueCreationPolicy @docsCategory(name: "issues") {
+  """
+  Anyone can create issues.
+  """
+  ALL
+  """
+  Only collaborators can create issues.
+  """
+  COLLABORATORS_ONLY
+}
+
+"""
 Summary of the state of an issue's dependencies
 """
 type IssueDependenciesSummary @docsCategory(name: "issues") {
@@ -46659,6 +46673,10 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     number: Int!
   ): Issue
   """
+  The policy controlling who can create issues in this repository.
+  """
+  issueCreationPolicy: IssueCreationPolicy
+  """
   A list of the repository's issue fields, inherited from the organization
   """
   issueFields(
@@ -47587,6 +47605,10 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
   """
   viewerCanAdminister: Boolean!
   """
+  Indicates whether the current user can create issues in this repository.
+  """
+  viewerCanCreateIssues: Boolean!
+  """
   Can the current viewer create new projects on this owner.
   """
   viewerCanCreateProjects: Boolean!
@@ -48246,6 +48268,10 @@ interface RepositoryInfo @docsCategory(name: "repos") {
   Identifies if the repository is a template that can be used to generate new repositories.
   """
   isTemplate: Boolean!
+  """
+  The policy controlling who can create issues in this repository.
+  """
+  issueCreationPolicy: IssueCreationPolicy
   """
   The license associated with the repository
   """
