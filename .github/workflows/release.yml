@@ -85,7 +85,7 @@ jobs:
           app-id: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_ID }}
           private-key: ${{ secrets.ACCEPT_TO_SHIP_BOT_APP_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: 'main'
           fetch-depth: 0
@@ -121,12 +121,12 @@ jobs:
       contents: read
       id-token: write # Required for OIDC trusted publishing with npm
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ !inputs.dry-run }}
         with:
           ref: ${{ needs.release.outputs.tag }}
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ inputs.dry-run }}
         with:
           ref: ${{ github.ref_name || github.ref }}
