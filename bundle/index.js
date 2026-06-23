@@ -38423,7 +38423,7 @@ const ReviewThreadsDocument = new TypedDocumentString(`
     `);
 const ResolveReviewThreadDocument = new TypedDocumentString(`
     mutation ResolveReviewThread($nodeId: ID!) {
-  resolveReviewThread(input: {threadId: $nodeId}) {
+  resolveReviewThread(input: { threadId: $nodeId }) {
     thread {
       id
     }
@@ -38432,7 +38432,7 @@ const ResolveReviewThreadDocument = new TypedDocumentString(`
     `);
 const UnresolveReviewThreadDocument = new TypedDocumentString(`
     mutation UnresolveReviewThread($nodeId: ID!) {
-  unresolveReviewThread(input: {threadId: $nodeId}) {
+  unresolveReviewThread(input: { threadId: $nodeId }) {
     thread {
       id
     }
