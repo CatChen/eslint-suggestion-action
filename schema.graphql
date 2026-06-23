@@ -1006,7 +1006,7 @@ input AddPullRequestReviewThreadInput {
   """
   The side of the diff on which the line resides. For multi-line comments, this is the side for the end of the line range.
   """
-  side: DiffSide = RIGHT
+  side: DiffSide
   """
   The first line of the range to which the comment refers.
   """
@@ -1014,11 +1014,11 @@ input AddPullRequestReviewThreadInput {
   """
   The side of the diff on which the start line resides.
   """
-  startSide: DiffSide = RIGHT
+  startSide: DiffSide
   """
   The level at which the comments in the corresponding thread are targeted, can be a diff line or a file
   """
-  subjectType: PullRequestReviewThreadSubjectType = LINE
+  subjectType: PullRequestReviewThreadSubjectType
 }
 
 """
@@ -1487,7 +1487,7 @@ type App implements Node @docsCategory(name: "apps") {
     """
     Ordering options for IP allow list entries returned.
     """
-    orderBy: IpAllowListEntryOrder = { direction: ASC, field: ALLOW_LIST_VALUE }
+    orderBy: IpAllowListEntryOrder
   ): IpAllowListEntryConnection!
   """
   The hex color code, without the leading '#', for the logo background.
@@ -1531,7 +1531,7 @@ input ApproveDeploymentsInput {
   """
   Optional comment for approving deployments
   """
-  comment: String = ""
+  comment: String
   """
   The ids of environments to reject deployments
   """
@@ -3216,7 +3216,7 @@ input ChangeUserStatusInput {
   """
   Whether this status should indicate you are not fully available on GitHub, e.g., you are away.
   """
-  limitedAvailability: Boolean = false
+  limitedAvailability: Boolean
   """
   A short description of your current status.
   """
@@ -4276,7 +4276,7 @@ input CloneTemplateRepositoryInput {
   Whether to copy all branches from the template to the new repository. Defaults
   to copying only the default branch of the template.
   """
-  includeAllBranches: Boolean = false
+  includeAllBranches: Boolean
   """
   The name of the new repository.
   """
@@ -4350,7 +4350,7 @@ input CloseDiscussionInput {
   """
   The reason why the discussion is being closed.
   """
-  reason: DiscussionCloseReason = RESOLVED
+  reason: DiscussionCloseReason
 }
 
 """
@@ -4812,7 +4812,7 @@ type Commit implements GitObject & Node & Subscribable & UniformResourceLocatabl
     """
     Ordering options for pull requests.
     """
-    orderBy: PullRequestOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: PullRequestOrder
   ): PullRequestConnection
   """
   Authorship details of the commit.
@@ -4969,7 +4969,7 @@ type Commit implements GitObject & Node & Subscribable & UniformResourceLocatabl
     """
     Ordering options for deployments returned from the connection.
     """
-    orderBy: DeploymentOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: DeploymentOrder
   ): DeploymentConnection
   """
   The tree entry representing the file located at the given path.
@@ -5556,7 +5556,7 @@ type CommitContributionsByRepository @docsCategory(name: "commits") {
     """
     Ordering options for commit contributions returned from the connection.
     """
-    orderBy: CommitContributionOrder = { direction: DESC, field: OCCURRED_AT }
+    orderBy: CommitContributionOrder
   ): CreatedCommitContributionConnection!
   """
   The repository in which the commits were made.
@@ -6090,7 +6090,7 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     How many repositories should be included.
     """
-    maxRepositories: Int = 25
+    maxRepositories: Int
   ): [CommitContributionsByRepository!]!
   """
   A calendar of this user's contributions on GitHub.
@@ -6167,11 +6167,11 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first issue ever be excluded from the result.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
     """
     Should the user's most commented issue be excluded from the result.
     """
-    excludePopular: Boolean = false
+    excludePopular: Boolean
     """
     Returns the first _n_ elements from the list.
     """
@@ -6183,7 +6183,7 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Ordering options for contributions returned from the connection.
     """
-    orderBy: ContributionOrder = { direction: DESC }
+    orderBy: ContributionOrder
   ): CreatedIssueContributionConnection!
   """
   Issue contributions made by the user, grouped by repository.
@@ -6192,15 +6192,15 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first issue ever be excluded from the result.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
     """
     Should the user's most commented issue be excluded from the result.
     """
-    excludePopular: Boolean = false
+    excludePopular: Boolean
     """
     How many repositories should be included.
     """
-    maxRepositories: Int = 25
+    maxRepositories: Int
   ): [IssueContributionsByRepository!]!
   """
   When the user signed up for GitHub. This will be null if that sign up date
@@ -6247,11 +6247,11 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first pull request ever be excluded from the result.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
     """
     Should the user's most commented pull request be excluded from the result.
     """
-    excludePopular: Boolean = false
+    excludePopular: Boolean
     """
     Returns the first _n_ elements from the list.
     """
@@ -6263,7 +6263,7 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Ordering options for contributions returned from the connection.
     """
-    orderBy: ContributionOrder = { direction: DESC }
+    orderBy: ContributionOrder
   ): CreatedPullRequestContributionConnection!
   """
   Pull request contributions made by the user, grouped by repository.
@@ -6272,15 +6272,15 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first pull request ever be excluded from the result.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
     """
     Should the user's most commented pull request be excluded from the result.
     """
-    excludePopular: Boolean = false
+    excludePopular: Boolean
     """
     How many repositories should be included.
     """
-    maxRepositories: Int = 25
+    maxRepositories: Int
   ): [PullRequestContributionsByRepository!]!
   """
   Pull request review contributions made by the user. Returns the most recently
@@ -6306,7 +6306,7 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Ordering options for contributions returned from the connection.
     """
-    orderBy: ContributionOrder = { direction: DESC }
+    orderBy: ContributionOrder
   ): CreatedPullRequestReviewContributionConnection!
   """
   Pull request review contributions made by the user, grouped by repository.
@@ -6315,7 +6315,7 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     How many repositories should be included.
     """
-    maxRepositories: Int = 25
+    maxRepositories: Int
   ): [PullRequestReviewContributionsByRepository!]!
   """
   A list of repositories owned by the user that the user created in this time range.
@@ -6332,7 +6332,7 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first repository ever be excluded from the result.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
     """
     Returns the first _n_ elements from the list.
     """
@@ -6344,7 +6344,7 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Ordering options for contributions returned from the connection.
     """
-    orderBy: ContributionOrder = { direction: DESC }
+    orderBy: ContributionOrder
   ): CreatedRepositoryContributionConnection!
   """
   A count of contributions made by the user that the viewer cannot access. Only
@@ -6366,11 +6366,11 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first issue ever be excluded from this count.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
     """
     Should the user's most commented issue be excluded from this count.
     """
-    excludePopular: Boolean = false
+    excludePopular: Boolean
   ): Int!
   """
   How many pull requests the user opened.
@@ -6379,11 +6379,11 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first pull request ever be excluded from this count.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
     """
     Should the user's most commented pull request be excluded from this count.
     """
-    excludePopular: Boolean = false
+    excludePopular: Boolean
   ): Int!
   """
   How many pull request reviews the user left.
@@ -6400,11 +6400,11 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first issue ever be excluded from this count.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
     """
     Should the user's most commented issue be excluded from this count.
     """
-    excludePopular: Boolean = false
+    excludePopular: Boolean
   ): Int!
   """
   How many different repositories the user left pull request reviews in.
@@ -6417,11 +6417,11 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first pull request ever be excluded from this count.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
     """
     Should the user's most commented pull request be excluded from this count.
     """
-    excludePopular: Boolean = false
+    excludePopular: Boolean
   ): Int!
   """
   How many repositories the user created.
@@ -6430,7 +6430,7 @@ type ContributionsCollection @docsCategory(name: "users") {
     """
     Should the user's first repository ever be excluded from this count.
     """
-    excludeFirst: Boolean = false
+    excludeFirst: Boolean
   ): Int!
   """
   The user who made the contributions in this collection.
@@ -6723,7 +6723,7 @@ input CopyProjectV2Input {
   """
   Include draft issues in the new project
   """
-  includeDraftIssues: Boolean = false
+  includeDraftIssues: Boolean
   """
   The owner ID of the new project.
   """
@@ -7096,7 +7096,7 @@ input CreateDeploymentInput {
   """
   Attempt to automatically merge the default branch into the requested ref, defaults to true.
   """
-  autoMerge: Boolean = true
+  autoMerge: Boolean
   """
   A unique identifier for the client performing the mutation.
   """
@@ -7104,15 +7104,15 @@ input CreateDeploymentInput {
   """
   Short description of the deployment.
   """
-  description: String = ""
+  description: String
   """
   Name for the target deployment environment.
   """
-  environment: String = "production"
+  environment: String
   """
   JSON payload with extra information about the deployment.
   """
-  payload: String = "{}"
+  payload: String
   """
   The node ID of the ref to be deployed.
   """
@@ -7129,7 +7129,7 @@ input CreateDeploymentInput {
   """
   Specifies a task to execute.
   """
-  task: String = "deploy"
+  task: String
 }
 
 """
@@ -7159,7 +7159,7 @@ input CreateDeploymentStatusInput {
   deployments with the same repository and environment name as the created
   status's deployment.
   """
-  autoInactive: Boolean = true
+  autoInactive: Boolean
   """
   A unique identifier for the client performing the mutation.
   """
@@ -7171,7 +7171,7 @@ input CreateDeploymentStatusInput {
   """
   A short description of the status. Maximum length of 140 characters.
   """
-  description: String = ""
+  description: String
   """
   If provided, updates the environment of the deploy. Otherwise, does not modify the environment.
   """
@@ -7179,13 +7179,13 @@ input CreateDeploymentStatusInput {
   """
   Sets the URL for accessing your environment.
   """
-  environmentUrl: String = ""
+  environmentUrl: String
   """
   The log URL to associate with this status.       This URL should contain
   output to keep the user updated while the task is running       or serve as
   historical information for what happened in the deployment.
   """
-  logUrl: String = ""
+  logUrl: String
   """
   The state of the deployment.
   """
@@ -7955,7 +7955,7 @@ input CreatePullRequestInput {
   """
   Indicates whether this pull request should be a draft.
   """
-  draft: Boolean = false
+  draft: Boolean
   """
   The name of the branch where your changes are implemented. For cross-repository pull requests
   in the same network, namespace `head_ref_name` with a user like this: `username:branch`.
@@ -7968,7 +7968,7 @@ input CreatePullRequestInput {
   """
   Indicates whether maintainers can modify the pull request.
   """
-  maintainerCanModify: Boolean = true
+  maintainerCanModify: Boolean
   """
   The Node ID of the repository.
   """
@@ -8112,11 +8112,11 @@ input CreateRepositoryInput {
   """
   Indicates if the repository should have the issues feature enabled.
   """
-  hasIssuesEnabled: Boolean = true
+  hasIssuesEnabled: Boolean
   """
   Indicates if the repository should have the wiki feature enabled.
   """
-  hasWikiEnabled: Boolean = false
+  hasWikiEnabled: Boolean
   """
   The URL for a web page about this repository.
   """
@@ -8142,7 +8142,7 @@ input CreateRepositoryInput {
   Whether this repository should be marked as a template such that anyone who
   can access it can create new repositories with the same files and directory structure.
   """
-  template: Boolean = false
+  template: Boolean
   """
   Indicates the repository's visibility level.
   """
@@ -8307,12 +8307,12 @@ input CreateSponsorsTierInput {
   """
   Whether sponsorships using this tier should happen monthly/yearly or just once.
   """
-  isRecurring: Boolean = true
+  isRecurring: Boolean
   """
   Whether to make the tier available immediately for sponsors to choose.
   Defaults to creating a draft tier that will not be publicly visible.
   """
-  publish: Boolean = false
+  publish: Boolean
   """
   Optional ID of the private repository that sponsors at this tier should gain
   read-only access to. Must be owned by an organization.
@@ -8384,11 +8384,11 @@ input CreateSponsorshipInput {
   Specify whether others should be able to see that the sponsor is sponsoring
   the sponsorable. Public visibility still does not reveal which tier is used.
   """
-  privacyLevel: SponsorshipPrivacy = PUBLIC
+  privacyLevel: SponsorshipPrivacy
   """
   Whether the sponsor should receive email updates from the sponsorable.
   """
-  receiveEmails: Boolean = true
+  receiveEmails: Boolean
   """
   The ID of the user or organization who is acting as the sponsor, paying for
   the sponsorship. Required if sponsorLogin is not given.
@@ -8448,17 +8448,17 @@ input CreateSponsorshipsInput {
   the sponsorables. Public visibility still does not reveal the dollar value of
   the sponsorship.
   """
-  privacyLevel: SponsorshipPrivacy = PUBLIC
+  privacyLevel: SponsorshipPrivacy
   """
   Whether the sponsor should receive email updates from the sponsorables.
   """
-  receiveEmails: Boolean = false
+  receiveEmails: Boolean
   """
   Whether the sponsorships created should continue each billing cycle for the
   sponsor (monthly or annually), versus lasting only a single month. Defaults to
   one-time sponsorships.
   """
-  recurring: Boolean = false
+  recurring: Boolean
   """
   The username of the user or organization who is acting as the sponsor, paying for the sponsorships.
   """
@@ -8498,7 +8498,7 @@ input CreateUserListInput {
   """
   Whether or not the list is private
   """
-  isPrivate: Boolean = false
+  isPrivate: Boolean
   """
   The name of the new list
   """
@@ -11226,7 +11226,7 @@ type Discussion implements Closable & Comment & Deletable & Labelable & Lockable
     """
     Ordering options for labels returned from the connection.
     """
-    orderBy: LabelOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: LabelOrder
   ): LabelConnection
   """
   The moment the editor made the last edit
@@ -11833,10 +11833,7 @@ type DiscussionPoll implements Node @docsCategory(name: "discussions") {
     """
     How to order the options for the discussion poll.
     """
-    orderBy: DiscussionPollOptionOrder = {
-      direction: ASC
-      field: AUTHORED_ORDER
-    }
+    orderBy: DiscussionPollOptionOrder
   ): DiscussionPollOptionConnection
   """
   The question that is being asked by this poll.
@@ -12212,7 +12209,7 @@ input DraftPullRequestReviewThread @docsCategory(name: "pulls") {
   """
   The side of the diff on which the line resides. For multi-line comments, this is the side for the end of the line range.
   """
-  side: DiffSide = RIGHT
+  side: DiffSide
   """
   The first line of the range to which the comment refers.
   """
@@ -12220,7 +12217,7 @@ input DraftPullRequestReviewThread @docsCategory(name: "pulls") {
   """
   The side of the diff on which the start line resides.
   """
-  startSide: DiffSide = RIGHT
+  startSide: DiffSide
 }
 
 """
@@ -12269,7 +12266,7 @@ input EnablePullRequestAutoMergeInput {
   The merge method to use. If omitted, defaults to `MERGE`. NOTE: when merging
   with a merge queue any input value for merge method is ignored.
   """
-  mergeMethod: PullRequestMergeMethod = MERGE
+  mergeMethod: PullRequestMergeMethod
   """
   ID of the pull request to enable auto-merge on.
   """
@@ -12403,7 +12400,7 @@ type Enterprise implements Node @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for enterprise teams returned from the connection.
     """
-    orderBy: EnterpriseTeamOrder = { direction: ASC, field: ID }
+    orderBy: EnterpriseTeamOrder
     """
     The search string to look for.
     """
@@ -12445,7 +12442,7 @@ type Enterprise implements Node @docsCategory(name: "enterprise-admin") {
     **Description:** `hasTwoFactorEnabled` will be removed. Use `two_factor_method_security` instead.
     **Reason:** `has_two_factor_enabled` will be removed.
     """
-    hasTwoFactorEnabled: Boolean = null
+    hasTwoFactorEnabled: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -12453,7 +12450,7 @@ type Enterprise implements Node @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for members returned from the connection.
     """
-    orderBy: EnterpriseMemberOrder = { direction: ASC, field: LOGIN }
+    orderBy: EnterpriseMemberOrder
     """
     Only return members within the organizations with these logins
     """
@@ -12470,7 +12467,7 @@ type Enterprise implements Node @docsCategory(name: "enterprise-admin") {
     Only return members with this type of two-factor authentication method. Does
     not include members who only have an account on a GitHub Enterprise Server instance.
     """
-    twoFactorMethodSecurity: TwoFactorCredentialSecurityType = null
+    twoFactorMethodSecurity: TwoFactorCredentialSecurityType
   ): EnterpriseMemberConnection!
   """
   The name of the enterprise.
@@ -12499,7 +12496,7 @@ type Enterprise implements Node @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations returned from the connection.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The search string to look for.
     """
@@ -12625,7 +12622,7 @@ type Enterprise implements Node @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for repositories returned from the connection.
     """
-    orderBy: RepositoryOrder = { direction: ASC, field: NAME }
+    orderBy: RepositoryOrder
     """
     The search string to look for.
     """
@@ -13467,7 +13464,7 @@ type EnterpriseOutsideCollaboratorEdge {
     """
     Ordering options for repositories.
     """
-    orderBy: RepositoryOrder = { direction: ASC, field: NAME }
+    orderBy: RepositoryOrder
   ): EnterpriseRepositoryInfoConnection!
 }
 
@@ -13499,7 +13496,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     **Description:** `hasTwoFactorEnabled` will be removed. Use `two_factor_method_security` instead.
     **Reason:** `has_two_factor_enabled` will be removed.
     """
-    hasTwoFactorEnabled: Boolean = null
+    hasTwoFactorEnabled: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -13507,7 +13504,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for administrators returned from the connection.
     """
-    orderBy: EnterpriseMemberOrder = { direction: ASC, field: LOGIN }
+    orderBy: EnterpriseMemberOrder
     """
     Only return members within the organizations with these logins
     """
@@ -13523,7 +13520,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Only return outside collaborators with this type of two-factor authentication method.
     """
-    twoFactorMethodSecurity: TwoFactorCredentialSecurityType = null
+    twoFactorMethodSecurity: TwoFactorCredentialSecurityType
   ): EnterpriseAdministratorConnection!
   """
   A list of users in the enterprise who currently have two-factor authentication disabled.
@@ -13577,7 +13574,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -13614,7 +13611,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The permission to find organizations for.
     """
@@ -13640,11 +13637,11 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Filter whether or not the domain is approved.
     """
-    isApproved: Boolean = null
+    isApproved: Boolean
     """
     Filter whether or not the domain is verified.
     """
-    isVerified: Boolean = null
+    isVerified: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -13652,7 +13649,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for verifiable domains returned.
     """
-    orderBy: VerifiableDomainOrder = { direction: ASC, field: DOMAIN }
+    orderBy: VerifiableDomainOrder
   ): VerifiableDomainConnection!
   """
   Enterprise Server installations owned by the enterprise.
@@ -13669,7 +13666,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Whether or not to only return installations discovered via GitHub Connect.
     """
-    connectedOnly: Boolean = false
+    connectedOnly: Boolean
     """
     Returns the first _n_ elements from the list.
     """
@@ -13681,10 +13678,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for Enterprise Server installations returned.
     """
-    orderBy: EnterpriseServerInstallationOrder = {
-      direction: ASC
-      field: HOST_NAME
-    }
+    orderBy: EnterpriseServerInstallationOrder
   ): EnterpriseServerInstallationConnection!
   """
   A list of failed invitations in the enterprise.
@@ -13740,7 +13734,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for IP allow list entries returned.
     """
-    orderBy: IpAllowListEntryOrder = { direction: ASC, field: ALLOW_LIST_VALUE }
+    orderBy: IpAllowListEntryOrder
   ): IpAllowListEntryConnection!
   """
   The setting value for whether the enterprise has IP allow list configuration for installed GitHub Apps enabled.
@@ -13786,7 +13780,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -13831,7 +13825,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting to find organizations for.
     """
@@ -13864,7 +13858,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -13897,7 +13891,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -13930,7 +13924,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -13967,7 +13961,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -14000,7 +13994,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -14041,7 +14035,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -14070,7 +14064,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     **Description:** `hasTwoFactorEnabled` will be removed. Use `two_factor_method_security` instead.
     **Reason:** `has_two_factor_enabled` will be removed.
     """
-    hasTwoFactorEnabled: Boolean = null
+    hasTwoFactorEnabled: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -14082,7 +14076,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for outside collaborators returned from the connection.
     """
-    orderBy: EnterpriseMemberOrder = { direction: ASC, field: LOGIN }
+    orderBy: EnterpriseMemberOrder
     """
     Only return outside collaborators within the organizations with these logins
     """
@@ -14094,7 +14088,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Only return outside collaborators with this type of two-factor authentication method.
     """
-    twoFactorMethodSecurity: TwoFactorCredentialSecurityType = null
+    twoFactorMethodSecurity: TwoFactorCredentialSecurityType
     """
     Only return outside collaborators on repositories with this visibility.
     """
@@ -14123,10 +14117,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for pending enterprise administrator invitations returned from the connection.
     """
-    orderBy: EnterpriseAdministratorInvitationOrder = {
-      direction: DESC
-      field: CREATED_AT
-    }
+    orderBy: EnterpriseAdministratorInvitationOrder
     """
     The search string to look for.
     """
@@ -14159,7 +14150,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for pending repository collaborator invitations returned from the connection.
     """
-    orderBy: RepositoryInvitationOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: RepositoryInvitationOrder
     """
     The search string to look for.
     """
@@ -14221,10 +14212,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for pending enterprise member invitations returned from the connection.
     """
-    orderBy: EnterpriseMemberInvitationOrder = {
-      direction: DESC
-      field: CREATED_AT
-    }
+    orderBy: EnterpriseMemberInvitationOrder
     """
     The search string to look for.
     """
@@ -14257,7 +14245,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -14290,7 +14278,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -14323,7 +14311,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -14352,7 +14340,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for support entitlement users returned from the connection.
     """
-    orderBy: EnterpriseMemberOrder = { direction: ASC, field: LOGIN }
+    orderBy: EnterpriseMemberOrder
   ): EnterpriseMemberConnection!
   """
   The setting value for whether team discussions are enabled for organizations in this enterprise.
@@ -14392,7 +14380,7 @@ type EnterpriseOwnerInfo @docsCategory(name: "enterprise-admin") {
     """
     Ordering options for organizations with this setting.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The setting value to find organizations for.
     """
@@ -14551,7 +14539,7 @@ type EnterpriseServerInstallation implements Node
     """
     Ordering options for Enterprise Server user accounts returned from the connection.
     """
-    orderBy: EnterpriseServerUserAccountOrder = { direction: ASC, field: LOGIN }
+    orderBy: EnterpriseServerUserAccountOrder
   ): EnterpriseServerUserAccountConnection!
   """
   User accounts uploads for the Enterprise Server installation.
@@ -14576,10 +14564,7 @@ type EnterpriseServerInstallation implements Node
     """
     Ordering options for Enterprise Server user accounts uploads returned from the connection.
     """
-    orderBy: EnterpriseServerUserAccountsUploadOrder = {
-      direction: DESC
-      field: CREATED_AT
-    }
+    orderBy: EnterpriseServerUserAccountsUploadOrder
   ): EnterpriseServerUserAccountsUploadConnection!
 }
 
@@ -14725,10 +14710,7 @@ type EnterpriseServerUserAccount implements Node
     """
     Ordering options for Enterprise Server user account emails returned from the connection.
     """
-    orderBy: EnterpriseServerUserAccountEmailOrder = {
-      direction: ASC
-      field: EMAIL
-    }
+    orderBy: EnterpriseServerUserAccountEmailOrder
   ): EnterpriseServerUserAccountEmailConnection!
   """
   The Enterprise Server installation on which this user account exists.
@@ -15066,7 +15048,7 @@ type EnterpriseTeam implements Node & TeamReviewRequestable
     """
     Ordering options for organizations returned from the connection.
     """
-    orderBy: EnterpriseTeamOrganizationOrder = { direction: ASC, field: ID }
+    orderBy: EnterpriseTeamOrganizationOrder
   ): EnterpriseTeamAssignedOrganizationConnection!
   """
   The human-readable, unique identifier for the enterprise and team.
@@ -15107,7 +15089,7 @@ type EnterpriseTeam implements Node & TeamReviewRequestable
     """
     Order for the connection.
     """
-    orderBy: EnterpriseTeamMemberOrder = { direction: ASC, field: ID }
+    orderBy: EnterpriseTeamMemberOrder
     """
     The search string to look for.
     """
@@ -15418,10 +15400,7 @@ type EnterpriseUserAccount implements Actor & Node
     """
     Ordering options for installations returned from the connection.
     """
-    orderBy: EnterpriseServerInstallationOrder = {
-      direction: ASC
-      field: HOST_NAME
-    }
+    orderBy: EnterpriseServerInstallationOrder
     """
     The search string to look for.
     """
@@ -15466,7 +15445,7 @@ type EnterpriseUserAccount implements Actor & Node
     """
     Ordering options for organizations returned from the connection.
     """
-    orderBy: OrganizationOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrganizationOrder
     """
     The search string to look for.
     """
@@ -15941,11 +15920,11 @@ input FileChanges @docsCategory(name: "git") {
   """
   File to add or change.
   """
-  additions: [FileAddition!] = []
+  additions: [FileAddition!]
   """
   Files to delete.
   """
-  deletions: [FileDeletion!] = []
+  deletions: [FileDeletion!]
 }
 
 """
@@ -16246,7 +16225,7 @@ type Gist implements Node & Starrable & UniformResourceLocatable
     """
     The maximum number of files to return.
     """
-    limit: Int = 10
+    limit: Int
     """
     The oid of the files to return
     """
@@ -17193,7 +17172,7 @@ input ImportProjectInput {
   """
   Whether the Project is public or not.
   """
-  public: Boolean = false
+  public: Boolean
 }
 
 """
@@ -17518,10 +17497,7 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     """
     Ordering options for dependencies
     """
-    orderBy: IssueDependencyOrder = {
-      direction: DESC
-      field: DEPENDENCY_ADDED_AT
-    }
+    orderBy: IssueDependencyOrder
   ): IssueConnection!
   """
   A list of issues that this issue is blocking.
@@ -17546,10 +17522,7 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     """
     Ordering options for dependencies
     """
-    orderBy: IssueDependencyOrder = {
-      direction: DESC
-      field: DEPENDENCY_ADDED_AT
-    }
+    orderBy: IssueDependencyOrder
   ): IssueConnection!
   """
   Identifies the body of the issue.
@@ -17598,7 +17571,7 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     """
     Include closed PRs in results
     """
-    includeClosedPrs: Boolean = false
+    includeClosedPrs: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -17606,11 +17579,11 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     """
     Return results ordered by state
     """
-    orderByState: Boolean = false
+    orderByState: Boolean
     """
     Return only manually linked PRs
     """
-    userLinkedOnly: Boolean = false
+    userLinkedOnly: Boolean
   ): PullRequestConnection
   """
   A list of comments associated with the Issue.
@@ -17668,7 +17641,7 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     """
     Whether or not to include notification contexts
     """
-    includeNotificationContexts: Boolean = true
+    includeNotificationContexts: Boolean
   ): Hovercard!
   """
   The Node ID of the Issue object
@@ -17738,7 +17711,7 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     """
     Ordering options for labels returned from the connection.
     """
-    orderBy: LabelOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: LabelOrder
   ): LabelConnection
   """
   The moment the editor made the last edit
@@ -17817,7 +17790,7 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     """
     A list of archived states to filter the cards by
     """
-    archivedStates: [ProjectCardArchivedState] = [ARCHIVED, NOT_ARCHIVED]
+    archivedStates: [ProjectCardArchivedState]
     """
     Returns the elements in the list that come before the specified cursor.
     """
@@ -17853,7 +17826,7 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     """
     Include archived items.
     """
-    includeArchived: Boolean = true
+    includeArchived: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -17891,11 +17864,11 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     """
     Filter projects based on user role.
     """
-    minPermissionLevel: ProjectV2PermissionLevel = READ
+    minPermissionLevel: ProjectV2PermissionLevel
     """
     How to order the returned projects.
     """
-    orderBy: ProjectV2Order = { direction: DESC, field: NUMBER }
+    orderBy: ProjectV2Order
     """
     A project to search for under the owner.
     """
@@ -17961,7 +17934,7 @@ type Issue implements Assignable & Closable & Comment & Deletable & Labelable & 
     **Description:** `enableDuplicate` will be removed.
     **Reason:** The state reason for duplicate issue is now returned by default.
     """
-    enableDuplicate: Boolean = false
+    enableDuplicate: Boolean
   ): IssueStateReason
   """
   A list of sub-issues associated with the Issue.
@@ -18588,7 +18561,7 @@ type IssueContributionsByRepository @docsCategory(name: "issues") {
     """
     Ordering options for contributions returned from the connection.
     """
-    orderBy: ContributionOrder = { direction: DESC }
+    orderBy: ContributionOrder
   ): CreatedIssueContributionConnection!
   """
   The repository in which the issues were opened.
@@ -19439,7 +19412,7 @@ input IssueFilters @docsCategory(name: "issues") {
   """
   List issues subscribed to by viewer.
   """
-  viewerSubscribed: Boolean = false
+  viewerSubscribed: Boolean
 }
 
 """
@@ -19593,7 +19566,7 @@ type IssueTemplate @docsCategory(name: "issues") {
     """
     Ordering options for labels returned from the connection.
     """
-    orderBy: LabelOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: LabelOrder
   ): LabelConnection
   """
   The template name.
@@ -20481,7 +20454,7 @@ interface Labelable @docsCategory(name: "issues") {
     """
     Ordering options for labels returned from the connection.
     """
-    orderBy: LabelOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: LabelOrder
   ): LabelConnection
   """
   Indicates if the viewer can edit labels for this object.
@@ -21397,7 +21370,7 @@ type MarketplaceListing implements Node @docsCategory(name: "apps") {
     """
     The size in pixels of the resulting square image.
     """
-    size: Int = 400
+    size: Int
   ): URI
   """
   The listing's full name.
@@ -21641,7 +21614,7 @@ interface MemberStatusable @docsCategory(name: "users") {
     """
     Ordering options for user statuses returned from the connection.
     """
-    orderBy: UserStatusOrder = { direction: DESC, field: UPDATED_AT }
+    orderBy: UserStatusOrder
   ): UserStatusConnection!
 }
 
@@ -22196,7 +22169,7 @@ input MergePullRequestInput {
   """
   The merge method to use. If omitted, defaults to 'MERGE'
   """
-  mergeMethod: PullRequestMergeMethod = MERGE
+  mergeMethod: PullRequestMergeMethod
   """
   ID of the pull request to be merged.
   """
@@ -30577,7 +30550,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for the returned audit log entries.
     """
-    orderBy: AuditLogOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: AuditLogOrder
     """
     The query string to filter audit entries
     """
@@ -30630,11 +30603,11 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Filter by if the domain is approved.
     """
-    isApproved: Boolean = null
+    isApproved: Boolean
     """
     Filter by if the domain is verified.
     """
-    isVerified: Boolean = null
+    isVerified: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -30642,7 +30615,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for verifiable domains returned.
     """
-    orderBy: VerifiableDomainOrder = { direction: ASC, field: DOMAIN }
+    orderBy: VerifiableDomainOrder
   ): VerifiableDomainConnection
   """
   The organization's public email.
@@ -30671,7 +30644,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for enterprise owners returned from the connection.
     """
-    orderBy: OrgEnterpriseOwnerOrder = { direction: ASC, field: LOGIN }
+    orderBy: OrgEnterpriseOwnerOrder
     """
     The organization role to filter by.
     """
@@ -30724,7 +30697,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for IP allow list entries returned.
     """
-    orderBy: IpAllowListEntryOrder = { direction: ASC, field: ALLOW_LIST_VALUE }
+    orderBy: IpAllowListEntryOrder
   ): IpAllowListEntryConnection!
   """
   The setting value for whether the organization has IP allow list configuration for installed GitHub Apps enabled.
@@ -30770,7 +30743,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for issue fields returned from the connection.
     """
-    orderBy: IssueFieldOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: IssueFieldOrder
   ): IssueFieldsConnection
   """
   A list of the organization's issue types
@@ -30795,7 +30768,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for issue types returned from the connection.
     """
-    orderBy: IssueTypeOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: IssueTypeOrder
   ): IssueTypeConnection
   """
   Showcases a selection of repositories and gists that the profile owner has
@@ -30826,10 +30799,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for results returned from the connection.
     """
-    orderBy: SponsorAndLifetimeValueOrder = {
-      direction: ASC
-      field: SPONSOR_LOGIN
-    }
+    orderBy: SponsorAndLifetimeValueOrder
   ): SponsorAndLifetimeValueConnection!
   """
   The organization's public profile location.
@@ -30866,7 +30836,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for mannequins returned from the connection.
     """
-    orderBy: MannequinOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: MannequinOrder
   ): MannequinConnection!
   """
   Get the status messages members of this entity have set that are either public or visible only to the organization.
@@ -30891,7 +30861,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for user statuses returned from the connection.
     """
-    orderBy: UserStatusOrder = { direction: DESC, field: UPDATED_AT }
+    orderBy: UserStatusOrder
   ): UserStatusConnection!
   """
   Members can fork private repositories in this organization
@@ -30969,7 +30939,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering of the returned packages.
     """
-    orderBy: PackageOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: PackageOrder
     """
     Filter registry package by type.
     """
@@ -31142,11 +31112,11 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Filter projects based on user role.
     """
-    minPermissionLevel: ProjectV2PermissionLevel = READ
+    minPermissionLevel: ProjectV2PermissionLevel
     """
     How to order the returned projects.
     """
-    orderBy: ProjectV2Order = { direction: DESC, field: NUMBER }
+    orderBy: ProjectV2Order
     """
     A project to search for under the owner.
     """
@@ -31224,7 +31194,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     connection. For example, OWNER will include only repositories that the
     organization or user being viewed owns.
     """
-    ownerAffiliations: [RepositoryAffiliation] = [OWNER, COLLABORATOR]
+    ownerAffiliations: [RepositoryAffiliation]
     """
     If non-null, filters repositories according to privacy. Internal
     repositories are considered private; consider using the visibility argument
@@ -31244,7 +31214,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Follow repository renames. If disabled, a repository referenced by its old name will return an error.
     """
-    followRenames: Boolean = true
+    followRenames: Boolean
     """
     Name of Repository to find.
     """
@@ -31303,7 +31273,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Filter discussion comments to only those that were marked as the answer
     """
-    onlyAnswers: Boolean = false
+    onlyAnswers: Boolean
     """
     Filter discussion comments to only those in a specific repository.
     """
@@ -31321,7 +31291,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     Filter discussions to only those that have been answered or not. Defaults to
     including both answered and unanswered discussions.
     """
-    answered: Boolean = null
+    answered: Boolean
     """
     Returns the elements in the list that come before the specified cursor.
     """
@@ -31337,7 +31307,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for discussions returned from the connection.
     """
-    orderBy: DiscussionOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: DiscussionOrder
     """
     Filter discussions to only those in a specific repository.
     """
@@ -31345,7 +31315,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     A list of states to filter the discussions by.
     """
-    states: [DiscussionState!] = []
+    states: [DiscussionState!]
   ): DiscussionConnection!
   """
   A list of all repository migrations for this organization.
@@ -31370,7 +31340,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for repository migrations returned.
     """
-    orderBy: RepositoryMigrationOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: RepositoryMigrationOrder
     """
     Filter repository migrations by repository name.
     """
@@ -31400,7 +31370,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Include rulesets configured at higher levels that apply to this organization.
     """
-    includeParents: Boolean = true
+    includeParents: Boolean
   ): RepositoryRuleset
   """
   A list of rulesets for this organization.
@@ -31421,7 +31391,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Return rulesets configured at higher levels that apply to this organization
     """
-    includeParents: Boolean = true
+    includeParents: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -31429,7 +31399,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Return rulesets that apply to the specified target
     """
-    targets: [RepositoryRulesetTarget!] = null
+    targets: [RepositoryRulesetTarget!]
   ): RepositoryRulesetConnection
   """
   The Organization's SAML identity provider. Visible to (1) organization owners,
@@ -31461,7 +31431,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for the users and organizations returned from the connection.
     """
-    orderBy: SponsorOrder = { direction: DESC, field: RELEVANCE }
+    orderBy: SponsorOrder
   ): SponsorConnection!
   """
   List of sponsors for this user or organization.
@@ -31486,7 +31456,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for sponsors returned from the connection.
     """
-    orderBy: SponsorOrder = { direction: DESC, field: RELEVANCE }
+    orderBy: SponsorOrder
     """
     If given, will filter for sponsors at the given tier. Will only return
     sponsors whose tier the viewer is permitted to see.
@@ -31500,7 +31470,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Filter activities to only the specified actions.
     """
-    actions: [SponsorsActivityAction!] = []
+    actions: [SponsorsActivityAction!]
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -31518,11 +31488,11 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     Defaults to only including events where this sponsorable was the recipient
     of a sponsorship.
     """
-    includeAsSponsor: Boolean = false
+    includeAsSponsor: Boolean
     """
     Whether or not to include private activities in the result set. Defaults to including public and private activities.
     """
-    includePrivate: Boolean = true
+    includePrivate: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -31530,13 +31500,13 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for activity returned from the connection.
     """
-    orderBy: SponsorsActivityOrder = { direction: DESC, field: TIMESTAMP }
+    orderBy: SponsorsActivityOrder
     """
     Filter activities returned to only those that occurred in the most recent
     specified time period. Set to ALL to avoid filtering by when the activity
     occurred. Will be ignored if `since` or `until` is given.
     """
-    period: SponsorsActivityPeriod = MONTH
+    period: SponsorsActivityPeriod
     """
     Filter activities to those that occurred on or after this time.
     """
@@ -31558,7 +31528,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     Whether to return the sponsorship only if it's still active. Pass false to
     get the viewer's sponsorship back even if it has been cancelled.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
   ): Sponsorship
   """
   The sponsorship from this user/organization to the viewer; that is, the sponsorship you're receiving.
@@ -31568,7 +31538,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     Whether to return the sponsorship only if it's still active. Pass false to
     get the sponsorship back even if it has been cancelled.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
   ): Sponsorship
   """
   List of sponsorship updates sent from this sponsorable to sponsors.
@@ -31593,7 +31563,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Ordering options for sponsorship updates returned from the connection.
     """
-    orderBy: SponsorshipNewsletterOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: SponsorshipNewsletterOrder
   ): SponsorshipNewsletterConnection!
   """
   The sponsorships where this user or organization is the maintainer receiving the funds.
@@ -31603,7 +31573,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     Whether to include only sponsorships that are active right now, versus all
     sponsorships this maintainer has ever received.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -31619,7 +31589,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Whether or not to include private sponsorships in the result set
     """
-    includePrivate: Boolean = false
+    includePrivate: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -31637,7 +31607,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Whether to include only sponsorships that are active right now, versus all sponsorships this sponsor has ever made.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -31722,7 +31692,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     If true, restrict to only root teams
     """
-    rootTeamsOnly: Boolean = false
+    rootTeamsOnly: Boolean
     """
     User logins to filter by
     """
@@ -31749,7 +31719,7 @@ type Organization implements Actor & MemberStatusable & Node & PackageOwner & Pr
     """
     Filter payments to those made to the users or organizations with the specified usernames.
     """
-    sponsorableLogins: [String!] = []
+    sponsorableLogins: [String!]
     """
     Filter payments to those that occurred before this time.
     """
@@ -32582,7 +32552,7 @@ type OrganizationsHovercardContext implements HovercardContext
     """
     Ordering options for the User's organizations.
     """
-    orderBy: OrganizationOrder = null
+    orderBy: OrganizationOrder
   ): OrganizationConnection!
   """
   The total number of organizations this user is in
@@ -32650,7 +32620,7 @@ type Package implements Node @docsCategory(name: "packages") {
     """
     Ordering of the returned packages.
     """
-    orderBy: PackageVersionOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: PackageVersionOrder
   ): PackageVersionConnection!
 }
 
@@ -32851,7 +32821,7 @@ interface PackageOwner @docsCategory(name: "packages") {
     """
     Ordering of the returned packages.
     """
-    orderBy: PackageOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: PackageOrder
     """
     Filter registry package by type.
     """
@@ -32967,7 +32937,7 @@ type PackageVersion implements Node @docsCategory(name: "packages") {
     """
     Ordering of the returned package files.
     """
-    orderBy: PackageFileOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: PackageFileOrder
   ): PackageFileConnection!
   """
   The Node ID of the PackageVersion object
@@ -34320,7 +34290,7 @@ type Project implements Closable & Node & Updatable
     """
     A list of archived states to filter the cards by
     """
-    archivedStates: [ProjectCardArchivedState] = [ARCHIVED, NOT_ARCHIVED]
+    archivedStates: [ProjectCardArchivedState]
     """
     Returns the elements in the list that come before the specified cursor.
     """
@@ -34596,7 +34566,7 @@ type ProjectColumn implements Node @docsCategory(name: "projects-classic") {
     """
     A list of archived states to filter the cards by
     """
-    archivedStates: [ProjectCardArchivedState] = [ARCHIVED, NOT_ARCHIVED]
+    archivedStates: [ProjectCardArchivedState]
     """
     Returns the elements in the list that come before the specified cursor.
     """
@@ -35051,7 +35021,7 @@ type ProjectV2 implements Closable & Node & Updatable
     """
     Ordering options for project v2 fields returned from the connection
     """
-    orderBy: ProjectV2FieldOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2FieldOrder
   ): ProjectV2FieldConfigurationConnection!
   """
   Identifies the primary key from the database as a BigInt.
@@ -35072,7 +35042,7 @@ type ProjectV2 implements Closable & Node & Updatable
     """
     Filter items by their archived state. Defaults to only returning items that are not archived.
     """
-    archivedStates: [ProjectV2ItemArchivedState!] = [NOT_ARCHIVED]
+    archivedStates: [ProjectV2ItemArchivedState!]
     """
     Returns the elements in the list that come before the specified cursor.
     """
@@ -35088,11 +35058,11 @@ type ProjectV2 implements Closable & Node & Updatable
     """
     Ordering options for project v2 items returned from the connection
     """
-    orderBy: ProjectV2ItemOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2ItemOrder
     """
     Search query for filtering items
     """
-    query: String = ""
+    query: String
   ): ProjectV2ItemConnection!
   """
   The project's number.
@@ -35133,7 +35103,7 @@ type ProjectV2 implements Closable & Node & Updatable
     """
     Ordering options for repositories returned from the connection
     """
-    orderBy: RepositoryOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: RepositoryOrder
   ): RepositoryConnection!
   """
   The HTTP path for this project
@@ -35166,7 +35136,7 @@ type ProjectV2 implements Closable & Node & Updatable
     """
     Order for connection
     """
-    orderBy: ProjectV2StatusOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: ProjectV2StatusOrder
   ): ProjectV2StatusUpdateConnection!
   """
   The teams the project is linked to.
@@ -35191,7 +35161,7 @@ type ProjectV2 implements Closable & Node & Updatable
     """
     Ordering options for teams returned from this connection.
     """
-    orderBy: TeamOrder = { direction: ASC, field: NAME }
+    orderBy: TeamOrder
   ): TeamConnection!
   """
   Returns true if this project is a template.
@@ -35253,7 +35223,7 @@ type ProjectV2 implements Closable & Node & Updatable
     """
     Ordering options for project v2 views returned from the connection
     """
-    orderBy: ProjectV2ViewOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2ViewOrder
   ): ProjectV2ViewConnection!
   """
   A workflow of the project
@@ -35287,7 +35257,7 @@ type ProjectV2 implements Closable & Node & Updatable
     """
     Ordering options for project v2 workflows returned from the connection
     """
-    orderBy: ProjectV2WorkflowOrder = { direction: ASC, field: NAME }
+    orderBy: ProjectV2WorkflowOrder
   ): ProjectV2WorkflowConnection!
 }
 
@@ -35794,7 +35764,7 @@ type ProjectV2Item implements Node @docsCategory(name: "projects") {
     """
     Ordering options for project v2 item field values returned from the connection
     """
-    orderBy: ProjectV2ItemFieldValueOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2ItemFieldValueOrder
   ): ProjectV2ItemFieldValueConnection!
   """
   Identifies the primary key from the database as a BigInt.
@@ -36089,7 +36059,7 @@ type ProjectV2ItemFieldPullRequestValue @docsCategory(name: "projects") {
     """
     Ordering options for pull requests.
     """
-    orderBy: PullRequestOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: PullRequestOrder
   ): PullRequestConnection
 }
 
@@ -36673,11 +36643,11 @@ interface ProjectV2Owner @docsCategory(name: "projects") {
     """
     Filter projects based on user role.
     """
-    minPermissionLevel: ProjectV2PermissionLevel = READ
+    minPermissionLevel: ProjectV2PermissionLevel
     """
     How to order the returned projects.
     """
-    orderBy: ProjectV2Order = { direction: DESC, field: NUMBER }
+    orderBy: ProjectV2Order
     """
     A project to search for under the owner.
     """
@@ -37182,7 +37152,7 @@ type ProjectV2View implements Node @docsCategory(name: "projects") {
     """
     Ordering options for the project v2 fields returned from the connection.
     """
-    orderBy: ProjectV2FieldOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2FieldOrder
   ): ProjectV2FieldConfigurationConnection
   """
   The project view's filter.
@@ -37215,7 +37185,7 @@ type ProjectV2View implements Node @docsCategory(name: "projects") {
     """
     Ordering options for the project v2 fields returned from the connection.
     """
-    orderBy: ProjectV2FieldOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2FieldOrder
   ): ProjectV2FieldConnection
     @deprecated(
       reason: "The `ProjectV2View#order_by` API is deprecated in favour of the more capable `ProjectV2View#group_by_field` API. Check out the `ProjectV2View#group_by_fields` API as an example for the more capable alternative. Removal on 2023-04-01 UTC."
@@ -37243,7 +37213,7 @@ type ProjectV2View implements Node @docsCategory(name: "projects") {
     """
     Ordering options for the project v2 fields returned from the connection.
     """
-    orderBy: ProjectV2FieldOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2FieldOrder
   ): ProjectV2FieldConfigurationConnection
   """
   The Node ID of the ProjectV2View object
@@ -37337,7 +37307,7 @@ type ProjectV2View implements Node @docsCategory(name: "projects") {
     """
     Ordering options for the project v2 fields returned from the connection.
     """
-    orderBy: ProjectV2FieldOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2FieldOrder
   ): ProjectV2FieldConnection
     @deprecated(
       reason: "The `ProjectV2View#vertical_group_by` API is deprecated in favour of the more capable `ProjectV2View#vertical_group_by_fields` API. Check out the `ProjectV2View#vertical_group_by_fields` API as an example for the more capable alternative. Removal on 2023-04-01 UTC."
@@ -37365,7 +37335,7 @@ type ProjectV2View implements Node @docsCategory(name: "projects") {
     """
     Ordering options for the project v2 fields returned from the connection.
     """
-    orderBy: ProjectV2FieldOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2FieldOrder
   ): ProjectV2FieldConfigurationConnection
   """
   The view's visible fields.
@@ -37390,7 +37360,7 @@ type ProjectV2View implements Node @docsCategory(name: "projects") {
     """
     Ordering options for the project v2 fields returned from the connection.
     """
-    orderBy: ProjectV2FieldOrder = { direction: ASC, field: POSITION }
+    orderBy: ProjectV2FieldOrder
   ): ProjectV2FieldConnection
     @deprecated(
       reason: "The `ProjectV2View#visibleFields` API is deprecated in favour of the more capable `ProjectV2View#fields` API. Check out the `ProjectV2View#fields` API as an example for the more capable alternative. Removal on 2023-01-01 UTC."
@@ -37912,7 +37882,7 @@ type PullRequest implements Assignable & Closable & Comment & Labelable & Lockab
     """
     Return only manually linked Issues
     """
-    userLinkedOnly: Boolean = false
+    userLinkedOnly: Boolean
   ): IssueConnection
   """
   A list of comments associated with the pull request.
@@ -38035,7 +38005,7 @@ type PullRequest implements Assignable & Closable & Comment & Labelable & Lockab
     """
     Whether or not to include notification contexts
     """
-    includeNotificationContexts: Boolean = true
+    includeNotificationContexts: Boolean
   ): Hovercard!
   """
   The Node ID of the PullRequest object
@@ -38088,7 +38058,7 @@ type PullRequest implements Assignable & Closable & Comment & Labelable & Lockab
     """
     Ordering options for labels returned from the connection.
     """
-    orderBy: LabelOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: LabelOrder
   ): LabelConnection
   """
   The moment the editor made the last edit
@@ -38117,7 +38087,7 @@ type PullRequest implements Assignable & Closable & Comment & Labelable & Lockab
     """
     Only return reviews from user who have write access to the repository
     """
-    writersOnly: Boolean = false
+    writersOnly: Boolean
   ): PullRequestReviewConnection
   """
   A list of latest reviews per user associated with the pull request that are not also pending review.
@@ -38231,7 +38201,7 @@ type PullRequest implements Assignable & Closable & Comment & Labelable & Lockab
     """
     A list of archived states to filter the cards by
     """
-    archivedStates: [ProjectCardArchivedState] = [ARCHIVED, NOT_ARCHIVED]
+    archivedStates: [ProjectCardArchivedState]
     """
     Returns the elements in the list that come before the specified cursor.
     """
@@ -38267,7 +38237,7 @@ type PullRequest implements Assignable & Closable & Comment & Labelable & Lockab
     """
     Include archived items.
     """
-    includeArchived: Boolean = true
+    includeArchived: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -38305,11 +38275,11 @@ type PullRequest implements Assignable & Closable & Comment & Labelable & Lockab
     """
     Filter projects based on user role.
     """
-    minPermissionLevel: ProjectV2PermissionLevel = READ
+    minPermissionLevel: ProjectV2PermissionLevel
     """
     How to order the returned projects.
     """
-    orderBy: ProjectV2Order = { direction: DESC, field: NUMBER }
+    orderBy: ProjectV2Order
     """
     A project to search for under the owner.
     """
@@ -38958,7 +38928,7 @@ type PullRequestContributionsByRepository @docsCategory(name: "pulls") {
     """
     Ordering options for contributions returned from the connection.
     """
-    orderBy: ContributionOrder = { direction: DESC }
+    orderBy: ContributionOrder
   ): CreatedPullRequestContributionConnection!
   """
   The repository in which the pull requests were opened.
@@ -39726,7 +39696,7 @@ type PullRequestReviewContributionsByRepository @docsCategory(name: "pulls") {
     """
     Ordering options for contributions returned from the connection.
     """
-    orderBy: ContributionOrder = { direction: DESC }
+    orderBy: ContributionOrder
   ): CreatedPullRequestReviewContributionConnection!
   """
   The repository in which the pull request reviews were made.
@@ -40916,7 +40886,7 @@ type Query implements Node @docsCategory(name: "meta") {
     """
     Select only listings where the primary category matches the given category slug.
     """
-    primaryCategoryOnly: Boolean = false
+    primaryCategoryOnly: Boolean
     """
     Select the listings with these slugs, if they are visible to the viewer.
     """
@@ -40933,7 +40903,7 @@ type Query implements Node @docsCategory(name: "meta") {
     """
     Select only listings that offer a free trial.
     """
-    withFreeTrialsOnly: Boolean = false
+    withFreeTrialsOnly: Boolean
   ): MarketplaceListingConnection!
   """
   Return information about the GitHub instance
@@ -40973,7 +40943,7 @@ type Query implements Node @docsCategory(name: "meta") {
     """
     If true, calculate the cost for the query without evaluating it
     """
-    dryRun: Boolean = false
+    dryRun: Boolean
   ): RateLimit
   """
   Workaround for re-exposing the root query object. (Refer to
@@ -40987,7 +40957,7 @@ type Query implements Node @docsCategory(name: "meta") {
     """
     Follow repository renames. If disabled, a repository referenced by its old name will return an error.
     """
-    followRenames: Boolean = true
+    followRenames: Boolean
     """
     The name of the repository
     """
@@ -41087,7 +41057,7 @@ type Query implements Node @docsCategory(name: "meta") {
     """
     Ordering options for the returned topics.
     """
-    orderBy: SecurityAdvisoryOrder = { direction: DESC, field: UPDATED_AT }
+    orderBy: SecurityAdvisoryOrder
     """
     Filter advisories to those published since a time in the past.
     """
@@ -41137,7 +41107,7 @@ type Query implements Node @docsCategory(name: "meta") {
     """
     Ordering options for the returned topics.
     """
-    orderBy: SecurityVulnerabilityOrder = { direction: DESC, field: UPDATED_AT }
+    orderBy: SecurityVulnerabilityOrder
     """
     A package name to filter vulnerabilities by.
     """
@@ -41189,11 +41159,11 @@ type Query implements Node @docsCategory(name: "meta") {
     for their dependencies owned by sponsorables by passing
     orgLoginForDependencies.
     """
-    onlyDependencies: Boolean = false
+    onlyDependencies: Boolean
     """
     Ordering options for users and organizations returned from the connection.
     """
-    orderBy: SponsorableOrder = { direction: ASC, field: LOGIN }
+    orderBy: SponsorableOrder
     """
     Optional organization username for whose dependencies should be checked.
     Used when onlyDependencies = true. Omit to check your own dependencies. If
@@ -41724,7 +41694,7 @@ type Ref implements Node @docsCategory(name: "git") {
     """
     Ordering options for repository rules.
     """
-    orderBy: RepositoryRuleOrder = { direction: DESC, field: UPDATED_AT }
+    orderBy: RepositoryRuleOrder
   ): RepositoryRuleConnection
   """
   The object the ref points to. Returns null when object does not exist.
@@ -41843,7 +41813,7 @@ input RefUpdate @docsCategory(name: "git") {
   """
   Force a non fast-forward update.
   """
-  force: Boolean = false
+  force: Boolean
   """
   The fully qualified name of the ref to be update. For example `refs/heads/branch-name`
   """
@@ -42014,7 +41984,7 @@ input RejectDeploymentsInput {
   """
   Optional comment for rejecting deployments
   """
-  comment: String = ""
+  comment: String
   """
   The ids of environments to reject deployments
   """
@@ -42186,7 +42156,7 @@ type Release implements Node & Reactable & UniformResourceLocatable
     """
     How many characters to return.
     """
-    limit: Int = 200
+    limit: Int
   ): HTML
   """
   The Git tag the release points to
@@ -46483,7 +46453,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Ordering options for deployments returned from the connection.
     """
-    orderBy: DeploymentOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: DeploymentOrder
   ): DeploymentConnection!
   """
   The description of the repository.
@@ -46517,7 +46487,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Filter by categories that are assignable by the viewer.
     """
-    filterByAssignable: Boolean = false
+    filterByAssignable: Boolean
     """
     Returns the first _n_ elements from the list.
     """
@@ -46547,7 +46517,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Only show answered or unanswered discussions
     """
-    answered: Boolean = null
+    answered: Boolean
     """
     Returns the elements in the list that come before the specified cursor.
     """
@@ -46555,7 +46525,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Only include discussions that belong to the category with this ID.
     """
-    categoryId: ID = null
+    categoryId: ID
     """
     Returns the first _n_ elements from the list.
     """
@@ -46567,11 +46537,11 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Ordering options for discussions returned from the connection.
     """
-    orderBy: DiscussionOrder = { direction: DESC, field: UPDATED_AT }
+    orderBy: DiscussionOrder
     """
     A list of states to filter the discussions by.
     """
-    states: [DiscussionState!] = []
+    states: [DiscussionState!]
   ): DiscussionConnection!
   """
   The number of kilobytes this repository occupies on disk.
@@ -46609,15 +46579,15 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     The names of the environments to be returned.
     """
-    names: [String!] = []
+    names: [String!]
     """
     Ordering options for the environments
     """
-    orderBy: Environments = { direction: ASC, field: NAME }
+    orderBy: Environments
     """
     Filter to control pinned environments return
     """
-    pinnedEnvironmentFilter: EnvironmentPinnedFilterField = ALL
+    pinnedEnvironmentFilter: EnvironmentPinnedFilterField
   ): EnvironmentConnection!
   """
   Returns how many forks there are of this repository in the whole network.
@@ -46670,7 +46640,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     connection. For example, OWNER will include only repositories that the
     organization or user being viewed owns.
     """
-    ownerAffiliations: [RepositoryAffiliation] = [OWNER, COLLABORATOR]
+    ownerAffiliations: [RepositoryAffiliation]
     """
     If non-null, filters repositories according to privacy. Internal
     repositories are considered private; consider using the visibility argument
@@ -46811,7 +46781,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Ordering options for issue fields returned from the connection.
     """
-    orderBy: IssueFieldOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: IssueFieldOrder
   ): IssueFieldsConnection
   """
   Returns a single issue-like object from the current repository by number.
@@ -46858,7 +46828,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Ordering options for issue types returned from the connection.
     """
-    orderBy: IssueTypeOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: IssueTypeOrder
   ): IssueTypeConnection
   """
   A list of issues that have been opened in the repository.
@@ -46929,7 +46899,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Ordering options for labels returned from the connection.
     """
-    orderBy: LabelOrder = { direction: ASC, field: CREATED_AT }
+    orderBy: LabelOrder
     """
     If provided, searches labels by name and description.
     """
@@ -47120,7 +47090,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Ordering of the returned packages.
     """
-    orderBy: PackageOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: PackageOrder
     """
     Filter registry package by type.
     """
@@ -47178,7 +47148,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Ordering options for the environments
     """
-    orderBy: PinnedEnvironmentOrder = { direction: ASC, field: POSITION }
+    orderBy: PinnedEnvironmentOrder
   ): PinnedEnvironmentConnection
   """
   A list of pinned issues for this repository.
@@ -47297,11 +47267,11 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Filter projects based on user role.
     """
-    minPermissionLevel: ProjectV2PermissionLevel = READ
+    minPermissionLevel: ProjectV2PermissionLevel
     """
     How to order the returned projects.
     """
-    orderBy: ProjectV2Order = { direction: DESC, field: NUMBER }
+    orderBy: ProjectV2Order
     """
     A project to search for linked to the repo.
     """
@@ -47545,7 +47515,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Include rulesets configured at higher levels that apply to this repository
     """
-    includeParents: Boolean = true
+    includeParents: Boolean
   ): RepositoryRuleset
   """
   A list of rulesets for this repository.
@@ -47566,7 +47536,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Return rulesets configured at higher levels that apply to this repository
     """
-    includeParents: Boolean = true
+    includeParents: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -47574,7 +47544,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     Return rulesets that apply to the specified target
     """
-    targets: [RepositoryRulesetTarget!] = null
+    targets: [RepositoryRulesetTarget!]
   ): RepositoryRulesetConnection
   """
   The security policy URL.
@@ -47587,7 +47557,7 @@ type Repository implements Node & PackageOwner & ProjectOwner & ProjectV2Recent 
     """
     How many characters to return.
     """
-    limit: Int = 200
+    limit: Int
   ): HTML!
   """
   Whether or not squash-merging is enabled on this repository.
@@ -48207,7 +48177,7 @@ interface RepositoryDiscussionAuthor @docsCategory(name: "discussions") {
     Filter discussions to only those that have been answered or not. Defaults to
     including both answered and unanswered discussions.
     """
-    answered: Boolean = null
+    answered: Boolean
     """
     Returns the elements in the list that come before the specified cursor.
     """
@@ -48223,7 +48193,7 @@ interface RepositoryDiscussionAuthor @docsCategory(name: "discussions") {
     """
     Ordering options for discussions returned from the connection.
     """
-    orderBy: DiscussionOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: DiscussionOrder
     """
     Filter discussions to only those in a specific repository.
     """
@@ -48231,7 +48201,7 @@ interface RepositoryDiscussionAuthor @docsCategory(name: "discussions") {
     """
     A list of states to filter the discussions by.
     """
-    states: [DiscussionState!] = []
+    states: [DiscussionState!]
   ): DiscussionConnection!
 }
 
@@ -48262,7 +48232,7 @@ interface RepositoryDiscussionCommentAuthor @docsCategory(name: "discussions") {
     """
     Filter discussion comments to only those that were marked as the answer
     """
-    onlyAnswers: Boolean = false
+    onlyAnswers: Boolean
     """
     Filter discussion comments to only those in a specific repository.
     """
@@ -48435,7 +48405,7 @@ interface RepositoryInfo @docsCategory(name: "repos") {
     """
     How many characters to return.
     """
-    limit: Int = 200
+    limit: Int
   ): HTML!
   """
   Identifies the date and time when the object was last updated.
@@ -48949,7 +48919,7 @@ interface RepositoryOwner @docsCategory(name: "repos") {
     connection. For example, OWNER will include only repositories that the
     organization or user being viewed owns.
     """
-    ownerAffiliations: [RepositoryAffiliation] = [OWNER, COLLABORATOR]
+    ownerAffiliations: [RepositoryAffiliation]
     """
     If non-null, filters repositories according to privacy. Internal
     repositories are considered private; consider using the visibility argument
@@ -48969,7 +48939,7 @@ interface RepositoryOwner @docsCategory(name: "repos") {
     """
     Follow repository renames. If disabled, a repository referenced by its old name will return an error.
     """
-    followRenames: Boolean = true
+    followRenames: Boolean
     """
     Name of Repository to find.
     """
@@ -50277,7 +50247,7 @@ input RequestReviewsByLoginInput {
   """
   Add users to the set rather than replace.
   """
-  union: Boolean = false
+  union: Boolean
   """
   The login strings of the users to request reviews from.
   """
@@ -50333,7 +50303,7 @@ input RequestReviewsInput {
   """
   Add users to the set rather than replace.
   """
-  union: Boolean = false
+  union: Boolean
   """
   The Node IDs of the user to request.
   """
@@ -50717,7 +50687,7 @@ input RevertPullRequestInput {
   """
   Indicates whether the revert pull request should be a draft.
   """
-  draft: Boolean = false
+  draft: Boolean
   """
   The ID of the pull request to revert.
   """
@@ -51612,7 +51582,7 @@ type SecurityAdvisory implements Node
     """
     Ordering options for the returned topics.
     """
-    orderBy: SecurityVulnerabilityOrder = { direction: DESC, field: UPDATED_AT }
+    orderBy: SecurityVulnerabilityOrder
     """
     A package name to filter vulnerabilities by.
     """
@@ -52552,10 +52522,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     """
     Ordering options for results returned from the connection.
     """
-    orderBy: SponsorAndLifetimeValueOrder = {
-      direction: ASC
-      field: SPONSOR_LOGIN
-    }
+    orderBy: SponsorAndLifetimeValueOrder
   ): SponsorAndLifetimeValueConnection!
   """
   The estimated monthly GitHub Sponsors income for this user/organization in cents (USD).
@@ -52584,7 +52551,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     """
     Ordering options for the users and organizations returned from the connection.
     """
-    orderBy: SponsorOrder = { direction: DESC, field: RELEVANCE }
+    orderBy: SponsorOrder
   ): SponsorConnection!
   """
   List of sponsors for this user or organization.
@@ -52609,7 +52576,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     """
     Ordering options for sponsors returned from the connection.
     """
-    orderBy: SponsorOrder = { direction: DESC, field: RELEVANCE }
+    orderBy: SponsorOrder
     """
     If given, will filter for sponsors at the given tier. Will only return
     sponsors whose tier the viewer is permitted to see.
@@ -52623,7 +52590,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     """
     Filter activities to only the specified actions.
     """
-    actions: [SponsorsActivityAction!] = []
+    actions: [SponsorsActivityAction!]
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -52641,11 +52608,11 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     Defaults to only including events where this sponsorable was the recipient
     of a sponsorship.
     """
-    includeAsSponsor: Boolean = false
+    includeAsSponsor: Boolean
     """
     Whether or not to include private activities in the result set. Defaults to including public and private activities.
     """
-    includePrivate: Boolean = true
+    includePrivate: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -52653,13 +52620,13 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     """
     Ordering options for activity returned from the connection.
     """
-    orderBy: SponsorsActivityOrder = { direction: DESC, field: TIMESTAMP }
+    orderBy: SponsorsActivityOrder
     """
     Filter activities returned to only those that occurred in the most recent
     specified time period. Set to ALL to avoid filtering by when the activity
     occurred. Will be ignored if `since` or `until` is given.
     """
-    period: SponsorsActivityPeriod = MONTH
+    period: SponsorsActivityPeriod
     """
     Filter activities to those that occurred on or after this time.
     """
@@ -52681,7 +52648,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     Whether to return the sponsorship only if it's still active. Pass false to
     get the viewer's sponsorship back even if it has been cancelled.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
   ): Sponsorship
   """
   The sponsorship from this user/organization to the viewer; that is, the sponsorship you're receiving.
@@ -52691,7 +52658,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     Whether to return the sponsorship only if it's still active. Pass false to
     get the sponsorship back even if it has been cancelled.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
   ): Sponsorship
   """
   List of sponsorship updates sent from this sponsorable to sponsors.
@@ -52716,7 +52683,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     """
     Ordering options for sponsorship updates returned from the connection.
     """
-    orderBy: SponsorshipNewsletterOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: SponsorshipNewsletterOrder
   ): SponsorshipNewsletterConnection!
   """
   The sponsorships where this user or organization is the maintainer receiving the funds.
@@ -52726,7 +52693,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     Whether to include only sponsorships that are active right now, versus all
     sponsorships this maintainer has ever received.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -52742,7 +52709,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     """
     Whether or not to include private sponsorships in the result set
     """
-    includePrivate: Boolean = false
+    includePrivate: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -52760,7 +52727,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     """
     Whether to include only sponsorships that are active right now, versus all sponsorships this sponsor has ever made.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -52802,7 +52769,7 @@ interface Sponsorable @docsCategory(name: "sponsors") {
     """
     Filter payments to those made to the users or organizations with the specified usernames.
     """
-    sponsorableLogins: [String!] = []
+    sponsorableLogins: [String!]
     """
     Filter payments to those that occurred before this time.
     """
@@ -54121,10 +54088,7 @@ type SponsorsListing implements Node @docsCategory(name: "sponsors") {
     """
     The types of featured items to return.
     """
-    featureableTypes: [SponsorsListingFeaturedItemFeatureableType!] = [
-      REPOSITORY
-      USER
-    ]
+    featureableTypes: [SponsorsListingFeaturedItemFeatureableType!]
   ): [SponsorsListingFeaturedItem!]!
   """
   The fiscal host used for payments, if any. Will only return a value when
@@ -54200,7 +54164,7 @@ type SponsorsListing implements Node @docsCategory(name: "sponsors") {
     Defaults to including only published tiers, which are visible to anyone who
     can see the GitHub Sponsors profile.
     """
-    includeUnpublished: Boolean = false
+    includeUnpublished: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -54208,10 +54172,7 @@ type SponsorsListing implements Node @docsCategory(name: "sponsors") {
     """
     Ordering options for Sponsors tiers returned from the connection.
     """
-    orderBy: SponsorsTierOrder = {
-      direction: ASC
-      field: MONTHLY_PRICE_IN_CENTS
-    }
+    orderBy: SponsorsTierOrder
   ): SponsorsTierConnection
   """
   The HTTP URL for this Sponsors listing.
@@ -54386,7 +54347,7 @@ type SponsorsTierAdminInfo @docsCategory(name: "sponsors") {
     Whether or not to return private sponsorships using this tier. Defaults to
     only returning public sponsorships on this tier.
     """
-    includePrivate: Boolean = false
+    includePrivate: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -55247,7 +55208,7 @@ type StatusContext implements Node & RequirableByPullRequest
     """
     The size of the resulting square image.
     """
-    size: Int = 40
+    size: Int
   ): URI
   """
   This commit this status context is attached to.
@@ -55818,7 +55779,7 @@ type Team implements MemberStatusable & Node & Subscribable & TeamReviewRequesta
     """
     The size in pixels of the resulting square image.
     """
-    size: Int = 400
+    size: Int
   ): URI
   """
   List of child teams belonging to this team
@@ -55839,7 +55800,7 @@ type Team implements MemberStatusable & Node & Subscribable & TeamReviewRequesta
     """
     Whether to list immediate child teams or all descendant child teams.
     """
-    immediateOnly: Boolean = true
+    immediateOnly: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -55925,7 +55886,7 @@ type Team implements MemberStatusable & Node & Subscribable & TeamReviewRequesta
     """
     Ordering options for user statuses returned from the connection.
     """
-    orderBy: UserStatusOrder = { direction: DESC, field: UPDATED_AT }
+    orderBy: UserStatusOrder
   ): UserStatusConnection!
   """
   A list of users who are members of this team.
@@ -55950,7 +55911,7 @@ type Team implements MemberStatusable & Node & Subscribable & TeamReviewRequesta
     """
     Filter by membership type
     """
-    membership: TeamMembershipType = ALL
+    membership: TeamMembershipType
     """
     Order for the connection.
     """
@@ -56024,7 +55985,7 @@ type Team implements MemberStatusable & Node & Subscribable & TeamReviewRequesta
     """
     Filtering options for projects returned from this connection
     """
-    filterBy: ProjectV2Filters = {}
+    filterBy: ProjectV2Filters
     """
     Returns the first _n_ elements from the list.
     """
@@ -56036,15 +55997,15 @@ type Team implements MemberStatusable & Node & Subscribable & TeamReviewRequesta
     """
     Filter projects based on user role.
     """
-    minPermissionLevel: ProjectV2PermissionLevel = READ
+    minPermissionLevel: ProjectV2PermissionLevel
     """
     How to order the returned projects.
     """
-    orderBy: ProjectV2Order = { direction: DESC, field: NUMBER }
+    orderBy: ProjectV2Order
     """
     The query to search projects by.
     """
-    query: String = ""
+    query: String
   ): ProjectV2Connection!
   """
   A list of repositories this team has access to.
@@ -57454,7 +57415,7 @@ type Topic implements Node & Starrable @docsCategory(name: "repos") {
     """
     How many topics to return.
     """
-    first: Int = 3
+    first: Int
   ): [Topic!]!
   """
   A list of repositories.
@@ -57499,7 +57460,7 @@ type Topic implements Node & Starrable @docsCategory(name: "repos") {
     connection. For example, OWNER will include only repositories that the
     organization or user being viewed owns.
     """
-    ownerAffiliations: [RepositoryAffiliation] = [OWNER, COLLABORATOR]
+    ownerAffiliations: [RepositoryAffiliation]
     """
     If non-null, filters repositories according to privacy. Internal
     repositories are considered private; consider using the visibility argument
@@ -57510,7 +57471,7 @@ type Topic implements Node & Starrable @docsCategory(name: "repos") {
     """
     If true, only repositories whose owner can be sponsored via GitHub Sponsors will be returned.
     """
-    sponsorableOnly: Boolean = false
+    sponsorableOnly: Boolean
     """
     If non-null, filters repositories according to visibility. Cannot be combined with the privacy argument.
     """
@@ -57656,7 +57617,7 @@ input TransferIssueInput {
   """
   Whether to create labels if they don't exist in the target repository (matched by name)
   """
-  createLabelsIfMissing: Boolean = false
+  createLabelsIfMissing: Boolean
   """
   The Node ID of the issue to be transferred
   """
@@ -60879,7 +60840,7 @@ input UpdateRefInput {
   """
   Permit updates of branch Refs that are not fast-forwards?
   """
-  force: Boolean = false
+  force: Boolean
   """
   The GitObjectID that the Ref shall be updated to target.
   """
@@ -61162,11 +61123,11 @@ input UpdateSponsorshipPreferencesInput {
   Specify whether others should be able to see that the sponsor is sponsoring
   the sponsorable. Public visibility still does not reveal which tier is used.
   """
-  privacyLevel: SponsorshipPrivacy = PUBLIC
+  privacyLevel: SponsorshipPrivacy
   """
   Whether the sponsor should receive email updates from the sponsorable.
   """
-  receiveEmails: Boolean = true
+  receiveEmails: Boolean
   """
   The ID of the user or organization who is acting as the sponsor, paying for
   the sponsorship. Required if sponsorLogin is not given.
@@ -61259,7 +61220,7 @@ input UpdateTeamReviewAssignmentInput {
   """
   The algorithm to use for review assignment
   """
-  algorithm: TeamReviewAssignmentAlgorithm = ROUND_ROBIN
+  algorithm: TeamReviewAssignmentAlgorithm
   """
   A unique identifier for the client performing the mutation.
   """
@@ -61267,7 +61228,7 @@ input UpdateTeamReviewAssignmentInput {
   """
   Count any members whose review has already been requested against the required number of members assigned to review
   """
-  countMembersAlreadyRequested: Boolean = true
+  countMembersAlreadyRequested: Boolean
   """
   Turn on or off review assignment
   """
@@ -61283,19 +61244,19 @@ input UpdateTeamReviewAssignmentInput {
   """
   Include the members of any child teams when assigning
   """
-  includeChildTeamMembers: Boolean = true
+  includeChildTeamMembers: Boolean
   """
   Notify the entire team of the PR if it is delegated
   """
-  notifyTeam: Boolean = true
+  notifyTeam: Boolean
   """
   Remove the team review request when assigning
   """
-  removeTeamRequest: Boolean = true
+  removeTeamRequest: Boolean
   """
   The number of team members to assign
   """
-  teamMemberCount: Int = 1
+  teamMemberCount: Int
 }
 
 """
@@ -61600,11 +61561,11 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Filter enterprises returned based on the user's membership type.
     """
-    membershipType: EnterpriseMembershipType = ALL
+    membershipType: EnterpriseMembershipType
     """
     Ordering options for the User's enterprises.
     """
-    orderBy: EnterpriseOrder = { direction: ASC, field: NAME }
+    orderBy: EnterpriseOrder
   ): EnterpriseConnection
   """
   The estimated next GitHub Sponsors payout for this user/organization in cents (USD).
@@ -61872,10 +61833,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Ordering options for results returned from the connection.
     """
-    orderBy: SponsorAndLifetimeValueOrder = {
-      direction: ASC
-      field: SPONSOR_LOGIN
-    }
+    orderBy: SponsorAndLifetimeValueOrder
   ): SponsorAndLifetimeValueConnection!
   """
   A user-curated list of repositories
@@ -61955,7 +61913,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Ordering options for the User's organizations.
     """
-    orderBy: OrganizationOrder = null
+    orderBy: OrganizationOrder
   ): OrganizationConnection!
   """
   A list of packages under the owner.
@@ -61984,7 +61942,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Ordering of the returned packages.
     """
-    orderBy: PackageOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: PackageOrder
     """
     Filter registry package by type.
     """
@@ -62136,11 +62094,11 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Filter projects based on user role.
     """
-    minPermissionLevel: ProjectV2PermissionLevel = READ
+    minPermissionLevel: ProjectV2PermissionLevel
     """
     How to order the returned projects.
     """
-    orderBy: ProjectV2Order = { direction: DESC, field: NUMBER }
+    orderBy: ProjectV2Order
     """
     A project to search for under the owner.
     """
@@ -62284,7 +62242,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     connection. For example, OWNER will include only repositories that the
     organization or user being viewed owns.
     """
-    ownerAffiliations: [RepositoryAffiliation] = [OWNER, COLLABORATOR]
+    ownerAffiliations: [RepositoryAffiliation]
     """
     If non-null, filters repositories according to privacy. Internal
     repositories are considered private; consider using the visibility argument
@@ -62350,7 +62308,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Follow repository renames. If disabled, a repository referenced by its old name will return an error.
     """
-    followRenames: Boolean = true
+    followRenames: Boolean
     """
     Name of Repository to find.
     """
@@ -62379,7 +62337,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Filter discussion comments to only those that were marked as the answer
     """
-    onlyAnswers: Boolean = false
+    onlyAnswers: Boolean
     """
     Filter discussion comments to only those in a specific repository.
     """
@@ -62397,7 +62355,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     Filter discussions to only those that have been answered or not. Defaults to
     including both answered and unanswered discussions.
     """
-    answered: Boolean = null
+    answered: Boolean
     """
     Returns the elements in the list that come before the specified cursor.
     """
@@ -62413,7 +62371,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Ordering options for discussions returned from the connection.
     """
-    orderBy: DiscussionOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: DiscussionOrder
     """
     Filter discussions to only those in a specific repository.
     """
@@ -62421,7 +62379,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     A list of states to filter the discussions by.
     """
-    states: [DiscussionState!] = []
+    states: [DiscussionState!]
   ): DiscussionConnection!
   """
   The HTTP path for this user
@@ -62450,7 +62408,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     The field to order saved replies by.
     """
-    orderBy: SavedReplyOrder = { direction: DESC, field: UPDATED_AT }
+    orderBy: SavedReplyOrder
   ): SavedReplyConnection
   """
   The user's social media accounts, ordered as they appear on the user's profile.
@@ -62496,7 +62454,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Ordering options for the users and organizations returned from the connection.
     """
-    orderBy: SponsorOrder = { direction: DESC, field: RELEVANCE }
+    orderBy: SponsorOrder
   ): SponsorConnection!
   """
   List of sponsors for this user or organization.
@@ -62521,7 +62479,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Ordering options for sponsors returned from the connection.
     """
-    orderBy: SponsorOrder = { direction: DESC, field: RELEVANCE }
+    orderBy: SponsorOrder
     """
     If given, will filter for sponsors at the given tier. Will only return
     sponsors whose tier the viewer is permitted to see.
@@ -62535,7 +62493,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Filter activities to only the specified actions.
     """
-    actions: [SponsorsActivityAction!] = []
+    actions: [SponsorsActivityAction!]
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -62553,11 +62511,11 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     Defaults to only including events where this sponsorable was the recipient
     of a sponsorship.
     """
-    includeAsSponsor: Boolean = false
+    includeAsSponsor: Boolean
     """
     Whether or not to include private activities in the result set. Defaults to including public and private activities.
     """
-    includePrivate: Boolean = true
+    includePrivate: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -62565,13 +62523,13 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Ordering options for activity returned from the connection.
     """
-    orderBy: SponsorsActivityOrder = { direction: DESC, field: TIMESTAMP }
+    orderBy: SponsorsActivityOrder
     """
     Filter activities returned to only those that occurred in the most recent
     specified time period. Set to ALL to avoid filtering by when the activity
     occurred. Will be ignored if `since` or `until` is given.
     """
-    period: SponsorsActivityPeriod = MONTH
+    period: SponsorsActivityPeriod
     """
     Filter activities to those that occurred on or after this time.
     """
@@ -62593,7 +62551,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     Whether to return the sponsorship only if it's still active. Pass false to
     get the viewer's sponsorship back even if it has been cancelled.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
   ): Sponsorship
   """
   The sponsorship from this user/organization to the viewer; that is, the sponsorship you're receiving.
@@ -62603,7 +62561,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     Whether to return the sponsorship only if it's still active. Pass false to
     get the sponsorship back even if it has been cancelled.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
   ): Sponsorship
   """
   List of sponsorship updates sent from this sponsorable to sponsors.
@@ -62628,7 +62586,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Ordering options for sponsorship updates returned from the connection.
     """
-    orderBy: SponsorshipNewsletterOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: SponsorshipNewsletterOrder
   ): SponsorshipNewsletterConnection!
   """
   The sponsorships where this user or organization is the maintainer receiving the funds.
@@ -62638,7 +62596,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     Whether to include only sponsorships that are active right now, versus all
     sponsorships this maintainer has ever received.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -62654,7 +62612,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Whether or not to include private sponsorships in the result set
     """
-    includePrivate: Boolean = false
+    includePrivate: Boolean
     """
     Returns the last _n_ elements from the list.
     """
@@ -62672,7 +62630,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Whether to include only sponsorships that are active right now, versus all sponsorships this sponsor has ever made.
     """
-    activeOnly: Boolean = true
+    activeOnly: Boolean
     """
     Returns the elements in the list that come after the specified cursor.
     """
@@ -62780,7 +62738,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     """
     Filter payments to those made to the users or organizations with the specified usernames.
     """
-    sponsorableLogins: [String!] = []
+    sponsorableLogins: [String!]
     """
     Filter payments to those that occurred before this time.
     """
@@ -62888,7 +62846,7 @@ type User implements Actor & Agentic & Node & PackageOwner & ProfileOwner & Proj
     connection. For example, OWNER will include only repositories that the
     organization or user being viewed owns.
     """
-    ownerAffiliations: [RepositoryAffiliation] = [OWNER, COLLABORATOR]
+    ownerAffiliations: [RepositoryAffiliation]
     """
     If non-null, filters repositories according to privacy. Internal
     repositories are considered private; consider using the visibility argument
@@ -63670,7 +63628,7 @@ type Workflow implements Node & UniformResourceLocatable
     """
     Ordering options for the connection
     """
-    orderBy: WorkflowRunOrder = { direction: DESC, field: CREATED_AT }
+    orderBy: WorkflowRunOrder
   ): WorkflowRunConnection!
   """
   The state of the workflow.
