@@ -118,7 +118,7 @@ export const ReviewThreadsDocument = new TypedDocumentString(`
 >;
 export const ResolveReviewThreadDocument = new TypedDocumentString(`
     mutation ResolveReviewThread($nodeId: ID!) {
-  resolveReviewThread(input: {threadId: $nodeId}) {
+  resolveReviewThread(input: { threadId: $nodeId }) {
     thread {
       id
     }
@@ -130,7 +130,7 @@ export const ResolveReviewThreadDocument = new TypedDocumentString(`
 >;
 export const UnresolveReviewThreadDocument = new TypedDocumentString(`
     mutation UnresolveReviewThread($nodeId: ID!) {
-  unresolveReviewThread(input: {threadId: $nodeId}) {
+  unresolveReviewThread(input: { threadId: $nodeId }) {
     thread {
       id
     }
