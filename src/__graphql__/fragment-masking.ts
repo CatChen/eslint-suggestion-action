@@ -35,9 +35,7 @@ export function useFragment<TType>(
 export function useFragment<TType>(
   _documentNode: DocumentTypeDecoration<TType, any>,
   fragmentType:
-    | FragmentType<DocumentTypeDecoration<TType, any>>
-    | null
-    | undefined,
+    FragmentType<DocumentTypeDecoration<TType, any>> | null | undefined,
 ): TType | null | undefined;
 // return array of non-nullable if `fragmentType` is array of non-nullable
 export function useFragment<TType>(
@@ -48,9 +46,7 @@ export function useFragment<TType>(
 export function useFragment<TType>(
   _documentNode: DocumentTypeDecoration<TType, any>,
   fragmentType:
-    | Array<FragmentType<DocumentTypeDecoration<TType, any>>>
-    | null
-    | undefined,
+    Array<FragmentType<DocumentTypeDecoration<TType, any>>> | null | undefined,
 ): Array<TType> | null | undefined;
 // return readonly array of non-nullable if `fragmentType` is array of non-nullable
 export function useFragment<TType>(
