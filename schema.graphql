@@ -18720,6 +18720,10 @@ type IssueFieldAddedEvent implements Node @docsCategory(name: "issues") {
   """
   issueField: IssueFields
   """
+  The selected options for option-backed fields; single-select returns one option and multi-select returns many.
+  """
+  options: [IssueFieldTimelineOption!]
+  """
   The value of the added field.
   """
   value: String
@@ -18750,6 +18754,10 @@ type IssueFieldChangedEvent implements Node @docsCategory(name: "issues") {
   """
   newColor: String
   """
+  The new options for option-backed fields; single-select returns one option and multi-select returns many.
+  """
+  newOptions: [IssueFieldTimelineOption!]
+  """
   The new value of the field.
   """
   newValue: String
@@ -18757,6 +18765,10 @@ type IssueFieldChangedEvent implements Node @docsCategory(name: "issues") {
   The previous color if it was a single-select field.
   """
   previousColor: String
+  """
+  The previous options for option-backed fields; single-select returns one option and multi-select returns many.
+  """
+  previousOptions: [IssueFieldTimelineOption!]
   """
   The previous value of the field.
   """
@@ -19071,6 +19083,10 @@ type IssueFieldRemovedEvent implements Node @docsCategory(name: "issues") {
   The issue field removed.
   """
   issueField: IssueFields
+  """
+  The removed options for option-backed fields; single-select returns one option and multi-select returns many.
+  """
+  options: [IssueFieldTimelineOption!]
 }
 
 """
@@ -19294,6 +19310,20 @@ type IssueFieldTextValue implements IssueFieldValueCommon & Node
   Value of the field.
   """
   value: String!
+}
+
+"""
+Represents a selected option for a timeline issue field event.
+"""
+type IssueFieldTimelineOption @docsCategory(name: "issues") {
+  """
+  The option color.
+  """
+  color: String
+  """
+  The option name.
+  """
+  name: String!
 }
 
 """
@@ -23461,9 +23491,9 @@ type Mutation @docsCategory(name: "meta") {
   ): AddProjectV2ItemByIdPayload @docsCategory(name: "projects")
   """
   Add users to the pull request creation cap bypass list. Bypassed users can
-  create pull requests regardless of the configured cap. Only repository admins
-  can manage the bypass list. You can add a maximum of 100 users per request.
-  The bypass list can only hold a maximum of 100 users.
+  create pull requests regardless of the configured cap. Only users with
+  maintainer permissions can manage the bypass list. You can add a maximum of
+  100 users per request. The bypass list can only hold a maximum of 100 users.
   """
   addPullRequestCreationCapBypassUsers(
     """
@@ -24786,7 +24816,8 @@ type Mutation @docsCategory(name: "meta") {
     input: RemoveOutsideCollaboratorInput!
   ): RemoveOutsideCollaboratorPayload @docsCategory(name: "orgs")
   """
-  Remove users from the pull request creation cap bypass list. Only repository admins can manage the bypass list.
+  Remove users from the pull request creation cap bypass list. Only users with
+  maintainer permissions can manage the bypass list.
   """
   removePullRequestCreationCapBypassUsers(
     """
@@ -47463,7 +47494,8 @@ type Repository implements Node &
     number: Int!
   ): PullRequest
   """
-  A list of users who are exempt from the pull request creation cap on this repository. Only visible to repository admins.
+  The pull request creation cap configuration for this repository. Only visible
+  to repository maintainers and administrators.
   """
   pullRequestCreationCapConfig: PullRequestCreationCapConfig
   """
@@ -49439,6 +49471,10 @@ enum RepositoryRuleType {
   being pushed to the commit graph. This includes absolute paths that contain file names.
   """
   FILE_PATH_RESTRICTION
+  """
+  Enforce any added or changed dependencies to comply with the organization's license policy.
+  """
+  LICENSE_COMPLIANCE_SCANNING
   """
   Branch is read-only. Users cannot push to the branch.
   """
@@ -61184,6 +61220,10 @@ input UpdateRepositoryInput {
   The URL for a web page about this repository. Pass an empty string to erase the existing URL.
   """
   homepageUrl: URI
+  """
+  The policy controlling who can create issues in this repository.
+  """
+  issueCreationPolicy: IssueCreationPolicy
   """
   The new name of the repository.
   """
