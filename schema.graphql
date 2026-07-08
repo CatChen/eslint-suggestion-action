@@ -358,9 +358,9 @@ input AddAssigneesToAssignableInput {
       abstractType: "Assignable"
     )
   """
-  The ids of actors (users or bots) to add as assignees.
+  The ids of actors (users or bots) to add as assignees. Mutually exclusive with `assignees`.
   """
-  assigneeIds: [ID!]!
+  assigneeIds: [ID!]
     @possibleTypes(
       concreteTypes: [
         "Bot"
@@ -12092,6 +12092,34 @@ type DismissRepositoryVulnerabilityAlertPayload {
   The Dependabot alert that was dismissed
   """
   repositoryVulnerabilityAlert: RepositoryVulnerabilityAlert
+}
+
+"""
+Specify people, teams, or apps allowed to dismiss pull request reviews.
+"""
+type DismissalRestriction @docsCategory(name: "pulls") {
+  """
+  Specify people, teams, or apps allowed to dismiss pull request reviews.
+  """
+  allowedActors: [ID!]
+  """
+  Whether to restrict review dismissal to specific actors.
+  """
+  enabled: Boolean!
+}
+
+"""
+Specify people, teams, or apps allowed to dismiss pull request reviews.
+"""
+input DismissalRestrictionInput @docsCategory(name: "pulls") {
+  """
+  Specify people, teams, or apps allowed to dismiss pull request reviews.
+  """
+  allowedActors: [ID!]
+  """
+  Whether to restrict review dismissal to specific actors.
+  """
+  enabled: Boolean!
 }
 
 """
@@ -39200,6 +39228,10 @@ type PullRequestParameters @docsCategory(name: "pulls") {
   """
   dismissStaleReviewsOnPush: Boolean!
   """
+  Specify people, teams, or apps allowed to dismiss pull request reviews.
+  """
+  dismissalRestriction: DismissalRestriction
+  """
   Require an approving review in pull requests that modify files that have a designated code owner.
   """
   requireCodeOwnerReview: Boolean!
@@ -39236,6 +39268,10 @@ input PullRequestParametersInput @docsCategory(name: "pulls") {
   New, reviewable commits pushed will dismiss previous pull request review approvals.
   """
   dismissStaleReviewsOnPush: Boolean!
+  """
+  Specify people, teams, or apps allowed to dismiss pull request reviews.
+  """
+  dismissalRestriction: DismissalRestrictionInput
   """
   Require an approving review in pull requests that modify files that have a designated code owner.
   """
