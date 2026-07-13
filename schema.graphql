@@ -40535,6 +40535,10 @@ enum PullRequestTimelineItemsItemType {
   """
   ADDED_TO_PROJECT_V2_EVENT
   """
+  Represents an 'archived' event on a given pull request.
+  """
+  ARCHIVED_EVENT
+  """
   Represents an 'assigned' event on any assignable object.
   """
   ASSIGNED_EVENT
@@ -40806,6 +40810,10 @@ enum PullRequestTimelineItemsItemType {
   Represents a 'transferred' event on a given issue or pull request.
   """
   TRANSFERRED_EVENT
+  """
+  Represents an 'unarchived' event on a given pull request.
+  """
+  UNARCHIVED_EVENT
   """
   Represents an 'unassigned' event on any assignable object.
   """
