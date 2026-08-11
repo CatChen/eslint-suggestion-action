@@ -1962,15 +1962,15 @@ __metadata:
   linkType: hard
 
 "@octokit/plugin-retry@npm:^8.0.1":
-  version: 8.1.0
-  resolution: "@octokit/plugin-retry@npm:8.1.0"
+  version: 8.1.1
+  resolution: "@octokit/plugin-retry@npm:8.1.1"
   dependencies:
-    "@octokit/request-error": "npm:^7.0.2"
-    "@octokit/types": "npm:^16.0.0"
+    "@octokit/request-error": "npm:^7.1.1"
+    "@octokit/types": "npm:^17.0.0"
     bottleneck: "npm:^2.15.3"
   peerDependencies:
     "@octokit/core": ">=7"
-  checksum: 10c0/9e10676d29ce642eff8e4f7f9aa2fe6d8c5bebdc5ed107d2e6183be5d50699680b4e1d01a6096d4bec959d2337baf38fd5a39e9d541e9b1a28baf648bc0fefaa
+  checksum: 10c0/cc62b4d17ae297f3fc03f10010f73703c73bf2503113b097e24475a75ea67f479bf2b520acbbf80065b3155a19f2e4ca7e03645aa885d2f69854947024863feb
   languageName: node
   linkType: hard
 
@@ -1992,6 +1992,15 @@ __metadata:
   dependencies:
     "@octokit/types": "npm:^16.0.0"
   checksum: 10c0/62b90a54545c36a30b5ffdda42e302c751be184d85b68ffc7f1242c51d7ca54dbd185b7d0027b491991776923a910c85c9c51269fe0d86111bac187507a5abc4
+  languageName: node
+  linkType: hard
+
+"@octokit/request-error@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "@octokit/request-error@npm:7.1.1"
+  dependencies:
+    "@octokit/types": "npm:^17.0.0"
+  checksum: 10c0/b851dfd17d95394258a279225ff7e23345d59aca78064fb7dfd4f2a129db328880b4b7fb44c9d873e89dc40a0498e6efa56c3063899efa18bc97fa2f8e0825c1
   languageName: node
   linkType: hard
 
