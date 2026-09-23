@@ -605,13 +605,13 @@ __metadata:
   linkType: hard
 
 "@graphql-codegen/cli@npm:^7.0.0":
-  version: 7.4.1
-  resolution: "@graphql-codegen/cli@npm:7.4.1"
+  version: 7.4.2
+  resolution: "@graphql-codegen/cli@npm:7.4.2"
   dependencies:
     "@babel/generator": "npm:^7.18.13"
     "@babel/template": "npm:^7.18.10"
     "@babel/types": "npm:^7.18.13"
-    "@graphql-codegen/client-preset": "npm:^6.1.3"
+    "@graphql-codegen/client-preset": "npm:^6.2.0"
     "@graphql-codegen/core": "npm:^6.2.0"
     "@graphql-codegen/plugin-helpers": "npm:^7.3.0"
     "@graphql-tools/apollo-engine-loader": "npm:^8.0.28"
@@ -655,19 +655,19 @@ __metadata:
     graphql-codegen: esm/bin.js
     graphql-codegen-cjs: cjs/bin.js
     graphql-codegen-esm: esm/bin.js
-  checksum: 10c0/ecabd846dbbd7e59c48336b5f654ec0c8a71beeb6ea32a0353adb3b17b347a7befb90dd6ae8058e0d8fcc20353e3a59f01ad9d0baa2897bf0ed090500261c7bb
+  checksum: 10c0/e4337e004471fe953d3160ea755b5df952ea862354fcfbc3a58a4eac3f1d9aec5dbb6858c6fb89d13aebfa6bb4224c5aa84cdb883a8c2290212184118658ed25
   languageName: node
   linkType: hard
 
-"@graphql-codegen/client-preset@npm:^6.1.3":
-  version: 6.1.3
-  resolution: "@graphql-codegen/client-preset@npm:6.1.3"
+"@graphql-codegen/client-preset@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "@graphql-codegen/client-preset@npm:6.2.0"
   dependencies:
     "@babel/helper-plugin-utils": "npm:^7.20.2"
     "@babel/template": "npm:^7.20.7"
     "@graphql-codegen/add": "npm:^7.1.0"
     "@graphql-codegen/gql-tag-operations": "npm:^6.1.0"
-    "@graphql-codegen/plugin-helpers": "npm:^7.1.0"
+    "@graphql-codegen/plugin-helpers": "npm:^7.3.0"
     "@graphql-codegen/typed-document-node": "npm:^7.1.0"
     "@graphql-codegen/typescript": "npm:^6.1.0"
     "@graphql-codegen/typescript-operations": "npm:^6.1.6"
@@ -682,7 +682,7 @@ __metadata:
   peerDependenciesMeta:
     graphql-sock:
       optional: true
-  checksum: 10c0/0e95417f880341924427dee69dc05aaead7e0abb814d85630c80c90bd1c97317e028b282dc77d547afb163490fc2566aaee8985c3ad8f590cf6b33871b2a3e73
+  checksum: 10c0/319df420df06b14d5385df080ea543b825d1edcfb841a3c2ab03b8fce31dd903c0f3898db4698edea979aa96a7b96ee52b0a7e424ae0de1ec4dc94630bb85e57
   languageName: node
   linkType: hard
 
