@@ -1453,6 +1453,36 @@ type AddedToProjectV2Event implements Node & ProjectV2Event
 }
 
 """
+Represents an 'added_to_stack' event on a given pull request.
+"""
+type AddedToStackEvent implements Node @docsCategory(name: "pulls") {
+  """
+  Identifies the actor who performed the event.
+  """
+  actor: Actor
+  """
+  Identifies the date and time when the object was created.
+  """
+  createdAt: DateTime!
+  """
+  The Node ID of the AddedToStackEvent object
+  """
+  id: ID!
+  """
+  Pull request added to the stack.
+  """
+  pullRequest: PullRequest
+  """
+  Database ID of the stack.
+  """
+  stackId: BigInt
+  """
+  Number of the stack in its repository.
+  """
+  stackNumber: Int
+}
+
+"""
 Represents configuration for assigning Copilot to an issue (public variant)
 """
 input AgentAssignmentInput @docsCategory(name: "users") {
@@ -4662,8 +4692,10 @@ The object which triggered a `ClosedEvent`.
 union Closer @docsCategory(name: "issues") = Commit | ProjectV2 | PullRequest
 
 """
-Enforce minimum line coverage thresholds on pull requests. When configured,
-uploaded coverage data must meet the specified criteria before changes can be merged.
+Enforce minimum line coverage thresholds on pull requests. This rule evaluates
+uploaded coverage data but does not wait for coverage uploads. To ensure
+coverage is evaluated before merging, make each status check associated with a
+coverage upload a required status check.
 """
 type CodeCoverageParameters {
   """
@@ -4680,8 +4712,10 @@ type CodeCoverageParameters {
 }
 
 """
-Enforce minimum line coverage thresholds on pull requests. When configured,
-uploaded coverage data must meet the specified criteria before changes can be merged.
+Enforce minimum line coverage thresholds on pull requests. This rule evaluates
+uploaded coverage data but does not wait for coverage uploads. To ensure
+coverage is evaluated before merging, make each status check associated with a
+coverage upload a required status check.
 """
 input CodeCoverageParametersInput {
   """
@@ -24410,8 +24444,8 @@ type Mutation @docsCategory(name: "meta") {
     input: ArchiveProjectV2ItemInput!
   ): ArchiveProjectV2ItemPayload @docsCategory(name: "projects")
   """
-  Archive a pull request. Closes, locks, and marks the pull request as archived.
-  Only repository admins can archive pull requests.
+  Archive a pull request. Closes and marks the pull request as archived. Users
+  with the triage role or higher can archive pull requests.
   """
   archivePullRequest(
     """
@@ -25799,6 +25833,15 @@ type Mutation @docsCategory(name: "meta") {
     input: RerequestCheckSuiteInput!
   ): RerequestCheckSuitePayload @docsCategory(name: "checks")
   """
+  Rerequest reviews on a pull request.
+  """
+  rerequestReviews(
+    """
+    Parameters for RerequestReviews
+    """
+    input: RerequestReviewsInput!
+  ): RerequestReviewsPayload @docsCategory(name: "pulls")
+  """
   Marks a review thread as resolved.
   """
   resolveReviewThread(
@@ -25956,8 +25999,8 @@ type Mutation @docsCategory(name: "meta") {
   ): UnarchiveProjectV2ItemPayload @docsCategory(name: "projects")
   """
   Unarchive a pull request. Removes the archived flag from the pull request.
-  Does not automatically reopen or unlock the pull request. Only repository
-  admins can unarchive pull requests.
+  Does not automatically reopen or unlock the pull request. Users with the
+  triage role or higher can unarchive pull requests.
   """
   unarchivePullRequest(
     """
@@ -41862,6 +41905,7 @@ union PullRequestTimelineItems @docsCategory(name: "pulls") =
   | AddedToMergeQueueEvent
   | AddedToProjectEvent
   | AddedToProjectV2Event
+  | AddedToStackEvent
   | AssignedEvent
   | AutoMergeDisabledEvent
   | AutoMergeEnabledEvent
@@ -41921,6 +41965,7 @@ union PullRequestTimelineItems @docsCategory(name: "pulls") =
   | RemovedFromMergeQueueEvent
   | RemovedFromProjectEvent
   | RemovedFromProjectV2Event
+  | RemovedFromStackEvent
   | RenamedTitleEvent
   | ReopenedEvent
   | ReviewDismissedEvent
@@ -42766,6 +42811,10 @@ type Query implements Node @docsCategory(name: "meta") {
     """
     identifier: SecurityAdvisoryIdentifierFilter
     """
+    Filter advisories by withdrawn status. True returns only withdrawn advisories. False excludes withdrawn advisories.
+    """
+    isWithdrawn: Boolean
+    """
     Returns the last _n_ elements from the list.
     """
     last: Int
@@ -42777,6 +42826,10 @@ type Query implements Node @docsCategory(name: "meta") {
     Filter advisories to those published since a time in the past.
     """
     publishedSince: DateTime
+    """
+    A list of advisory severities to filter advisories by.
+    """
+    severities: [SecurityAdvisorySeverity!]
     """
     Filter advisories to those updated since a time in the past.
     """
@@ -44790,6 +44843,36 @@ type RemovedFromProjectV2Event implements Node & ProjectV2Event
   Did this event result from workflow automation?
   """
   wasAutomated: Boolean!
+}
+
+"""
+Represents a 'removed_from_stack' event on a given pull request.
+"""
+type RemovedFromStackEvent implements Node @docsCategory(name: "pulls") {
+  """
+  Identifies the actor who performed the event.
+  """
+  actor: Actor
+  """
+  Identifies the date and time when the object was created.
+  """
+  createdAt: DateTime!
+  """
+  The Node ID of the RemovedFromStackEvent object
+  """
+  id: ID!
+  """
+  Pull request removed from the stack.
+  """
+  pullRequest: PullRequest
+  """
+  Database ID of the stack.
+  """
+  stackId: BigInt
+  """
+  Number of the stack in its repository.
+  """
+  stackNumber: Int
 }
 
 """
@@ -48534,6 +48617,10 @@ type Repository implements Node &
     visibility: RepositoryVisibility
   ): RepositoryConnection!
   """
+  Identifies the primary key from the database as a BigInt.
+  """
+  fullDatabaseId: BigInt
+  """
   The funding links for this repository
   """
   fundingLinks: [FundingLink!]!
@@ -51108,8 +51195,10 @@ enum RepositoryRuleType {
   """
   BRANCH_NAME_PATTERN
   """
-  Enforce minimum line coverage thresholds on pull requests. When configured,
-  uploaded coverage data must meet the specified criteria before changes can be merged.
+  Enforce minimum line coverage thresholds on pull requests. This rule evaluates
+  uploaded coverage data but does not wait for coverage uploads. To ensure
+  coverage is evaluated before merging, make each status check associated with a
+  coverage upload a required status check.
   """
   CODE_COVERAGE
   """
@@ -52500,6 +52589,58 @@ type RerequestCheckSuitePayload {
 }
 
 """
+Autogenerated input type of RerequestReviews
+"""
+input RerequestReviewsInput {
+  """
+  The Node IDs of the bots to rerequest.
+  """
+  botIds: [ID!] @possibleTypes(concreteTypes: ["Bot"])
+  """
+  A unique identifier for the client performing the mutation.
+  """
+  clientMutationId: String
+  """
+  The Node ID of the pull request to modify.
+  """
+  pullRequestId: ID! @possibleTypes(concreteTypes: ["PullRequest"])
+  """
+  The Node IDs of the teams to rerequest.
+  """
+  teamIds: [ID!]
+    @possibleTypes(
+      concreteTypes: ["EnterpriseTeam", "Team"]
+      abstractType: "TeamReviewRequestable"
+    )
+  """
+  The Node IDs of the users to rerequest.
+  """
+  userIds: [ID!] @possibleTypes(concreteTypes: ["User"])
+}
+
+"""
+Autogenerated return type of RerequestReviews.
+"""
+type RerequestReviewsPayload {
+  """
+  Identifies the actor who performed the event.
+  """
+  actor: Actor
+  """
+  A unique identifier for the client performing the mutation.
+  """
+  clientMutationId: String
+  """
+  The pull request that is getting requests.
+  """
+  pullRequest: PullRequest
+  """
+  The edge from the pull request to the requested reviewers.
+  """
+  requestedReviewersEdge: UserEdge
+}
+
+"""
 Autogenerated input type of ResolveReviewThread
 """
 input ResolveReviewThreadInput {
@@ -53390,6 +53531,10 @@ type SecurityAdvisory implements Node
   """
   classification: SecurityAdvisoryClassification!
   """
+  The Common Vulnerabilities and Exposures ID
+  """
+  cveId: String
+  """
   The CVSS associated with this advisory
   """
   cvss: CVSS!
@@ -53438,6 +53583,10 @@ type SecurityAdvisory implements Node
   """
   ghsaId: String!
   """
+  When the GitHub Security team reviewed this advisory, which may differ from when GitHub published it
+  """
+  githubReviewedAt: DateTime
+  """
   The Node ID of the SecurityAdvisory object
   """
   id: ID!
@@ -53449,6 +53598,10 @@ type SecurityAdvisory implements Node
   The permalink for the advisory's dependabot alerts page
   """
   notificationsPermalink: URI
+  """
+  When NVD published its advisory record, independent of GitHub's publishing timeline
+  """
+  nvdPublishedAt: DateTime
   """
   The organization that originated the advisory
   """
@@ -53466,9 +53619,17 @@ type SecurityAdvisory implements Node
   """
   references: [SecurityAdvisoryReference!]!
   """
+  The URL for the associated repository security advisory, if this global advisory is linked to a repository-level advisory.
+  """
+  repositoryAdvisoryUrl: URI
+  """
   The severity of the advisory
   """
   severity: SecurityAdvisorySeverity!
+  """
+  URL to the upstream source code relevant to the advisory
+  """
+  sourceCodeLocation: URI
   """
   A short plaintext summary of the advisory
   """
