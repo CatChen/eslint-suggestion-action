@@ -6966,8 +6966,7 @@ type ConvertedToDiscussionEvent implements Node @docsCategory(name: "issues") {
 
 """
 Request Copilot code review for new pull requests automatically if the author
-has access to Copilot code review and their premium requests quota has not
-reached the limit.
+has access to Copilot code review and AI credits.
 """
 type CopilotCodeReviewParameters @docsCategory(name: "pulls") {
   """
@@ -6982,8 +6981,7 @@ type CopilotCodeReviewParameters @docsCategory(name: "pulls") {
 
 """
 Request Copilot code review for new pull requests automatically if the author
-has access to Copilot code review and their premium requests quota has not
-reached the limit.
+has access to Copilot code review and AI credits.
 """
 input CopilotCodeReviewParametersInput @docsCategory(name: "pulls") {
   """
@@ -51227,8 +51225,7 @@ enum RepositoryRuleType {
   COMMIT_MESSAGE_PATTERN
   """
   Request Copilot code review for new pull requests automatically if the author
-  has access to Copilot code review and their premium requests quota has not
-  reached the limit.
+  has access to Copilot code review and AI credits.
   """
   COPILOT_CODE_REVIEW
   """
