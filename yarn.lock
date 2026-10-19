@@ -952,8 +952,8 @@ __metadata:
   linkType: hard
 
 "@graphql-eslint/eslint-plugin@npm:^4.4.0":
-  version: 4.4.1
-  resolution: "@graphql-eslint/eslint-plugin@npm:4.4.1"
+  version: 4.4.2
+  resolution: "@graphql-eslint/eslint-plugin@npm:4.4.2"
   dependencies:
     "@graphql-tools/code-file-loader": "npm:^8.0.0"
     "@graphql-tools/graphql-tag-pluck": "npm:^8.3.4"
@@ -973,7 +973,7 @@ __metadata:
       optional: true
     json-schema-to-ts:
       optional: true
-  checksum: 10c0/a9ee947037b66651be1b9a4470928846ff8f621c86587546c48aeecbeb970815c83006cd75ada6f370624a0a23a75e95886dded2fbbda486b176942cbd1b110f
+  checksum: 10c0/cd6429096d32424b3ad7cc1179acf60f0b2908cabf2d55f57e60019148097aa7f5ea078be922d326a89757f73e25ca26cec482ffb86c32118a4c16cdc154fa68
   languageName: node
   linkType: hard
 
@@ -3325,8 +3325,8 @@ __metadata:
   linkType: hard
 
 "eslint@npm:^10.0.0":
-  version: 10.12.0
-  resolution: "eslint@npm:10.12.0"
+  version: 10.13.0
+  resolution: "eslint@npm:10.13.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.8.0"
     "@eslint-community/regexpp": "npm:^4.12.2"
@@ -3365,7 +3365,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/1302ce8a7df2f67fe8f4014b2f9449bd38eb86903ba7b841d9a8ca5a5daf8ee15442861ab870e96c0074d5f333b405d7b2f16388981f807db410cc3a02178af9
+  checksum: 10c0/4a28e85de458f13306d30f07df21b58109056bd8bd691b6158952d95e126cf742db2eb09562e3f1c1cc0154ee44dedc789f8ced8d0d8da48e82a689aa9cb1c0d
   languageName: node
   linkType: hard
 
