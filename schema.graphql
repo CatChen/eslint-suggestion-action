@@ -6969,13 +6969,13 @@ The effort level for a Copilot code review. For more information, see [Review ef
 """
 enum CopilotCodeReviewEffort @docsCategory(name: "copilot") {
   """
-  Copilot picks the effort for each pull request.
-  """
-  AUTO
-  """
   Balanced effort and depth.
   """
   BALANCED
+  """
+  Copilot picks the effort for each pull request.
+  """
+  DYNAMIC
   """
   Lower effort, faster review.
   """
@@ -6991,13 +6991,13 @@ A Copilot code review effort level. For more information, see [Review effort lev
 """
 enum CopilotCodeReviewEffortLevel @docsCategory(name: "copilot") {
   """
-  Copilot picks the effort for each pull request.
-  """
-  AUTO
-  """
   Balanced effort and depth.
   """
   BALANCED
+  """
+  Copilot picks the effort for each pull request.
+  """
+  DYNAMIC
   """
   Lower effort, faster review.
   """
@@ -7124,6 +7124,8 @@ type CopilotCodeReviewSource @docsCategory(name: "pulls") {
   kind: CopilotCodeReviewSourceKind!
   """
   The reported source name, or "custom instructions" for CUSTOM_INSTRUCTIONS.
+  Copilot Dreaming's reviewer agent and checks skill are reported as one SKILL
+  source named "Copilot dreaming".
   """
   name: String!
   """
@@ -7863,9 +7865,9 @@ input CreateIssueFieldInput {
   """
   options: [IssueFieldSingleSelectOptionInput!]
   """
-  The ID of the organization where the issue field will be created.
+  The ID of the organization or user where the issue field will be created.
   """
-  ownerId: ID!
+  ownerId: ID! @possibleTypes(concreteTypes: ["Organization", "User"])
   """
   The visibility of the issue field.
   """
@@ -7989,6 +7991,13 @@ input CreateIssueInput {
   """
   repositoryId: ID! @possibleTypes(concreteTypes: ["Repository"])
   """
+  The Node ID of the planning status the issue starts in. It must be an open one
+  listed in the owner's planningStatuses. If you don't have permission to set
+  the status, it's ignored and the issue starts in Backlog. Issue statuses are
+  in preview and only available to accounts enrolled in the preview.
+  """
+  statusId: ID @possibleTypes(concreteTypes: ["PlanningStatus"])
+  """
   The title for the issue.
   """
   title: String!
@@ -8025,7 +8034,7 @@ input CreateIssueTypeInput {
   """
   description: String
   """
-  Whether or not the issue type is enabled on the org level
+  Whether or not the issue type is enabled
   """
   isEnabled: Boolean!
   """
@@ -8033,9 +8042,9 @@ input CreateIssueTypeInput {
   """
   name: String!
   """
-  The ID for the organization on which the issue type is created
+  The ID of the owner on which the issue type is created
   """
-  ownerId: ID!
+  ownerId: ID! @possibleTypes(concreteTypes: ["Organization", "User"])
 }
 
 """
@@ -11589,6 +11598,11 @@ input DisablePullRequestAutoMergeInput {
   """
   clientMutationId: String
   """
+  Disable the stack auto-merge request covering this pull request. This disables
+  auto-merge for all pull requests covered by that request.
+  """
+  includeStack: Boolean = false
+  """
   ID of the pull request to disable auto merge on.
   """
   pullRequestId: ID! @possibleTypes(concreteTypes: ["PullRequest"])
@@ -12849,6 +12863,10 @@ input EnablePullRequestAutoMergeInput {
   The expected head OID of the pull request.
   """
   expectedHeadOid: GitObjectID
+  """
+  Enable auto-merge for this pull request and any eligible pull requests below it in the stack.
+  """
+  includeStack: Boolean = false
   """
   The merge method to use. If omitted, defaults to `MERGE`. NOTE: when merging
   with a merge queue any input value for merge method is ignored.
@@ -18682,6 +18700,12 @@ type Issue implements Assignable &
     enableDuplicate: Boolean = false
   ): IssueStateReason
   """
+  The status of this issue, or null when it has none or issue statuses aren't
+  available in the repository. Issue statuses are in preview and only available
+  to accounts enrolled in the preview.
+  """
+  status: PlanningStatus
+  """
   A list of sub-issues associated with the Issue.
   """
   subIssues(
@@ -18912,6 +18936,11 @@ type Issue implements Assignable &
   Indicates if the viewer can edit the milestone of the issue.
   """
   viewerCanSetMilestone: Boolean!
+  """
+  Whether the viewer can set this issue's status. Issue statuses are in preview
+  and only available to accounts enrolled in the preview.
+  """
+  viewerCanSetStatus: Boolean!
   """
   Check if the viewer is able to change their subscription status for the repository.
   """
@@ -20233,13 +20262,20 @@ The visibility of an issue field.
 """
 enum IssueFieldVisibility @docsCategory(name: "issues") {
   """
-  All
+  Visible to everyone who can see the issue.
   """
   ALL
   """
-  Org Only
+  Visible to members of the owning organization and, where repository context is supplied, collaborators on that repository.
   """
   ORG_ONLY
+    @deprecated(
+      reason: "`ORG_ONLY` will be removed. Use `RESTRICTED` instead. Removal on 2027-04-01 UTC."
+    )
+  """
+  Visible to the owner and to collaborators on the repository the field is read through.
+  """
+  RESTRICTED
 }
 
 """
@@ -26123,6 +26159,16 @@ type Mutation @docsCategory(name: "meta") {
     """
     input: SetIssueFieldValueInput!
   ): SetIssueFieldValuePayload @docsCategory(name: "issues")
+  """
+  Sets the status of an issue, closing or reopening it when the status calls for
+  it. Issue statuses are in preview and only available to accounts enrolled in the preview.
+  """
+  setIssueStatus(
+    """
+    Parameters for SetIssueStatus
+    """
+    input: SetIssueStatusInput!
+  ): SetIssueStatusPayload @docsCategory(name: "issues")
   """
   Set an organization level interaction limit for an organization's public repositories.
   """
@@ -32376,6 +32422,10 @@ type Organization implements Actor &
     Returns the last _n_ elements from the list.
     """
     last: Int
+    """
+    The order in which to return pinned issue fields.
+    """
+    orderBy: PinnedIssueFieldOrder = { direction: ASC, field: POSITION }
   ): IssueFieldsConnection
   """
   A list of repositories and gists this profile owner has pinned to their profile
@@ -32406,6 +32456,30 @@ type Organization implements Actor &
   Returns how many more items this profile owner can pin to their profile.
   """
   pinnedItemsRemaining: Int!
+  """
+  The planning statuses issues in the organization's repositories can be in, or
+  null when issue statuses aren't available. Planning statuses are returned in
+  display order. Issue statuses are in preview and only available to accounts
+  enrolled in the preview.
+  """
+  planningStatuses(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): PlanningStatusConnection
   """
   Find project by number.
   """
@@ -33360,13 +33434,13 @@ information, see [Review effort level](https://docs.github.com/en/copilot/concep
 """
 enum OrganizationCopilotCodeReviewEffortSetting @docsCategory(name: "copilot") {
   """
-  Copilot picks the effort for each pull request.
-  """
-  AUTO
-  """
   Balanced effort and depth.
   """
   BALANCED
+  """
+  Copilot picks the effort for each pull request.
+  """
+  DYNAMIC
   """
   Clear the organization's value so repositories inherit the default.
   """
@@ -33936,7 +34010,7 @@ enum OrganizationMigrationState @docsCategory(name: "migrations") {
 }
 
 """
-Used for argument of CreateProjectV2 mutation.
+An organization or user that can own resources.
 """
 union OrganizationOrUser @docsCategory(name: "projects") = Organization | User
 
@@ -35497,6 +35571,109 @@ type PinnedIssueEdge {
   The item at the end of the edge.
   """
   node: PinnedIssue
+}
+
+"""
+Ordering options for pinned issue field connections.
+"""
+input PinnedIssueFieldOrder @docsCategory(name: "issues") {
+  """
+  The ordering direction.
+  """
+  direction: OrderDirection!
+  """
+  The field to order pinned issue fields by.
+  """
+  field: PinnedIssueFieldOrderField!
+}
+
+"""
+Properties by which pinned issue fields can be ordered.
+"""
+enum PinnedIssueFieldOrderField @docsCategory(name: "issues") {
+  """
+  Order pinned issue fields by their configured pinned position.
+  """
+  POSITION
+}
+
+"""
+A planning status an issue can be in. Issue statuses are in preview and only available to accounts enrolled in the preview.
+"""
+type PlanningStatus implements Node @docsCategory(name: "issues") {
+  """
+  The category of the planning status, which decides whether the issue is open or closed.
+  """
+  category: PlanningStatusCategory!
+  """
+  The Node ID of the PlanningStatus object
+  """
+  id: ID!
+  """
+  The display name of the planning status.
+  """
+  name: String!
+}
+
+"""
+The category of a planning status, which decides whether the issue is open or
+closed. Issue statuses are in preview and only available to accounts enrolled in the preview.
+"""
+type PlanningStatusCategory @docsCategory(name: "issues") {
+  """
+  A stable identifier for the category, such as `new`, `backlog`, `planned`,
+  `started`, `completed`, `not_planned` or `duplicate`. Clients should expect
+  new keys to be added.
+  """
+  key: String!
+  """
+  The display name of the category.
+  """
+  name: String!
+  """
+  The state an issue in this category has.
+  """
+  state: IssueState!
+  """
+  The reason a closed issue in this category was closed, or null when the category is open.
+  """
+  stateReason: IssueStateReason
+}
+
+"""
+The connection type for PlanningStatus.
+"""
+type PlanningStatusConnection {
+  """
+  A list of edges.
+  """
+  edges: [PlanningStatusEdge]
+  """
+  A list of nodes.
+  """
+  nodes: [PlanningStatus]
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+An edge in a connection.
+"""
+type PlanningStatusEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+  """
+  The item at the end of the edge.
+  """
+  node: PlanningStatus
 }
 
 """
@@ -37205,11 +37382,11 @@ type ProjectV2Field implements Node & ProjectV2FieldCommon
   """
   id: ID!
   """
-  Returns true if this field is associated with an organization issue field
+  Returns true if this field is associated with an issue field
   """
   isIssueField: Boolean!
   """
-  The organization issue field associated with this project field, if any
+  The issue field associated with this project field, if any
   """
   issueField: IssueFields
   """
@@ -37247,7 +37424,7 @@ interface ProjectV2FieldCommon @docsCategory(name: "projects") {
   """
   id: ID!
   """
-  Returns true if this field is associated with an organization issue field
+  Returns true if this field is associated with an issue field
   """
   isIssueField: Boolean!
   """
@@ -38343,7 +38520,7 @@ type ProjectV2IterationField implements Node & ProjectV2FieldCommon
   """
   id: ID!
   """
-  Returns true if this field is associated with an organization issue field
+  Returns true if this field is associated with an issue field
   """
   isIssueField: Boolean!
   """
@@ -38449,11 +38626,11 @@ type ProjectV2MultiSelectField implements Node & ProjectV2FieldCommon
   """
   id: ID!
   """
-  Returns true if this field is associated with an organization issue field
+  Returns true if this field is associated with an issue field
   """
   isIssueField: Boolean!
   """
-  The organization issue field associated with this project field, if any
+  The issue field associated with this project field, if any
   """
   issueField: IssueFields
   """
@@ -38709,11 +38886,11 @@ type ProjectV2SingleSelectField implements Node & ProjectV2FieldCommon
   """
   id: ID!
   """
-  Returns true if this field is associated with an organization issue field
+  Returns true if this field is associated with an issue field
   """
   isIssueField: Boolean!
   """
-  The organization issue field associated with this project field, if any
+  The issue field associated with this project field, if any
   """
   issueField: IssueFields
   """
@@ -39836,7 +40013,12 @@ type PullRequest implements Assignable &
   """
   Returns the auto-merge request object if one exists for this pull request.
   """
-  autoMergeRequest: AutoMergeRequest
+  autoMergeRequest(
+    """
+    Return the stack auto-merge request covering this pull request.
+    """
+    includeStack: Boolean = false
+  ): AutoMergeRequest
   """
   Identifies the base Ref associated with the pull request.
   """
@@ -40642,7 +40824,12 @@ type PullRequest implements Assignable &
   """
   Whether or not the viewer can disable auto-merge
   """
-  viewerCanDisableAutoMerge: Boolean!
+  viewerCanDisableAutoMerge(
+    """
+    Check permission to disable the stack auto-merge request covering this pull request.
+    """
+    includeStack: Boolean = false
+  ): Boolean!
   """
   Can the viewer edit files within this pull request.
   """
@@ -40650,7 +40837,13 @@ type PullRequest implements Assignable &
   """
   Whether or not the viewer can enable auto-merge
   """
-  viewerCanEnableAutoMerge: Boolean!
+  viewerCanEnableAutoMerge(
+    """
+    Check permission to request stacked auto-merge from this pull request. The
+    client evaluates stack-wide blockers and readiness.
+    """
+    includeStack: Boolean = false
+  ): Boolean!
   """
   Indicates if the viewer can edit labels for this object.
   """
@@ -49201,7 +49394,7 @@ type Repository implements Node &
   """
   issueCreationPolicy: IssueCreationPolicy
   """
-  A list of the repository's issue fields, inherited from the organization
+  A list of the repository's issue fields, inherited from the repository's owner
   """
   issueFields(
     """
@@ -49593,6 +49786,31 @@ type Repository implements Node &
     orderBy: PinnedEnvironmentOrder = { direction: ASC, field: POSITION }
   ): PinnedEnvironmentConnection
   """
+  An ordered list of the repository owner's issue fields pinned to issues when no type is selected.
+  """
+  pinnedIssueFields(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+    """
+    The order in which to return pinned issue fields.
+    """
+    orderBy: PinnedIssueFieldOrder = { direction: ASC, field: POSITION }
+  ): IssueFieldsConnection
+  """
   A list of pinned issues for this repository.
   """
   pinnedIssues(
@@ -49617,6 +49835,30 @@ type Repository implements Node &
   Returns information about the availability of certain features and limits based on the repository's billing plan.
   """
   planFeatures: RepositoryPlanFeatures!
+  """
+  The planning statuses issues in this repository can be in, or null when issue
+  statuses aren't available for this repository or viewer. Planning statuses are
+  returned in display order. Issue statuses are in preview and only available to
+  accounts enrolled in the preview.
+  """
+  planningStatuses(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): PlanningStatusConnection
   """
   The primary language of the repository's code.
   """
@@ -50481,13 +50723,13 @@ see [Review effort level](https://docs.github.com/en/copilot/concepts/agent-capa
 """
 enum RepositoryCopilotCodeReviewEffortSetting @docsCategory(name: "copilot") {
   """
-  Copilot picks the effort for each pull request.
-  """
-  AUTO
-  """
   Balanced effort and depth.
   """
   BALANCED
+  """
+  Copilot picks the effort for each pull request.
+  """
+  DYNAMIC
   """
   Clear the repository's value so it inherits the effort from its organization, enterprise, or GitHub's default.
   """
@@ -54711,6 +54953,42 @@ type SetIssueFieldValuePayload {
   The issue field values that were created or updated.
   """
   issueFieldValues: [IssueFieldValue!]
+}
+
+"""
+Autogenerated input type of SetIssueStatus
+"""
+input SetIssueStatusInput {
+  """
+  A unique identifier for the client performing the mutation.
+  """
+  clientMutationId: String
+  """
+  The ID of the issue this issue duplicates. Required when closing an issue as a duplicate.
+  """
+  duplicateIssueId: ID @possibleTypes(concreteTypes: ["Issue"])
+  """
+  The ID of the issue to update.
+  """
+  issueId: ID! @possibleTypes(concreteTypes: ["Issue"])
+  """
+  The ID of the planning status to set.
+  """
+  statusId: ID! @possibleTypes(concreteTypes: ["PlanningStatus"])
+}
+
+"""
+Autogenerated return type of SetIssueStatus.
+"""
+type SetIssueStatusPayload {
+  """
+  A unique identifier for the client performing the mutation.
+  """
+  clientMutationId: String
+  """
+  The updated issue.
+  """
+  issue: Issue
 }
 
 """
@@ -62685,6 +62963,18 @@ input UpdateIssueInput {
   """
   stateInput: IssueStateUpdateInput
   """
+  The Node ID of the planning status to move the issue into. It must be one
+  listed in the owner's planningStatuses. The planning status decides whether
+  the issue is open or closed and why, so the issue is closed or reopened if
+  needed. `state` or `stateInput` can also be sent, but only with the same state
+  and close reason as the planning status, and without `suggest: true`. When the
+  planning status closes the issue, `stateInput.rationale` is used as the close
+  rationale, and a Duplicate planning status takes the issue it duplicates from
+  `stateInput.duplicateIssueId`. The issue's status can't be cleared. Issue
+  statuses are in preview and only available to accounts enrolled in the preview.
+  """
+  statusId: ID @possibleTypes(concreteTypes: ["PlanningStatus"])
+  """
   The title for the issue.
   """
   title: String
@@ -62757,7 +63047,7 @@ input UpdateIssueTypeInput {
   """
   description: String
   """
-  Whether or not the issue type is enabled for the organization
+  Whether or not the issue type is enabled
   """
   isEnabled: Boolean
   """
@@ -64768,6 +65058,56 @@ type User implements Actor &
     orderBy: IssueCommentOrder
   ): IssueCommentConnection!
   """
+  A list of the user's issue fields
+  """
+  issueFields(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+    """
+    Ordering options for issue fields returned from the connection.
+    """
+    orderBy: IssueFieldOrder = { direction: ASC, field: CREATED_AT }
+  ): IssueFieldsConnection
+  """
+  A list of the user's issue types
+  """
+  issueTypes(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+    """
+    Ordering options for issue types returned from the connection.
+    """
+    orderBy: IssueTypeOrder = { direction: ASC, field: CREATED_AT }
+  ): IssueTypeConnection
+  """
   A list of issues associated with this user.
   """
   issues(
@@ -64981,6 +65321,31 @@ type User implements Actor &
     types: [PinnableItemType!]
   ): PinnableItemConnection!
   """
+  An ordered list of issue fields pinned to issues when no type is selected.
+  """
+  pinnedIssueFields(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+    """
+    The order in which to return pinned issue fields.
+    """
+    orderBy: PinnedIssueFieldOrder = { direction: ASC, field: POSITION }
+  ): IssueFieldsConnection
+  """
   A list of repositories and gists this profile owner has pinned to their profile
   """
   pinnedItems(
@@ -65009,6 +65374,30 @@ type User implements Actor &
   Returns how many more items this profile owner can pin to their profile.
   """
   pinnedItemsRemaining: Int!
+  """
+  The planning statuses issues in the user's repositories can be in, or null
+  when issue statuses aren't available. Planning statuses are returned in
+  display order. Issue statuses are in preview and only available to accounts
+  enrolled in the preview.
+  """
+  planningStatuses(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): PlanningStatusConnection
   """
   Find project by number.
   """
