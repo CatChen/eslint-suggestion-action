@@ -10,6 +10,7 @@ const config: CodegenConfig = {
     './src/__graphql__/': {
       preset: 'client',
       config: {
+        importExtension: '.js',
         useTypeImports: true,
         enumsAsTypes: true,
         dedupeFragments: true,
