@@ -6969,13 +6969,13 @@ The effort level for a Copilot code review. For more information, see [Review ef
 """
 enum CopilotCodeReviewEffort @docsCategory(name: "copilot") {
   """
+  Copilot picks the effort for each pull request.
+  """
+  ADAPTIVE
+  """
   Balanced effort and depth.
   """
   BALANCED
-  """
-  Copilot picks the effort for each pull request.
-  """
-  DYNAMIC
   """
   Lower effort, faster review.
   """
@@ -6991,13 +6991,13 @@ A Copilot code review effort level. For more information, see [Review effort lev
 """
 enum CopilotCodeReviewEffortLevel @docsCategory(name: "copilot") {
   """
+  Copilot picks the effort for each pull request.
+  """
+  ADAPTIVE
+  """
   Balanced effort and depth.
   """
   BALANCED
-  """
-  Copilot picks the effort for each pull request.
-  """
-  DYNAMIC
   """
   Lower effort, faster review.
   """
@@ -7094,6 +7094,24 @@ enum CopilotCodeReviewRunnerType @docsCategory(name: "copilot") {
   Standard GitHub-hosted runners.
   """
   STANDARD
+}
+
+"""
+The severity Copilot code review assigned to a review comment.
+"""
+enum CopilotCodeReviewSeverity @docsCategory(name: "pulls") {
+  """
+  High severity.
+  """
+  HIGH
+  """
+  Low severity.
+  """
+  LOW
+  """
+  Medium severity.
+  """
+  MEDIUM
 }
 
 """
@@ -33443,13 +33461,13 @@ information, see [Review effort level](https://docs.github.com/en/copilot/concep
 """
 enum OrganizationCopilotCodeReviewEffortSetting @docsCategory(name: "copilot") {
   """
+  Copilot picks the effort for each pull request.
+  """
+  ADAPTIVE
+  """
   Balanced effort and depth.
   """
   BALANCED
-  """
-  Copilot picks the effort for each pull request.
-  """
-  DYNAMIC
   """
   Clear the organization's value so repositories inherit the default.
   """
@@ -41666,6 +41684,10 @@ type PullRequestReviewComment implements Comment &
   """
   commit: Commit
   """
+  The Copilot code review severity of this comment, or null if unavailable.
+  """
+  copilotCodeReviewSeverity: CopilotCodeReviewSeverity
+  """
   Sources reported as contributing to this comment; may be incomplete.
   """
   copilotCodeReviewSources: [CopilotCodeReviewSource!]!
@@ -42153,6 +42175,10 @@ type PullRequestReviewThread implements Node @docsCategory(name: "pulls") {
   Identifies the repository associated with this thread.
   """
   repository: Repository!
+  """
+  The reason this thread was resolved, if one was recorded. Currently only Copilot code review threads record a reason.
+  """
+  resolutionReason: PullRequestReviewThreadResolutionReason
   """
   The user who resolved this thread
   """
@@ -50732,13 +50758,13 @@ see [Review effort level](https://docs.github.com/en/copilot/concepts/agent-capa
 """
 enum RepositoryCopilotCodeReviewEffortSetting @docsCategory(name: "copilot") {
   """
+  Copilot picks the effort for each pull request.
+  """
+  ADAPTIVE
+  """
   Balanced effort and depth.
   """
   BALANCED
-  """
-  Copilot picks the effort for each pull request.
-  """
-  DYNAMIC
   """
   Clear the repository's value so it inherits the effort from its organization, enterprise, or GitHub's default.
   """
@@ -50761,6 +50787,10 @@ type RepositoryCopilotCodeReviewSettings @docsCategory(name: "copilot") {
   The review efforts that can currently be set for this repository, in display order.
   """
   availableReviewEfforts: [CopilotCodeReviewEffortLevel!]!
+  """
+  Whether reviews can use public repository search.
+  """
+  crossRepoContextEnabled: Boolean!
   """
   Whether reviews use the repository's custom instructions.
   """
@@ -64141,6 +64171,11 @@ input UpdateRepositoryCopilotCodeReviewSettingsInput {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
+  """
+  Whether reviews can use public repository search. Can only be set when the
+  public repository search setting is available for the repository.
+  """
+  crossRepoContextEnabled: Boolean
   """
   Whether reviews use the repository's custom instructions.
   """
