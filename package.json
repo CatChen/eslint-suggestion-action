@@ -42,7 +42,7 @@
     "@graphql-codegen/cli": "^8.0.0",
     "@graphql-codegen/typescript": "^7.0.1",
     "@graphql-codegen/typescript-document-nodes": "^7.0.0",
-    "@graphql-eslint/eslint-plugin": "^4.4.0",
+    "@graphql-eslint/eslint-plugin": "^5.0.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@octokit/webhooks-types": "^7.6.1",
     "@types/eslint": "^9.6.0",
